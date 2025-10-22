@@ -12,6 +12,7 @@ import { TrendsChart } from "@/components/TrendsChart";
 import { RelatedQueriesTable } from "@/components/RelatedQueriesTable";
 import { NegativityTrendIndicator } from "@/components/NegativityTrendIndicator";
 import { RecommendedActions } from "@/components/RecommendedActions";
+import { CounterNarrativeStatement } from "@/components/CounterNarrativeStatement";
 import { MentionsTicker } from "@/components/MentionsTicker";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
@@ -299,6 +300,18 @@ const Index = () => {
                 negative: Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)
               }}
               keywords={results.keywords}
+            />
+
+            {/* Counter-Narrative Statement */}
+            <CounterNarrativeStatement
+              brandName={brandName}
+              keywords={results.keywords}
+              sentimentDistribution={{
+                positive: Math.round((results.sentimentDistribution.find(s => s.name === "Positive")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
+                neutral: Math.round((results.sentimentDistribution.find(s => s.name === "Neutral")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
+                negative: Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)
+              }}
+              threatLevel={results.threatLevel}
             />
 
             {/* Disclaimer */}
