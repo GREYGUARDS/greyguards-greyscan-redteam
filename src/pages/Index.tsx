@@ -50,14 +50,32 @@ const Index = () => {
         body: { brand: brandName },
       });
 
-      if (newsError) throw newsError;
+      if (newsError) {
+        console.error("News API error:", newsError);
+        toast({
+          title: "News API Error",
+          description: "Failed to fetch news data",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
 
-      // Fetch Reddit data
+      // Fetch Reddit data (non-blocking if it fails)
+      let redditPosts = [];
       const { data: redditData, error: redditError } = await supabase.functions.invoke("fetch-reddit", {
         body: { brand: brandName },
       });
 
-      if (redditError) throw redditError;
+      if (redditError) {
+        console.warn("Reddit API unavailable:", redditError);
+        toast({
+          title: "Limited data",
+          description: "Reddit data unavailable, showing news analysis only",
+        });
+      } else {
+        redditPosts = redditData?.posts || [];
+      }
 
       // Combine and analyze data
       const allMentions = [
@@ -66,7 +84,7 @@ const Index = () => {
           source: "news",
           date: new Date(a.publishedAt),
         })),
-        ...(redditData?.posts || []).map((p: any) => ({
+        ...redditPosts.map((p: any) => ({
           text: `${p.title} ${p.selftext}`,
           source: "reddit",
           date: new Date(p.created_utc * 1000),
