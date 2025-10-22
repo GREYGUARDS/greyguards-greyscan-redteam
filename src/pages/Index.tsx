@@ -246,7 +246,7 @@ const Index = () => {
             <KeywordsChart data={results.keywords} />
 
             {/* Mentions Ticker */}
-            <MentionsTicker mentions={allMentions} />
+            <MentionsTicker mentions={allMentions} brandName={brandName} />
 
             {/* Google Trends Data */}
             {trendsData && (

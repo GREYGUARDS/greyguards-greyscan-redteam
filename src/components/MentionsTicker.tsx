@@ -13,10 +13,29 @@ interface Mention {
 
 interface MentionsTickerProps {
   mentions: Mention[];
+  brandName: string;
 }
 
-export function MentionsTicker({ mentions }: MentionsTickerProps) {
+export function MentionsTicker({ mentions, brandName }: MentionsTickerProps) {
   const tickerRef = useRef<HTMLDivElement>(null);
+
+  const highlightBrand = (text: string) => {
+    if (!brandName) return text;
+    
+    const regex = new RegExp(`(${brandName})`, 'gi');
+    const parts = text.split(regex);
+    
+    return parts.map((part, index) => {
+      if (part.toLowerCase() === brandName.toLowerCase()) {
+        return (
+          <span key={index} className="bg-primary text-primary-foreground px-1 font-bold">
+            {part}
+          </span>
+        );
+      }
+      return part;
+    });
+  };
 
   useEffect(() => {
     const ticker = tickerRef.current;
@@ -105,7 +124,7 @@ export function MentionsTicker({ mentions }: MentionsTickerProps) {
                     </span>
                   </div>
                   <p className="text-sm whitespace-normal line-clamp-3 leading-relaxed">
-                    {mention.text}
+                    {highlightBrand(mention.text)}
                   </p>
                   {mention.score && mention.score > 10 && (
                     <div className="flex items-center gap-1">
