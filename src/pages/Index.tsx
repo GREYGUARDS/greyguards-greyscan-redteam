@@ -8,6 +8,8 @@ import { SentimentChart } from "@/components/SentimentChart";
 import { TimelineChart } from "@/components/TimelineChart";
 import { KeywordsChart } from "@/components/KeywordsChart";
 import { ThreatIndicator } from "@/components/ThreatIndicator";
+import { TrendsChart } from "@/components/TrendsChart";
+import { RelatedQueriesTable } from "@/components/RelatedQueriesTable";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -16,6 +18,7 @@ const Index = () => {
   const [brandName, setBrandName] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<AnalysisResult | null>(null);
+  const [trendsData, setTrendsData] = useState<any>(null);
   const { toast } = useToast();
 
   const handleSearch = async () => {
@@ -74,15 +77,15 @@ const Index = () => {
       }
 
       // Fetch Google Trends data (non-blocking if it fails)
-      let trendsData = null;
       const { data: trends, error: trendsError } = await supabase.functions.invoke("fetch-trends", {
         body: { brand: brandName },
       });
 
       if (trendsError) {
         console.warn("Trends API unavailable:", trendsError);
+        setTrendsData(null);
       } else {
-        trendsData = trends;
+        setTrendsData(trends);
       }
 
       // Combine and analyze data
@@ -226,6 +229,24 @@ const Index = () => {
             </div>
 
             <KeywordsChart data={results.keywords} />
+
+            {/* Google Trends Data */}
+            {trendsData && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <TrendsChart 
+                  data={trendsData?.interest_over_time?.timeline_data?.map((item: any) => ({
+                    date: item.date,
+                    value: item.values?.[0]?.value || 0
+                  })) || []}
+                />
+                <RelatedQueriesTable 
+                  data={trendsData?.related_queries?.rising?.map((item: any) => ({
+                    query: item.query,
+                    value: item.value
+                  })) || []}
+                />
+              </div>
+            )}
 
             {/* Disclaimer */}
             <Card className="border-warning/30 bg-warning/5">
