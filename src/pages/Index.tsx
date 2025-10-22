@@ -10,6 +10,7 @@ import { KeywordsChart } from "@/components/KeywordsChart";
 import { ThreatIndicator } from "@/components/ThreatIndicator";
 import { TrendsChart } from "@/components/TrendsChart";
 import { RelatedQueriesTable } from "@/components/RelatedQueriesTable";
+import { NegativityTrendIndicator } from "@/components/NegativityTrendIndicator";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -232,20 +233,39 @@ const Index = () => {
 
             {/* Google Trends Data */}
             {trendsData && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <TrendsChart 
-                  data={trendsData?.interest_over_time?.timeline_data?.map((item: any) => ({
-                    date: item.date,
-                    value: item.values?.[0]?.value || 0
-                  })) || []}
-                />
+              <>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <TrendsChart 
+                    data={trendsData?.interest_over_time?.timeline_data?.map((item: any) => ({
+                      date: item.date,
+                      value: item.values?.[0]?.value || 0
+                    })) || []}
+                  />
+                  <NegativityTrendIndicator
+                    currentNegative={trendsData?.related_queries?.rising?.filter((q: any) => 
+                      q.query.toLowerCase().includes('scam') || 
+                      q.query.toLowerCase().includes('fraud') || 
+                      q.query.toLowerCase().includes('problem') ||
+                      q.query.toLowerCase().includes('issue') ||
+                      q.query.toLowerCase().includes('complaint')
+                    ).length || 0}
+                    previousNegative={trendsData?.related_queries?.top?.filter((q: any) => 
+                      q.query.toLowerCase().includes('scam') || 
+                      q.query.toLowerCase().includes('fraud') || 
+                      q.query.toLowerCase().includes('problem') ||
+                      q.query.toLowerCase().includes('issue') ||
+                      q.query.toLowerCase().includes('complaint')
+                    ).length || 0}
+                    totalQueries={trendsData?.related_queries?.rising?.length || 0}
+                  />
+                </div>
                 <RelatedQueriesTable 
                   data={trendsData?.related_queries?.rising?.map((item: any) => ({
                     query: item.query,
                     value: item.value
                   })) || []}
                 />
-              </div>
+              </>
             )}
 
             {/* Disclaimer */}
