@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Download, AlertTriangle } from "lucide-react";
+import { Search, Download, AlertTriangle, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -170,30 +170,40 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold tracking-tight">
-            808080 – <span className="text-primary">The Grey Zone</span> Narrative Intelligence
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Real-time brand narrative tracking and threat analysis
-          </p>
+      <header className="border-b-4 border-border bg-card">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-primary flex items-center justify-center">
+              <Shield className="h-8 w-8 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold tracking-tight uppercase">
+                808080 <span className="text-primary">│</span> THE GREY ZONE
+              </h1>
+              <p className="text-muted-foreground mt-1 uppercase text-sm tracking-wider">
+                Narrative Intelligence System
+              </p>
+            </div>
+          </div>
         </div>
       </header>
 
       {/* Search Section */}
       <div className="container mx-auto px-4 py-8">
-        <Card className="border-border">
+        <Card className="border-4 border-border bg-card">
           <CardContent className="pt-6">
             <div className="flex gap-4">
-              <Input
-                placeholder="Enter brand or organisation name"
-                value={brandName}
-                onChange={(e) => setBrandName(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                className="flex-1"
-              />
-              <Button onClick={handleSearch} disabled={loading} className="min-w-[120px]">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  placeholder="ENTER TARGET BRAND OR ORGANIZATION"
+                  value={brandName}
+                  onChange={(e) => setBrandName(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                  className="pl-12 uppercase tracking-wider border-2 h-12"
+                />
+              </div>
+              <Button onClick={handleSearch} disabled={loading} className="min-w-[140px] h-12 uppercase tracking-wider">
                 {loading ? (
                   <>
                     <span className="animate-spin mr-2">⟳</span>
@@ -201,17 +211,17 @@ const Index = () => {
                   </>
                 ) : (
                   <>
-                    <Search className="mr-2 h-4 w-4" />
-                    Search
+                    <Search className="mr-2 h-5 w-5" />
+                    Analyze
                   </>
                 )}
               </Button>
             </div>
             {results && (
               <div className="mt-4 flex justify-end">
-                <Button onClick={handleDownload} variant="outline" size="sm">
+                <Button onClick={handleDownload} variant="outline" size="sm" className="uppercase tracking-wider">
                   <Download className="mr-2 h-4 w-4" />
-                  Download Snapshot
+                  Export Report
                 </Button>
               </div>
             )}
@@ -285,17 +295,17 @@ const Index = () => {
             />
 
             {/* Disclaimer */}
-            <Card className="border-warning/30 bg-warning/5">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-warning">
+            <Card className="border-4 border-border bg-secondary">
+              <CardHeader className="border-b-4 border-border">
+                <CardTitle className="flex items-center gap-2 uppercase tracking-wider">
                   <AlertTriangle className="h-5 w-5" />
-                  Disclaimer
+                  System Disclaimer
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Results generated from live public data. This is an MVP with limited accuracy.
-                  Data sources: NewsAPI and Reddit. Sentiment analysis powered by AI models.
+              <CardContent className="pt-4">
+                <p className="text-sm text-muted-foreground uppercase tracking-wider">
+                  Results generated from live public data // MVP system with limited accuracy //
+                  Data sources: NewsAPI + Reddit // Sentiment analysis: AI-powered models
                 </p>
               </CardContent>
             </Card>

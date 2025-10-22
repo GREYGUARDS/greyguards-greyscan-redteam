@@ -97,11 +97,14 @@ export function RecommendedActions({ threatLevel, negativePercentage }: Recommen
   };
 
   return (
-    <Card className="animate-fade-in">
-      <CardHeader>
-        <CardTitle>Recommended Actions</CardTitle>
-        <p className="text-sm text-muted-foreground mt-2">
-          Prioritized response strategy based on current narrative threat level
+    <Card className="animate-fade-in border-4 border-border">
+      <CardHeader className="border-b-4 border-border bg-secondary">
+        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
+          <Shield className="h-5 w-5" />
+          Recommended Action Protocol
+        </CardTitle>
+        <p className="text-xs text-muted-foreground uppercase tracking-widest mt-2">
+          Priority-based response framework
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -110,7 +113,7 @@ export function RecommendedActions({ threatLevel, negativePercentage }: Recommen
           return (
             <div
               key={index}
-              className={`p-4 rounded-lg border-2 ${getPriorityColor(action.priority)} transition-all hover:scale-[1.02]`}
+              className={`p-6 border-2 ${getPriorityColor(action.priority)}`}
             >
               <div className="flex items-start gap-4">
                 <div className="mt-1">

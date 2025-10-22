@@ -10,7 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { pipeline } from "@huggingface/transformers";
 import { useEffect, useState } from "react";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { TrendingDown, TrendingUp, List } from "lucide-react";
 
 interface RelatedQueriesTableProps {
   data: { query: string; value: number | string }[];
@@ -108,12 +108,15 @@ export function RelatedQueriesTable({ data }: RelatedQueriesTableProps) {
   };
 
   return (
-    <Card className="animate-fade-in">
-      <CardHeader>
+    <Card className="animate-fade-in border-4 border-border">
+      <CardHeader className="border-b-4 border-border bg-secondary">
         <div className="flex items-center justify-between">
-          <CardTitle>Trending Associated Topics</CardTitle>
+          <CardTitle className="uppercase tracking-wider flex items-center gap-2">
+            <List className="h-5 w-5" />
+            Associated Search Topics
+          </CardTitle>
           {!loading && negativePercentage > 0 && (
-            <Badge variant={negativePercentage > 50 ? "destructive" : "secondary"} className="flex items-center gap-1">
+            <Badge variant={negativePercentage > 50 ? "destructive" : "secondary"} className="flex items-center gap-1 uppercase tracking-wider">
               {negativePercentage > 50 ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
               {negativePercentage}% Negative
             </Badge>
@@ -122,22 +125,22 @@ export function RelatedQueriesTable({ data }: RelatedQueriesTableProps) {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-8 text-muted-foreground uppercase tracking-wider">
             Analyzing sentiment...
           </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Query</TableHead>
-                <TableHead>Sentiment</TableHead>
-                <TableHead className="text-right">Search Volume</TableHead>
+              <TableRow className="border-b-2 border-border">
+                <TableHead className="uppercase tracking-widest text-xs">Query</TableHead>
+                <TableHead className="uppercase tracking-widest text-xs">Sentiment</TableHead>
+                <TableHead className="text-right uppercase tracking-widest text-xs">Volume</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {queriesWithSentiment.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{item.query}</TableCell>
+                <TableRow key={index} className="border-b border-border">
+                  <TableCell className="font-medium font-mono text-xs">{item.query}</TableCell>
                   <TableCell>
                     <Badge variant={getSentimentBadgeVariant(item.sentiment)} className="capitalize">
                       {item.sentiment}

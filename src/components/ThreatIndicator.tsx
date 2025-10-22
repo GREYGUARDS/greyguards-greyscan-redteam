@@ -1,6 +1,6 @@
-import { AlertTriangle, AlertCircle, Info, Shield } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { AlertTriangle, Shield, Activity } from "lucide-react";
 
 interface ThreatIndicatorProps {
   threatLevel: "low" | "medium" | "high" | "critical";
@@ -8,56 +8,81 @@ interface ThreatIndicatorProps {
 }
 
 export function ThreatIndicator({ threatLevel, threatScore }: ThreatIndicatorProps) {
-  const config = {
-    low: {
-      icon: Shield,
-      color: "text-success",
-      bgColor: "bg-success/10",
-      borderColor: "border-success/30",
-      label: "Low Threat",
-    },
-    medium: {
-      icon: Info,
-      color: "text-warning",
-      bgColor: "bg-warning/10",
-      borderColor: "border-warning/30",
-      label: "Medium Threat",
-    },
-    high: {
-      icon: AlertCircle,
-      color: "text-destructive",
-      bgColor: "bg-destructive/10",
-      borderColor: "border-destructive/30",
-      label: "High Threat",
-    },
-    critical: {
-      icon: AlertTriangle,
-      color: "text-destructive",
-      bgColor: "bg-destructive/20",
-      borderColor: "border-destructive/50",
-      label: "Critical Threat",
-    },
+  const getColorClass = () => {
+    switch (threatLevel) {
+      case "critical":
+        return "text-foreground";
+      case "high":
+        return "text-muted-foreground";
+      case "medium":
+        return "text-foreground";
+      default:
+        return "text-primary";
+    }
   };
 
-  const { icon: Icon, color, bgColor, borderColor, label } = config[threatLevel];
+  const getBadgeVariant = (): "default" | "secondary" | "destructive" => {
+    switch (threatLevel) {
+      case "critical":
+      case "high":
+        return "destructive";
+      case "medium":
+        return "secondary";
+      default:
+        return "default";
+    }
+  };
+
+  const getIcon = () => {
+    switch (threatLevel) {
+      case "critical":
+      case "high":
+        return <AlertTriangle className="h-16 w-16" />;
+      case "medium":
+        return <Activity className="h-16 w-16" />;
+      default:
+        return <Shield className="h-16 w-16" />;
+    }
+  };
 
   return (
-    <Card className={`${borderColor} ${bgColor}`}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Icon className={`h-5 w-5 ${color}`} />
-          Threat Indicator
+    <Card className="border-4 border-border bg-card">
+      <CardHeader className="border-b-4 border-border bg-secondary">
+        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
+          <Shield className="h-5 w-5" />
+          Threat Assessment Matrix
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <span className={`text-2xl font-bold ${color}`}>{label}</span>
-          <span className={`text-3xl font-bold ${color}`}>{threatScore}/100</span>
+      <CardContent className="pt-8">
+        <div className="grid grid-cols-3 gap-8">
+          <div className="flex flex-col items-center justify-center border-r-2 border-border">
+            <div className={`${getColorClass()} mb-4`}>
+              {getIcon()}
+            </div>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Status</p>
+            <Badge variant={getBadgeVariant()} className="text-xl px-6 py-2 uppercase tracking-wider">
+              {threatLevel}
+            </Badge>
+          </div>
+          <div className="flex flex-col items-center justify-center border-r-2 border-border">
+            <p className={`text-6xl font-bold ${getColorClass()} mb-2`}>{threatScore}</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest">Risk Score</p>
+            <div className="mt-4 w-full bg-muted h-2">
+              <div 
+                className="bg-primary h-full" 
+                style={{ width: `${threatScore}%` }}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col items-center justify-center">
+            <div className="text-center space-y-4">
+              <div>
+                <p className="text-3xl font-bold">{threatLevel === "critical" ? "IMMEDIATE" : threatLevel === "high" ? "URGENT" : threatLevel === "medium" ? "MODERATE" : "STABLE"}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mt-1">Alert Level</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <Progress value={threatScore} className="h-2" />
-        <p className="text-sm text-muted-foreground">
-          Threat score calculated from negative mentions ratio × average post reach
-        </p>
       </CardContent>
     </Card>
   );

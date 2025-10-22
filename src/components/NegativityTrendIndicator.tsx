@@ -28,70 +28,70 @@ export function NegativityTrendIndicator({
   const threat = getThreatLevel();
 
   return (
-    <Card className="animate-fade-in border-border">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <Card className="animate-fade-in border-4 border-border">
+      <CardHeader className="border-b-4 border-border bg-secondary">
+        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
           Negativity Trend Analysis
-          {isIncreasing && <TrendingDown className="h-5 w-5 text-destructive" />}
-          {!isIncreasing && !isStable && <TrendingUp className="h-5 w-5 text-green-500" />}
+          {isIncreasing && <TrendingDown className="h-5 w-5 text-muted-foreground" />}
+          {!isIncreasing && !isStable && <TrendingUp className="h-5 w-5 text-primary" />}
           {isStable && <Minus className="h-5 w-5 text-muted-foreground" />}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
+      <CardContent className="space-y-6 pt-6">
+        <div className="flex items-center justify-between p-4 border-2 border-border bg-secondary">
           <div>
-            <p className="text-sm text-muted-foreground">Current Negative Sentiment</p>
-            <p className={`text-3xl font-bold ${threat.color}`}>{negativePercentage}%</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Current Negative Sentiment</p>
+            <p className={`text-5xl font-bold ${threat.color}`}>{negativePercentage}%</p>
           </div>
           <Badge 
             variant={negativePercentage >= 50 ? "destructive" : "secondary"}
-            className="text-lg px-4 py-2"
+            className="text-lg px-6 py-3 uppercase tracking-wider"
           >
             {threat.level} Risk
           </Badge>
         </div>
 
-        <div className="pt-4 border-t border-border">
-          <div className="flex items-center gap-2">
+        <div className="pt-4 border-t-2 border-border">
+          <div className="flex items-center gap-3 p-3 bg-muted">
             {isIncreasing && (
               <>
-                <TrendingDown className="h-4 w-4 text-destructive" />
-                <span className="text-sm text-destructive font-medium">
-                  Negative sentiment increasing by {Math.abs(change)} queries
+                <TrendingDown className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground font-medium uppercase tracking-wider">
+                  Negative trending up // +{Math.abs(change)} queries
                 </span>
               </>
             )}
             {!isIncreasing && !isStable && (
               <>
-                <TrendingUp className="h-4 w-4 text-green-500" />
-                <span className="text-sm text-green-500 font-medium">
-                  Negative sentiment decreasing by {Math.abs(change)} queries
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <span className="text-sm text-primary font-medium uppercase tracking-wider">
+                  Negative trending down // -{Math.abs(change)} queries
                 </span>
               </>
             )}
             {isStable && (
               <>
-                <Minus className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground font-medium">
-                  Sentiment stable
+                <Minus className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground font-medium uppercase tracking-wider">
+                  Sentiment stable // No change
                 </span>
               </>
             )}
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
-          <div>
-            <p className="text-xs text-muted-foreground">Current</p>
-            <p className="text-lg font-semibold text-destructive">{currentNegative}</p>
+        <div className="grid grid-cols-3 gap-4 pt-4 border-t-2 border-border">
+          <div className="text-center p-3 border border-border">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Current</p>
+            <p className="text-2xl font-bold text-muted-foreground">{currentNegative}</p>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Previous</p>
-            <p className="text-lg font-semibold">{previousNegative}</p>
+          <div className="text-center p-3 border border-border">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Previous</p>
+            <p className="text-2xl font-bold">{previousNegative}</p>
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Total</p>
-            <p className="text-lg font-semibold">{totalQueries}</p>
+          <div className="text-center p-3 border border-border">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Total</p>
+            <p className="text-2xl font-bold">{totalQueries}</p>
           </div>
         </div>
       </CardContent>

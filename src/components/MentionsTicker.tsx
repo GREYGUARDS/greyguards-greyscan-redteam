@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { useEffect, useRef } from "react";
+import { Activity } from "lucide-react";
 
 interface Mention {
   text: string;
@@ -69,11 +70,14 @@ export function MentionsTicker({ mentions }: MentionsTickerProps) {
   const duplicatedMentions = [...mentions, ...mentions];
 
   return (
-    <Card className="animate-fade-in">
-      <CardHeader>
-        <CardTitle>Live Mention Feed</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Recent brand mentions across monitored sources
+    <Card className="animate-fade-in border-4 border-border">
+      <CardHeader className="border-b-4 border-border bg-secondary">
+        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
+          <Activity className="h-5 w-5" />
+          Live Data Stream
+        </CardTitle>
+        <p className="text-xs text-muted-foreground uppercase tracking-widest">
+          Real-time mention monitoring
         </p>
       </CardHeader>
       <CardContent>
@@ -86,7 +90,7 @@ export function MentionsTicker({ mentions }: MentionsTickerProps) {
             {duplicatedMentions.map((mention, index) => (
               <div
                 key={index}
-                className="inline-flex flex-shrink-0 items-start gap-3 p-4 rounded-lg border border-border bg-card/50 backdrop-blur-sm min-w-[400px] max-w-[500px]"
+                className="inline-flex flex-shrink-0 items-start gap-3 p-4 border-2 border-border bg-card min-w-[400px] max-w-[500px]"
               >
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-2">
