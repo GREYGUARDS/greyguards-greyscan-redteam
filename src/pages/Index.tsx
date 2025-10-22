@@ -12,6 +12,7 @@ import { TrendsChart } from "@/components/TrendsChart";
 import { RelatedQueriesTable } from "@/components/RelatedQueriesTable";
 import { NegativityTrendIndicator } from "@/components/NegativityTrendIndicator";
 import { RecommendedActions } from "@/components/RecommendedActions";
+import { MentionsTicker } from "@/components/MentionsTicker";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -21,6 +22,7 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<AnalysisResult | null>(null);
   const [trendsData, setTrendsData] = useState<any>(null);
+  const [allMentions, setAllMentions] = useState<any[]>([]);
   const { toast } = useToast();
 
   const handleSearch = async () => {
@@ -91,7 +93,7 @@ const Index = () => {
       }
 
       // Combine and analyze data
-      const allMentions = [
+      const mentions = [
         ...(newsData?.articles || []).map((a: any) => ({
           text: `${a.title} ${a.description}`,
           source: "news",
@@ -105,7 +107,7 @@ const Index = () => {
         })),
       ];
 
-      if (allMentions.length === 0) {
+      if (mentions.length === 0) {
         toast({
           title: "No results",
           description: "No mentions found for this brand",
@@ -114,7 +116,8 @@ const Index = () => {
         return;
       }
 
-      const analysis = await analyzeSentiment(allMentions);
+      setAllMentions(mentions);
+      const analysis = await analyzeSentiment(mentions);
       setResults(analysis);
 
       // Cache results
@@ -123,7 +126,7 @@ const Index = () => {
 
       toast({
         title: "Analysis complete",
-        description: `Found ${allMentions.length} mentions`,
+        description: `Found ${mentions.length} mentions`,
       });
     } catch (error: any) {
       console.error("Search error:", error);
@@ -231,6 +234,9 @@ const Index = () => {
             </div>
 
             <KeywordsChart data={results.keywords} />
+
+            {/* Mentions Ticker */}
+            <MentionsTicker mentions={allMentions} />
 
             {/* Google Trends Data */}
             {trendsData && (
