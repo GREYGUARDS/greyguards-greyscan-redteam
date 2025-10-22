@@ -71,7 +71,7 @@ export function CounterNarrativeStatement({
       <CardHeader className="border-b border-border bg-secondary">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="uppercase tracking-wider flex items-center gap-2 font-light text-xl">
+            <CardTitle className="uppercase tracking-wider flex items-center gap-2 font-light text-base">
               <FileText className="h-4 w-4 stroke-[1.5]" />
               Suggested Counter-Narrative Statement
             </CardTitle>
