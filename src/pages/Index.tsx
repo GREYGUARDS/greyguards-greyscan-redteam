@@ -69,12 +69,20 @@ const Index = () => {
 
       if (redditError) {
         console.warn("Reddit API unavailable:", redditError);
-        toast({
-          title: "Limited data",
-          description: "Reddit data unavailable, showing news analysis only",
-        });
       } else {
         redditPosts = redditData?.posts || [];
+      }
+
+      // Fetch Google Trends data (non-blocking if it fails)
+      let trendsData = null;
+      const { data: trends, error: trendsError } = await supabase.functions.invoke("fetch-trends", {
+        body: { brand: brandName },
+      });
+
+      if (trendsError) {
+        console.warn("Trends API unavailable:", trendsError);
+      } else {
+        trendsData = trends;
       }
 
       // Combine and analyze data
