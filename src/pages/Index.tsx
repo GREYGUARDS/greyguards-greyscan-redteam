@@ -11,6 +11,7 @@ import { ThreatIndicator } from "@/components/ThreatIndicator";
 import { TrendsChart } from "@/components/TrendsChart";
 import { RelatedQueriesTable } from "@/components/RelatedQueriesTable";
 import { NegativityTrendIndicator } from "@/components/NegativityTrendIndicator";
+import { RecommendedActions } from "@/components/RecommendedActions";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -267,6 +268,15 @@ const Index = () => {
                 />
               </>
             )}
+
+            {/* Recommended Actions */}
+            <RecommendedActions
+              threatLevel={results.threatLevel}
+              negativePercentage={Math.round(
+                (results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) /
+                (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100
+              )}
+            />
 
             {/* Disclaimer */}
             <Card className="border-warning/30 bg-warning/5">
