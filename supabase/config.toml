@@ -1,1 +1,7 @@
 project_id = "lmdawrpurjtgtlaygkwp"
+
+[functions.fetch-news]
+verify_jwt = false
+
+[functions.fetch-reddit]
+verify_jwt = false
