@@ -17,12 +17,42 @@ serve(async (req) => {
       throw new Error("Brand name is required");
     }
 
-    // Use Reddit's public JSON API (no auth required for search)
-    const redditUrl = `https://www.reddit.com/search.json?q=${encodeURIComponent(brand)}&limit=10&sort=top&t=week`;
+    const clientId = Deno.env.get('REDDIT_CLIENT_ID');
+    const clientSecret = Deno.env.get('REDDIT_CLIENT_SECRET');
+
+    if (!clientId || !clientSecret) {
+      throw new Error("Reddit API credentials not configured");
+    }
+
+    // Get OAuth token
+    console.log("Getting Reddit OAuth token");
+    const authString = btoa(`${clientId}:${clientSecret}`);
+    const tokenResponse = await fetch('https://www.reddit.com/api/v1/access_token', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${authString}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'NarrativeTracker/1.0',
+      },
+      body: 'grant_type=client_credentials',
+    });
+
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text();
+      console.error("Reddit OAuth error:", tokenResponse.status, errorText);
+      throw new Error(`Reddit OAuth error: ${tokenResponse.status}`);
+    }
+
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData.access_token;
+
+    // Use Reddit's OAuth API to search
+    const redditUrl = `https://oauth.reddit.com/search?q=${encodeURIComponent(brand)}&limit=10&sort=top&t=week`;
     
     console.log("Fetching Reddit posts for:", brand);
     const response = await fetch(redditUrl, {
       headers: {
+        "Authorization": `Bearer ${accessToken}`,
         "User-Agent": "NarrativeTracker/1.0",
       },
     });
