@@ -292,6 +292,13 @@ const Index = () => {
                 (results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) /
                 (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100
               )}
+              brandName={brandName}
+              sentimentDistribution={{
+                positive: Math.round((results.sentimentDistribution.find(s => s.name === "Positive")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
+                neutral: Math.round((results.sentimentDistribution.find(s => s.name === "Neutral")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
+                negative: Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)
+              }}
+              keywords={results.keywords}
             />
 
             {/* Disclaimer */}
