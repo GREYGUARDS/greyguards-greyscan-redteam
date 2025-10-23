@@ -179,7 +179,8 @@ const Index = () => {
             </div>
             <div>
               <h1 className="text-4xl font-bold tracking-tight uppercase">
-                808080 <span className="text-primary">│</span> THE GREY ZONE
+                808080<br />
+                <span className="text-primary">│</span> THE GREY ZONE
               </h1>
               <p className="text-muted-foreground mt-1 uppercase text-sm tracking-wider">
                 Narrative Intelligence System
