@@ -329,6 +329,28 @@ const Index = () => {
                 </p>
               </CardContent>
             </Card>
+
+            {/* Consultation CTA */}
+            <div className="border-t border-border pt-8 mt-8">
+              <div className="text-center bg-card border-4 border-border p-10 rounded-sm">
+                <h3 className="text-2xl font-semibold text-foreground uppercase tracking-wider mb-4">
+                  Ready to take control of your Grey Zone narrative?
+                </h3>
+                <p className="text-muted-foreground max-w-2xl mx-auto text-base mb-6 leading-relaxed">
+                  The 808080 system combines AI analysis with human strategic communications expertise.
+                  Book a <strong className="text-foreground">Grey Zone Consultation</strong> to develop your organisation's misinformation defence strategy.
+                </p>
+                <a
+                  href={`mailto:yourname@yourdomain.com?subject=Grey Zone Consultation Request - ${brandName}`}
+                  className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-sm font-semibold uppercase tracking-wider transition-colors hover:bg-[hsl(0,0%,62%)] no-underline"
+                >
+                  📩 Book a Consultation
+                </a>
+                <p className="text-xs text-muted-foreground mt-6 uppercase tracking-wider">
+                  808080 – AI-powered narrative intelligence for the grey zone.
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
