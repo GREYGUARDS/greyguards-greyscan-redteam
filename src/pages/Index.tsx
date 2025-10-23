@@ -341,7 +341,7 @@ const Index = () => {
                   Book a <strong className="text-foreground">Grey Zone Consultation</strong> to develop your organisation's misinformation defence strategy.
                 </p>
                 <a
-                  href={`mailto:yourname@yourdomain.com?subject=Grey Zone Consultation Request - ${brandName}`}
+                  href={`mailto:yourname@yourdomain.com?subject=808080 Consultation for ${brandName}`}
                   className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-sm font-semibold uppercase tracking-wider transition-colors hover:bg-[hsl(0,0%,62%)] no-underline"
                 >
                   📩 Book a Consultation
