@@ -181,8 +181,7 @@ const Index = () => {
             </div>
             <div>
               <h1 className="text-4xl font-bold tracking-tight uppercase">
-                Greyguards<br />
-                <span className="text-primary">│</span> THE GREY ZONE
+                Greyguards
               </h1>
               <p className="text-muted-foreground mt-1 uppercase text-sm tracking-wider">
                 Narrative Intelligence System
