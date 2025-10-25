@@ -14,7 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      sentiment_history: {
+        Row: {
+          brand_name: string
+          created_at: string
+          id: string
+          negative_count: number
+          neutral_count: number
+          positive_count: number
+          sentiment_score: number
+          total_mentions: number
+        }
+        Insert: {
+          brand_name: string
+          created_at?: string
+          id?: string
+          negative_count: number
+          neutral_count: number
+          positive_count: number
+          sentiment_score: number
+          total_mentions: number
+        }
+        Update: {
+          brand_name?: string
+          created_at?: string
+          id?: string
+          negative_count?: number
+          neutral_count?: number
+          positive_count?: number
+          sentiment_score?: number
+          total_mentions?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

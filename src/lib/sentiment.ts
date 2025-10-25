@@ -1,4 +1,5 @@
 import { pipeline } from "@huggingface/transformers";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Mention {
   text: string;
@@ -13,6 +14,8 @@ export interface AnalysisResult {
   keywords: { word: string; count: number }[];
   threatLevel: "low" | "medium" | "high" | "critical";
   threatScore: number;
+  shortTermSentiment: number;
+  longTermSentiment: number;
 }
 
 let sentimentPipeline: any = null;
@@ -27,7 +30,7 @@ async function getSentimentPipeline() {
   return sentimentPipeline;
 }
 
-export async function analyzeSentiment(mentions: Mention[]): Promise<AnalysisResult> {
+export async function analyzeSentiment(mentions: Mention[], brandName: string = "default"): Promise<AnalysisResult> {
   const pipeline = await getSentimentPipeline();
   
   // Analyze sentiment for each mention
@@ -105,11 +108,39 @@ export async function analyzeSentiment(mentions: Mention[]): Promise<AnalysisRes
   else if (threatScore < 75) threatLevel = "high";
   else threatLevel = "critical";
 
+  // Calculate short-term sentiment (current scan)
+  const neutral = mentions.length - positive - negative;
+  const shortTermSentiment = ((positive - negative) / (positive + negative + neutral + 1)) * 100;
+
+  // Store current sentiment in history
+  await supabase.from("sentiment_history").insert({
+    brand_name: brandName,
+    sentiment_score: shortTermSentiment,
+    positive_count: positive,
+    negative_count: negative,
+    neutral_count: neutral,
+    total_mentions: mentions.length,
+  });
+
+  // Retrieve historical sentiment data (last 10 scans)
+  const { data: historyData } = await supabase
+    .from("sentiment_history")
+    .select("sentiment_score")
+    .eq("brand_name", brandName)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  // Calculate long-term average
+  const history = historyData?.map((h) => Number(h.sentiment_score)) || [shortTermSentiment];
+  const longTermSentiment = history.reduce((a, b) => a + b, 0) / history.length;
+
   return {
     sentimentDistribution,
     timeline,
     keywords,
     threatLevel,
     threatScore,
+    shortTermSentiment: Number(shortTermSentiment.toFixed(1)),
+    longTermSentiment: Number(longTermSentiment.toFixed(1)),
   };
 }

@@ -14,6 +14,7 @@ import { NegativityTrendIndicator } from "@/components/NegativityTrendIndicator"
 import { RecommendedActions } from "@/components/RecommendedActions";
 import { CounterNarrativeStatement } from "@/components/CounterNarrativeStatement";
 import { MentionsTicker } from "@/components/MentionsTicker";
+import SentimentTrendComparison from "@/components/SentimentTrendComparison";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -118,7 +119,7 @@ const Index = () => {
       }
 
       setAllMentions(mentions);
-      const analysis = await analyzeSentiment(mentions);
+      const analysis = await analyzeSentiment(mentions, brandName);
       setResults(analysis);
 
       // Cache results
@@ -237,6 +238,12 @@ const Index = () => {
             <ThreatIndicator
               threatLevel={results.threatLevel}
               threatScore={results.threatScore}
+            />
+
+            {/* Sentiment Trend Comparison */}
+            <SentimentTrendComparison
+              shortTermSentiment={results.shortTermSentiment}
+              longTermSentiment={results.longTermSentiment}
             />
 
             {/* Charts Grid */}
