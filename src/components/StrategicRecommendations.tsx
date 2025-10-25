@@ -88,7 +88,7 @@ const StrategicRecommendations = ({
             </div>
             <div className="pt-4 border-t-2 border-border">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                808080 Services Available
+                Greyguards Services Available
               </p>
               <div className="grid grid-cols-2 gap-3 mt-3">
                 <div className="bg-card border-2 border-border p-3 rounded-sm">

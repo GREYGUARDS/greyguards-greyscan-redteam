@@ -181,7 +181,7 @@ const Index = () => {
             </div>
             <div>
               <h1 className="text-4xl font-bold tracking-tight uppercase">
-                808080<br />
+                Greyguards<br />
                 <span className="text-primary">│</span> THE GREY ZONE
               </h1>
               <p className="text-muted-foreground mt-1 uppercase text-sm tracking-wider">
@@ -356,17 +356,17 @@ const Index = () => {
                   Ready to take control of your Grey Zone narrative?
                 </h3>
                 <p className="text-muted-foreground max-w-2xl mx-auto text-base mb-6 leading-relaxed">
-                  The 808080 system combines AI analysis with human strategic communications expertise.
+                  The Greyguards system combines AI analysis with human strategic communications expertise.
                   Book a <strong className="text-foreground">Grey Zone Consultation</strong> to develop your organisation's misinformation defence strategy.
                 </p>
                 <a
-                  href={`mailto:yourname@yourdomain.com?subject=808080 Consultation for ${brandName}`}
+                  href={`mailto:yourname@yourdomain.com?subject=Greyguards Consultation for ${brandName}`}
                   className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-sm font-semibold uppercase tracking-wider transition-colors hover:bg-[hsl(0,0%,62%)] no-underline"
                 >
                   📩 Book a Consultation
                 </a>
                 <p className="text-xs text-muted-foreground mt-6 uppercase tracking-wider">
-                  808080 – AI-powered narrative intelligence for the grey zone.
+                  Greyguards – AI-powered narrative intelligence for the grey zone.
                 </p>
               </div>
             </div>

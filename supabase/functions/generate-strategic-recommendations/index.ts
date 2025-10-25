@@ -31,11 +31,11 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are an expert communications strategist for 808080 – The Grey Zone Intelligence System. Your tone is concise, confident, and actionable. You provide short recommendations (max 3–4 bullet points or a 4-sentence paragraph). Avoid long explanations.'
+            content: 'You are an expert communications strategist for Greyguards – The Grey Zone Intelligence System. Your tone is concise, confident, and actionable. You provide short recommendations (max 3–4 bullet points or a 4-sentence paragraph). Avoid long explanations.'
           },
           {
             role: 'user',
-            content: `Brand: ${brand}. Current narratives: ${topTopics}. Sentiment: ${sentimentSummary}. Risk level: ${riskLevel}. Provide succinct recommendations that outline actions AND suggest which 808080 services (Grey Zone Audit, Narrative Monitoring, Counter-Narrative Strategy, Influencer Engagement) could assist.`
+            content: `Brand: ${brand}. Current narratives: ${topTopics}. Sentiment: ${sentimentSummary}. Risk level: ${riskLevel}. Provide succinct recommendations that outline actions AND suggest which Greyguards services (Grey Zone Audit, Narrative Monitoring, Counter-Narrative Strategy, Influencer Engagement) could assist.`
           }
         ],
         max_tokens: 200,
