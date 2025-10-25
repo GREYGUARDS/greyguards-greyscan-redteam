@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.fetch-trends]
 verify_jwt = false
+
+[functions.generate-actions]
+verify_jwt = false
+
+[functions.generate-counter-narrative]
+verify_jwt = false
+
+[functions.generate-strategic-recommendations]
+verify_jwt = false

@@ -15,6 +15,7 @@ import { RecommendedActions } from "@/components/RecommendedActions";
 import { CounterNarrativeStatement } from "@/components/CounterNarrativeStatement";
 import { MentionsTicker } from "@/components/MentionsTicker";
 import SentimentTrendComparison from "@/components/SentimentTrendComparison";
+import StrategicRecommendations from "@/components/StrategicRecommendations";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -293,6 +294,14 @@ const Index = () => {
                 />
               </>
             )}
+
+            {/* AI Strategic Recommendations */}
+            <StrategicRecommendations
+              brandName={brandName}
+              topTopics={results.keywords.slice(0, 5).map(k => k.word).join(", ")}
+              sentimentSummary={`Positive: ${Math.round((results.sentimentDistribution.find(s => s.name === "Positive")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%, Negative: ${Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%, Neutral: ${Math.round((results.sentimentDistribution.find(s => s.name === "Neutral")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%`}
+              riskLevel={results.threatLevel}
+            />
 
             {/* Recommended Actions */}
             <RecommendedActions
