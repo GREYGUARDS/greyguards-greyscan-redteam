@@ -4,10 +4,13 @@ import { TrendingUp, TrendingDown, Minus, Activity } from "lucide-react";
 interface SentimentTrendComparisonProps {
   shortTermSentiment: number;
   longTermSentiment: number;
+  trendIcon: string;
+  previousSentiment: number;
 }
 
-const SentimentTrendComparison = ({ shortTermSentiment, longTermSentiment }: SentimentTrendComparisonProps) => {
+const SentimentTrendComparison = ({ shortTermSentiment, longTermSentiment, trendIcon, previousSentiment }: SentimentTrendComparisonProps) => {
   const difference = shortTermSentiment - longTermSentiment;
+  const vsPrevious = shortTermSentiment - previousSentiment;
   const isImproving = difference > 0;
   const isStable = Math.abs(difference) < 2;
 
@@ -39,41 +42,64 @@ const SentimentTrendComparison = ({ shortTermSentiment, longTermSentiment }: Sen
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
         {/* Current vs Long-term Comparison */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">
-              Current Scan (Short-term)
+              Current Scan
             </p>
             <p className="text-3xl font-bold">
               {shortTermSentiment > 0 ? "+" : ""}{shortTermSentiment}
             </p>
             <p className="text-xs text-muted-foreground">
-              Sentiment score from this scan
+              This scan
             </p>
           </div>
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">
-              Historical Average (Long-term)
+              Previous Scan
+            </p>
+            <p className="text-3xl font-bold">
+              {previousSentiment > 0 ? "+" : ""}{previousSentiment}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Last scan
+            </p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
+              Long-term Avg
             </p>
             <p className="text-3xl font-bold">
               {longTermSentiment > 0 ? "+" : ""}{longTermSentiment}
             </p>
             <p className="text-xs text-muted-foreground">
-              Average of last 10 scans (~1 month)
+              Last 10 scans
             </p>
           </div>
         </div>
 
-        {/* Trend Indicator */}
+        {/* Trend Indicator vs Previous Scan */}
+        <div className="pt-4 border-t-2 border-border">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{trendIcon.split(" ")[0]}</span>
+            <div>
+              <p className={`font-semibold uppercase tracking-wider ${getTrendColor()}`}>
+                {trendIcon}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {vsPrevious > 0 ? "+" : ""}{vsPrevious.toFixed(1)} points vs previous scan
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Long-term Trend Context */}
         <div className="pt-4 border-t-2 border-border">
           <div className="flex items-center gap-3">
             {getTrendIcon()}
             <div>
-              <p className={`font-semibold uppercase tracking-wider ${getTrendColor()}`}>
-                Trend: {getTrendText()}
-              </p>
               <p className="text-sm text-muted-foreground">
-                {Math.abs(difference).toFixed(1)} point {isImproving ? "increase" : "decrease"} from long-term average
+                <span className="font-semibold">vs Long-term:</span> {Math.abs(difference).toFixed(1)} point {isImproving ? "above" : "below"} average
               </p>
             </div>
           </div>

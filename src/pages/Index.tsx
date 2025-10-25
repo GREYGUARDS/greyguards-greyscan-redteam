@@ -245,6 +245,8 @@ const Index = () => {
             <SentimentTrendComparison
               shortTermSentiment={results.shortTermSentiment}
               longTermSentiment={results.longTermSentiment}
+              trendIcon={results.trendIcon}
+              previousSentiment={results.previousSentiment}
             />
 
             {/* Charts Grid */}

@@ -16,6 +16,8 @@ export interface AnalysisResult {
   threatScore: number;
   shortTermSentiment: number;
   longTermSentiment: number;
+  trendIcon: string;
+  previousSentiment: number;
 }
 
 let sentimentPipeline: any = null;
@@ -134,6 +136,13 @@ export async function analyzeSentiment(mentions: Mention[], brandName: string = 
   const history = historyData?.map((h) => Number(h.sentiment_score)) || [shortTermSentiment];
   const longTermSentiment = history.reduce((a, b) => a + b, 0) / history.length;
 
+  // Calculate trend vs previous scan
+  const previousSentiment = history[1] || shortTermSentiment;
+  const diff = shortTermSentiment - previousSentiment;
+  let trendIcon = "➡️ Stable";
+  if (diff > 3) trendIcon = "⬆️ Improving";
+  if (diff < -3) trendIcon = "⬇️ Worsening";
+
   return {
     sentimentDistribution,
     timeline,
@@ -142,5 +151,7 @@ export async function analyzeSentiment(mentions: Mention[], brandName: string = 
     threatScore,
     shortTermSentiment: Number(shortTermSentiment.toFixed(1)),
     longTermSentiment: Number(longTermSentiment.toFixed(1)),
+    trendIcon,
+    previousSentiment: Number(previousSentiment.toFixed(1)),
   };
 }
