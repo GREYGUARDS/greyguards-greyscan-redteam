@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Download, AlertTriangle, Shield } from "lucide-react";
+import { Search, Download, AlertTriangle, Shield, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -360,9 +360,10 @@ const Index = () => {
                 </p>
                 <a
                   href={`mailto:yourname@yourdomain.com?subject=Greyguards Consultation for ${brandName}`}
-                  className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-sm font-semibold uppercase tracking-wider transition-colors hover:bg-[hsl(0,0%,62%)] no-underline"
+                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-sm font-semibold uppercase tracking-wider transition-colors hover:bg-[hsl(0,0%,62%)] no-underline"
                 >
-                  📩 Book a Consultation
+                  <Send className="h-5 w-5" />
+                  Book a Consultation
                 </a>
                 <p className="text-xs text-muted-foreground mt-6 uppercase tracking-wider">
                   Greyguards – AI-powered narrative intelligence for the grey zone.
