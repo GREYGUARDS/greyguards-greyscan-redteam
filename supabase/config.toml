@@ -9,6 +9,15 @@ verify_jwt = false
 [functions.fetch-trends]
 verify_jwt = false
 
+[functions.fetch-hackernews]
+verify_jwt = false
+
+[functions.fetch-mastodon]
+verify_jwt = false
+
+[functions.fetch-wikipedia]
+verify_jwt = false
+
 [functions.generate-actions]
 verify_jwt = false
 

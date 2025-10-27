@@ -55,58 +55,93 @@ const Index = () => {
         return;
       }
 
-      // Fetch news data
-      const { data: newsData, error: newsError } = await supabase.functions.invoke("fetch-news", {
-        body: { brand: brandName },
-      });
+      // Fetch all data sources in parallel (non-blocking)
+      const [newsData, redditData, trends, hnData, mastodonData, wikiData] = await Promise.allSettled([
+        supabase.functions.invoke("fetch-news", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-reddit", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-trends", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-hackernews", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-mastodon", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-wikipedia", { body: { brand: brandName } }),
+      ]);
 
-      if (newsError) {
-        console.error("News API error:", newsError);
-        toast({
-          title: "News API Error",
-          description: "Failed to fetch news data",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
+      // Process news data
+      let articles = [];
+      if (newsData.status === "fulfilled" && !newsData.value.error) {
+        articles = newsData.value.data?.articles || [];
+      } else {
+        console.warn("News API unavailable:", newsData.status === "fulfilled" ? newsData.value.error : newsData.reason);
       }
 
-      // Fetch Reddit data (non-blocking if it fails)
+      // Process Reddit data
       let redditPosts = [];
-      const { data: redditData, error: redditError } = await supabase.functions.invoke("fetch-reddit", {
-        body: { brand: brandName },
-      });
-
-      if (redditError) {
-        console.warn("Reddit API unavailable:", redditError);
+      if (redditData.status === "fulfilled" && !redditData.value.error) {
+        redditPosts = redditData.value.data?.posts || [];
       } else {
-        redditPosts = redditData?.posts || [];
+        console.warn("Reddit API unavailable:", redditData.status === "fulfilled" ? redditData.value.error : redditData.reason);
       }
 
-      // Fetch Google Trends data (non-blocking if it fails)
-      const { data: trends, error: trendsError } = await supabase.functions.invoke("fetch-trends", {
-        body: { brand: brandName },
-      });
-
-      if (trendsError) {
-        console.warn("Trends API unavailable:", trendsError);
+      // Process Google Trends data
+      if (trends.status === "fulfilled" && !trends.value.error) {
+        setTrendsData(trends.value.data);
+      } else {
+        console.warn("Trends API unavailable:", trends.status === "fulfilled" ? trends.value.error : trends.reason);
         setTrendsData(null);
-      } else {
-        setTrendsData(trends);
       }
 
-      // Combine and analyze data
+      // Process Hacker News data
+      let hnPosts = [];
+      if (hnData.status === "fulfilled" && !hnData.value.error) {
+        hnPosts = hnData.value.data?.posts || [];
+      } else {
+        console.warn("Hacker News API unavailable:", hnData.status === "fulfilled" ? hnData.value.error : hnData.reason);
+      }
+
+      // Process Mastodon data
+      let mastodonPosts = [];
+      if (mastodonData.status === "fulfilled" && !mastodonData.value.error) {
+        mastodonPosts = mastodonData.value.data?.posts || [];
+      } else {
+        console.warn("Mastodon API unavailable:", mastodonData.status === "fulfilled" ? mastodonData.value.error : mastodonData.reason);
+      }
+
+      // Process Wikipedia data
+      let wikiArticles = [];
+      if (wikiData.status === "fulfilled" && !wikiData.value.error) {
+        wikiArticles = wikiData.value.data?.articles || [];
+      } else {
+        console.warn("Wikipedia API unavailable:", wikiData.status === "fulfilled" ? wikiData.value.error : wikiData.reason);
+      }
+
+      // Combine and analyze data from ALL sources
       const mentions = [
-        ...(newsData?.articles || []).map((a: any) => ({
-          text: `${a.title} ${a.description}`,
+        ...articles.map((a: any) => ({
+          text: `${a.title} ${a.description || ''}`,
           source: "news",
           date: new Date(a.publishedAt),
         })),
         ...redditPosts.map((p: any) => ({
-          text: `${p.title} ${p.selftext}`,
+          text: `${p.title} ${p.selftext || ''}`,
           source: "reddit",
           date: new Date(p.created_utc * 1000),
           score: p.score,
+        })),
+        ...hnPosts.map((p: any) => ({
+          text: p.text || p.title,
+          source: "hackernews",
+          date: new Date(p.created),
+          score: p.score,
+        })),
+        ...mastodonPosts.map((p: any) => ({
+          text: p.text,
+          source: "mastodon",
+          date: new Date(p.created),
+          score: p.score,
+        })),
+        ...wikiArticles.map((a: any) => ({
+          text: `${a.title}: ${a.snippet}`,
+          source: "wikipedia",
+          date: new Date(a.timestamp),
         })),
       ];
 
@@ -343,7 +378,7 @@ const Index = () => {
               <CardContent className="pt-4">
                 <p className="text-sm text-muted-foreground uppercase tracking-wider">
                   Results generated from live public data // MVP system with limited accuracy //
-                  Data sources: NewsAPI + Reddit // Sentiment analysis: AI-powered models
+                  Data sources: News + Reddit + Hacker News + Mastodon + Wikipedia // Sentiment analysis: AI-powered models
                 </p>
               </CardContent>
             </Card>
