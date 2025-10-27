@@ -16,6 +16,7 @@ import { CounterNarrativeStatement } from "@/components/CounterNarrativeStatemen
 import { MentionsTicker } from "@/components/MentionsTicker";
 import SentimentTrendComparison from "@/components/SentimentTrendComparison";
 import StrategicRecommendations from "@/components/StrategicRecommendations";
+import SourcesTable from "@/components/SourcesTable";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -26,6 +27,7 @@ const Index = () => {
   const [results, setResults] = useState<AnalysisResult | null>(null);
   const [trendsData, setTrendsData] = useState<any>(null);
   const [allMentions, setAllMentions] = useState<any[]>([]);
+  const [sources, setSources] = useState<Array<{name: string; count: number; country?: string}>>([]);
   const { toast } = useToast();
 
   const handleSearch = async () => {
@@ -56,14 +58,14 @@ const Index = () => {
       }
 
       // Fetch all data sources in parallel (non-blocking)
-      const [newsData, redditData, trends, hnData, mastodonData, wikiData, dailyMailData] = await Promise.allSettled([
+      const [newsData, redditData, trends, hnData, mastodonData, wikiData, rssAggregatorData] = await Promise.allSettled([
         supabase.functions.invoke("fetch-news", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-reddit", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-trends", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-hackernews", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-mastodon", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-wikipedia", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-dailymail", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-rss-aggregator", { body: { brand: brandName } }),
       ]);
 
       // Process news data
@@ -114,12 +116,13 @@ const Index = () => {
         console.warn("Wikipedia API unavailable:", wikiData.status === "fulfilled" ? wikiData.value.error : wikiData.reason);
       }
 
-      // Process Daily Mail data
-      let dailyMailArticles = [];
-      if (dailyMailData.status === "fulfilled" && !dailyMailData.value.error) {
-        dailyMailArticles = dailyMailData.value.data?.articles || [];
+      // Process RSS Aggregator data (50+ news sources)
+      let rssArticles = [];
+      if (rssAggregatorData.status === "fulfilled" && !rssAggregatorData.value.error) {
+        rssArticles = rssAggregatorData.value.data?.articles || [];
+        console.log(`RSS Aggregator: ${rssAggregatorData.value.data?.activeSources || 0} active sources`);
       } else {
-        console.warn("Daily Mail RSS unavailable:", dailyMailData.status === "fulfilled" ? dailyMailData.value.error : dailyMailData.reason);
+        console.warn("RSS Aggregator unavailable:", rssAggregatorData.status === "fulfilled" ? rssAggregatorData.value.error : rssAggregatorData.reason);
       }
 
       // Combine and analyze data from ALL sources
@@ -152,12 +155,29 @@ const Index = () => {
           source: "wikipedia",
           date: new Date(a.timestamp),
         })),
-        ...dailyMailArticles.map((a: any) => ({
+        ...rssArticles.map((a: any) => ({
           text: `${a.title} ${a.text || ''}`,
-          source: "dailymail",
+          source: a.source, // Will be source name like "BBC News", "CNN", etc.
+          country: a.country,
           date: new Date(a.publishedAt),
         })),
       ];
+
+      // Calculate source statistics
+      const sourceStats = mentions.reduce((acc: any, mention: any) => {
+        const sourceName = mention.source;
+        if (!acc[sourceName]) {
+          acc[sourceName] = { 
+            name: sourceName, 
+            count: 0,
+            country: mention.country
+          };
+        }
+        acc[sourceName].count++;
+        return acc;
+      }, {});
+      
+      setSources(Object.values(sourceStats));
 
       if (mentions.length === 0) {
         toast({
@@ -381,6 +401,9 @@ const Index = () => {
               threatLevel={results.threatLevel}
             />
 
+            {/* Sources Table */}
+            <SourcesTable sources={sources} />
+
             {/* Disclaimer */}
             <Card className="border-4 border-border bg-secondary">
               <CardHeader className="border-b-4 border-border">
@@ -392,7 +415,7 @@ const Index = () => {
               <CardContent className="pt-4">
                 <p className="text-sm text-muted-foreground uppercase tracking-wider">
                   Results generated from live public data // MVP system with limited accuracy //
-                  Data sources: News + Reddit + Hacker News + Mastodon + Wikipedia + Daily Mail RSS // Sentiment analysis: AI-powered models
+                  Data sources: 50+ Global News Outlets + Reddit + Hacker News + Mastodon + Wikipedia // Sentiment analysis: AI-powered models
                 </p>
               </CardContent>
             </Card>
