@@ -18,6 +18,9 @@ verify_jwt = false
 [functions.fetch-wikipedia]
 verify_jwt = false
 
+[functions.fetch-dailymail]
+verify_jwt = false
+
 [functions.generate-actions]
 verify_jwt = false
 

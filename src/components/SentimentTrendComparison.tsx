@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Minus, Activity } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Activity, ArrowRight } from "lucide-react";
 
 interface SentimentTrendComparisonProps {
   shortTermSentiment: number;
@@ -81,10 +81,16 @@ const SentimentTrendComparison = ({ shortTermSentiment, longTermSentiment, trend
         {/* Trend Indicator vs Previous Scan */}
         <div className="pt-4 border-t-2 border-border">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{trendIcon.split(" ")[0]}</span>
+            {isStable ? (
+              <ArrowRight className="h-6 w-6 text-muted-foreground" />
+            ) : isImproving ? (
+              <TrendingUp className="h-6 w-6 text-chart-1" />
+            ) : (
+              <TrendingDown className="h-6 w-6 text-chart-2" />
+            )}
             <div>
               <p className={`font-semibold uppercase tracking-wider ${getTrendColor()}`}>
-                {trendIcon}
+                {getTrendText()}
               </p>
               <p className="text-sm text-muted-foreground">
                 {vsPrevious > 0 ? "+" : ""}{vsPrevious.toFixed(1)} points vs previous scan

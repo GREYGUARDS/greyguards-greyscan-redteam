@@ -56,13 +56,14 @@ const Index = () => {
       }
 
       // Fetch all data sources in parallel (non-blocking)
-      const [newsData, redditData, trends, hnData, mastodonData, wikiData] = await Promise.allSettled([
+      const [newsData, redditData, trends, hnData, mastodonData, wikiData, dailyMailData] = await Promise.allSettled([
         supabase.functions.invoke("fetch-news", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-reddit", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-trends", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-hackernews", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-mastodon", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-wikipedia", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-dailymail", { body: { brand: brandName } }),
       ]);
 
       // Process news data
@@ -113,6 +114,14 @@ const Index = () => {
         console.warn("Wikipedia API unavailable:", wikiData.status === "fulfilled" ? wikiData.value.error : wikiData.reason);
       }
 
+      // Process Daily Mail data
+      let dailyMailArticles = [];
+      if (dailyMailData.status === "fulfilled" && !dailyMailData.value.error) {
+        dailyMailArticles = dailyMailData.value.data?.articles || [];
+      } else {
+        console.warn("Daily Mail RSS unavailable:", dailyMailData.status === "fulfilled" ? dailyMailData.value.error : dailyMailData.reason);
+      }
+
       // Combine and analyze data from ALL sources
       const mentions = [
         ...articles.map((a: any) => ({
@@ -142,6 +151,11 @@ const Index = () => {
           text: `${a.title}: ${a.snippet}`,
           source: "wikipedia",
           date: new Date(a.timestamp),
+        })),
+        ...dailyMailArticles.map((a: any) => ({
+          text: `${a.title} ${a.text || ''}`,
+          source: "dailymail",
+          date: new Date(a.publishedAt),
         })),
       ];
 
@@ -378,7 +392,7 @@ const Index = () => {
               <CardContent className="pt-4">
                 <p className="text-sm text-muted-foreground uppercase tracking-wider">
                   Results generated from live public data // MVP system with limited accuracy //
-                  Data sources: News + Reddit + Hacker News + Mastodon + Wikipedia // Sentiment analysis: AI-powered models
+                  Data sources: News + Reddit + Hacker News + Mastodon + Wikipedia + Daily Mail RSS // Sentiment analysis: AI-powered models
                 </p>
               </CardContent>
             </Card>
