@@ -47,13 +47,13 @@ export function ThreatIndicator({ threatLevel, threatScore }: ThreatIndicatorPro
 
   return (
     <Card className="border-4 border-border bg-card">
-      <CardHeader className="border-b-4 border-border bg-secondary">
-        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-          <Shield className="h-5 w-5" />
-          Threat Assessment Matrix
+      <CardHeader className="border-b-4 border-border bg-secondary py-4">
+        <CardTitle className="uppercase tracking-wider flex items-center gap-2 text-sm">
+          <Shield className="h-5 w-5 flex-shrink-0" />
+          <span className="truncate">Threat Assessment Matrix</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-8">
+      <CardContent className="pt-8 pb-8">
         <div className="grid grid-cols-3 gap-8">
           <div className="flex flex-col items-center justify-center border-r-2 border-border">
             <div className={`${getColorClass()} mb-4`}>

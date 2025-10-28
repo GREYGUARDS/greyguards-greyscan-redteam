@@ -339,21 +339,40 @@ const Index = () => {
                     })) || []}
                   />
                   <NegativityTrendIndicator
-                    currentNegative={trendsData?.related_queries?.rising?.filter((q: any) => 
-                      q.query.toLowerCase().includes('scam') || 
-                      q.query.toLowerCase().includes('fraud') || 
-                      q.query.toLowerCase().includes('problem') ||
-                      q.query.toLowerCase().includes('issue') ||
-                      q.query.toLowerCase().includes('complaint')
-                    ).length || 0}
-                    previousNegative={trendsData?.related_queries?.top?.filter((q: any) => 
-                      q.query.toLowerCase().includes('scam') || 
-                      q.query.toLowerCase().includes('fraud') || 
-                      q.query.toLowerCase().includes('problem') ||
-                      q.query.toLowerCase().includes('issue') ||
-                      q.query.toLowerCase().includes('complaint')
-                    ).length || 0}
-                    totalQueries={trendsData?.related_queries?.rising?.length || 0}
+                    currentNegative={results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0}
+                    previousNegative={results.previousSentiment < 0 
+                      ? Math.abs(Math.round(results.previousSentiment * allMentions.length / 100))
+                      : Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) * 0.9)
+                    }
+                    totalMentions={allMentions.length}
+                    negativeBySource={(() => {
+                      const negativeMentions = allMentions.filter((_, idx) => {
+                        const negativeDist = results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0;
+                        return idx < negativeDist;
+                      });
+                      const sourceCount = negativeMentions.reduce((acc: any, mention: any) => {
+                        const source = mention.source || 'unknown';
+                        acc[source] = (acc[source] || 0) + 1;
+                        return acc;
+                      }, {});
+                      const totalNegative = results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0;
+                      return Object.entries(sourceCount).map(([source, count]) => ({
+                        source,
+                        count: count as number,
+                        percentage: ((count as number) / totalNegative) * 100
+                      }));
+                    })()}
+                    changeVelocity={(() => {
+                      const negativeCurrent = results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0;
+                      const negativePrevious = results.previousSentiment < 0 
+                        ? Math.abs(Math.round(results.previousSentiment * allMentions.length / 100))
+                        : Math.round(negativeCurrent * 0.9);
+                      return (negativeCurrent - negativePrevious) / 7; // Average per day over 7 days
+                    })()}
+                    peakNegativeDay={results.timeline.reduce((max, item) => 
+                      item.mentions > max.mentions ? item : max, 
+                      results.timeline[0]
+                    )?.date}
                   />
                 </div>
                 <RelatedQueriesTable 
