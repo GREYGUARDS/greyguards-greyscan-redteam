@@ -141,3 +141,75 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Glow effects for status indicators */
+  .glow-success {
+    box-shadow: 0 0 20px hsl(var(--success) / 0.5), 0 0 40px hsl(var(--success) / 0.3);
+  }
+
+  .glow-warning {
+    box-shadow: 0 0 20px hsl(var(--warning) / 0.5), 0 0 40px hsl(var(--warning) / 0.3);
+  }
+
+  .glow-danger {
+    box-shadow: 0 0 20px hsl(var(--destructive) / 0.5), 0 0 40px hsl(var(--destructive) / 0.3);
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.5), 0 0 40px hsl(var(--primary) / 0.3);
+  }
+
+  /* Hover glow effects */
+  .hover-glow-success:hover {
+    box-shadow: 0 0 20px hsl(var(--success) / 0.6), 0 0 40px hsl(var(--success) / 0.4);
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  .hover-glow-warning:hover {
+    box-shadow: 0 0 20px hsl(var(--warning) / 0.6), 0 0 40px hsl(var(--warning) / 0.4);
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  .hover-glow-danger:hover {
+    box-shadow: 0 0 20px hsl(var(--destructive) / 0.6), 0 0 40px hsl(var(--destructive) / 0.4);
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  /* Border glow effects */
+  .border-glow-success {
+    border: 2px solid hsl(var(--success));
+    box-shadow: 0 0 10px hsl(var(--success) / 0.5), inset 0 0 10px hsl(var(--success) / 0.2);
+  }
+
+  .border-glow-warning {
+    border: 2px solid hsl(var(--warning));
+    box-shadow: 0 0 10px hsl(var(--warning) / 0.5), inset 0 0 10px hsl(var(--warning) / 0.2);
+  }
+
+  .border-glow-danger {
+    border: 2px solid hsl(var(--destructive));
+    box-shadow: 0 0 10px hsl(var(--destructive) / 0.5), inset 0 0 10px hsl(var(--destructive) / 0.2);
+  }
+
+  /* Backdrop blur for depth */
+  .glass-effect {
+    background: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Metric display styles */
+  .metric-display {
+    @apply text-6xl font-bold tracking-tight;
+  }
+
+  .metric-display-xl {
+    @apply text-8xl font-bold tracking-tight;
+  }
+
+  /* Smooth transitions */
+  .smooth-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}

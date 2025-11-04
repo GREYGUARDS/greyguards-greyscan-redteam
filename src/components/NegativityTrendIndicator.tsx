@@ -28,10 +28,10 @@ export function NegativityTrendIndicator({
   const isStable = change === 0;
 
   const getThreatLevel = () => {
-    if (negativePercentage >= 70) return { level: "Critical", color: "text-destructive" };
-    if (negativePercentage >= 50) return { level: "High", color: "text-warning" };
-    if (negativePercentage >= 30) return { level: "Moderate", color: "text-yellow-500" };
-    return { level: "Low", color: "text-green-500" };
+    if (negativePercentage >= 70) return { level: "Critical", color: "text-destructive", glow: "glow-danger animate-pulse-glow" };
+    if (negativePercentage >= 50) return { level: "High", color: "text-warning", glow: "glow-warning animate-pulse-glow" };
+    if (negativePercentage >= 30) return { level: "Moderate", color: "text-warning", glow: "glow-warning" };
+    return { level: "Low", color: "text-success", glow: "glow-success" };
   };
 
   const threat = getThreatLevel();
@@ -51,21 +51,35 @@ export function NegativityTrendIndicator({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6 pt-6">
-        {/* Main Metrics */}
-        <div className="flex items-center justify-between p-4 border-2 border-border bg-secondary">
-          <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Current Negative Sentiment</p>
-            <p className={`text-5xl font-bold ${threat.color}`}>{negativePercentage}%</p>
-            <p className="text-xs text-muted-foreground mt-2">
-              {currentNegative} of {totalMentions} mentions
+        {/* Main Metrics with Circular Gauge */}
+        <div className="flex items-center justify-between p-6 border-2 border-border bg-secondary smooth-transition hover-glow-primary">
+          <div className="flex-1">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Current Negative Sentiment</p>
+            <p className={`metric-display ${threat.color} animate-scale-in`}>{negativePercentage}%</p>
+            <p className="text-sm text-muted-foreground mt-3">
+              <span className="font-semibold">{currentNegative}</span> of <span className="font-semibold">{totalMentions}</span> mentions
             </p>
+            <div className="mt-4 w-full bg-muted h-4 rounded-sm overflow-hidden">
+              <div 
+                className={`h-full ${threat.glow} smooth-transition`}
+                style={{ 
+                  width: `${negativePercentage}%`,
+                  background: `hsl(var(--${negativePercentage >= 70 ? 'destructive' : negativePercentage >= 50 ? 'warning' : 'success'}))`
+                }}
+              />
+            </div>
           </div>
-          <Badge 
-            variant={negativePercentage >= 50 ? "destructive" : "secondary"}
-            className="text-lg px-6 py-3 uppercase tracking-wider"
-          >
-            {threat.level} Risk
-          </Badge>
+          <div className="ml-8">
+            {/* Circular Badge */}
+            <div className={`w-32 h-32 rounded-full border-8 ${threat.glow} flex items-center justify-center`}>
+              <Badge 
+                variant={negativePercentage >= 50 ? "destructive" : "secondary"}
+                className="text-lg px-4 py-2 uppercase tracking-wider animate-pulse-scale"
+              >
+                {threat.level}
+              </Badge>
+            </div>
+          </div>
         </div>
 
         {/* Trend Direction with Enhanced Stats */}
@@ -120,45 +134,53 @@ export function NegativityTrendIndicator({
           )}
         </div>
 
-        {/* Statistics Grid */}
+        {/* Statistics Grid with Animations */}
         <div className="grid grid-cols-4 gap-4 pt-4 border-t-2 border-border">
-          <div className="text-center p-3 border border-border">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Current</p>
-            <p className="text-2xl font-bold text-muted-foreground">{currentNegative}</p>
+          <div className="text-center p-4 border-2 border-border bg-muted/30 smooth-transition hover:scale-105 animate-fade-in">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Current</p>
+            <p className="text-3xl font-bold text-destructive">{currentNegative}</p>
           </div>
-          <div className="text-center p-3 border border-border">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Previous</p>
-            <p className="text-2xl font-bold">{previousNegative}</p>
+          <div className="text-center p-4 border-2 border-border bg-muted/30 smooth-transition hover:scale-105 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Previous</p>
+            <p className="text-3xl font-bold">{previousNegative}</p>
           </div>
-          <div className="text-center p-3 border border-border">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Change</p>
-            <p className={`text-2xl font-bold ${isIncreasing ? 'text-muted-foreground' : 'text-primary'}`}>
+          <div className="text-center p-4 border-2 border-border bg-muted/30 smooth-transition hover:scale-105 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Change</p>
+            <p className={`text-3xl font-bold ${isIncreasing ? 'text-destructive' : 'text-success'}`}>
               {change > 0 ? '+' : ''}{change}
             </p>
           </div>
-          <div className="text-center p-3 border border-border">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Total</p>
-            <p className="text-2xl font-bold">{totalMentions}</p>
+          <div className="text-center p-4 border-2 border-border bg-muted/30 smooth-transition hover:scale-105 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Total</p>
+            <p className="text-3xl font-bold text-primary">{totalMentions}</p>
           </div>
         </div>
 
-        {/* Top Negative Sources Breakdown */}
+        {/* Top Negative Sources Breakdown with Progress Bars */}
         <div className="pt-4 border-t-2 border-border">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">Top Negative Sources</p>
-          <div className="space-y-2">
+          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">Top Negative Sources</p>
+          <div className="space-y-3">
             {topNegativeSources.map((source, idx) => (
-              <div key={idx} className="flex items-center justify-between p-2 border border-border bg-muted/30">
-                <span className="text-sm font-medium uppercase tracking-wider">{source.source}</span>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground">{source.count} negative</span>
-                  <Badge variant="outline" className="text-xs">
-                    {source.percentage.toFixed(1)}%
-                  </Badge>
+              <div key={idx} className="p-3 border-2 border-border bg-muted/30 smooth-transition hover:border-primary animate-slide-in-left" style={{ animationDelay: `${idx * 0.1}s` }}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-bold uppercase tracking-wider">{source.source}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-muted-foreground font-semibold">{source.count} negative</span>
+                    <Badge variant="destructive" className="text-xs font-bold">
+                      {source.percentage.toFixed(1)}%
+                    </Badge>
+                  </div>
+                </div>
+                <div className="w-full bg-muted h-2 rounded-sm overflow-hidden">
+                  <div 
+                    className="h-full bg-destructive glow-danger smooth-transition"
+                    style={{ width: `${source.percentage}%` }}
+                  />
                 </div>
               </div>
             ))}
             {topNegativeSources.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">No negative mentions detected</p>
+              <p className="text-sm text-muted-foreground text-center py-6 animate-fade-in">No negative mentions detected</p>
             )}
           </div>
         </div>
