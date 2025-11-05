@@ -109,7 +109,7 @@ export function MentionsTicker({ mentions, brandName }: MentionsTickerProps) {
             {duplicatedMentions.map((mention, index) => (
               <div
                 key={index}
-                className="inline-flex flex-shrink-0 items-start gap-3 p-4 border-2 border-border bg-card min-w-[400px] max-w-[500px]"
+                className="inline-flex flex-shrink-0 items-start gap-3 p-4 border-2 border-border bg-card min-w-[280px] sm:min-w-[400px] max-w-[500px]"
               >
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-2">

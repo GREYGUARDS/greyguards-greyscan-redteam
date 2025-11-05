@@ -42,7 +42,7 @@ const SentimentTrendComparison = ({ shortTermSentiment, longTermSentiment, trend
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
         {/* Current vs Long-term Comparison */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Current Scan

@@ -151,7 +151,7 @@ export function RecommendedActions({
   return (
     <Card className="animate-fade-in border-4 border-border">
       <CardHeader className="border-b-4 border-border bg-secondary">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="uppercase tracking-wider flex items-center gap-2">
               <Shield className="h-5 w-5" />
@@ -166,7 +166,7 @@ export function RecommendedActions({
             disabled={loading}
             variant="outline"
             size="sm"
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Regenerate

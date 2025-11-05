@@ -52,8 +52,8 @@ export function NegativityTrendIndicator({
       </CardHeader>
       <CardContent className="space-y-6 pt-6">
         {/* Main Metrics with Circular Gauge */}
-        <div className="flex items-center justify-between p-6 border-2 border-border bg-secondary smooth-transition hover-glow-primary">
-          <div className="flex-1">
+        <div className="flex flex-col md:flex-row items-center justify-between p-6 border-2 border-border bg-secondary smooth-transition hover-glow-primary gap-6 md:gap-0">
+          <div className="flex-1 w-full">
             <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Current Negative Sentiment</p>
             <p className={`metric-display ${threat.color} animate-scale-in`}>{negativePercentage}%</p>
             <p className="text-sm text-muted-foreground mt-3">
@@ -69,12 +69,12 @@ export function NegativityTrendIndicator({
               />
             </div>
           </div>
-          <div className="ml-8">
+          <div className="md:ml-8">
             {/* Circular Badge */}
-            <div className={`w-32 h-32 rounded-full border-8 ${threat.glow} flex items-center justify-center`}>
+            <div className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full border-8 ${threat.glow} flex items-center justify-center`}>
               <Badge 
                 variant={negativePercentage >= 50 ? "destructive" : "secondary"}
-                className="text-lg px-4 py-2 uppercase tracking-wider animate-pulse-scale"
+                className="text-base sm:text-lg px-3 sm:px-4 py-2 uppercase tracking-wider animate-pulse-scale"
               >
                 {threat.level}
               </Badge>
@@ -135,7 +135,7 @@ export function NegativityTrendIndicator({
         </div>
 
         {/* Statistics Grid with Animations */}
-        <div className="grid grid-cols-4 gap-4 pt-4 border-t-2 border-border">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t-2 border-border">
           <div className="text-center p-4 border-2 border-border bg-muted/30 smooth-transition hover:scale-105 animate-fade-in">
             <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Current</p>
             <p className="text-3xl font-bold text-destructive">{currentNegative}</p>

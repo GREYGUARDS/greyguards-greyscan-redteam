@@ -21,9 +21,12 @@ const SourcesTable = ({ sources }: SourcesTableProps) => {
   return (
     <Card className="border-4 border-border bg-card">
       <CardHeader className="border-b-4 border-border">
-        <CardTitle className="flex items-center gap-2 uppercase tracking-wider">
-          <Database className="h-5 w-5" />
-          Data Sources ({sources.length} Active)
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2 uppercase tracking-wider">
+          <span className="flex items-center gap-2">
+            <Database className="h-5 w-5" />
+            Data Sources
+          </span>
+          <span className="text-sm text-muted-foreground">({sources.length} Active)</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-6">

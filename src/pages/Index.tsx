@@ -243,16 +243,16 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b-4 border-border bg-card">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-primary flex items-center justify-center">
-              <Shield className="h-8 w-8 text-primary-foreground" />
+        <div className="container mx-auto px-4 py-6 sm:py-8">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary flex items-center justify-center flex-shrink-0">
+              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold tracking-tight uppercase">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight uppercase">
                 Greyguards
               </h1>
-              <p className="text-muted-foreground mt-1 uppercase text-sm tracking-wider">
+              <p className="text-muted-foreground mt-1 uppercase text-xs sm:text-sm tracking-wider">
                 Narrative Intelligence System
               </p>
             </div>
@@ -264,7 +264,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         <Card className="border-4 border-border bg-card">
           <CardContent className="pt-6">
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
@@ -275,7 +275,7 @@ const Index = () => {
                   className="pl-12 uppercase tracking-wider border-2 h-12"
                 />
               </div>
-              <Button onClick={handleSearch} disabled={loading} className="min-w-[140px] h-12 uppercase tracking-wider">
+              <Button onClick={handleSearch} disabled={loading} className="w-full sm:min-w-[140px] sm:w-auto h-12 uppercase tracking-wider">
                 {loading ? (
                   <>
                     <span className="animate-spin mr-2">⟳</span>

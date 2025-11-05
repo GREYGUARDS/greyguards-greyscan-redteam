@@ -69,20 +69,20 @@ export function CounterNarrativeStatement({
   return (
     <Card className="animate-fade-in border border-border">
       <CardHeader className="border-b border-border bg-secondary">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="uppercase tracking-wider flex items-center gap-2 font-light text-base">
               <FileText className="h-4 w-4 stroke-[1.5]" />
               Suggested Counter-Narrative Statement
             </CardTitle>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto">
             {statement && (
               <Button
                 onClick={copyToClipboard}
                 variant="outline"
                 size="sm"
-                className="gap-2 font-light"
+                className="gap-2 font-light flex-1 sm:flex-initial"
               >
                 <Copy className="h-3.5 w-3.5 stroke-[1.5]" />
                 Copy
@@ -93,7 +93,7 @@ export function CounterNarrativeStatement({
               disabled={loading}
               variant="outline"
               size="sm"
-              className="gap-2 font-light"
+              className="gap-2 font-light flex-1 sm:flex-initial"
             >
               <RefreshCw className={`h-3.5 w-3.5 stroke-[1.5] ${loading ? 'animate-spin' : ''}`} />
               Regenerate

@@ -110,7 +110,7 @@ export function RelatedQueriesTable({ data }: RelatedQueriesTableProps) {
   return (
     <Card className="animate-fade-in border-4 border-border">
       <CardHeader className="border-b-4 border-border bg-secondary">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <CardTitle className="uppercase tracking-wider flex items-center gap-2">
             <List className="h-5 w-5" />
             Associated Search Topics
