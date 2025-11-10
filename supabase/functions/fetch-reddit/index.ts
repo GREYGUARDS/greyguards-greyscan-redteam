@@ -17,11 +17,11 @@ serve(async (req) => {
       throw new Error("Brand name is required");
     }
 
-    const clientId = Deno.env.get('REDDIT_CLIENT_ID');
-    const clientSecret = Deno.env.get('REDDIT_CLIENT_SECRET');
+    const clientId = Deno.env.get('REDDIT_CLIENT_ID')?.trim();
+    const clientSecret = Deno.env.get('REDDIT_CLIENT_SECRET')?.trim();
 
     if (!clientId || !clientSecret) {
-      throw new Error("Reddit API credentials not configured");
+      throw new Error("Reddit API credentials not configured (REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET)");
     }
 
     // Get OAuth token
@@ -34,7 +34,7 @@ serve(async (req) => {
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'NarrativeTracker/1.0',
       },
-      body: 'grant_type=client_credentials',
+      body: 'grant_type=client_credentials&scope=read',
     });
 
     if (!tokenResponse.ok) {
