@@ -300,6 +300,33 @@ const Index = () => {
           </CardContent>
         </Card>
 
+        {/* Services Overview */}
+        <Card className="mt-6 border-2 border-border bg-card">
+          <CardHeader>
+            <CardTitle className="uppercase tracking-wider text-sm text-muted-foreground">Core Services</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="flex items-center gap-3 p-3 rounded bg-background/50">
+                <Shield className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="text-sm font-medium">Narrative Intelligence</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded bg-background/50">
+                <AlertTriangle className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="text-sm font-medium">Threat Assessment</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded bg-background/50">
+                <Search className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="text-sm font-medium">Real-Time Monitoring</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded bg-background/50">
+                <Send className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="text-sm font-medium">Strategic Response</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Results Dashboard */}
         {results && (
           <div id="dashboard" className="mt-8 space-y-6">
