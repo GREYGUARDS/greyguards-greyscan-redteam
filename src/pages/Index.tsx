@@ -17,9 +17,12 @@ import { MentionsTicker } from "@/components/MentionsTicker";
 import SentimentTrendComparison from "@/components/SentimentTrendComparison";
 import StrategicRecommendations from "@/components/StrategicRecommendations";
 import SourcesTable from "@/components/SourcesTable";
+import ServicesDropdown from "@/components/ServicesDropdown";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 const Index = () => {
   const [brandName, setBrandName] = useState("");
@@ -301,31 +304,23 @@ const Index = () => {
         </Card>
 
         {/* Services Overview */}
-        <Card className="mt-6 border-2 border-border bg-card">
-          <CardHeader>
-            <CardTitle className="uppercase tracking-wider text-sm text-muted-foreground">Core Services</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="flex items-center gap-3 p-3 rounded bg-background/50">
-                <Shield className="h-5 w-5 text-primary flex-shrink-0" />
-                <span className="text-sm font-medium">Narrative Intelligence</span>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded bg-background/50">
-                <AlertTriangle className="h-5 w-5 text-primary flex-shrink-0" />
-                <span className="text-sm font-medium">Threat Assessment</span>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded bg-background/50">
-                <Search className="h-5 w-5 text-primary flex-shrink-0" />
-                <span className="text-sm font-medium">Real-Time Monitoring</span>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded bg-background/50">
-                <Send className="h-5 w-5 text-primary flex-shrink-0" />
-                <span className="text-sm font-medium">Strategic Response</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <Collapsible className="mt-6">
+          <Card className="border-2 border-border bg-card">
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="cursor-pointer hover:bg-accent/5 transition-colors">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="uppercase tracking-wider text-sm text-muted-foreground">Greyguards Services</CardTitle>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
+                </div>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <ServicesDropdown compact />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
         {/* Results Dashboard */}
         {results && (
@@ -418,6 +413,16 @@ const Index = () => {
               sentimentSummary={`Positive: ${Math.round((results.sentimentDistribution.find(s => s.name === "Positive")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%, Negative: ${Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%, Neutral: ${Math.round((results.sentimentDistribution.find(s => s.name === "Neutral")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%`}
               riskLevel={results.threatLevel}
             />
+
+            {/* Full Services Menu */}
+            <Card className="border-2 border-border bg-card">
+              <CardHeader className="border-b-2 border-border">
+                <CardTitle className="uppercase tracking-wider text-sm">All Greyguards Services</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <ServicesDropdown />
+              </CardContent>
+            </Card>
 
             {/* Recommended Actions */}
             <RecommendedActions
