@@ -18,6 +18,8 @@ import SentimentTrendComparison from "@/components/SentimentTrendComparison";
 import StrategicRecommendations from "@/components/StrategicRecommendations";
 import SourcesTable from "@/components/SourcesTable";
 import ServicesDropdown from "@/components/ServicesDropdown";
+import { GDELTEntitiesChart } from "@/components/GDELTEntitiesChart";
+import { GDELTLocationsMap } from "@/components/GDELTLocationsMap";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -31,6 +33,8 @@ const Index = () => {
   const [trendsData, setTrendsData] = useState<any>(null);
   const [allMentions, setAllMentions] = useState<any[]>([]);
   const [sources, setSources] = useState<Array<{name: string; count: number; country?: string}>>([]);
+  const [gdeltEntities, setGdeltEntities] = useState<{ name: string; count: number }[]>([]);
+  const [gdeltLocations, setGdeltLocations] = useState<{ name: string; count: number; lat?: number; lon?: number }[]>([]);
   const { toast } = useToast();
 
   const handleSearch = async () => {
@@ -61,7 +65,7 @@ const Index = () => {
       }
 
       // Fetch all data sources in parallel (non-blocking)
-      const [newsData, redditData, trends, hnData, mastodonData, wikiData, rssAggregatorData] = await Promise.allSettled([
+      const [newsData, redditData, trends, hnData, mastodonData, wikiData, rssAggregatorData, gdeltDocData, gdeltGkgData] = await Promise.allSettled([
         supabase.functions.invoke("fetch-news", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-reddit", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-trends", { body: { brand: brandName } }),
@@ -69,6 +73,8 @@ const Index = () => {
         supabase.functions.invoke("fetch-mastodon", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-wikipedia", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-rss-aggregator", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-gdelt-doc", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-gdelt-gkg", { body: { brand: brandName } }),
       ]);
 
       // Process news data
@@ -128,6 +134,27 @@ const Index = () => {
         console.warn("RSS Aggregator unavailable:", rssAggregatorData.status === "fulfilled" ? rssAggregatorData.value.error : rssAggregatorData.reason);
       }
 
+      // Process GDELT DOC data (global news articles)
+      let gdeltArticles = [];
+      if (gdeltDocData.status === "fulfilled" && !gdeltDocData.value.error) {
+        gdeltArticles = gdeltDocData.value.data?.articles || [];
+        console.log(`GDELT DOC: ${gdeltArticles.length} global articles`);
+      } else {
+        console.warn("GDELT DOC unavailable:", gdeltDocData.status === "fulfilled" ? gdeltDocData.value.error : gdeltDocData.reason);
+      }
+
+      // Process GDELT GKG data (entities, themes, locations)
+      if (gdeltGkgData.status === "fulfilled" && !gdeltGkgData.value.error) {
+        const gkgData = gdeltGkgData.value.data;
+        setGdeltEntities(gkgData?.entities || []);
+        setGdeltLocations(gkgData?.locations || []);
+        console.log(`GDELT GKG: ${gkgData?.entities?.length || 0} entities, ${gkgData?.locations?.length || 0} locations`);
+      } else {
+        console.warn("GDELT GKG unavailable:", gdeltGkgData.status === "fulfilled" ? gdeltGkgData.value.error : gdeltGkgData.reason);
+        setGdeltEntities([]);
+        setGdeltLocations([]);
+      }
+
       // Combine and analyze data from ALL sources
       const mentions = [
         ...articles.map((a: any) => ({
@@ -161,6 +188,12 @@ const Index = () => {
         ...rssArticles.map((a: any) => ({
           text: `${a.title} ${a.text || ''}`,
           source: a.source, // Will be source name like "BBC News", "CNN", etc.
+          country: a.country,
+          date: new Date(a.publishedAt),
+        })),
+        ...gdeltArticles.map((a: any) => ({
+          text: a.title || a.text,
+          source: `GDELT (${a.country})`,
           country: a.country,
           date: new Date(a.publishedAt),
         })),
@@ -347,6 +380,18 @@ const Index = () => {
 
             <KeywordsChart data={results.keywords} />
 
+            {/* GDELT Global Intelligence */}
+            {(gdeltEntities.length > 0 || gdeltLocations.length > 0) && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {gdeltEntities.length > 0 && (
+                  <GDELTEntitiesChart data={gdeltEntities} />
+                )}
+                {gdeltLocations.length > 0 && (
+                  <GDELTLocationsMap locations={gdeltLocations} />
+                )}
+              </div>
+            )}
+
             {/* Mentions Ticker */}
             <MentionsTicker mentions={allMentions} brandName={brandName} />
 
@@ -466,7 +511,7 @@ const Index = () => {
               <CardContent className="pt-4">
                 <p className="text-sm text-muted-foreground uppercase tracking-wider">
                   Results generated from live public data // MVP system with limited accuracy //
-                  Data sources: 50+ Global News Outlets + Reddit + Hacker News + Mastodon + Wikipedia // Sentiment analysis: AI-powered models
+                  Data sources: 50+ Global News Outlets + GDELT (Global Database) + Reddit + Hacker News + Mastodon + Wikipedia // Sentiment analysis: AI-powered models
                 </p>
               </CardContent>
             </Card>

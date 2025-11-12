@@ -24,6 +24,12 @@ verify_jwt = false
 [functions.fetch-rss-aggregator]
 verify_jwt = false
 
+[functions.fetch-gdelt-doc]
+verify_jwt = false
+
+[functions.fetch-gdelt-gkg]
+verify_jwt = false
+
 [functions.generate-actions]
 verify_jwt = false
 
