@@ -32,7 +32,7 @@ async function getSentimentPipeline() {
   return sentimentPipeline;
 }
 
-export async function analyzeSentiment(mentions: Mention[], brandName: string = "default"): Promise<AnalysisResult> {
+export async function analyzeSentiment(mentions: Mention[], brandName: string, userId: string): Promise<AnalysisResult> {
   const pipeline = await getSentimentPipeline();
   
   // Analyze sentiment for each mention
@@ -122,6 +122,7 @@ export async function analyzeSentiment(mentions: Mention[], brandName: string = 
     negative_count: negative,
     neutral_count: neutral,
     total_mentions: mentions.length,
+    user_id: userId,
   });
 
   // Retrieve historical sentiment data (last 10 scans)
@@ -129,6 +130,7 @@ export async function analyzeSentiment(mentions: Mention[], brandName: string = 
     .from("sentiment_history")
     .select("sentiment_score")
     .eq("brand_name", brandName)
+    .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(10);
 

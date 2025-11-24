@@ -24,6 +24,7 @@ export type Database = {
           positive_count: number
           sentiment_score: number
           total_mentions: number
+          user_id: string | null
         }
         Insert: {
           brand_name: string
@@ -34,6 +35,7 @@ export type Database = {
           positive_count: number
           sentiment_score: number
           total_mentions: number
+          user_id?: string | null
         }
         Update: {
           brand_name?: string
@@ -44,6 +46,28 @@ export type Database = {
           positive_count?: number
           sentiment_score?: number
           total_mentions?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_brand_access: {
+        Row: {
+          brand_name: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          brand_name: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          brand_name?: string
+          created_at?: string
+          id?: string
+          user_id?: string
         }
         Relationships: []
       }
