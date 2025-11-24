@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,9 +16,25 @@ serve(async (req) => {
     
     if (!brand || !mentions || mentions.length === 0) {
       return new Response(
-        JSON.stringify({ narratives: [], error: "Brand name and mentions required" }),
+        JSON.stringify({ narratives: [], alerts: [], error: "Brand name and mentions required" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Get authenticated user
+    const authHeader = req.headers.get('Authorization');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: { headers: { Authorization: authHeader! } }
+    });
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized', narratives: [], alerts: [] }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -37,8 +54,9 @@ Analyze the provided mentions and identify distinct MDM narratives. For each nar
 1. Classify it as Misinformation, Disinformation, or Malinformation
 2. Provide a clear title (max 80 chars)
 3. Write a concise description (2-3 sentences)
-4. Estimate severity (low/medium/high)
+4. Estimate severity (low/medium/high/critical)
 5. Count frequency in the dataset
+6. Assign a unique stable ID (lowercase, underscore-separated, e.g., "data_breach_rumor")
 
 Focus on patterns, recurring themes, and coordinated messaging rather than isolated mentions.`;
 
@@ -51,10 +69,11 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
 {
   "narratives": [
     {
+      "id": "unique_narrative_id",
       "type": "misinformation" | "disinformation" | "malinformation",
       "title": "Brief narrative title",
       "description": "2-3 sentence description of the narrative",
-      "severity": "low" | "medium" | "high",
+      "severity": "low" | "medium" | "high" | "critical",
       "frequency": number (estimated occurrences in dataset),
       "firstSeen": "YYYY-MM-DD" (estimate based on context),
       "keywords": ["keyword1", "keyword2", "keyword3"]
@@ -83,13 +102,13 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
     if (!response.ok) {
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again later.", narratives: [] }),
+          JSON.stringify({ error: "Rate limit exceeded. Please try again later.", narratives: [], alerts: [] }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: "Payment required. Please add credits to your workspace.", narratives: [] }),
+          JSON.stringify({ error: "Payment required. Please add credits to your workspace.", narratives: [], alerts: [] }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -129,8 +148,91 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
     const narratives = narrativesData.narratives || [];
     console.log(`Identified ${narratives.length} MDM narratives`);
 
+    // Check for historical data to detect new narratives and surges
+    const alerts: any[] = [];
+    const now = new Date();
+    
+    // Fetch recent narrative history (last 7 days)
+    const { data: historyData } = await supabase
+      .from('mdm_narratives_history')
+      .select('*')
+      .eq('brand_name', brand)
+      .eq('user_id', user.id)
+      .gte('detected_at', new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      .order('detected_at', { ascending: false });
+
+    const recentHistory = historyData || [];
+    console.log(`Found ${recentHistory.length} historical narrative records`);
+    
+    // Store current narratives in history
+    for (const narrative of narratives) {
+      await supabase.from('mdm_narratives_history').insert({
+        user_id: user.id,
+        brand_name: brand,
+        narrative_id: narrative.id,
+        narrative_type: narrative.type,
+        narrative_description: narrative.description,
+        severity: narrative.severity,
+        frequency: narrative.frequency,
+        keywords: narrative.keywords,
+        detected_at: now.toISOString()
+      });
+    }
+
+    // Detect new narratives and surges
+    for (const narrative of narratives) {
+      const previousInstances = recentHistory.filter(
+        h => h.narrative_id === narrative.id
+      );
+
+      // Check if this is a completely new narrative (not seen in last 7 days)
+      if (previousInstances.length === 0) {
+        const alert = {
+          user_id: user.id,
+          brand_name: brand,
+          alert_type: 'new_narrative',
+          narrative_id: narrative.id,
+          narrative_description: narrative.description,
+          severity: narrative.severity,
+          previous_frequency: null,
+          current_frequency: narrative.frequency,
+          frequency_change_percent: null,
+          is_read: false
+        };
+        
+        await supabase.from('mdm_alerts').insert(alert);
+        alerts.push(alert);
+        console.log('🆕 New narrative detected:', narrative.id);
+      } else {
+        // Check for frequency surge (50%+ increase from last detection)
+        const lastInstance = previousInstances[0];
+        const frequencyIncrease = ((narrative.frequency - lastInstance.frequency) / lastInstance.frequency) * 100;
+        
+        if (frequencyIncrease >= 50) {
+          const alert = {
+            user_id: user.id,
+            brand_name: brand,
+            alert_type: 'surge',
+            narrative_id: narrative.id,
+            narrative_description: narrative.description,
+            severity: narrative.severity,
+            previous_frequency: lastInstance.frequency,
+            current_frequency: narrative.frequency,
+            frequency_change_percent: frequencyIncrease,
+            is_read: false
+          };
+          
+          await supabase.from('mdm_alerts').insert(alert);
+          alerts.push(alert);
+          console.log('📈 Narrative surge detected:', narrative.id, `+${frequencyIncrease.toFixed(0)}%`);
+        }
+      }
+    }
+
+    console.log(`Generated ${alerts.length} alerts`);
+
     return new Response(
-      JSON.stringify({ narratives }),
+      JSON.stringify({ narratives, alerts }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
@@ -138,7 +240,7 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
     console.error("Error in analyze-mdm-narratives:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(
-      JSON.stringify({ error: errorMessage, narratives: [] }),
+      JSON.stringify({ error: errorMessage, narratives: [], alerts: [] }),
       { 
         status: 200, // Return 200 to keep app working
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
