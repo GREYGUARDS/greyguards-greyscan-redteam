@@ -22,6 +22,7 @@ import { GDELTEntitiesChart } from "@/components/GDELTEntitiesChart";
 import { GDELTLocationsMap } from "@/components/GDELTLocationsMap";
 import { GDELTThemesChart } from "@/components/GDELTThemesChart";
 import { MDMNarrativesTracker } from "@/components/MDMNarrativesTracker";
+import { EmergingNarrativesPrediction } from "@/components/EmergingNarrativesPrediction";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -40,6 +41,8 @@ const Index = () => {
   const [gdeltThemes, setGdeltThemes] = useState<{ name: string; count: number }[]>([]);
   const [mdmNarratives, setMdmNarratives] = useState<any[]>([]);
   const [mdmLoading, setMdmLoading] = useState(false);
+  const [emergingPredictions, setEmergingPredictions] = useState<any[]>([]);
+  const [predictionsLoading, setPredictionsLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -291,6 +294,7 @@ const Index = () => {
 
       // Analyze MDM narratives using AI
       setMdmLoading(true);
+      let mdmResults: any[] = [];
       try {
         const { data: mdmData, error: mdmError } = await supabase.functions.invoke("analyze-mdm-narratives", {
           body: { brand: brandName, mentions: allMentions }
@@ -298,6 +302,7 @@ const Index = () => {
         
         if (!mdmError && mdmData?.narratives) {
           setMdmNarratives(mdmData.narratives);
+          mdmResults = mdmData.narratives;
         } else {
           console.warn("MDM analysis failed:", mdmError);
           setMdmNarratives([]);
@@ -307,6 +312,26 @@ const Index = () => {
         setMdmNarratives([]);
       } finally {
         setMdmLoading(false);
+      }
+
+      // Analyze emerging narratives using AI
+      setPredictionsLoading(true);
+      try {
+        const { data: predData, error: predError } = await supabase.functions.invoke("analyze-emerging-narratives", {
+          body: { brand: brandName, mentions: allMentions, mdmNarratives: mdmResults }
+        });
+        
+        if (!predError && predData?.predictions) {
+          setEmergingPredictions(predData.predictions);
+        } else {
+          console.warn("Emerging narratives analysis failed:", predError);
+          setEmergingPredictions([]);
+        }
+      } catch (predErr) {
+        console.error("Emerging narratives error:", predErr);
+        setEmergingPredictions([]);
+      } finally {
+        setPredictionsLoading(false);
       }
 
       // Cache results
@@ -533,6 +558,12 @@ const Index = () => {
             <MDMNarrativesTracker 
               narratives={mdmNarratives}
               loading={mdmLoading}
+            />
+
+            {/* Emerging Narrative Predictions */}
+            <EmergingNarrativesPrediction
+              predictions={emergingPredictions}
+              isLoading={predictionsLoading}
             />
 
             {/* AI Strategic Recommendations */}
