@@ -144,6 +144,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error in fetch-gdelt-gkg:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    // Return 200 with error field so frontend continues working
     return new Response(
       JSON.stringify({ 
         error: errorMessage, 
@@ -151,9 +152,10 @@ serve(async (req) => {
         themes: [], 
         locations: [],
         averageTone: 0,
+        totalArticles: 0,
       }),
       { 
-        status: 500, 
+        status: 200, // Changed from 500 to keep app working
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
     );
