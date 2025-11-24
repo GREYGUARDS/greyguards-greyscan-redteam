@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Download, AlertTriangle, Shield, Send, LogOut } from "lucide-react";
+import { Search, Download, AlertTriangle, Shield, Send, LogOut, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { SentimentChart } from "@/components/SentimentChart";
 import { TimelineChart } from "@/components/TimelineChart";
@@ -25,6 +26,7 @@ import { MDMNarrativesTracker } from "@/components/MDMNarrativesTracker";
 import { EmergingNarrativesPrediction } from "@/components/EmergingNarrativesPrediction";
 import MDMAlerts from "@/components/MDMAlerts";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { BrandPeopleList } from "@/components/BrandPeopleList";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -47,6 +49,11 @@ const Index = () => {
   const [emergingPredictions, setEmergingPredictions] = useState<any[]>([]);
   const [predictionsLoading, setPredictionsLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [brandPeople, setBrandPeople] = useState<any[]>([]);
+  const [peopleLoading, setPeopleLoading] = useState(false);
+  const [personMentions, setPersonMentions] = useState<Record<string, any>>({});
+  const [personNarratives, setPersonNarratives] = useState<Record<string, any[]>>({});
+  const [refreshingPersonId, setRefreshingPersonId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -432,6 +439,151 @@ const Index = () => {
     }
   };
 
+  const handleDiscoverPeople = async () => {
+    if (!brandName || !userId) return;
+    
+    setPeopleLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("discover-brand-people", {
+        body: { brandName }
+      });
+
+      if (error) throw error;
+
+      if (data?.people) {
+        setBrandPeople(data.people);
+        toast({
+          title: "People Discovered",
+          description: `Found ${data.count} key people associated with ${brandName}`,
+        });
+
+        // Fetch data for each discovered person
+        for (const person of data.people) {
+          await handleRefreshPersonData(person.id, person.person_name, false);
+        }
+      }
+    } catch (error: any) {
+      console.error("Error discovering people:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to discover people",
+        variant: "destructive",
+      });
+    } finally {
+      setPeopleLoading(false);
+    }
+  };
+
+  const handleRefreshPersonData = async (personId: string, personName?: string, showToast = true) => {
+    if (!brandName || !userId) return;
+    
+    setRefreshingPersonId(personId);
+    try {
+      const person = brandPeople.find(p => p.id === personId);
+      const name = personName || person?.person_name;
+      
+      const { data, error } = await supabase.functions.invoke("analyze-person-data", {
+        body: { 
+          personId,
+          brandName,
+          personName: name
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.analysis) {
+        setPersonMentions(prev => ({
+          ...prev,
+          [personId]: {
+            mention_count: data.analysis.mentions,
+            sentiment_score: data.analysis.sentiment_score,
+            positive_count: data.analysis.positive,
+            negative_count: data.analysis.negative,
+            neutral_count: data.analysis.neutral,
+          }
+        }));
+
+        // Fetch MDM narratives for this person
+        const { data: narrativesData } = await supabase
+          .from('person_mdm_narratives')
+          .select('*')
+          .eq('person_id', personId)
+          .order('created_at', { ascending: false });
+          
+        if (narrativesData) {
+          setPersonNarratives(prev => ({
+            ...prev,
+            [personId]: narrativesData
+          }));
+        }
+
+        if (showToast) {
+          toast({
+            title: "Data Updated",
+            description: `Refreshed data for ${name}`,
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error("Error refreshing person data:", error);
+      if (showToast) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to refresh person data",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setRefreshingPersonId(null);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch discovered people when results are loaded
+    if (results && brandName && userId) {
+      const fetchPeople = async () => {
+        const { data } = await supabase
+          .from('brand_people')
+          .select('*')
+          .eq('brand_name', brandName)
+          .eq('user_id', userId)
+          .order('discovered_at', { ascending: false });
+          
+        if (data) {
+          setBrandPeople(data);
+          
+          // Fetch mentions and narratives for each person
+          for (const person of data) {
+            const { data: mentionsData } = await supabase
+              .from('person_mentions_history')
+              .select('*')
+              .eq('person_id', person.id)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .single();
+              
+            if (mentionsData) {
+              setPersonMentions(prev => ({ ...prev, [person.id]: mentionsData }));
+            }
+            
+            const { data: narrativesData } = await supabase
+              .from('person_mdm_narratives')
+              .select('*')
+              .eq('person_id', person.id)
+              .order('created_at', { ascending: false });
+              
+            if (narrativesData) {
+              setPersonNarratives(prev => ({ ...prev, [person.id]: narrativesData }));
+            }
+          }
+        }
+      };
+      
+      fetchPeople();
+    }
+  }, [results, brandName, userId]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -511,161 +663,211 @@ const Index = () => {
         {/* Results Dashboard */}
         {results && (
           <div id="dashboard" className="mt-8 space-y-6">
-            {/* Threat Indicator */}
-            <ThreatIndicator
-              threatLevel={results.threatLevel}
-              threatScore={results.threatScore}
-            />
+            <Tabs defaultValue="brand" className="w-full">
+              <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
+                <TabsTrigger value="brand" className="uppercase tracking-wider">
+                  Brand Overview
+                </TabsTrigger>
+                <TabsTrigger value="people" className="uppercase tracking-wider">
+                  <Users className="h-4 w-4 mr-2" />
+                  Key People
+                </TabsTrigger>
+              </TabsList>
 
-            {/* Sentiment Analysis & Trend */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <SentimentTrendComparison
-                shortTermSentiment={results.shortTermSentiment}
-                longTermSentiment={results.longTermSentiment}
-                trendIcon={results.trendIcon}
-                previousSentiment={results.previousSentiment}
-              />
-              <SentimentChart data={results.sentimentDistribution} />
-            </div>
-
-            {/* MDM Alerts - Only show unread */}
-            {mdmAlerts.filter(a => !a.is_read).length > 0 && (
-              <MDMAlerts 
-                alerts={mdmAlerts.filter(a => !a.is_read)}
-                onDismiss={fetchMDMAlerts}
-                onMarkAllRead={fetchMDMAlerts}
-              />
-            )}
-
-            {/* MDM Narrative Intelligence */}
-            <MDMNarrativesTracker 
-              narratives={mdmNarratives}
-              loading={mdmLoading}
-            />
-
-            {/* Emerging Narrative Predictions */}
-            <EmergingNarrativesPrediction
-              predictions={emergingPredictions}
-              isLoading={predictionsLoading}
-            />
-
-            {/* Timeline & Keywords */}
-            <TimelineChart data={results.timeline} />
-            <KeywordsChart data={results.keywords} />
-
-            {/* GDELT Global Intelligence */}
-            {gdeltThemes.length > 0 && (
-              <GDELTThemesChart data={gdeltThemes} />
-            )}
-            
-            {(gdeltEntities.length > 0 || gdeltLocations.length > 0) && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {gdeltEntities.length > 0 && (
-                  <GDELTEntitiesChart data={gdeltEntities} />
-                )}
-                {gdeltLocations.length > 0 && (
-                  <GDELTLocationsMap locations={gdeltLocations} />
-                )}
-              </div>
-            )}
-
-            {/* Mentions Ticker */}
-            <MentionsTicker mentions={allMentions} brandName={brandName} />
-
-            {/* Google Trends Data */}
-            {trendsData && (
-              <>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <TrendsChart 
-                    data={trendsData?.interest_over_time?.timeline_data?.map((item: any) => ({
-                      date: item.date,
-                      value: item.values?.[0]?.value || 0
-                    })) || []}
-                  />
-                  <NegativityTrendIndicator
-                    currentNegative={results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0}
-                    previousNegative={results.previousSentiment < 0 
-                      ? Math.abs(Math.round(results.previousSentiment * allMentions.length / 100))
-                      : Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) * 0.9)
-                    }
-                    totalMentions={allMentions.length}
-                    negativeBySource={(() => {
-                      const negativeMentions = allMentions.filter((_, idx) => {
-                        const negativeDist = results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0;
-                        return idx < negativeDist;
-                      });
-                      const sourceCount = negativeMentions.reduce((acc: any, mention: any) => {
-                        const source = mention.source || 'unknown';
-                        acc[source] = (acc[source] || 0) + 1;
-                        return acc;
-                      }, {});
-                      const totalNegative = results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0;
-                      return Object.entries(sourceCount).map(([source, count]) => ({
-                        source,
-                        count: count as number,
-                        percentage: ((count as number) / totalNegative) * 100
-                      }));
-                    })()}
-                    changeVelocity={(() => {
-                      const negativeCurrent = results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0;
-                      const negativePrevious = results.previousSentiment < 0 
-                        ? Math.abs(Math.round(results.previousSentiment * allMentions.length / 100))
-                        : Math.round(negativeCurrent * 0.9);
-                      return (negativeCurrent - negativePrevious) / 7; // Average per day over 7 days
-                    })()}
-                    peakNegativeDay={results.timeline.reduce((max, item) => 
-                      item.mentions > max.mentions ? item : max, 
-                      results.timeline[0]
-                    )?.date}
-                  />
-                </div>
-                <RelatedQueriesTable 
-                  data={trendsData?.related_queries?.rising?.map((item: any) => ({
-                    query: item.query,
-                    value: item.value
-                  })) || []}
+              <TabsContent value="brand" className="space-y-6">
+                {/* Threat Indicator */}
+                <ThreatIndicator
+                  threatLevel={results.threatLevel}
+                  threatScore={results.threatScore}
                 />
-              </>
-            )}
 
-            {/* AI Strategic Recommendations */}
-            <StrategicRecommendations
-              brandName={brandName}
-              topTopics={results.keywords.slice(0, 5).map(k => k.word).join(", ")}
-              sentimentSummary={`Positive: ${Math.round((results.sentimentDistribution.find(s => s.name === "Positive")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%, Negative: ${Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%, Neutral: ${Math.round((results.sentimentDistribution.find(s => s.name === "Neutral")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%`}
-              riskLevel={results.threatLevel}
-            />
+                {/* Sentiment Analysis & Trend */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <SentimentTrendComparison
+                    shortTermSentiment={results.shortTermSentiment}
+                    longTermSentiment={results.longTermSentiment}
+                    trendIcon={results.trendIcon}
+                    previousSentiment={results.previousSentiment}
+                  />
+                  <SentimentChart data={results.sentimentDistribution} />
+                </div>
 
-            {/* Recommended Actions */}
-            <RecommendedActions
-              threatLevel={results.threatLevel}
-              negativePercentage={Math.round(
-                (results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) /
-                (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100
-              )}
-              brandName={brandName}
-              sentimentDistribution={{
-                positive: Math.round((results.sentimentDistribution.find(s => s.name === "Positive")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
-                neutral: Math.round((results.sentimentDistribution.find(s => s.name === "Neutral")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
-                negative: Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)
-              }}
-              keywords={results.keywords}
-            />
+                {/* MDM Alerts - Only show unread */}
+                {mdmAlerts.filter(a => !a.is_read).length > 0 && (
+                  <MDMAlerts 
+                    alerts={mdmAlerts.filter(a => !a.is_read)}
+                    onDismiss={fetchMDMAlerts}
+                    onMarkAllRead={fetchMDMAlerts}
+                  />
+                )}
 
-            {/* Counter-Narrative Statement */}
-            <CounterNarrativeStatement
-              brandName={brandName}
-              keywords={results.keywords}
-              sentimentDistribution={{
-                positive: Math.round((results.sentimentDistribution.find(s => s.name === "Positive")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
-                neutral: Math.round((results.sentimentDistribution.find(s => s.name === "Neutral")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
-                negative: Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)
-              }}
-              threatLevel={results.threatLevel}
-            />
+                {/* MDM Narrative Intelligence */}
+                <MDMNarrativesTracker 
+                  narratives={mdmNarratives}
+                  loading={mdmLoading}
+                />
 
-            {/* Sources Table */}
-            <SourcesTable sources={sources} />
+                {/* Emerging Narrative Predictions */}
+                <EmergingNarrativesPrediction
+                  predictions={emergingPredictions}
+                  isLoading={predictionsLoading}
+                />
+
+                {/* Timeline & Keywords */}
+                <TimelineChart data={results.timeline} />
+                <KeywordsChart data={results.keywords} />
+
+                {/* GDELT Global Intelligence */}
+                {gdeltThemes.length > 0 && (
+                  <GDELTThemesChart data={gdeltThemes} />
+                )}
+                
+                {(gdeltEntities.length > 0 || gdeltLocations.length > 0) && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {gdeltEntities.length > 0 && (
+                      <GDELTEntitiesChart data={gdeltEntities} />
+                    )}
+                    {gdeltLocations.length > 0 && (
+                      <GDELTLocationsMap locations={gdeltLocations} />
+                    )}
+                  </div>
+                )}
+
+                {/* Mentions Ticker */}
+                <MentionsTicker mentions={allMentions} brandName={brandName} />
+
+                {/* Google Trends Data */}
+                {trendsData && (
+                  <>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <TrendsChart 
+                        data={trendsData?.interest_over_time?.timeline_data?.map((item: any) => ({
+                          date: item.date,
+                          value: item.values?.[0]?.value || 0
+                        })) || []}
+                      />
+                      <NegativityTrendIndicator
+                        currentNegative={results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0}
+                        previousNegative={results.previousSentiment < 0 
+                          ? Math.abs(Math.round(results.previousSentiment * allMentions.length / 100))
+                          : Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) * 0.9)
+                        }
+                        totalMentions={allMentions.length}
+                        negativeBySource={(() => {
+                          const negativeMentions = allMentions.filter((_, idx) => {
+                            const negativeDist = results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0;
+                            return idx < negativeDist;
+                          });
+                          const sourceCount = negativeMentions.reduce((acc: any, mention: any) => {
+                            const source = mention.source || 'unknown';
+                            acc[source] = (acc[source] || 0) + 1;
+                            return acc;
+                          }, {});
+                          const totalNegative = results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0;
+                          return Object.entries(sourceCount).map(([source, count]) => ({
+                            source,
+                            count: count as number,
+                            percentage: ((count as number) / totalNegative) * 100
+                          }));
+                        })()}
+                        changeVelocity={(() => {
+                          const negativeCurrent = results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0;
+                          const negativePrevious = results.previousSentiment < 0 
+                            ? Math.abs(Math.round(results.previousSentiment * allMentions.length / 100))
+                            : Math.round(negativeCurrent * 0.9);
+                          return (negativeCurrent - negativePrevious) / 7; // Average per day over 7 days
+                        })()}
+                        peakNegativeDay={results.timeline.reduce((max, item) => 
+                          item.mentions > max.mentions ? item : max, 
+                          results.timeline[0]
+                        )?.date}
+                      />
+                    </div>
+                    <RelatedQueriesTable 
+                      data={trendsData?.related_queries?.rising?.map((item: any) => ({
+                        query: item.query,
+                        value: item.value
+                      })) || []}
+                    />
+                  </>
+                )}
+
+                {/* AI Strategic Recommendations */}
+                <StrategicRecommendations
+                  brandName={brandName}
+                  topTopics={results.keywords.slice(0, 5).map(k => k.word).join(", ")}
+                  sentimentSummary={`Positive: ${Math.round((results.sentimentDistribution.find(s => s.name === "Positive")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%, Negative: ${Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%, Neutral: ${Math.round((results.sentimentDistribution.find(s => s.name === "Neutral")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%`}
+                  riskLevel={results.threatLevel}
+                />
+
+                {/* Recommended Actions */}
+                <RecommendedActions
+                  threatLevel={results.threatLevel}
+                  negativePercentage={Math.round(
+                    (results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) /
+                    (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100
+                  )}
+                  brandName={brandName}
+                  sentimentDistribution={{
+                    positive: Math.round((results.sentimentDistribution.find(s => s.name === "Positive")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
+                    neutral: Math.round((results.sentimentDistribution.find(s => s.name === "Neutral")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
+                    negative: Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)
+                  }}
+                  keywords={results.keywords}
+                />
+
+                {/* Counter-Narrative Statement */}
+                <CounterNarrativeStatement
+                  brandName={brandName}
+                  keywords={results.keywords}
+                  sentimentDistribution={{
+                    positive: Math.round((results.sentimentDistribution.find(s => s.name === "Positive")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
+                    neutral: Math.round((results.sentimentDistribution.find(s => s.name === "Neutral")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100),
+                    negative: Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)
+                  }}
+                  threatLevel={results.threatLevel}
+                />
+
+                {/* Sources Table */}
+                <SourcesTable sources={sources} />
+              </TabsContent>
+
+              <TabsContent value="people" className="space-y-6">
+                <Card className="border-4 border-border bg-card">
+                  <CardHeader className="border-b-4 border-border">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2 uppercase tracking-wider">
+                        <Users className="h-5 w-5" />
+                        Key People Intelligence
+                      </CardTitle>
+                      <Button
+                        onClick={handleDiscoverPeople}
+                        disabled={peopleLoading}
+                        className="uppercase tracking-wider"
+                      >
+                        {peopleLoading ? (
+                          <>
+                            <span className="animate-spin mr-2">⟳</span>
+                            Discovering...
+                          </>
+                        ) : (
+                          'Discover Key People'
+                        )}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <BrandPeopleList
+                      people={brandPeople}
+                      mentions={personMentions}
+                      narratives={personNarratives}
+                      onRefresh={handleRefreshPersonData}
+                      isRefreshing={refreshingPersonId}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
 
             {/* Disclaimer */}
             <Card className="border-4 border-border bg-secondary">
