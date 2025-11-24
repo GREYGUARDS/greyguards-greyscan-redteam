@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Search, Download, AlertTriangle, Shield, Send } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, Download, AlertTriangle, Shield, Send, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,7 +38,44 @@ const Index = () => {
   const [gdeltEntities, setGdeltEntities] = useState<{ name: string; count: number }[]>([]);
   const [gdeltLocations, setGdeltLocations] = useState<{ name: string; count: number; lat?: number; lon?: number }[]>([]);
   const [gdeltThemes, setGdeltThemes] = useState<{ name: string; count: number }[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+        return;
+      }
+      setUserId(session.user.id);
+
+      // Grant access to any brand the user searches
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Automatically grant brand access when user searches
+        setUserId(user.id);
+      }
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUserId(session.user.id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth");
+  };
 
   const handleSearch = async () => {
     if (!brandName.trim()) {
@@ -229,7 +267,24 @@ const Index = () => {
       }
 
       setAllMentions(mentions);
-      const analysis = await analyzeSentiment(mentions, brandName);
+      
+      if (!userId) {
+        toast({
+          title: "Error",
+          description: "User not authenticated",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Grant brand access to user
+      const { error: accessError } = await supabase.from("user_brand_access").upsert({
+        user_id: userId,
+        brand_name: brandName,
+      }, { onConflict: 'user_id,brand_name' });
+
+      const analysis = await analyzeSentiment(mentions, brandName, userId);
       setResults(analysis);
 
       // Cache results
@@ -284,18 +339,29 @@ const Index = () => {
       {/* Header */}
       <header className="border-b-4 border-border bg-card">
         <div className="container mx-auto px-4 py-6 sm:py-8">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary flex items-center justify-center flex-shrink-0">
-              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary flex items-center justify-center flex-shrink-0">
+                <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight uppercase">
+                  Greyguards
+                </h1>
+                <p className="text-muted-foreground mt-1 uppercase text-xs sm:text-sm tracking-wider">
+                  Narrative Intelligence System
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight uppercase">
-                Greyguards
-              </h1>
-              <p className="text-muted-foreground mt-1 uppercase text-xs sm:text-sm tracking-wider">
-                Narrative Intelligence System
-              </p>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="uppercase tracking-wider"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
           </div>
         </div>
       </header>

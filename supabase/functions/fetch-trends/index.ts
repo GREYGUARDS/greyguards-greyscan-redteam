@@ -5,17 +5,33 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Input validation function
+function validateBrand(brand: any): string {
+  if (!brand || typeof brand !== 'string') {
+    throw new Error("Brand name is required and must be a string");
+  }
+  const trimmed = brand.trim();
+  if (trimmed.length === 0) {
+    throw new Error("Brand name cannot be empty");
+  }
+  if (trimmed.length > 100) {
+    throw new Error("Brand name must be less than 100 characters");
+  }
+  // Allow alphanumeric, spaces, hyphens, underscores, ampersands, and periods
+  if (!/^[a-zA-Z0-9\s\-_&.]+$/.test(trimmed)) {
+    throw new Error("Brand name contains invalid characters");
+  }
+  return trimmed;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { brand } = await req.json();
-    
-    if (!brand) {
-      throw new Error("Brand name is required");
-    }
+    const { brand: rawBrand } = await req.json();
+    const brand = validateBrand(rawBrand);
 
     const apiKey = Deno.env.get('SERPAPI_API_KEY');
     

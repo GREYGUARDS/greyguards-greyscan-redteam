@@ -1,40 +1,40 @@
 project_id = "lmdawrpurjtgtlaygkwp"
 
 [functions.fetch-news]
-verify_jwt = false
+verify_jwt = true
 
 [functions.fetch-reddit]
-verify_jwt = false
+verify_jwt = true
 
 [functions.fetch-trends]
-verify_jwt = false
+verify_jwt = true
 
 [functions.fetch-hackernews]
-verify_jwt = false
+verify_jwt = true
 
 [functions.fetch-mastodon]
-verify_jwt = false
+verify_jwt = true
 
 [functions.fetch-wikipedia]
-verify_jwt = false
+verify_jwt = true
 
 [functions.fetch-dailymail]
-verify_jwt = false
+verify_jwt = true
 
 [functions.fetch-rss-aggregator]
-verify_jwt = false
+verify_jwt = true
 
 [functions.fetch-gdelt-doc]
-verify_jwt = false
+verify_jwt = true
 
 [functions.fetch-gdelt-gkg]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-actions]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-counter-narrative]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-strategic-recommendations]
-verify_jwt = false
+verify_jwt = true
