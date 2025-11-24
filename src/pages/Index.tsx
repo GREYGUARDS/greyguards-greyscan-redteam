@@ -463,20 +463,31 @@ const Index = () => {
               threatScore={results.threatScore}
             />
 
-            {/* Sentiment Trend Comparison */}
-            <SentimentTrendComparison
-              shortTermSentiment={results.shortTermSentiment}
-              longTermSentiment={results.longTermSentiment}
-              trendIcon={results.trendIcon}
-              previousSentiment={results.previousSentiment}
-            />
-
-            {/* Charts Grid */}
+            {/* Sentiment Analysis & Trend */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SentimentTrendComparison
+                shortTermSentiment={results.shortTermSentiment}
+                longTermSentiment={results.longTermSentiment}
+                trendIcon={results.trendIcon}
+                previousSentiment={results.previousSentiment}
+              />
               <SentimentChart data={results.sentimentDistribution} />
-              <TimelineChart data={results.timeline} />
             </div>
 
+            {/* MDM Narrative Intelligence */}
+            <MDMNarrativesTracker 
+              narratives={mdmNarratives}
+              loading={mdmLoading}
+            />
+
+            {/* Emerging Narrative Predictions */}
+            <EmergingNarrativesPrediction
+              predictions={emergingPredictions}
+              isLoading={predictionsLoading}
+            />
+
+            {/* Timeline & Keywords */}
+            <TimelineChart data={results.timeline} />
             <KeywordsChart data={results.keywords} />
 
             {/* GDELT Global Intelligence */}
@@ -553,18 +564,6 @@ const Index = () => {
                 />
               </>
             )}
-
-            {/* MDM Narrative Intelligence */}
-            <MDMNarrativesTracker 
-              narratives={mdmNarratives}
-              loading={mdmLoading}
-            />
-
-            {/* Emerging Narrative Predictions */}
-            <EmergingNarrativesPrediction
-              predictions={emergingPredictions}
-              isLoading={predictionsLoading}
-            />
 
             {/* AI Strategic Recommendations */}
             <StrategicRecommendations
