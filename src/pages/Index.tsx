@@ -20,6 +20,7 @@ import SourcesTable from "@/components/SourcesTable";
 import ServicesDropdown from "@/components/ServicesDropdown";
 import { GDELTEntitiesChart } from "@/components/GDELTEntitiesChart";
 import { GDELTLocationsMap } from "@/components/GDELTLocationsMap";
+import { GDELTThemesChart } from "@/components/GDELTThemesChart";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -35,6 +36,7 @@ const Index = () => {
   const [sources, setSources] = useState<Array<{name: string; count: number; country?: string}>>([]);
   const [gdeltEntities, setGdeltEntities] = useState<{ name: string; count: number }[]>([]);
   const [gdeltLocations, setGdeltLocations] = useState<{ name: string; count: number; lat?: number; lon?: number }[]>([]);
+  const [gdeltThemes, setGdeltThemes] = useState<{ name: string; count: number }[]>([]);
   const { toast } = useToast();
 
   const handleSearch = async () => {
@@ -148,11 +150,13 @@ const Index = () => {
         const gkgData = gdeltGkgData.value.data;
         setGdeltEntities(gkgData?.entities || []);
         setGdeltLocations(gkgData?.locations || []);
-        console.log(`GDELT GKG: ${gkgData?.entities?.length || 0} entities, ${gkgData?.locations?.length || 0} locations`);
+        setGdeltThemes(gkgData?.themes || []);
+        console.log(`GDELT GKG: ${gkgData?.entities?.length || 0} entities, ${gkgData?.themes?.length || 0} themes, ${gkgData?.locations?.length || 0} locations`);
       } else {
         console.warn("GDELT GKG unavailable:", gdeltGkgData.status === "fulfilled" ? gdeltGkgData.value.error : gdeltGkgData.reason);
         setGdeltEntities([]);
         setGdeltLocations([]);
+        setGdeltThemes([]);
       }
 
       // Combine and analyze data from ALL sources
@@ -381,6 +385,10 @@ const Index = () => {
             <KeywordsChart data={results.keywords} />
 
             {/* GDELT Global Intelligence */}
+            {gdeltThemes.length > 0 && (
+              <GDELTThemesChart data={gdeltThemes} />
+            )}
+            
             {(gdeltEntities.length > 0 || gdeltLocations.length > 0) && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {gdeltEntities.length > 0 && (
