@@ -24,6 +24,7 @@ import { GDELTThemesChart } from "@/components/GDELTThemesChart";
 import { MDMNarrativesTracker } from "@/components/MDMNarrativesTracker";
 import { EmergingNarrativesPrediction } from "@/components/EmergingNarrativesPrediction";
 import MDMAlerts from "@/components/MDMAlerts";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -83,6 +84,28 @@ const Index = () => {
     await supabase.auth.signOut();
     navigate("/auth");
   };
+
+  const fetchMDMAlerts = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const { data, error } = await supabase
+      .from("mdm_alerts")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching MDM alerts:", error);
+    } else {
+      setMdmAlerts(data || []);
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      fetchMDMAlerts();
+    }
+  }, [userId]);
 
   const handleSearch = async () => {
     if (!brandName.trim()) {
@@ -326,14 +349,13 @@ const Index = () => {
         setMdmLoading(false);
       }
       
-      // Fetch existing unread alerts for this brand
+      // Fetch existing alerts for this brand (all, not just unread)
       try {
         const { data: existingAlerts } = await supabase
           .from('mdm_alerts')
           .select('*')
           .eq('brand_name', brandName)
           .eq('user_id', userId)
-          .eq('is_read', false)
           .order('created_at', { ascending: false });
           
         if (existingAlerts && existingAlerts.length > 0) {
@@ -429,15 +451,18 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="uppercase tracking-wider"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            <div className="flex items-center gap-2">
+              <NotificationCenter alerts={mdmAlerts} onAlertsUpdate={fetchMDMAlerts} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="uppercase tracking-wider"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -503,23 +528,12 @@ const Index = () => {
               <SentimentChart data={results.sentimentDistribution} />
             </div>
 
-            {/* MDM Alerts */}
-            {mdmAlerts.length > 0 && (
+            {/* MDM Alerts - Only show unread */}
+            {mdmAlerts.filter(a => !a.is_read).length > 0 && (
               <MDMAlerts 
-                alerts={mdmAlerts}
-                onDismiss={(alertId) => setMdmAlerts(prev => prev.filter(a => a.id !== alertId))}
-                onMarkAllRead={async () => {
-                  try {
-                    const alertIds = mdmAlerts.map(a => a.id);
-                    await supabase
-                      .from('mdm_alerts')
-                      .update({ is_read: true })
-                      .in('id', alertIds);
-                    setMdmAlerts(prev => prev.map(a => ({ ...a, is_read: true })));
-                  } catch (err) {
-                    console.error("Error marking alerts as read:", err);
-                  }
-                }}
+                alerts={mdmAlerts.filter(a => !a.is_read)}
+                onDismiss={fetchMDMAlerts}
+                onMarkAllRead={fetchMDMAlerts}
               />
             )}
 
