@@ -21,6 +21,7 @@ import SourcesTable from "@/components/SourcesTable";
 import { GDELTEntitiesChart } from "@/components/GDELTEntitiesChart";
 import { GDELTLocationsMap } from "@/components/GDELTLocationsMap";
 import { GDELTThemesChart } from "@/components/GDELTThemesChart";
+import { MDMNarrativesTracker } from "@/components/MDMNarrativesTracker";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -37,6 +38,8 @@ const Index = () => {
   const [gdeltEntities, setGdeltEntities] = useState<{ name: string; count: number }[]>([]);
   const [gdeltLocations, setGdeltLocations] = useState<{ name: string; count: number; lat?: number; lon?: number }[]>([]);
   const [gdeltThemes, setGdeltThemes] = useState<{ name: string; count: number }[]>([]);
+  const [mdmNarratives, setMdmNarratives] = useState<any[]>([]);
+  const [mdmLoading, setMdmLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -286,6 +289,26 @@ const Index = () => {
       const analysis = await analyzeSentiment(mentions, brandName, userId);
       setResults(analysis);
 
+      // Analyze MDM narratives using AI
+      setMdmLoading(true);
+      try {
+        const { data: mdmData, error: mdmError } = await supabase.functions.invoke("analyze-mdm-narratives", {
+          body: { brand: brandName, mentions: allMentions }
+        });
+        
+        if (!mdmError && mdmData?.narratives) {
+          setMdmNarratives(mdmData.narratives);
+        } else {
+          console.warn("MDM analysis failed:", mdmError);
+          setMdmNarratives([]);
+        }
+      } catch (mdmErr) {
+        console.error("MDM analysis error:", mdmErr);
+        setMdmNarratives([]);
+      } finally {
+        setMdmLoading(false);
+      }
+
       // Cache results
       localStorage.setItem(cacheKey, JSON.stringify(analysis));
       localStorage.setItem(`${cacheKey}_time`, Date.now().toString());
@@ -505,6 +528,12 @@ const Index = () => {
                 />
               </>
             )}
+
+            {/* MDM Narrative Intelligence */}
+            <MDMNarrativesTracker 
+              narratives={mdmNarratives}
+              loading={mdmLoading}
+            />
 
             {/* AI Strategic Recommendations */}
             <StrategicRecommendations
