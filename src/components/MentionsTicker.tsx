@@ -120,7 +120,17 @@ export function MentionsTicker({ mentions, brandName }: MentionsTickerProps) {
                       {mention.source}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(mention.date), { addSuffix: true })}
+                      {(() => {
+                        try {
+                          const date = new Date(mention.date);
+                          if (isNaN(date.getTime())) {
+                            return 'Recently';
+                          }
+                          return formatDistanceToNow(date, { addSuffix: true });
+                        } catch {
+                          return 'Recently';
+                        }
+                      })()}
                     </span>
                   </div>
                   <p className="text-sm whitespace-normal line-clamp-3 leading-relaxed">

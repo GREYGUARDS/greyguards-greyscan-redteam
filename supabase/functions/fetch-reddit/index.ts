@@ -40,7 +40,11 @@ serve(async (req) => {
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
       console.error("Reddit OAuth error:", tokenResponse.status, errorText);
-      throw new Error(`Reddit OAuth error: ${tokenResponse.status}`);
+      // Return empty result instead of throwing to keep app working
+      return new Response(JSON.stringify({ posts: [], error: `Reddit authentication failed: ${tokenResponse.status}` }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200, // Return 200 so frontend continues working
+      });
     }
 
     const tokenData = await tokenResponse.json();
