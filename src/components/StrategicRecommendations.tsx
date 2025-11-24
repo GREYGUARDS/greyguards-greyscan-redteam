@@ -89,7 +89,7 @@ const StrategicRecommendations = ({
             </div>
             <div className="pt-4 border-t-2 border-border">
               <p className="text-xs text-muted-foreground uppercase tracking-wider mb-4">
-                Strategic Intelligence Solutions
+                Greyguards Intelligence Solutions
               </p>
               
               <Accordion type="single" collapsible className="w-full">
