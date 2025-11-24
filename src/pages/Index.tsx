@@ -18,7 +18,6 @@ import { MentionsTicker } from "@/components/MentionsTicker";
 import SentimentTrendComparison from "@/components/SentimentTrendComparison";
 import StrategicRecommendations from "@/components/StrategicRecommendations";
 import SourcesTable from "@/components/SourcesTable";
-import ServicesDropdown from "@/components/ServicesDropdown";
 import { GDELTEntitiesChart } from "@/components/GDELTEntitiesChart";
 import { GDELTLocationsMap } from "@/components/GDELTLocationsMap";
 import { GDELTThemesChart } from "@/components/GDELTThemesChart";
@@ -407,24 +406,6 @@ const Index = () => {
         </Card>
 
         {/* Services Overview */}
-        <Collapsible className="mt-6">
-          <Card className="border-2 border-border bg-card">
-            <CollapsibleTrigger className="w-full">
-              <CardHeader className="cursor-pointer hover:bg-accent/5 transition-colors">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="uppercase tracking-wider text-sm text-muted-foreground">Greyguards Services</CardTitle>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 [[data-state=open]>&]:rotate-180" />
-                </div>
-              </CardHeader>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <CardContent className="pt-0">
-                <ServicesDropdown compact />
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
-
         {/* Results Dashboard */}
         {results && (
           <div id="dashboard" className="mt-8 space-y-6">
@@ -532,16 +513,6 @@ const Index = () => {
               sentimentSummary={`Positive: ${Math.round((results.sentimentDistribution.find(s => s.name === "Positive")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%, Negative: ${Math.round((results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%, Neutral: ${Math.round((results.sentimentDistribution.find(s => s.name === "Neutral")?.value || 0) / (results.sentimentDistribution.reduce((sum, s) => sum + s.value, 0)) * 100)}%`}
               riskLevel={results.threatLevel}
             />
-
-            {/* Full Services Menu */}
-            <Card className="border-2 border-border bg-card">
-              <CardHeader className="border-b-2 border-border">
-                <CardTitle className="uppercase tracking-wider text-sm">All Greyguards Services</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <ServicesDropdown />
-              </CardContent>
-            </Card>
 
             {/* Recommended Actions */}
             <RecommendedActions
