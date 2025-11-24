@@ -12,8 +12,11 @@ export function TimelineChart({ data }: TimelineChartProps) {
       <CardHeader className="border-b-4 border-border bg-secondary">
         <CardTitle className="uppercase tracking-wider flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />
-          7-Day Mention Timeline
+          Multi-Source Mention Intelligence
         </CardTitle>
+        <p className="text-xs text-muted-foreground uppercase tracking-widest mt-2">
+          Aggregated from news outlets, social platforms, and search engines
+        </p>
       </CardHeader>
       <CardContent className="pt-6">
         <ResponsiveContainer width="100%" height={300}>
