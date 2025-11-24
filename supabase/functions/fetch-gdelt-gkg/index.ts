@@ -37,6 +37,14 @@ serve(async (req) => {
       throw new Error(`GDELT GKG error: ${response.status}`);
     }
 
+    // Check if response is JSON before parsing
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      console.error("GDELT GKG returned non-JSON response:", text.substring(0, 200));
+      throw new Error("GDELT API returned non-JSON response. The API may be rate limiting or experiencing issues.");
+    }
+
     const data = await response.json();
     console.log("GDELT GKG response:", data.articles?.length || 0, "articles with GKG data");
 
