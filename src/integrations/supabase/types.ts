@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      brand_people: {
+        Row: {
+          brand_name: string
+          created_at: string
+          discovered_at: string
+          id: string
+          person_name: string
+          person_role: string
+          user_id: string
+        }
+        Insert: {
+          brand_name: string
+          created_at?: string
+          discovered_at?: string
+          id?: string
+          person_name: string
+          person_role: string
+          user_id: string
+        }
+        Update: {
+          brand_name?: string
+          created_at?: string
+          discovered_at?: string
+          id?: string
+          person_name?: string
+          person_role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mdm_alerts: {
         Row: {
           alert_type: string
@@ -100,6 +130,106 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      person_mdm_narratives: {
+        Row: {
+          brand_name: string
+          created_at: string
+          detected_at: string
+          frequency: number
+          id: string
+          keywords: string[]
+          narrative_description: string
+          narrative_id: string
+          narrative_type: string
+          person_id: string
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          brand_name: string
+          created_at?: string
+          detected_at?: string
+          frequency?: number
+          id?: string
+          keywords?: string[]
+          narrative_description: string
+          narrative_id: string
+          narrative_type: string
+          person_id: string
+          severity: string
+          user_id: string
+        }
+        Update: {
+          brand_name?: string
+          created_at?: string
+          detected_at?: string
+          frequency?: number
+          id?: string
+          keywords?: string[]
+          narrative_description?: string
+          narrative_id?: string
+          narrative_type?: string
+          person_id?: string
+          severity?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "person_mdm_narratives_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "brand_people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      person_mentions_history: {
+        Row: {
+          brand_name: string
+          created_at: string
+          id: string
+          mention_count: number
+          negative_count: number
+          neutral_count: number
+          person_id: string
+          positive_count: number
+          sentiment_score: number
+          user_id: string
+        }
+        Insert: {
+          brand_name: string
+          created_at?: string
+          id?: string
+          mention_count?: number
+          negative_count?: number
+          neutral_count?: number
+          person_id: string
+          positive_count?: number
+          sentiment_score: number
+          user_id: string
+        }
+        Update: {
+          brand_name?: string
+          created_at?: string
+          id?: string
+          mention_count?: number
+          negative_count?: number
+          neutral_count?: number
+          person_id?: string
+          positive_count?: number
+          sentiment_score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "person_mentions_history_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "brand_people"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sentiment_history: {
         Row: {
