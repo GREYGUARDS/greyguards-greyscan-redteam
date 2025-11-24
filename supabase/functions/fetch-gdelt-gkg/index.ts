@@ -47,11 +47,11 @@ serve(async (req) => {
     const toneScores: number[] = [];
 
     (data.articles || []).forEach((article: any) => {
-      // Extract themes
+      // Extract themes (GDELT's 2,300+ detected themes)
       if (article.themes) {
         article.themes.split(";").forEach((theme: string) => {
           if (theme) {
-            entities.set(theme, (entities.get(theme) || 0) + 1);
+            themes.set(theme, (themes.get(theme) || 0) + 1);
           }
         });
       }
