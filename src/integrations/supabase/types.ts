@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      mdm_alerts: {
+        Row: {
+          alert_type: string
+          brand_name: string
+          created_at: string
+          current_frequency: number | null
+          frequency_change_percent: number | null
+          id: string
+          is_read: boolean
+          narrative_description: string
+          narrative_id: string
+          previous_frequency: number | null
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          brand_name: string
+          created_at?: string
+          current_frequency?: number | null
+          frequency_change_percent?: number | null
+          id?: string
+          is_read?: boolean
+          narrative_description: string
+          narrative_id: string
+          previous_frequency?: number | null
+          severity: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          brand_name?: string
+          created_at?: string
+          current_frequency?: number | null
+          frequency_change_percent?: number | null
+          id?: string
+          is_read?: boolean
+          narrative_description?: string
+          narrative_id?: string
+          previous_frequency?: number | null
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mdm_narratives_history: {
+        Row: {
+          brand_name: string
+          created_at: string
+          detected_at: string
+          frequency: number
+          id: string
+          keywords: string[]
+          narrative_description: string
+          narrative_id: string
+          narrative_type: string
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          brand_name: string
+          created_at?: string
+          detected_at?: string
+          frequency?: number
+          id?: string
+          keywords?: string[]
+          narrative_description: string
+          narrative_id: string
+          narrative_type: string
+          severity: string
+          user_id: string
+        }
+        Update: {
+          brand_name?: string
+          created_at?: string
+          detected_at?: string
+          frequency?: number
+          id?: string
+          keywords?: string[]
+          narrative_description?: string
+          narrative_id?: string
+          narrative_type?: string
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sentiment_history: {
         Row: {
           brand_name: string

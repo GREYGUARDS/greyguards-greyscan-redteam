@@ -23,6 +23,7 @@ import { GDELTLocationsMap } from "@/components/GDELTLocationsMap";
 import { GDELTThemesChart } from "@/components/GDELTThemesChart";
 import { MDMNarrativesTracker } from "@/components/MDMNarrativesTracker";
 import { EmergingNarrativesPrediction } from "@/components/EmergingNarrativesPrediction";
+import MDMAlerts from "@/components/MDMAlerts";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -41,6 +42,7 @@ const Index = () => {
   const [gdeltThemes, setGdeltThemes] = useState<{ name: string; count: number }[]>([]);
   const [mdmNarratives, setMdmNarratives] = useState<any[]>([]);
   const [mdmLoading, setMdmLoading] = useState(false);
+  const [mdmAlerts, setMdmAlerts] = useState<any[]>([]);
   const [emergingPredictions, setEmergingPredictions] = useState<any[]>([]);
   const [predictionsLoading, setPredictionsLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -303,6 +305,16 @@ const Index = () => {
         if (!mdmError && mdmData?.narratives) {
           setMdmNarratives(mdmData.narratives);
           mdmResults = mdmData.narratives;
+          
+          // Handle alerts
+          if (mdmData.alerts && mdmData.alerts.length > 0) {
+            setMdmAlerts(mdmData.alerts);
+            toast({
+              title: `${mdmData.alerts.length} MDM Alert${mdmData.alerts.length > 1 ? 's' : ''}`,
+              description: "New or surging narratives detected",
+              variant: "destructive",
+            });
+          }
         } else {
           console.warn("MDM analysis failed:", mdmError);
           setMdmNarratives([]);
@@ -312,6 +324,23 @@ const Index = () => {
         setMdmNarratives([]);
       } finally {
         setMdmLoading(false);
+      }
+      
+      // Fetch existing unread alerts for this brand
+      try {
+        const { data: existingAlerts } = await supabase
+          .from('mdm_alerts')
+          .select('*')
+          .eq('brand_name', brandName)
+          .eq('user_id', userId)
+          .eq('is_read', false)
+          .order('created_at', { ascending: false });
+          
+        if (existingAlerts && existingAlerts.length > 0) {
+          setMdmAlerts(prev => [...existingAlerts, ...prev]);
+        }
+      } catch (err) {
+        console.error("Error fetching existing alerts:", err);
       }
 
       // Analyze emerging narratives using AI
@@ -473,6 +502,26 @@ const Index = () => {
               />
               <SentimentChart data={results.sentimentDistribution} />
             </div>
+
+            {/* MDM Alerts */}
+            {mdmAlerts.length > 0 && (
+              <MDMAlerts 
+                alerts={mdmAlerts}
+                onDismiss={(alertId) => setMdmAlerts(prev => prev.filter(a => a.id !== alertId))}
+                onMarkAllRead={async () => {
+                  try {
+                    const alertIds = mdmAlerts.map(a => a.id);
+                    await supabase
+                      .from('mdm_alerts')
+                      .update({ is_read: true })
+                      .in('id', alertIds);
+                    setMdmAlerts(prev => prev.map(a => ({ ...a, is_read: true })));
+                  } catch (err) {
+                    console.error("Error marking alerts as read:", err);
+                  }
+                }}
+              />
+            )}
 
             {/* MDM Narrative Intelligence */}
             <MDMNarrativesTracker 
