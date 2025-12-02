@@ -28,6 +28,10 @@ import { EmergingNarrativesPrediction } from "@/components/EmergingNarrativesPre
 import MDMAlerts from "@/components/MDMAlerts";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { BrandPeopleList } from "@/components/BrandPeopleList";
+import { DemoModeSelector } from "@/components/DemoModeSelector";
+import { TrackedStories } from "@/components/TrackedStories";
+import { DemoSocialMentions } from "@/components/DemoSocialMentions";
+import { DEMO_COMPANIES } from "@/lib/demoData";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
@@ -55,8 +59,55 @@ const Index = () => {
   const [personMentions, setPersonMentions] = useState<Record<string, any>>({});
   const [personNarratives, setPersonNarratives] = useState<Record<string, any[]>>({});
   const [refreshingPersonId, setRefreshingPersonId] = useState<string | null>(null);
+  const [demoMode, setDemoMode] = useState(false);
+  const [demoCompany, setDemoCompany] = useState<string>("");
+  const [trackedStories, setTrackedStories] = useState<any[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const loadDemoData = (companyName: string) => {
+    const data = DEMO_COMPANIES[companyName];
+    if (!data) return;
+
+    setDemoMode(true);
+    setDemoCompany(companyName);
+    setBrandName(companyName);
+    setLoading(true);
+
+    // Simulate loading delay for realism
+    setTimeout(() => {
+      setResults({
+        sentimentDistribution: data.sentimentDistribution.map(s => ({ ...s, fill: s.color })),
+        shortTermSentiment: data.shortTermSentiment,
+        longTermSentiment: data.longTermSentiment,
+        trendIcon: data.trendIcon,
+        previousSentiment: data.previousSentiment,
+        keywords: data.keywords,
+        timeline: data.timeline,
+        threatLevel: data.threatLevel,
+        threatScore: data.threatScore,
+      } as AnalysisResult);
+      setTrendsData(data.trendsData);
+      setAllMentions(data.mentions);
+      setSources(data.sources);
+      setGdeltEntities(data.gdeltEntities);
+      setGdeltLocations(data.gdeltLocations);
+      setGdeltThemes(data.gdeltThemes);
+      setMdmNarratives(data.mdmNarratives);
+      setEmergingPredictions(data.emergingPredictions);
+      setMdmAlerts(data.alerts);
+      setBrandPeople(data.people);
+      setPersonMentions(data.personMentions);
+      setPersonNarratives(data.personNarratives);
+      setTrackedStories(data.trackedStories || []);
+      setLoading(false);
+
+      toast({
+        title: "Demo Mode Active",
+        description: `Loaded intelligence data for ${companyName}`,
+      });
+    }, 1500);
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -629,6 +680,11 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <DemoModeSelector 
+                onSelectCompany={loadDemoData}
+                isActive={demoMode}
+                currentCompany={demoCompany}
+              />
               <NotificationCenter alerts={mdmAlerts} onAlertsUpdate={fetchMDMAlerts} />
               <Button
                 variant="outline"
@@ -737,6 +793,16 @@ const Index = () => {
                   predictions={emergingPredictions}
                   isLoading={predictionsLoading}
                 />
+
+                {/* Demo Mode: Tracked Stories */}
+                {demoMode && trackedStories.length > 0 && (
+                  <TrackedStories stories={trackedStories} brandName={brandName} />
+                )}
+
+                {/* Demo Mode: Social Intelligence Feed */}
+                {demoMode && allMentions.length > 0 && (
+                  <DemoSocialMentions mentions={allMentions} brandName={brandName} />
+                )}
 
                 {/* Timeline & Keywords */}
                 <TimelineChart data={results.timeline} />
