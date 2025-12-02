@@ -96,7 +96,8 @@ const Index = () => {
       setMdmNarratives(data.mdmNarratives);
       setEmergingPredictions(data.emergingPredictions);
       setMdmAlerts(data.alerts);
-      setBrandPeople(data.people);
+      // Add discovered_at to people for demo mode
+      setBrandPeople(data.people.map(p => ({ ...p, discovered_at: new Date().toISOString() })));
       setPersonMentions(data.personMentions);
       setPersonNarratives(data.personNarratives);
       setTrackedStories(data.trackedStories || []);
