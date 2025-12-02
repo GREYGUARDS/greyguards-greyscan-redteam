@@ -6,6 +6,48 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+async function callAIWithRetry(body: object, maxRetries = 3): Promise<Response> {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      // Don't retry on client errors (4xx) except for rate limits
+      if (response.status === 429 && attempt < maxRetries) {
+        console.log(`Rate limited, retrying attempt ${attempt + 1}/${maxRetries}...`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        continue;
+      }
+
+      // Retry on server errors (5xx)
+      if (response.status >= 500 && attempt < maxRetries) {
+        console.log(`Server error ${response.status}, retrying attempt ${attempt + 1}/${maxRetries}...`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        continue;
+      }
+
+      return response;
+    } catch (error) {
+      console.error(`Attempt ${attempt} failed:`, error);
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        continue;
+      }
+      throw error;
+    }
+  }
+  
+  throw new Error('Max retries exceeded');
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -21,24 +63,19 @@ serve(async (req) => {
 
     const prompt = `Brand: ${brand}. Current narratives: ${topTopics}. Sentiment: ${sentimentSummary}. Risk level: ${riskLevel}. Draft a 3–5 sentence counter-narrative statement suitable for public channels (press or social). Begin directly with the key message and focus on facts and reassurance.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { 
-            role: 'system', 
-            content: 'You are a senior communications strategist writing concise, factual statements that counter misinformation or clarify a brand position. You avoid spin and keep the tone balanced, transparent and professional.'
-          },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.6,
-        max_completion_tokens: 250,
-      }),
+    console.log(`Generating counter-narrative for: ${brand}`);
+
+    const response = await callAIWithRetry({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        { 
+          role: 'system', 
+          content: 'You are a senior communications strategist writing concise, factual statements that counter misinformation or clarify a brand position. You avoid spin and keep the tone balanced, transparent and professional.'
+        },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.6,
+      max_completion_tokens: 250,
     });
 
     if (!response.ok) {
@@ -56,14 +93,16 @@ serve(async (req) => {
       }
       const errorText = await response.text();
       console.error('AI gateway error:', response.status, errorText);
-      return new Response(JSON.stringify({ error: 'AI gateway error' }), {
-        status: 500,
+      return new Response(JSON.stringify({ error: 'AI service temporarily unavailable, please try again.' }), {
+        status: 503,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     const data = await response.json();
     const statement = data.choices[0].message.content;
+
+    console.log('Successfully generated counter-narrative');
 
     return new Response(JSON.stringify({ statement }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
