@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Download, AlertTriangle, Shield, Send, LogOut, Users } from "lucide-react";
+import { Search, Download, AlertTriangle, Send, LogOut, Users } from "lucide-react";
+import greyguardsLogo from "@/assets/greyguards-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -615,8 +616,8 @@ const Index = () => {
         <div className="container mx-auto px-4 py-6 sm:py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary flex items-center justify-center flex-shrink-0">
-                <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center flex-shrink-0">
+                <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-10 sm:h-12 sm:w-12" />
               </div>
               <div>
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight uppercase">

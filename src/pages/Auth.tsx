@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Shield } from "lucide-react";
+import greyguardsLogo from "@/assets/greyguards-logo.png";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -95,7 +95,7 @@ export default function Auth() {
       <Card className="w-full max-w-md border-4 border-border">
         <CardHeader className="space-y-4 border-b-4 border-border bg-secondary">
           <div className="flex items-center justify-center">
-            <Shield className="h-12 w-12 text-primary" />
+            <img src={greyguardsLogo} alt="Greyguards Intelligence" className="h-16 w-16" />
           </div>
           <CardTitle className="text-center text-2xl uppercase tracking-wider">
             {isLogin ? "Login" : "Sign Up"}
