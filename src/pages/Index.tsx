@@ -324,12 +324,21 @@ const Index = () => {
       const analysis = await analyzeSentiment(mentions, brandName, userId);
       setResults(analysis);
 
+      // Get fresh session for authorization (used by multiple edge function calls)
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (!currentSession) {
+        throw new Error("No active session");
+      }
+
       // Analyze MDM narratives using AI
       setMdmLoading(true);
       let mdmResults: any[] = [];
       try {
         const { data: mdmData, error: mdmError } = await supabase.functions.invoke("analyze-mdm-narratives", {
-          body: { brand: brandName, mentions: allMentions }
+          body: { brand: brandName, mentions },
+          headers: {
+            Authorization: `Bearer ${currentSession.access_token}`
+          }
         });
         
         if (!mdmError && mdmData?.narratives) {
@@ -376,7 +385,10 @@ const Index = () => {
       setPredictionsLoading(true);
       try {
         const { data: predData, error: predError } = await supabase.functions.invoke("analyze-emerging-narratives", {
-          body: { brand: brandName, mentions: allMentions, mdmNarratives: mdmResults }
+          body: { brand: brandName, mentions, mdmNarratives: mdmResults },
+          headers: {
+            Authorization: `Bearer ${currentSession.access_token}`
+          }
         });
         
         if (!predError && predData?.predictions) {
@@ -444,8 +456,14 @@ const Index = () => {
     
     setPeopleLoading(true);
     try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (!currentSession) throw new Error("No active session");
+      
       const { data, error } = await supabase.functions.invoke("discover-brand-people", {
-        body: { brandName }
+        body: { brandName },
+        headers: {
+          Authorization: `Bearer ${currentSession.access_token}`
+        }
       });
 
       if (error) throw error;
@@ -479,6 +497,9 @@ const Index = () => {
     
     setRefreshingPersonId(personId);
     try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (!currentSession) throw new Error("No active session");
+      
       const person = brandPeople.find(p => p.id === personId);
       const name = personName || person?.person_name;
       
@@ -487,6 +508,9 @@ const Index = () => {
           personId,
           brandName,
           personName: name
+        },
+        headers: {
+          Authorization: `Bearer ${currentSession.access_token}`
         }
       });
 
