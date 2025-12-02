@@ -82,17 +82,16 @@ body {
 .header-logo {
   width: 48px;
   height: 48px;
-  background-color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.header-logo svg {
-  width: 32px;
-  height: 32px;
-  fill: var(--primary-foreground);
+.header-logo .site-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
 }
 
 .header-content h1 {
