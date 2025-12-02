@@ -21,8 +21,12 @@ export function GDELTThemesChart({ data }: GDELTThemesChartProps) {
   const CustomContent = (props: any) => {
     const { x, y, width, height, name, size } = props;
     
+    // Guard against undefined values
+    if (!name || !width || !height) return null;
+    
     // Only show text if the box is large enough
     const showText = width > 60 && height > 30;
+    const displayName = String(name);
     
     return (
       <g>
@@ -48,7 +52,7 @@ export function GDELTThemesChart({ data }: GDELTThemesChartProps) {
               fontFamily="monospace"
               fontWeight="bold"
             >
-              {name.length > 20 ? name.substring(0, 18) + "..." : name}
+              {displayName.length > 20 ? displayName.substring(0, 18) + "..." : displayName}
             </text>
             <text
               x={x + width / 2}
