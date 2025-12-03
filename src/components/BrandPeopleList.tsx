@@ -2,7 +2,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, TrendingUp, TrendingDown, AlertTriangle, RefreshCw, ShieldAlert } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 interface Person {
   id: string;
@@ -41,8 +40,6 @@ export const BrandPeopleList = ({
   onRefresh,
   isRefreshing 
 }: BrandPeopleListProps) => {
-  const { toast } = useToast();
-
   const getSentimentColor = (score: number) => {
     if (score > 20) return "text-success";
     if (score < -20) return "text-destructive";
@@ -75,18 +72,18 @@ export const BrandPeopleList = ({
 
   if (people.length === 0) {
     return (
-      <Card className="p-8 text-center bg-background/50 backdrop-blur-sm border-border/50">
-        <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-        <h3 className="text-lg font-semibold mb-2">No People Discovered Yet</h3>
-        <p className="text-muted-foreground">
-          Click "Discover Key People" to identify CEOs, board members, and executives associated with this brand.
+      <Card className="p-6 sm:p-8 text-center bg-card border border-border">
+        <Users className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+        <h3 className="text-base font-medium mb-2">No People Discovered Yet</h3>
+        <p className="text-sm text-muted-foreground">
+          Click "Discover Key People" to identify executives associated with this brand.
         </p>
       </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {people.map((person) => {
         const personMentions = mentions[person.id] || {
           mention_count: 0,
@@ -104,19 +101,19 @@ export const BrandPeopleList = ({
         return (
           <Card 
             key={person.id} 
-            className="p-6 border-4 border-border bg-card hover:bg-secondary/20 transition-all"
+            className="p-4 sm:p-5 border border-border bg-card"
           >
             {/* Header */}
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-xl font-bold text-foreground uppercase tracking-wider mb-1">
+            <div className="flex justify-between items-start gap-3 mb-4">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground truncate">
                   {person.person_name}
                 </h3>
-                <p className="text-sm text-muted-foreground uppercase tracking-wider">{person.person_role}</p>
+                <p className="text-sm text-muted-foreground truncate">{person.person_role}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 {highSeverityCount > 0 && (
-                  <Badge className="bg-destructive text-destructive-foreground uppercase">
+                  <Badge className="bg-destructive text-destructive-foreground text-xs hidden sm:flex">
                     <ShieldAlert className="h-3 w-3 mr-1" />
                     {highSeverityCount} High Risk
                   </Badge>
@@ -126,68 +123,76 @@ export const BrandPeopleList = ({
                   variant="outline"
                   onClick={() => onRefresh(person.id)}
                   disabled={isRefreshing === person.id}
-                  className="uppercase tracking-wider"
+                  className="h-8 w-8 p-0"
                 >
                   <RefreshCw className={`h-4 w-4 ${isRefreshing === person.id ? 'animate-spin' : ''}`} />
                 </Button>
               </div>
             </div>
 
+            {/* Mobile high risk badge */}
+            {highSeverityCount > 0 && (
+              <Badge className="bg-destructive text-destructive-foreground text-xs mb-3 sm:hidden">
+                <ShieldAlert className="h-3 w-3 mr-1" />
+                {highSeverityCount} High Risk
+              </Badge>
+            )}
+
             {/* Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 p-4 bg-secondary/30 border-2 border-border">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 p-3 bg-secondary/30 border border-border rounded-sm">
               <div className="text-center">
-                <div className="text-2xl font-bold">{personMentions.mention_count.toLocaleString()}</div>
-                <div className="text-xs text-muted-foreground uppercase tracking-wider">Mentions</div>
+                <div className="text-xl sm:text-2xl font-semibold">{personMentions.mention_count.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">Mentions</div>
               </div>
               <div className="text-center">
-                <div className={`text-2xl font-bold flex items-center justify-center gap-1 ${getSentimentColor(personMentions.sentiment_score)}`}>
+                <div className={`text-xl sm:text-2xl font-semibold flex items-center justify-center gap-1 ${getSentimentColor(personMentions.sentiment_score)}`}>
                   {getSentimentIcon(personMentions.sentiment_score)}
                   {personMentions.sentiment_score.toFixed(0)}
                 </div>
-                <div className="text-xs text-muted-foreground uppercase tracking-wider">Sentiment</div>
+                <div className="text-xs text-muted-foreground">Sentiment</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-success">{personMentions.positive_count}</div>
-                <div className="text-xs text-muted-foreground uppercase tracking-wider">Positive</div>
+                <div className="text-xl sm:text-2xl font-semibold text-success">{personMentions.positive_count}</div>
+                <div className="text-xs text-muted-foreground">Positive</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-destructive">{personMentions.negative_count}</div>
-                <div className="text-xs text-muted-foreground uppercase tracking-wider">Negative</div>
+                <div className="text-xl sm:text-2xl font-semibold text-destructive">{personMentions.negative_count}</div>
+                <div className="text-xs text-muted-foreground">Negative</div>
               </div>
             </div>
 
             {/* MDM Narratives */}
             {mdmCount > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium">
                   <AlertTriangle className="h-4 w-4 text-warning" />
-                  MDM Narratives Detected ({mdmCount})
+                  MDM Narratives ({mdmCount})
                 </div>
                 <div className="space-y-2">
                   {personNarratives.map((narrative, idx) => (
                     <div 
                       key={idx}
-                      className="p-3 border-2 border-border bg-secondary/20"
+                      className="p-3 border border-border bg-secondary/20 rounded-sm"
                     >
-                      <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="flex flex-wrap items-start gap-2 mb-2">
                         <Badge 
                           variant="outline" 
-                          className={`${getNarrativeTypeColor(narrative.narrative_type)} uppercase text-xs`}
+                          className={`${getNarrativeTypeColor(narrative.narrative_type)} text-xs`}
                         >
                           {narrative.narrative_type}
                         </Badge>
-                        <Badge className={`${getSeverityColor(narrative.severity)} uppercase text-xs`}>
+                        <Badge className={`${getSeverityColor(narrative.severity)} text-xs`}>
                           {narrative.severity}
                         </Badge>
                       </div>
                       {narrative.narrative_description && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground line-clamp-3">
                           {narrative.narrative_description}
                         </p>
                       )}
                       {narrative.frequency && (
                         <div className="mt-2 text-xs text-muted-foreground">
-                          Frequency: <span className="text-warning font-semibold">{narrative.frequency} mentions</span>
+                          Frequency: <span className="text-warning font-medium">{narrative.frequency} mentions</span>
                         </div>
                       )}
                     </div>
@@ -197,8 +202,8 @@ export const BrandPeopleList = ({
             )}
 
             {mdmCount === 0 && (
-              <div className="p-4 border-2 border-success/30 bg-success/5 text-center">
-                <p className="text-sm text-success uppercase tracking-wider">
+              <div className="p-3 border border-success/20 bg-success/5 text-center rounded-sm">
+                <p className="text-sm text-success">
                   No active MDM narratives detected
                 </p>
               </div>

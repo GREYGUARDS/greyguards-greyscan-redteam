@@ -8,48 +8,49 @@ interface SentimentChartProps {
 
 export function SentimentChart({ data }: SentimentChartProps) {
   return (
-    <Card className="border-4 border-border">
-      <CardHeader className="border-b-4 border-border bg-secondary">
-        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-          <BarChart3 className="h-5 w-5" />
+    <Card className="border border-border">
+      <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+        <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+          <BarChart3 className="h-4 w-4" />
           Sentiment Analysis
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, percent }) => `${name.toUpperCase()} ${(percent * 100).toFixed(0)}%`}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-              strokeWidth={2}
-              stroke="hsl(var(--border))"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.fill} />
-              ))}
-            </Pie>
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: "hsl(var(--card))", 
-                border: "2px solid hsl(var(--border))",
-                borderRadius: "0"
-              }} 
-            />
-            <Legend 
-              wrapperStyle={{
-                fontFamily: "monospace",
-                fontSize: "12px",
-                textTransform: "uppercase",
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+      <CardContent className="p-4 sm:p-6">
+        <div className="w-full overflow-hidden">
+          <ResponsiveContainer width="100%" height={280}>
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                outerRadius={70}
+                fill="#8884d8"
+                dataKey="value"
+                strokeWidth={1}
+                stroke="hsl(var(--border))"
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Pie>
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "hsl(var(--card))", 
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "4px",
+                  fontSize: "12px"
+                }} 
+              />
+              <Legend 
+                wrapperStyle={{
+                  fontSize: "12px",
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );

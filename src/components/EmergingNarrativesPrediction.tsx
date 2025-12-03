@@ -38,7 +38,7 @@ export const EmergingNarrativesPrediction = ({ predictions, isLoading }: Emergin
   const getTrajectoryColor = (trajectory: string) => {
     switch (trajectory) {
       case "surging":
-        return "text-danger";
+        return "text-destructive";
       case "growing":
         return "text-warning";
       case "stable":
@@ -65,16 +65,16 @@ export const EmergingNarrativesPrediction = ({ predictions, isLoading }: Emergin
 
   if (isLoading) {
     return (
-      <Card className="border-4 border-border bg-card">
-        <CardHeader>
-          <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-            <Activity className="h-5 w-5 animate-pulse" />
+      <Card className="border border-border bg-card">
+        <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+          <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+            <Activity className="h-4 w-4 animate-pulse" />
             Emerging Narrative Predictions
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="text-muted-foreground uppercase tracking-wider">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center justify-center py-6">
+            <div className="text-muted-foreground text-sm">
               Analyzing patterns...
             </div>
           </div>
@@ -85,15 +85,15 @@ export const EmergingNarrativesPrediction = ({ predictions, isLoading }: Emergin
 
   if (!predictions || predictions.length === 0) {
     return (
-      <Card className="border-4 border-border bg-card">
-        <CardHeader>
-          <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-            <Activity className="h-5 w-5" />
+      <Card className="border border-border bg-card">
+        <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+          <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+            <Activity className="h-4 w-4" />
             Emerging Narrative Predictions
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground uppercase tracking-wider text-sm">
+        <CardContent className="p-4 sm:p-6">
+          <p className="text-muted-foreground text-sm">
             No emerging narratives detected
           </p>
         </CardContent>
@@ -102,60 +102,60 @@ export const EmergingNarrativesPrediction = ({ predictions, isLoading }: Emergin
   }
 
   return (
-    <Card className="border-4 border-border bg-card">
-      <CardHeader>
-        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-          <Activity className="h-5 w-5" />
+    <Card className="border border-border bg-card">
+      <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+        <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+          <Activity className="h-4 w-4" />
           Emerging Narrative Predictions
         </CardTitle>
-        <p className="text-xs text-muted-foreground uppercase tracking-widest mt-2">
-          AI-Powered Forecast • Early Warning Signals • Growing Patterns
+        <p className="text-xs text-muted-foreground mt-1">
+          AI-Powered Forecast • Early Warning Signals
         </p>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="p-4 sm:p-6">
+        <div className="space-y-3">
           {predictions.map((prediction, index) => (
             <Collapsible key={index}>
-              <div className="border-2 border-border bg-background/50 backdrop-blur-sm">
+              <div className="border border-border bg-background/50 rounded-sm overflow-hidden">
                 <CollapsibleTrigger className="w-full">
-                  <div className="p-4 hover:bg-accent/10 transition-colors">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 text-left">
+                  <div className="p-3 sm:p-4 hover:bg-secondary/30 transition-colors">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 text-left min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className={`text-2xl ${getTrajectoryColor(prediction.trajectory)}`}>
+                          <span className={`text-xl ${getTrajectoryColor(prediction.trajectory)}`}>
                             {getTrajectoryIcon(prediction.trajectory)}
                           </span>
-                          <h3 className="font-semibold uppercase tracking-wide text-sm">
+                          <h3 className="font-medium text-sm truncate">
                             {prediction.title}
                           </h3>
                         </div>
-                        <div className="flex flex-wrap gap-2 items-center">
-                          <Badge variant={getConfidenceVariant(prediction.confidence)} className="uppercase text-xs">
-                            {prediction.confidence} confidence
+                        <div className="flex flex-wrap gap-1.5 items-center">
+                          <Badge variant={getConfidenceVariant(prediction.confidence)} className="text-xs">
+                            {prediction.confidence}
                           </Badge>
-                          <Badge variant="outline" className="uppercase text-xs">
+                          <Badge variant="outline" className="text-xs capitalize">
                             {prediction.trajectory}
                           </Badge>
-                          <span className={`text-xs font-mono ${prediction.mentionTrend > 0 ? 'text-danger' : 'text-success'}`}>
-                            {prediction.mentionTrend > 0 ? '+' : ''}{prediction.mentionTrend}% mentions (7d forecast)
+                          <span className={`text-xs font-mono ${prediction.mentionTrend > 0 ? 'text-destructive' : 'text-success'}`}>
+                            {prediction.mentionTrend > 0 ? '+' : ''}{prediction.mentionTrend}%
                           </span>
                         </div>
                       </div>
-                      <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                      <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform flex-shrink-0 mt-1" />
                     </div>
                   </div>
                 </CollapsibleTrigger>
                 
                 <CollapsibleContent>
-                  <div className="px-4 pb-4 space-y-3 border-t-2 border-border pt-3">
+                  <div className="px-3 sm:px-4 pb-4 space-y-3 border-t border-border pt-3">
                     <div>
-                      <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Early Indicators</p>
+                      <p className="text-xs text-muted-foreground mb-1">Early Indicators</p>
                       <p className="text-sm">{prediction.indicators}</p>
                     </div>
                     
                     <div>
-                      <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Key Signals</p>
-                      <div className="flex flex-wrap gap-2">
+                      <p className="text-xs text-muted-foreground mb-1">Key Signals</p>
+                      <div className="flex flex-wrap gap-1.5">
                         {prediction.signals.map((signal, i) => (
                           <Badge key={i} variant="secondary" className="text-xs">
                             {signal}
@@ -166,8 +166,8 @@ export const EmergingNarrativesPrediction = ({ predictions, isLoading }: Emergin
 
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <AlertCircle className="h-3 w-3" />
-                      <span className="uppercase tracking-wider">
-                        Estimated Peak: {new Date(prediction.estimatedEmergence).toLocaleDateString()}
+                      <span>
+                        Est. Peak: {new Date(prediction.estimatedEmergence).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
@@ -177,10 +177,9 @@ export const EmergingNarrativesPrediction = ({ predictions, isLoading }: Emergin
           ))}
         </div>
 
-        <div className="mt-6 p-4 bg-accent/20 border-2 border-accent">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">
-            ⚠ Predictive Analysis: These are AI-generated forecasts based on current data patterns. 
-            Actual narrative development may vary significantly.
+        <div className="mt-4 p-3 bg-muted/30 border border-border rounded-sm">
+          <p className="text-xs text-muted-foreground">
+            Predictive analysis based on current data patterns. Actual development may vary.
           </p>
         </div>
       </CardContent>
