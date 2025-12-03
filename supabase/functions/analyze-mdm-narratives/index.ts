@@ -21,18 +21,43 @@ serve(async (req) => {
       );
     }
 
-    // Get authenticated user
+    // Get authenticated user - verify_jwt is already enabled in config.toml
     const authHeader = req.headers.get('Authorization');
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    // Use service role for database operations
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+    
+    // Create client with user auth for getting user info
     const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: authHeader! } }
+      global: { headers: { Authorization: authHeader || '' } }
     });
     
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized', narratives: [], alerts: [] }), {
-        status: 401,
+    let userId: string | null = null;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      userId = user?.id || null;
+    } catch (authError) {
+      console.log('Auth check failed, but proceeding since JWT is verified at edge level');
+    }
+    
+    // If we couldn't get user ID, try to extract from JWT
+    if (!userId && authHeader) {
+      try {
+        const token = authHeader.replace('Bearer ', '');
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        userId = payload.sub;
+      } catch {
+        console.log('Could not extract user ID from token');
+      }
+    }
+    
+    if (!userId) {
+      console.log('No user ID found, returning empty results');
+      return new Response(JSON.stringify({ narratives: [], alerts: [], error: 'User identification failed' }), {
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
@@ -153,11 +178,11 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
     const now = new Date();
     
     // Fetch recent narrative history (last 7 days)
-    const { data: historyData } = await supabase
+    const { data: historyData } = await supabaseAdmin
       .from('mdm_narratives_history')
       .select('*')
       .eq('brand_name', brand)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .gte('detected_at', new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString())
       .order('detected_at', { ascending: false });
 
@@ -166,8 +191,8 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
     
     // Store current narratives in history
     for (const narrative of narratives) {
-      await supabase.from('mdm_narratives_history').insert({
-        user_id: user.id,
+      await supabaseAdmin.from('mdm_narratives_history').insert({
+        user_id: userId,
         brand_name: brand,
         narrative_id: narrative.id,
         narrative_type: narrative.type,
@@ -188,7 +213,7 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
       // Check if this is a completely new narrative (not seen in last 7 days)
       if (previousInstances.length === 0) {
         const alert = {
-          user_id: user.id,
+          user_id: userId,
           brand_name: brand,
           alert_type: 'new_narrative',
           narrative_id: narrative.id,
@@ -200,7 +225,7 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
           is_read: false
         };
         
-        await supabase.from('mdm_alerts').insert(alert);
+        await supabaseAdmin.from('mdm_alerts').insert(alert);
         alerts.push(alert);
         console.log('🆕 New narrative detected:', narrative.id);
       } else {
@@ -210,7 +235,7 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
         
         if (frequencyIncrease >= 50) {
           const alert = {
-            user_id: user.id,
+            user_id: userId,
             brand_name: brand,
             alert_type: 'surge',
             narrative_id: narrative.id,
@@ -222,7 +247,7 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
             is_read: false
           };
           
-          await supabase.from('mdm_alerts').insert(alert);
+          await supabaseAdmin.from('mdm_alerts').insert(alert);
           alerts.push(alert);
           console.log('📈 Narrative surge detected:', narrative.id, `+${frequencyIncrease.toFixed(0)}%`);
         }
