@@ -664,23 +664,23 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b-4 border-border bg-card">
-        <div className="container mx-auto px-4 py-6 sm:py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center flex-shrink-0">
-                <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-10 sm:h-12 sm:w-12" />
+      <header className="border-b border-border bg-card">
+        <div className="container mx-auto px-4 py-4 sm:py-6">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center flex-shrink-0">
+                <img src={greyguardsLogo} alt="Greyguards" className="h-8 w-8 sm:h-10 sm:w-10" />
               </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight uppercase">
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-semibold tracking-tight truncate">
                   Greyguards
                 </h1>
-                <p className="text-muted-foreground mt-1 uppercase text-xs sm:text-sm tracking-wider">
+                <p className="text-muted-foreground text-xs sm:text-sm hidden sm:block">
                   Narrative Intelligence System
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <DemoModeSelector 
                 onSelectCompany={loadDemoData}
                 isActive={demoMode}
@@ -691,10 +691,18 @@ const Index = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
-                className="uppercase tracking-wider"
+                className="hidden sm:flex"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                <LogOut className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleLogout}
+                className="sm:hidden h-8 w-8"
+              >
+                <LogOut className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -702,21 +710,21 @@ const Index = () => {
       </header>
 
       {/* Search Section */}
-      <div className="container mx-auto px-4 py-8">
-        <Card className="border-4 border-border bg-card">
-          <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-4">
+      <div className="container mx-auto px-4 py-4 sm:py-6">
+        <Card className="border border-border bg-card">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="ENTER TARGET BRAND OR ORGANIZATION"
+                  placeholder="Enter brand or organization..."
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  className="pl-12 uppercase tracking-wider border-2 h-12"
+                  className="pl-10 h-10 sm:h-11"
                 />
               </div>
-              <Button onClick={handleSearch} disabled={loading} className="w-full sm:min-w-[140px] sm:w-auto h-12 uppercase tracking-wider">
+              <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto h-10 sm:h-11">
                 {loading ? (
                   <>
                     <span className="animate-spin mr-2">⟳</span>

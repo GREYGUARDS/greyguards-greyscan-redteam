@@ -15,9 +15,9 @@ const SentimentTrendComparison = ({ shortTermSentiment, longTermSentiment, trend
   const isStable = Math.abs(difference) < 2;
 
   const getTrendIcon = () => {
-    if (isStable) return <Minus className="h-5 w-5 text-muted-foreground" />;
-    if (isImproving) return <TrendingUp className="h-5 w-5 text-chart-1" />;
-    return <TrendingDown className="h-5 w-5 text-chart-2" />;
+    if (isStable) return <Minus className="h-4 w-4 text-muted-foreground" />;
+    if (isImproving) return <TrendingUp className="h-4 w-4 text-success" />;
+    return <TrendingDown className="h-4 w-4 text-destructive" />;
   };
 
   const getTrendText = () => {
@@ -28,100 +28,80 @@ const SentimentTrendComparison = ({ shortTermSentiment, longTermSentiment, trend
 
   const getTrendColor = () => {
     if (isStable) return "text-muted-foreground";
-    if (isImproving) return "text-chart-1";
-    return "text-chart-2";
+    if (isImproving) return "text-success";
+    return "text-destructive";
   };
 
   return (
-    <Card className="border-4 border-border bg-card">
-      <CardHeader className="border-b-4 border-border">
-        <CardTitle className="flex items-center gap-2 uppercase tracking-wider">
-          <Activity className="h-5 w-5" />
-          Sentiment Trend Analysis
+    <Card className="border border-border bg-card">
+      <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+        <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+          <Activity className="h-4 w-4" />
+          Sentiment Trend
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6 space-y-6">
+      <CardContent className="p-4 sm:p-6 space-y-4">
         {/* Current vs Long-term Comparison */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">
-              Current Scan
-            </p>
-            <p className="text-3xl font-bold">
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Current</p>
+            <p className="text-xl sm:text-2xl font-semibold">
               {shortTermSentiment > 0 ? "+" : ""}{shortTermSentiment}
             </p>
-            <p className="text-xs text-muted-foreground">
-              This scan
-            </p>
+            <p className="text-xs text-muted-foreground">This scan</p>
           </div>
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">
-              Previous Scan
-            </p>
-            <p className="text-3xl font-bold">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Previous</p>
+            <p className="text-xl sm:text-2xl font-semibold">
               {previousSentiment > 0 ? "+" : ""}{previousSentiment}
             </p>
-            <p className="text-xs text-muted-foreground">
-              Last scan
-            </p>
+            <p className="text-xs text-muted-foreground">Last scan</p>
           </div>
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">
-              Long-term Avg
-            </p>
-            <p className="text-3xl font-bold">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Average</p>
+            <p className="text-xl sm:text-2xl font-semibold">
               {longTermSentiment > 0 ? "+" : ""}{longTermSentiment}
             </p>
-            <p className="text-xs text-muted-foreground">
-              Last 10 scans
-            </p>
+            <p className="text-xs text-muted-foreground">10 scans</p>
           </div>
         </div>
 
-        {/* Trend Indicator vs Previous Scan */}
-        <div className="pt-4 border-t-2 border-border">
-          <div className="flex items-center gap-3">
+        {/* Trend Indicator */}
+        <div className="pt-3 border-t border-border">
+          <div className="flex items-center gap-2">
             {isStable ? (
-              <ArrowRight className="h-6 w-6 text-muted-foreground" />
+              <ArrowRight className="h-5 w-5 text-muted-foreground" />
             ) : isImproving ? (
-              <TrendingUp className="h-6 w-6 text-chart-1" />
+              <TrendingUp className="h-5 w-5 text-success" />
             ) : (
-              <TrendingDown className="h-6 w-6 text-chart-2" />
+              <TrendingDown className="h-5 w-5 text-destructive" />
             )}
             <div>
-              <p className={`font-semibold uppercase tracking-wider ${getTrendColor()}`}>
+              <p className={`font-medium ${getTrendColor()}`}>
                 {getTrendText()}
               </p>
               <p className="text-sm text-muted-foreground">
-                {vsPrevious > 0 ? "+" : ""}{vsPrevious.toFixed(1)} points vs previous scan
+                {vsPrevious > 0 ? "+" : ""}{vsPrevious.toFixed(1)} vs previous
               </p>
             </div>
           </div>
         </div>
 
-        {/* Long-term Trend Context */}
-        <div className="pt-4 border-t-2 border-border">
-          <div className="flex items-center gap-3">
+        {/* Long-term Context */}
+        <div className="pt-3 border-t border-border">
+          <div className="flex items-center gap-2">
             {getTrendIcon()}
-            <div>
-              <p className="text-sm text-muted-foreground">
-                <span className="font-semibold">vs Long-term:</span> {Math.abs(difference).toFixed(1)} point {isImproving ? "above" : "below"} average
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              {Math.abs(difference).toFixed(1)} pts {isImproving ? "above" : "below"} avg
+            </p>
           </div>
         </div>
 
-        {/* Interpretation Guide */}
-        <div className="bg-secondary p-4 rounded-sm border-2 border-border">
-          <p className="text-xs font-semibold uppercase tracking-wider mb-2">
-            Interpretation
+        {/* Interpretation */}
+        <div className="bg-secondary/50 p-3 rounded-sm border border-border">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Positive scores = favorable sentiment. Compare with historical average to identify trends.
           </p>
-          <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-            <li>Positive scores indicate more positive than negative sentiment</li>
-            <li>Negative scores indicate more negative than positive sentiment</li>
-            <li>Historical average smooths out short-term fluctuations</li>
-            <li>Compare both metrics to identify trends and patterns</li>
-          </ul>
         </div>
       </CardContent>
     </Card>

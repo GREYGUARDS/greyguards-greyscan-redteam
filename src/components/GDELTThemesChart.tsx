@@ -25,7 +25,7 @@ export function GDELTThemesChart({ data }: GDELTThemesChartProps) {
     if (!name || !width || !height) return null;
     
     // Only show text if the box is large enough
-    const showText = width > 60 && height > 30;
+    const showText = width > 50 && height > 25;
     const displayName = String(name);
     
     return (
@@ -38,29 +38,27 @@ export function GDELTThemesChart({ data }: GDELTThemesChartProps) {
           style={{
             fill: props.fill,
             stroke: "hsl(var(--border))",
-            strokeWidth: 2,
+            strokeWidth: 1,
           }}
         />
         {showText && (
           <>
             <text
               x={x + width / 2}
-              y={y + height / 2 - 6}
+              y={y + height / 2 - 5}
               textAnchor="middle"
               fill="hsl(var(--foreground))"
-              fontSize={10}
-              fontFamily="monospace"
-              fontWeight="bold"
+              fontSize={9}
+              fontWeight="500"
             >
-              {displayName.length > 20 ? displayName.substring(0, 18) + "..." : displayName}
+              {displayName.length > 15 ? displayName.substring(0, 13) + "..." : displayName}
             </text>
             <text
               x={x + width / 2}
               y={y + height / 2 + 8}
               textAnchor="middle"
               fill="hsl(var(--muted-foreground))"
-              fontSize={9}
-              fontFamily="monospace"
+              fontSize={8}
             >
               {size}
             </text>
@@ -71,38 +69,40 @@ export function GDELTThemesChart({ data }: GDELTThemesChartProps) {
   };
 
   return (
-    <Card className="animate-fade-in border-4 border-border">
-      <CardHeader className="border-b-4 border-border bg-secondary">
-        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-          <Tags className="h-5 w-5" />
-          GDELT Theme Clustering ({data.length} themes)
+    <Card className="border border-border">
+      <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+        <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+          <Tags className="h-4 w-4" />
+          <span className="truncate">Theme Analysis ({data.length})</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
-        <ResponsiveContainer width="100%" height={400}>
-          <Treemap
-            data={treemapData}
-            dataKey="size"
-            aspectRatio={4 / 3}
-            stroke="hsl(var(--border))"
-            content={<CustomContent />}
-          >
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                border: "2px solid hsl(var(--border))",
-                borderRadius: "0",
-                fontFamily: "monospace",
-              }}
-              formatter={(value: any, name: any, props: any) => [
-                `${value} mentions`,
-                props.payload.name,
-              ]}
-            />
-          </Treemap>
-        </ResponsiveContainer>
-        <p className="text-xs text-muted-foreground mt-4 text-center uppercase tracking-widest">
-          GDELT's 2,300+ Automated Theme Detection // Global Knowledge Graph
+      <CardContent className="p-4 sm:p-6">
+        <div className="w-full overflow-hidden">
+          <ResponsiveContainer width="100%" height={300}>
+            <Treemap
+              data={treemapData}
+              dataKey="size"
+              aspectRatio={4 / 3}
+              stroke="hsl(var(--border))"
+              content={<CustomContent />}
+            >
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                }}
+                formatter={(value: any, name: any, props: any) => [
+                  `${value} mentions`,
+                  props.payload.name,
+                ]}
+              />
+            </Treemap>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3 text-center">
+          GDELT Theme Detection • Global Knowledge Graph
         </p>
       </CardContent>
     </Card>

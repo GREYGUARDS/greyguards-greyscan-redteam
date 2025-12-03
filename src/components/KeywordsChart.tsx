@@ -8,42 +8,46 @@ interface KeywordsChartProps {
 
 export function KeywordsChart({ data }: KeywordsChartProps) {
   return (
-    <Card className="border-4 border-border">
-      <CardHeader className="border-b-4 border-border bg-secondary">
-        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-          <Hash className="h-5 w-5" />
-          Keyword Frequency Analysis
+    <Card className="border border-border">
+      <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+        <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+          <Hash className="h-4 w-4" />
+          Keyword Frequency
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data} layout="vertical">
-            <CartesianGrid strokeDasharray="5 5" stroke="hsl(var(--border))" strokeWidth={1} />
-            <XAxis 
-              type="number" 
-              stroke="hsl(var(--foreground))"
-              tick={{ fill: "hsl(var(--muted-foreground))", fontFamily: "monospace", fontSize: 10 }}
-              tickLine={{ stroke: "hsl(var(--border))" }}
-            />
-            <YAxis 
-              dataKey="word" 
-              type="category" 
-              stroke="hsl(var(--foreground))"
-              tick={{ fill: "hsl(var(--muted-foreground))", fontFamily: "monospace", fontSize: 10 }}
-              tickLine={{ stroke: "hsl(var(--border))" }}
-              width={100}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: "hsl(var(--card))", 
-                border: "2px solid hsl(var(--border))",
-                borderRadius: "0",
-                fontFamily: "monospace"
-              }} 
-            />
-            <Bar dataKey="count" fill="hsl(var(--primary))" stroke="hsl(var(--border))" strokeWidth={2} />
-          </BarChart>
-        </ResponsiveContainer>
+      <CardContent className="p-4 sm:p-6">
+        <div className="w-full overflow-hidden">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={data} layout="vertical" margin={{ left: 0, right: 10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+              <XAxis 
+                type="number" 
+                stroke="hsl(var(--muted-foreground))"
+                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis 
+                dataKey="word" 
+                type="category" 
+                stroke="hsl(var(--muted-foreground))"
+                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+                tickLine={false}
+                axisLine={false}
+                width={80}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "hsl(var(--card))", 
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "4px",
+                  fontSize: "12px"
+                }} 
+              />
+              <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );

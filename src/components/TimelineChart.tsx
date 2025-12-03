@@ -8,49 +8,54 @@ interface TimelineChartProps {
 
 export function TimelineChart({ data }: TimelineChartProps) {
   return (
-    <Card className="border-4 border-border">
-      <CardHeader className="border-b-4 border-border bg-secondary">
-        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-          <TrendingUp className="h-5 w-5" />
-          Multi-Source Mention Intelligence
+    <Card className="border border-border">
+      <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+        <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+          <TrendingUp className="h-4 w-4" />
+          Mention Timeline
         </CardTitle>
-        <p className="text-xs text-muted-foreground uppercase tracking-widest mt-2">
-          Aggregated from news outlets, social platforms, and search engines
+        <p className="text-xs text-muted-foreground mt-1">
+          Aggregated from news, social platforms, and search engines
         </p>
       </CardHeader>
-      <CardContent className="pt-6">
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="5 5" stroke="hsl(var(--border))" strokeWidth={1} />
-            <XAxis 
-              dataKey="date" 
-              stroke="hsl(var(--foreground))"
-              tick={{ fill: "hsl(var(--muted-foreground))", fontFamily: "monospace", fontSize: 10 }}
-              tickLine={{ stroke: "hsl(var(--border))" }}
-            />
-            <YAxis 
-              stroke="hsl(var(--foreground))"
-              tick={{ fill: "hsl(var(--muted-foreground))", fontFamily: "monospace", fontSize: 10 }}
-              tickLine={{ stroke: "hsl(var(--border))" }}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: "hsl(var(--card))", 
-                border: "2px solid hsl(var(--border))",
-                borderRadius: "0",
-                fontFamily: "monospace"
-              }} 
-            />
-            <Line 
-              type="monotone" 
-              dataKey="mentions" 
-              stroke="hsl(var(--primary))" 
-              strokeWidth={3}
-              dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 5 }}
-              activeDot={{ r: 8 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+      <CardContent className="p-4 sm:p-6">
+        <div className="w-full overflow-hidden">
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={data} margin={{ left: 0, right: 10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis 
+                dataKey="date" 
+                stroke="hsl(var(--muted-foreground))"
+                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis 
+                stroke="hsl(var(--muted-foreground))"
+                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+                tickLine={false}
+                axisLine={false}
+                width={40}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "hsl(var(--card))", 
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "4px",
+                  fontSize: "12px"
+                }} 
+              />
+              <Line 
+                type="monotone" 
+                dataKey="mentions" 
+                stroke="hsl(var(--primary))" 
+                strokeWidth={2}
+                dot={{ fill: "hsl(var(--primary))", strokeWidth: 1, r: 3 }}
+                activeDot={{ r: 5 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );

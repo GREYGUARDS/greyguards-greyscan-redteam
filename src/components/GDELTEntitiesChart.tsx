@@ -12,49 +12,52 @@ export function GDELTEntitiesChart({ data }: GDELTEntitiesChartProps) {
   }
 
   return (
-    <Card className="animate-fade-in border-4 border-border">
-      <CardHeader className="border-b-4 border-border bg-secondary">
-        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-          <Network className="h-5 w-5" />
-          Co-Mentioned Entities (GDELT)
+    <Card className="border border-border">
+      <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+        <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+          <Network className="h-4 w-4" />
+          <span className="truncate">Co-Mentioned Entities</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={data} layout="vertical">
-            <CartesianGrid strokeDasharray="5 5" stroke="hsl(var(--border))" strokeWidth={1} />
-            <XAxis 
-              type="number"
-              stroke="hsl(var(--foreground))"
-              tick={{ fill: "hsl(var(--muted-foreground))", fontFamily: "monospace", fontSize: 10 }}
-              tickLine={{ stroke: "hsl(var(--border))" }}
-            />
-            <YAxis 
-              type="category"
-              dataKey="name"
-              stroke="hsl(var(--foreground))"
-              tick={{ fill: "hsl(var(--muted-foreground))", fontFamily: "monospace", fontSize: 10 }}
-              tickLine={{ stroke: "hsl(var(--border))" }}
-              width={150}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: "hsl(var(--card))", 
-                border: "2px solid hsl(var(--border))",
-                borderRadius: "0",
-                fontFamily: "monospace"
-              }} 
-            />
-            <Bar 
-              dataKey="count" 
-              fill="hsl(var(--primary))"
-              strokeWidth={2}
-              stroke="hsl(var(--border))"
-            />
-          </BarChart>
-        </ResponsiveContainer>
-        <p className="text-xs text-muted-foreground mt-4 text-center uppercase tracking-widest">
-          Top Entities Co-Mentioned with Brand // GDELT Global Knowledge Graph
+      <CardContent className="p-4 sm:p-6">
+        <div className="w-full overflow-hidden">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={data} layout="vertical" margin={{ left: 0, right: 10 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+              <XAxis 
+                type="number"
+                stroke="hsl(var(--muted-foreground))"
+                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis 
+                type="category"
+                dataKey="name"
+                stroke="hsl(var(--muted-foreground))"
+                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+                tickLine={false}
+                axisLine={false}
+                width={100}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "hsl(var(--card))", 
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "4px",
+                  fontSize: "12px"
+                }} 
+              />
+              <Bar 
+                dataKey="count" 
+                fill="hsl(var(--primary))"
+                radius={[0, 4, 4, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3 text-center">
+          GDELT Global Knowledge Graph
         </p>
       </CardContent>
     </Card>

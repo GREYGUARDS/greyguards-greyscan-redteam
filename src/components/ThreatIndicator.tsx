@@ -25,9 +25,9 @@ export function ThreatIndicator({ threatLevel, threatScore }: ThreatIndicatorPro
     switch (threatLevel) {
       case "critical":
       case "high":
-        return "glow-danger animate-pulse-glow";
+        return "glow-danger";
       case "medium":
-        return "glow-warning animate-pulse-glow";
+        return "glow-warning";
       default:
         return "glow-success";
     }
@@ -49,60 +49,65 @@ export function ThreatIndicator({ threatLevel, threatScore }: ThreatIndicatorPro
     switch (threatLevel) {
       case "critical":
       case "high":
-        return <AlertTriangle className="h-12 w-12 sm:h-16 sm:w-16" />;
+        return <AlertTriangle className="h-8 w-8 sm:h-10 sm:w-10" />;
       case "medium":
-        return <Activity className="h-12 w-12 sm:h-16 sm:w-16" />;
+        return <Activity className="h-8 w-8 sm:h-10 sm:w-10" />;
       default:
-        return <Shield className="h-12 w-12 sm:h-16 sm:w-16" />;
+        return <Shield className="h-8 w-8 sm:h-10 sm:w-10" />;
     }
   };
 
   return (
-    <Card className="border-4 border-border bg-card animate-fade-in">
-      <CardHeader className="border-b-4 border-border bg-secondary py-4">
-        <CardTitle className="uppercase tracking-wider flex items-center gap-2 text-sm">
-          <Shield className="h-5 w-5 flex-shrink-0" />
-          <span className="truncate">Threat Assessment Matrix</span>
+    <Card className="border border-border bg-card">
+      <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+        <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+          <Shield className="h-4 w-4 flex-shrink-0" />
+          <span className="truncate">Threat Assessment</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-8 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+      <CardContent className="p-4 sm:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           {/* Status with Circular Gauge */}
-          <div className="flex flex-col items-center justify-center md:border-r-2 border-border pb-6 md:pb-0">
-            <div className="relative mb-4">
-              {/* Circular gauge background */}
-              <div className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full border-8 border-muted flex items-center justify-center ${getGlowClass()}`}>
+          <div className="flex flex-row sm:flex-col items-center justify-between sm:justify-center sm:border-r border-border pb-4 sm:pb-0">
+            <div className="flex items-center gap-3 sm:flex-col sm:gap-0">
+              <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-muted flex items-center justify-center ${getGlowClass()} mb-0 sm:mb-3`}>
                 <div className={`${getColorClass()}`}>
                   {getIcon()}
                 </div>
               </div>
+              <div className="sm:text-center">
+                <p className="text-xs text-muted-foreground tracking-wide mb-1">Status</p>
+                <Badge variant={getBadgeVariant()} className="text-sm px-3 py-1 capitalize">
+                  {threatLevel}
+                </Badge>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Status</p>
-            <Badge variant={getBadgeVariant()} className="text-lg sm:text-xl px-4 sm:px-6 py-2 uppercase tracking-wider animate-scale-in">
-              {threatLevel}
-            </Badge>
           </div>
 
-          {/* Risk Score with Large Display */}
-          <div className="flex flex-col items-center justify-center md:border-r-2 border-border pb-6 md:pb-0 border-t md:border-t-0 border-b md:border-b-0 border-border py-6 md:py-0">
-            <p className={`metric-display ${getColorClass()} mb-2 smooth-transition`}>{threatScore}</p>
-            <p className="text-xs text-muted-foreground uppercase tracking-widest">Risk Score</p>
-            <div className="mt-4 w-full max-w-[200px] bg-muted h-3 rounded-sm overflow-hidden">
-              <div 
-                className={`h-full smooth-transition ${threatLevel === "critical" || threatLevel === "high" ? "bg-destructive glow-danger" : threatLevel === "medium" ? "bg-warning glow-warning" : "bg-success glow-success"}`}
-                style={{ width: `${threatScore}%` }}
-              />
+          {/* Risk Score */}
+          <div className="flex flex-row sm:flex-col items-center justify-between sm:justify-center sm:border-r border-border py-4 sm:py-0 border-y sm:border-y-0 border-border">
+            <div className="sm:text-center">
+              <p className="text-xs text-muted-foreground tracking-wide mb-1">Risk Score</p>
+              <p className={`metric-display ${getColorClass()} smooth-transition`}>{threatScore}</p>
+            </div>
+            <div className="w-24 sm:w-full sm:max-w-[160px] sm:mt-3">
+              <div className="bg-muted h-2 rounded-sm overflow-hidden">
+                <div 
+                  className={`h-full smooth-transition ${threatLevel === "critical" || threatLevel === "high" ? "bg-destructive" : threatLevel === "medium" ? "bg-warning" : "bg-success"}`}
+                  style={{ width: `${threatScore}%` }}
+                />
+              </div>
             </div>
           </div>
 
           {/* Alert Level */}
-          <div className="flex flex-col items-center justify-center pt-6 md:pt-0">
-            <div className="text-center space-y-4">
-              <div className={`p-4 sm:p-6 rounded-sm ${threatLevel === "critical" || threatLevel === "high" ? "border-glow-danger" : threatLevel === "medium" ? "border-glow-warning" : "border-glow-success"} smooth-transition`}>
-                <p className={`text-2xl sm:text-3xl md:text-4xl font-bold ${getColorClass()} animate-pulse-scale`}>
-                  {threatLevel === "critical" ? "IMMEDIATE" : threatLevel === "high" ? "URGENT" : threatLevel === "medium" ? "MODERATE" : "STABLE"}
+          <div className="flex flex-row sm:flex-col items-center justify-between sm:justify-center pt-4 sm:pt-0">
+            <div className="sm:text-center">
+              <p className="text-xs text-muted-foreground tracking-wide mb-1">Alert Level</p>
+              <div className={`px-4 py-2 rounded-sm ${threatLevel === "critical" || threatLevel === "high" ? "border-glow-danger" : threatLevel === "medium" ? "border-glow-warning" : "border-glow-success"} smooth-transition`}>
+                <p className={`text-lg sm:text-xl font-semibold ${getColorClass()}`}>
+                  {threatLevel === "critical" ? "Immediate" : threatLevel === "high" ? "Urgent" : threatLevel === "medium" ? "Moderate" : "Stable"}
                 </p>
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mt-2">Alert Level</p>
               </div>
             </div>
           </div>

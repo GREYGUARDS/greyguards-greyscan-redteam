@@ -25,21 +25,21 @@ export function MDMNarrativesTracker({ narratives, loading }: MDMNarrativesTrack
         return {
           label: "Misinformation",
           icon: Info,
-          color: "bg-blue-500/20 text-blue-500 border-blue-500/30",
+          color: "bg-blue-500/10 text-blue-400 border-blue-500/20",
           description: "False info shared without malicious intent"
         };
       case "disinformation":
         return {
           label: "Disinformation",
           icon: AlertTriangle,
-          color: "bg-danger/20 text-danger border-danger/30",
+          color: "bg-destructive/10 text-destructive border-destructive/20",
           description: "False info deliberately spread to deceive"
         };
       case "malinformation":
         return {
           label: "Malinformation",
           icon: Shield,
-          color: "bg-warning/20 text-warning border-warning/30",
+          color: "bg-warning/10 text-warning border-warning/20",
           description: "True info used to inflict harm"
         };
       default:
@@ -55,11 +55,11 @@ export function MDMNarrativesTracker({ narratives, loading }: MDMNarrativesTrack
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case "high":
-        return "bg-danger text-danger-foreground";
+        return "bg-destructive/90 text-destructive-foreground";
       case "medium":
-        return "bg-warning text-warning-foreground";
+        return "bg-warning/90 text-warning-foreground";
       case "low":
-        return "bg-success text-success-foreground";
+        return "bg-success/90 text-success-foreground";
       default:
         return "bg-muted text-muted-foreground";
     }
@@ -82,16 +82,16 @@ export function MDMNarrativesTracker({ narratives, loading }: MDMNarrativesTrack
 
   if (loading) {
     return (
-      <Card className="border-4 border-border animate-pulse">
-        <CardHeader className="border-b-4 border-border bg-secondary">
-          <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+      <Card className="border border-border">
+        <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+          <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+            <Shield className="h-4 w-4" />
             MDM Narrative Intelligence
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="text-center text-muted-foreground py-8">
-            Analyzing narratives using AI...
+        <CardContent className="p-4 sm:p-6">
+          <div className="text-center text-muted-foreground py-8 text-sm">
+            Analyzing narratives...
           </div>
         </CardContent>
       </Card>
@@ -100,21 +100,18 @@ export function MDMNarrativesTracker({ narratives, loading }: MDMNarrativesTrack
 
   if (narratives.length === 0) {
     return (
-      <Card className="border-4 border-border">
-        <CardHeader className="border-b-4 border-border bg-secondary">
-          <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+      <Card className="border border-border">
+        <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+          <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+            <Shield className="h-4 w-4" />
             MDM Narrative Intelligence
           </CardTitle>
-          <p className="text-xs text-muted-foreground uppercase tracking-widest mt-2">
-            Misinformation, Disinformation, Malinformation Analysis
-          </p>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="text-center text-muted-foreground py-8">
-            <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
+        <CardContent className="p-4 sm:p-6">
+          <div className="text-center text-muted-foreground py-6">
+            <Shield className="h-10 w-10 mx-auto mb-3 opacity-40" />
             <p className="text-sm">No significant MDM narratives detected</p>
-            <p className="text-xs mt-2">This is a positive indicator for brand health</p>
+            <p className="text-xs mt-1 opacity-70">Positive indicator for brand health</p>
           </div>
         </CardContent>
       </Card>
@@ -122,68 +119,65 @@ export function MDMNarrativesTracker({ narratives, loading }: MDMNarrativesTrack
   }
 
   return (
-    <Card className="border-4 border-border bg-card">
-      <CardHeader className="border-b-4 border-border bg-secondary">
-        <CardTitle className="uppercase tracking-wider flex items-center gap-2">
-          <Shield className="h-5 w-5" />
+    <Card className="border border-border bg-card">
+      <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+        <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2">
+          <Shield className="h-4 w-4" />
           MDM Narrative Intelligence
         </CardTitle>
-        <p className="text-xs text-muted-foreground uppercase tracking-widest mt-2">
-          Tracking Misinformation, Disinformation & Malinformation
+        <p className="text-xs text-muted-foreground mt-1">
+          Misinformation, Disinformation & Malinformation Analysis
         </p>
       </CardHeader>
-      <CardContent className="pt-6 space-y-6">
+      <CardContent className="p-4 sm:p-6 space-y-5">
         {/* Statistics Overview */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="p-4 bg-danger/10 border-2 border-danger/30 text-center">
-            <div className="text-3xl font-bold text-danger">{stats.high}</div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">High Severity</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="p-3 bg-destructive/5 border border-destructive/20 text-center rounded-sm">
+            <div className="text-2xl font-semibold text-destructive">{stats.high}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">High Severity</div>
           </div>
-          <div className="p-4 bg-warning/10 border-2 border-warning/30 text-center">
-            <div className="text-3xl font-bold text-warning">{stats.medium}</div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">Medium Severity</div>
+          <div className="p-3 bg-warning/5 border border-warning/20 text-center rounded-sm">
+            <div className="text-2xl font-semibold text-warning">{stats.medium}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">Medium</div>
           </div>
-          <div className="p-4 bg-success/10 border-2 border-success/30 text-center">
-            <div className="text-3xl font-bold text-success">{stats.low}</div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">Low Severity</div>
+          <div className="p-3 bg-success/5 border border-success/20 text-center rounded-sm">
+            <div className="text-2xl font-semibold text-success">{stats.low}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">Low</div>
           </div>
-          <div className="p-4 bg-primary/10 border-2 border-primary/30 text-center">
-            <div className="text-3xl font-bold text-primary">{stats.total}</div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">Total Narratives</div>
+          <div className="p-3 bg-primary/5 border border-primary/20 text-center rounded-sm">
+            <div className="text-2xl font-semibold text-primary">{stats.total}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">Total</div>
           </div>
         </div>
 
         {/* Type Distribution */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="flex items-center gap-3 p-3 border-2 border-border bg-secondary">
-            <Info className="h-5 w-5 text-blue-500" />
-            <div className="flex-1">
-              <div className="text-sm font-semibold">Misinformation</div>
-              <div className="text-xs text-muted-foreground">Unintentional false info</div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="flex items-center gap-3 p-3 border border-border bg-secondary/30 rounded-sm">
+            <Info className="h-4 w-4 text-blue-400 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium truncate">Misinformation</div>
             </div>
-            <div className="text-2xl font-bold">{stats.misinformation}</div>
+            <div className="text-xl font-semibold">{stats.misinformation}</div>
           </div>
-          <div className="flex items-center gap-3 p-3 border-2 border-border bg-secondary">
-            <AlertTriangle className="h-5 w-5 text-danger" />
-            <div className="flex-1">
-              <div className="text-sm font-semibold">Disinformation</div>
-              <div className="text-xs text-muted-foreground">Deliberate deception</div>
+          <div className="flex items-center gap-3 p-3 border border-border bg-secondary/30 rounded-sm">
+            <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium truncate">Disinformation</div>
             </div>
-            <div className="text-2xl font-bold">{stats.disinformation}</div>
+            <div className="text-xl font-semibold">{stats.disinformation}</div>
           </div>
-          <div className="flex items-center gap-3 p-3 border-2 border-border bg-secondary">
-            <Shield className="h-5 w-5 text-warning" />
-            <div className="flex-1">
-              <div className="text-sm font-semibold">Malinformation</div>
-              <div className="text-xs text-muted-foreground">Harmful truth</div>
+          <div className="flex items-center gap-3 p-3 border border-border bg-secondary/30 rounded-sm">
+            <Shield className="h-4 w-4 text-warning flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium truncate">Malinformation</div>
             </div>
-            <div className="text-2xl font-bold">{stats.malinformation}</div>
+            <div className="text-xl font-semibold">{stats.malinformation}</div>
           </div>
         </div>
 
         {/* Narratives List */}
         <div>
-          <h3 className="text-sm font-bold uppercase tracking-wider mb-4">Detected Narratives</h3>
+          <h3 className="text-sm font-medium mb-3">Detected Narratives</h3>
           <Accordion type="single" collapsible className="space-y-2">
             {sortedNarratives.map((narrative, index) => {
               const typeConfig = getTypeConfig(narrative.type);
@@ -193,40 +187,35 @@ export function MDMNarrativesTracker({ narratives, loading }: MDMNarrativesTrack
                 <AccordionItem
                   key={index}
                   value={`narrative-${index}`}
-                  className="border-2 border-border bg-card"
+                  className="border border-border bg-card rounded-sm overflow-hidden"
                 >
-                  <AccordionTrigger className="px-4 hover:no-underline">
-                    <div className="flex items-center gap-3 flex-1 text-left">
-                      <div className={`p-2 rounded-sm ${typeConfig.color}`}>
-                        <TypeIcon className="h-4 w-4" />
+                  <AccordionTrigger className="px-3 sm:px-4 py-3 hover:no-underline hover:bg-secondary/30">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-1 text-left min-w-0">
+                      <div className={`p-1.5 rounded-sm ${typeConfig.color} flex-shrink-0`}>
+                        <TypeIcon className="h-3.5 w-3.5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm truncate">{narrative.title}</div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className={`text-xs uppercase ${getSeverityColor(narrative.severity)}`}>
+                        <div className="font-medium text-sm truncate pr-2">{narrative.title}</div>
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                          <Badge variant="outline" className={`text-xs ${getSeverityColor(narrative.severity)}`}>
                             {narrative.severity}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             <TrendingUp className="h-3 w-3 mr-1" />
-                            {narrative.frequency} mentions
+                            {narrative.frequency}
                           </Badge>
-                          {narrative.firstSeen && (
-                            <span className="text-xs text-muted-foreground">
-                              Since {narrative.firstSeen}
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pt-2 pb-4">
+                  <AccordionContent className="px-3 sm:px-4 pt-2 pb-4 border-t border-border">
                     <div className="space-y-3">
-                      <div className="bg-secondary p-3 border-l-4 border-primary">
+                      <div className="bg-secondary/50 p-3 border-l-2 border-primary rounded-sm">
                         <p className="text-sm leading-relaxed">{narrative.description}</p>
                       </div>
                       
-                      <div className="flex items-start gap-2">
-                        <Badge variant="outline" className={`uppercase text-xs ${typeConfig.color}`}>
+                      <div className="flex items-start gap-2 flex-wrap">
+                        <Badge variant="outline" className={`text-xs ${typeConfig.color}`}>
                           {typeConfig.label}
                         </Badge>
                         <span className="text-xs text-muted-foreground">{typeConfig.description}</span>
@@ -234,10 +223,8 @@ export function MDMNarrativesTracker({ narratives, loading }: MDMNarrativesTrack
 
                       {narrative.keywords && narrative.keywords.length > 0 && (
                         <div>
-                          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
-                            Related Keywords:
-                          </div>
-                          <div className="flex flex-wrap gap-2">
+                          <div className="text-xs text-muted-foreground mb-1.5">Keywords:</div>
+                          <div className="flex flex-wrap gap-1.5">
                             {narrative.keywords.map((keyword, i) => (
                               <Badge key={i} variant="secondary" className="text-xs">
                                 {keyword}
@@ -255,9 +242,9 @@ export function MDMNarrativesTracker({ narratives, loading }: MDMNarrativesTrack
         </div>
 
         {/* Info Footer */}
-        <div className="pt-4 border-t-2 border-border">
+        <div className="pt-3 border-t border-border">
           <p className="text-xs text-muted-foreground">
-            <span className="font-semibold text-foreground">Analysis Powered by AI:</span> Narratives are automatically identified and classified using advanced natural language processing. Monitor frequency trends to detect coordinated information campaigns.
+            <span className="font-medium text-foreground">AI Analysis:</span> Narratives identified using natural language processing.
           </p>
         </div>
       </CardContent>
