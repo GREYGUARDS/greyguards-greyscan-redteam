@@ -69,44 +69,78 @@ const Index = () => {
     const data = DEMO_COMPANIES[companyName];
     if (!data) return;
 
+    // Clear previous results first
+    setResults(null);
+    setMdmNarratives([]);
+    setEmergingPredictions([]);
+    setMdmAlerts([]);
+    setBrandPeople([]);
+    setPersonMentions({});
+    setPersonNarratives({});
+    setTrackedStories([]);
+    setTrendsData(null);
+    setAllMentions([]);
+    setSources([]);
+    setGdeltEntities([]);
+    setGdeltLocations([]);
+    setGdeltThemes([]);
+
     setDemoMode(true);
     setDemoCompany(companyName);
     setBrandName(companyName);
     setLoading(true);
 
+    // Map demo threat levels to AnalysisResult types
+    const threatLevelMap: Record<string, "low" | "medium" | "high" | "critical"> = {
+      low: "low",
+      moderate: "medium",
+      elevated: "medium",
+      high: "high",
+      critical: "critical"
+    };
+
     // Simulate loading delay for realism
     setTimeout(() => {
-      setResults({
-        sentimentDistribution: data.sentimentDistribution.map(s => ({ ...s, fill: s.color })),
-        shortTermSentiment: data.shortTermSentiment,
-        longTermSentiment: data.longTermSentiment,
-        trendIcon: data.trendIcon,
-        previousSentiment: data.previousSentiment,
-        keywords: data.keywords,
-        timeline: data.timeline,
-        threatLevel: data.threatLevel,
-        threatScore: data.threatScore,
-      } as AnalysisResult);
-      setTrendsData(data.trendsData);
-      setAllMentions(data.mentions);
-      setSources(data.sources);
-      setGdeltEntities(data.gdeltEntities);
-      setGdeltLocations(data.gdeltLocations);
-      setGdeltThemes(data.gdeltThemes);
-      setMdmNarratives(data.mdmNarratives);
-      setEmergingPredictions(data.emergingPredictions);
-      setMdmAlerts(data.alerts);
-      // Add discovered_at to people for demo mode
-      setBrandPeople(data.people.map(p => ({ ...p, discovered_at: new Date().toISOString() })));
-      setPersonMentions(data.personMentions);
-      setPersonNarratives(data.personNarratives);
-      setTrackedStories(data.trackedStories || []);
-      setLoading(false);
+      try {
+        setResults({
+          sentimentDistribution: data.sentimentDistribution.map(s => ({ ...s, fill: s.color })),
+          shortTermSentiment: data.shortTermSentiment,
+          longTermSentiment: data.longTermSentiment,
+          trendIcon: data.trendIcon,
+          previousSentiment: data.previousSentiment,
+          keywords: data.keywords,
+          timeline: data.timeline,
+          threatLevel: threatLevelMap[data.threatLevel] || "medium",
+          threatScore: data.threatScore,
+        });
+        setTrendsData(data.trendsData);
+        setAllMentions(data.mentions || []);
+        setSources(data.sources || []);
+        setGdeltEntities(data.gdeltEntities || []);
+        setGdeltLocations(data.gdeltLocations || []);
+        setGdeltThemes(data.gdeltThemes || []);
+        setMdmNarratives(data.mdmNarratives || []);
+        setEmergingPredictions(data.emergingPredictions || []);
+        setMdmAlerts(data.alerts || []);
+        setBrandPeople((data.people || []).map(p => ({ ...p, discovered_at: new Date().toISOString() })));
+        setPersonMentions(data.personMentions || {});
+        setPersonNarratives(data.personNarratives || {});
+        setTrackedStories(data.trackedStories || []);
+        setLoading(false);
 
-      toast({
-        title: "Demo Mode Active",
-        description: `Loaded intelligence data for ${companyName}`,
-      });
+        toast({
+          title: "Demo Mode Active",
+          description: `Loaded intelligence data for ${companyName}`,
+        });
+      } catch (error) {
+        console.error("Error loading demo data:", error);
+        setLoading(false);
+        toast({
+          title: "Error",
+          description: "Failed to load demo data",
+          variant: "destructive",
+        });
+      }
     }, 1500);
   };
 
