@@ -707,10 +707,10 @@ const Index = () => {
               </div>
               <div className="min-w-0">
                 <h1 className="text-xl sm:text-2xl font-semibold tracking-tight truncate">
-                  Greyguards
+                  Greyguards – Greyscan
                 </h1>
                 <p className="text-muted-foreground text-xs sm:text-sm hidden sm:block">
-                  Narrative Intelligence System
+                  Narrative Intelligence Scanner
                 </p>
               </div>
             </div>
