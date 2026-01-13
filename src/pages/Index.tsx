@@ -788,15 +788,16 @@ const Index = () => {
         {results && (
           <div id="dashboard" className="mt-8 space-y-6">
             <Tabs defaultValue="brand" className="w-full">
-              <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
+              <TabsList className={`grid w-full max-w-md mx-auto mb-6 ${demoMode ? 'grid-cols-2' : 'grid-cols-1'}`}>
                 <TabsTrigger value="brand" className="uppercase tracking-wider">
                   Brand Overview
                 </TabsTrigger>
-                <TabsTrigger value="people" className="uppercase tracking-wider">
-                  <Users className="h-4 w-4 mr-2" />
-                  Key People
-                </TabsTrigger>
-              </TabsList>
+                {demoMode && (
+                  <TabsTrigger value="people" className="uppercase tracking-wider">
+                    <Users className="h-4 w-4 mr-2" />
+                    Key People
+                  </TabsTrigger>
+                )}</TabsList>
 
               <TabsContent value="brand" className="space-y-6">
                 {/* Threat Indicator */}
@@ -966,41 +967,43 @@ const Index = () => {
                 <SourcesTable sources={sources} />
               </TabsContent>
 
-              <TabsContent value="people" className="space-y-6">
-                <Card className="border-4 border-border bg-card">
-                  <CardHeader className="border-b-4 border-border">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 uppercase tracking-wider">
-                        <Users className="h-5 w-5" />
-                        Key People Intelligence
-                      </CardTitle>
-                      <Button
-                        onClick={handleDiscoverPeople}
-                        disabled={peopleLoading}
-                        className="uppercase tracking-wider"
-                      >
-                        {peopleLoading ? (
-                          <>
-                            <span className="animate-spin mr-2">⟳</span>
-                            Discovering...
-                          </>
-                        ) : (
-                          'Discover Key People'
-                        )}
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-6">
-                    <BrandPeopleList
-                      people={brandPeople}
-                      mentions={personMentions}
-                      narratives={personNarratives}
-                      onRefresh={handleRefreshPersonData}
-                      isRefreshing={refreshingPersonId}
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
+              {demoMode && (
+                <TabsContent value="people" className="space-y-6">
+                  <Card className="border-4 border-border bg-card">
+                    <CardHeader className="border-b-4 border-border">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2 uppercase tracking-wider">
+                          <Users className="h-5 w-5" />
+                          Key People Intelligence
+                        </CardTitle>
+                        <Button
+                          onClick={handleDiscoverPeople}
+                          disabled={peopleLoading}
+                          className="uppercase tracking-wider"
+                        >
+                          {peopleLoading ? (
+                            <>
+                              <span className="animate-spin mr-2">⟳</span>
+                              Discovering...
+                            </>
+                          ) : (
+                            'Discover Key People'
+                          )}
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      <BrandPeopleList
+                        people={brandPeople}
+                        mentions={personMentions}
+                        narratives={personNarratives}
+                        onRefresh={handleRefreshPersonData}
+                        isRefreshing={refreshingPersonId}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              )}
             </Tabs>
 
             {/* Disclaimer */}
