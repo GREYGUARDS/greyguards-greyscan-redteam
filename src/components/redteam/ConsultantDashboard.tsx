@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   ArrowLeft,
   Play,
@@ -25,13 +26,21 @@ import {
   Trophy,
   Clock,
   Eye,
-  Copy
+  Copy,
+  FileText,
+  Save,
+  RefreshCw,
+  BookOpen
 } from "lucide-react";
-import { ExerciseConfig, Inject } from "@/pages/RedTeam";
+import { ExerciseConfig, Inject, Scenario } from "@/pages/RedTeam";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ConsultantDashboardProps {
   config: ExerciseConfig;
   onBack: () => void;
+  onScenarioGenerated?: (scenario: Scenario) => void;
+  currentScenario?: Scenario | null;
 }
 
 interface TeamState {
@@ -43,13 +52,32 @@ interface TeamState {
   isConnected: boolean;
 }
 
-const ConsultantDashboard = ({ config, onBack }: ConsultantDashboardProps) => {
+interface SavedScenario {
+  refCode: string;
+  scenario: Scenario;
+  injects: Inject[];
+  brandName: string;
+  savedAt: string;
+}
+
+const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScenario }: ConsultantDashboardProps) => {
   const [isExerciseActive, setIsExerciseActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(config.duration * 60);
   const [isPaused, setIsPaused] = useState(true);
   const [sessionCode, setSessionCode] = useState(() => 
     Math.random().toString(36).substring(2, 8).toUpperCase()
   );
+
+  // Scenario preview state
+  const [scenario, setScenario] = useState<Scenario | null>(currentScenario || null);
+  const [previewInjects, setPreviewInjects] = useState<Inject[]>([]);
+  const [isGeneratingScenario, setIsGeneratingScenario] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [loadRefCode, setLoadRefCode] = useState("");
+  const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>(() => {
+    const saved = localStorage.getItem('greyguards_saved_scenarios');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const [blueTeam, setBlueTeam] = useState<TeamState>({
     name: "Blue Team",
@@ -179,6 +207,98 @@ const ConsultantDashboard = ({ config, onBack }: ConsultantDashboardProps) => {
     }
   };
 
+  // Generate scenario and injects for preview
+  const handleGenerateScenario = async () => {
+    setIsGeneratingScenario(true);
+    try {
+      // Generate scenario
+      const { data: scenarioData, error: scenarioError } = await supabase.functions.invoke('generate-redteam-scenario', {
+        body: { brandName: config.brandName }
+      });
+
+      if (scenarioError) throw scenarioError;
+
+      const generatedScenario: Scenario = {
+        ...scenarioData.scenario,
+        refCode: generateRefCode()
+      };
+
+      // Generate injects
+      const { data: injectsData, error: injectsError } = await supabase.functions.invoke('generate-redteam-injects', {
+        body: {
+          scenario: generatedScenario,
+          brandName: config.brandName,
+          duration: config.duration
+        }
+      });
+
+      if (injectsError) throw injectsError;
+
+      setScenario(generatedScenario);
+      setPreviewInjects(injectsData.injects || []);
+      onScenarioGenerated?.(generatedScenario);
+      toast.success("Scenario generated successfully!");
+    } catch (error) {
+      console.error("Error generating scenario:", error);
+      toast.error("Failed to generate scenario. Using fallback.");
+      // Fallback scenario
+      const fallbackScenario: Scenario = {
+        id: crypto.randomUUID(),
+        refCode: generateRefCode(),
+        title: `${config.brandName} Crisis Scenario`,
+        narrative: `A coordinated disinformation campaign targeting ${config.brandName} has begun spreading across social media platforms.`,
+        basedOnTruth: false,
+        implicatedParties: ["Anonymous actors", "Competitor interests"],
+        severity: "severe",
+        spreadPattern: "coordinated"
+      };
+      setScenario(fallbackScenario);
+      onScenarioGenerated?.(fallbackScenario);
+    } finally {
+      setIsGeneratingScenario(false);
+    }
+  };
+
+  const generateRefCode = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = 'GG-';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  };
+
+  const handleSaveScenario = () => {
+    if (!scenario) return;
+
+    const savedScenario: SavedScenario = {
+      refCode: scenario.refCode || generateRefCode(),
+      scenario: { ...scenario, refCode: scenario.refCode || generateRefCode() },
+      injects: previewInjects,
+      brandName: config.brandName,
+      savedAt: new Date().toISOString()
+    };
+
+    const updated = [...savedScenarios.filter(s => s.refCode !== savedScenario.refCode), savedScenario];
+    setSavedScenarios(updated);
+    localStorage.setItem('greyguards_saved_scenarios', JSON.stringify(updated));
+    toast.success(`Scenario saved with code: ${savedScenario.refCode}`);
+    navigator.clipboard.writeText(savedScenario.refCode);
+  };
+
+  const handleLoadScenario = (refCode: string) => {
+    const found = savedScenarios.find(s => s.refCode === refCode);
+    if (found) {
+      setScenario(found.scenario);
+      setPreviewInjects(found.injects);
+      onScenarioGenerated?.(found.scenario);
+      toast.success(`Loaded scenario: ${found.scenario.title}`);
+      setLoadRefCode("");
+    } else {
+      toast.error("Scenario not found with that reference code");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -216,10 +336,150 @@ const ConsultantDashboard = ({ config, onBack }: ConsultantDashboardProps) => {
 
               {/* Controls */}
               <div className="flex gap-2">
+                {/* Scenario Preview Button */}
+                <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="uppercase tracking-wider">
+                      <Eye className="h-4 w-4 mr-2" />
+                      Preview
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="uppercase tracking-wider flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        Scenario Preview & Management
+                      </DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="space-y-6 mt-4">
+                      {/* Load by Ref Code */}
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Enter reference code (e.g., GG-ABC123)"
+                          value={loadRefCode}
+                          onChange={(e) => setLoadRefCode(e.target.value.toUpperCase())}
+                          className="font-mono uppercase"
+                        />
+                        <Button onClick={() => handleLoadScenario(loadRefCode)} disabled={!loadRefCode}>
+                          <BookOpen className="h-4 w-4 mr-2" />
+                          Load
+                        </Button>
+                        <Button onClick={handleGenerateScenario} disabled={isGeneratingScenario}>
+                          <RefreshCw className={`h-4 w-4 mr-2 ${isGeneratingScenario ? 'animate-spin' : ''}`} />
+                          Generate New
+                        </Button>
+                      </div>
+
+                      {/* Current Scenario */}
+                      {scenario ? (
+                        <Card className="border-2 border-primary">
+                          <CardHeader className="border-b border-border py-3">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-sm uppercase tracking-wider">{scenario.title}</CardTitle>
+                              <div className="flex items-center gap-2">
+                                <code className="font-mono text-sm bg-muted px-2 py-1">{scenario.refCode}</code>
+                                <Button size="sm" variant="outline" onClick={handleSaveScenario}>
+                                  <Save className="h-3 w-3 mr-1" />
+                                  Save
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(scenario.refCode || '');
+                                    toast.success("Reference code copied!");
+                                  }}
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="p-4 space-y-4">
+                            <p className="text-sm text-muted-foreground">{scenario.narrative}</p>
+                            <div className="flex gap-2 flex-wrap">
+                              <Badge variant="outline">Severity: {scenario.severity}</Badge>
+                              <Badge variant="outline">Pattern: {scenario.spreadPattern}</Badge>
+                              <Badge variant={scenario.basedOnTruth ? "destructive" : "secondary"}>
+                                {scenario.basedOnTruth ? "Based on Truth" : "Fabricated"}
+                              </Badge>
+                            </div>
+                            {scenario.implicatedParties.length > 0 && (
+                              <div>
+                                <span className="text-xs uppercase tracking-wider text-muted-foreground">Implicated:</span>
+                                <p className="text-sm">{scenario.implicatedParties.join(", ")}</p>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        <Card className="border-2 border-dashed border-muted">
+                          <CardContent className="p-8 text-center">
+                            <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                            <p className="text-muted-foreground">No scenario loaded. Generate one or load by reference code.</p>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* Preview Injects */}
+                      {previewInjects.length > 0 && (
+                        <div>
+                          <h4 className="text-sm uppercase tracking-wider font-bold mb-3 flex items-center gap-2">
+                            <Zap className="h-4 w-4 text-warning" />
+                            Planned Injects ({previewInjects.length})
+                          </h4>
+                          <ScrollArea className="h-[200px] border rounded">
+                            <div className="p-3 space-y-2">
+                              {previewInjects.map((inject, i) => (
+                                <div key={inject.id || i} className="flex items-start gap-3 p-2 bg-muted/50 text-xs">
+                                  <span className="font-mono text-muted-foreground w-16">
+                                    {Math.floor(inject.timestamp / 60)}:{(inject.timestamp % 60).toString().padStart(2, '0')}
+                                  </span>
+                                  <Badge variant="outline" className="text-[10px]">{inject.type.replace('_', ' ')}</Badge>
+                                  <span className="flex-1 line-clamp-1">{inject.content}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                        </div>
+                      )}
+
+                      {/* Saved Scenarios */}
+                      {savedScenarios.length > 0 && (
+                        <div>
+                          <h4 className="text-sm uppercase tracking-wider font-bold mb-3 flex items-center gap-2">
+                            <BookOpen className="h-4 w-4 text-primary" />
+                            Saved Scenarios ({savedScenarios.length})
+                          </h4>
+                          <div className="space-y-2">
+                            {savedScenarios.slice(0, 5).map((saved) => (
+                              <div 
+                                key={saved.refCode} 
+                                className="flex items-center justify-between p-3 border rounded cursor-pointer hover:bg-muted/50"
+                                onClick={() => handleLoadScenario(saved.refCode)}
+                              >
+                                <div>
+                                  <code className="font-mono text-sm text-primary">{saved.refCode}</code>
+                                  <span className="ml-2 text-sm">{saved.scenario.title}</span>
+                                </div>
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(saved.savedAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
                 {!isExerciseActive ? (
                   <Button 
                     onClick={() => setIsExerciseActive(true)}
                     className="uppercase tracking-wider bg-success hover:bg-success/90"
+                    disabled={!scenario}
                   >
                     <Play className="h-4 w-4 mr-2" />
                     Start Exercise

@@ -23,7 +23,7 @@ import ExercisePlayer from "@/components/redteam/ExercisePlayer";
 import ConsultantDashboard from "@/components/redteam/ConsultantDashboard";
 
 export type ExerciseMode = "self" | "consultant";
-export type ExerciseDuration = 15 | 20 | 30;
+export type ExerciseDuration = 10 | 20 | 30;
 export type TeamMode = "solo" | "team-vs-team";
 
 export interface ExerciseConfig {
@@ -35,6 +35,7 @@ export interface ExerciseConfig {
 
 export interface Scenario {
   id: string;
+  refCode?: string; // Reference code for saving/loading scenarios
   title: string;
   narrative: string;
   basedOnTruth: boolean;
@@ -42,6 +43,7 @@ export interface Scenario {
   implicatedParties: string[];
   severity: "moderate" | "severe" | "critical";
   spreadPattern: "viral" | "coordinated" | "organic";
+  injects?: Inject[]; // Pre-generated injects for preview
 }
 
 export interface Inject {
@@ -84,7 +86,7 @@ const RedTeam = () => {
   const [config, setConfig] = useState<ExerciseConfig>({
     brandName: "",
     mode: "self",
-    duration: 15,
+    duration: 10,
     teamMode: "solo"
   });
   const [scenario, setScenario] = useState<Scenario | null>(null);
@@ -113,11 +115,15 @@ const RedTeam = () => {
     setConfig({
       brandName: "",
       mode: "self",
-      duration: 15,
+      duration: 10,
       teamMode: "solo"
     });
     setScenario(null);
     setFinalScore(null);
+  };
+
+  const handleScenarioFromConsultant = (generatedScenario: Scenario) => {
+    setScenario(generatedScenario);
   };
 
   if (phase === "consultant-dashboard") {
@@ -125,6 +131,8 @@ const RedTeam = () => {
       <ConsultantDashboard 
         config={config} 
         onBack={() => setPhase("landing")}
+        onScenarioGenerated={handleScenarioFromConsultant}
+        currentScenario={scenario}
       />
     );
   }
@@ -207,7 +215,7 @@ const RedTeam = () => {
             <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-warning" />
-                <span>15-30 min exercises</span>
+                <span>10-30 min exercises</span>
               </div>
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-destructive" />
@@ -284,7 +292,7 @@ const RedTeam = () => {
                   onValueChange={(value) => setConfig({ ...config, duration: parseInt(value) as ExerciseDuration })}
                   className="grid grid-cols-3 gap-4"
                 >
-                  {[15, 20, 30].map((mins) => (
+                  {[10, 20, 30].map((mins) => (
                     <div 
                       key={mins}
                       className={`relative border-2 p-4 cursor-pointer transition-all text-center ${config.duration === mins ? 'border-warning bg-warning/5' : 'border-border hover:border-muted-foreground'}`}
@@ -294,6 +302,9 @@ const RedTeam = () => {
                         <Timer className="h-6 w-6 mx-auto mb-2 text-warning" />
                         <span className="font-bold text-2xl">{mins}</span>
                         <span className="block text-xs uppercase tracking-wider text-muted-foreground">minutes</span>
+                        <span className="block text-[10px] text-muted-foreground mt-1">
+                          {mins === 10 ? 'Quick drill' : mins === 20 ? 'Standard' : 'Deep dive'}
+                        </span>
                       </Label>
                     </div>
                   ))}
