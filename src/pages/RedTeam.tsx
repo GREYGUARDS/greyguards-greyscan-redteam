@@ -21,6 +21,7 @@ import greyguardsLogo from "@/assets/greyguards-logo.png";
 import ScenarioBuilder from "@/components/redteam/ScenarioBuilder";
 import ExercisePlayer from "@/components/redteam/ExercisePlayer";
 import ConsultantDashboard from "@/components/redteam/ConsultantDashboard";
+import ExerciseDebrief from "@/components/redteam/ExerciseDebrief";
 
 export type ExerciseMode = "self" | "consultant";
 export type ExerciseDuration = 10 | 20 | 30;
@@ -79,7 +80,25 @@ export interface TeamScore {
   decisionsTotal: number;
 }
 
+export interface ResponseRecord {
+  injectId: string;
+  injectType: string;
+  injectContent: string;
+  responseLabel: string;
+  responseType: string;
+  effectiveness: number;
+  responseTime: number;
+  wasCorrect: boolean;
+  timestamp: number;
+}
+
 type Phase = "landing" | "scenario-build" | "exercise" | "consultant-dashboard" | "results";
+
+interface ExerciseResults {
+  score: TeamScore;
+  responseHistory: ResponseRecord[];
+  eventLog: Array<{ time: number; message: string; type: string }>;
+}
 
 const RedTeam = () => {
   const [phase, setPhase] = useState<Phase>("landing");
@@ -90,7 +109,7 @@ const RedTeam = () => {
     teamMode: "solo"
   });
   const [scenario, setScenario] = useState<Scenario | null>(null);
-  const [finalScore, setFinalScore] = useState<TeamScore | null>(null);
+  const [exerciseResults, setExerciseResults] = useState<ExerciseResults | null>(null);
 
   const handleStartExercise = () => {
     if (config.mode === "consultant") {
@@ -105,8 +124,12 @@ const RedTeam = () => {
     setPhase("exercise");
   };
 
-  const handleExerciseComplete = (score: TeamScore) => {
-    setFinalScore(score);
+  const handleExerciseComplete = (
+    score: TeamScore, 
+    responseHistory: ResponseRecord[], 
+    eventLog: Array<{ time: number; message: string; type: string }>
+  ) => {
+    setExerciseResults({ score, responseHistory, eventLog });
     setPhase("results");
   };
 
@@ -119,7 +142,7 @@ const RedTeam = () => {
       teamMode: "solo"
     });
     setScenario(null);
-    setFinalScore(null);
+    setExerciseResults(null);
   };
 
   const handleScenarioFromConsultant = (generatedScenario: Scenario) => {
@@ -158,11 +181,13 @@ const RedTeam = () => {
     );
   }
 
-  if (phase === "results" && finalScore) {
+  if (phase === "results" && exerciseResults) {
     return (
-      <ResultsScreen 
-        score={finalScore} 
+      <ExerciseDebrief 
+        score={exerciseResults.score} 
         config={config}
+        responseHistory={exerciseResults.responseHistory}
+        eventLog={exerciseResults.eventLog}
         onRestart={handleRestartExercise}
       />
     );
@@ -403,114 +428,6 @@ const RedTeam = () => {
           </p>
         </div>
       </footer>
-    </div>
-  );
-};
-
-// Results Screen Component
-const ResultsScreen = ({ 
-  score, 
-  config, 
-  onRestart 
-}: { 
-  score: TeamScore; 
-  config: ExerciseConfig;
-  onRestart: () => void;
-}) => {
-  const overallScore = Math.round(
-    (score.narrativeControl * 0.4) + 
-    ((100 - score.reputationDamage) * 0.3) + 
-    ((score.decisionsCorrect / score.decisionsTotal) * 100 * 0.3)
-  );
-
-  const getGrade = () => {
-    if (overallScore >= 90) return { grade: "A+", color: "text-success", message: "Exceptional crisis management" };
-    if (overallScore >= 80) return { grade: "A", color: "text-success", message: "Strong performance under pressure" };
-    if (overallScore >= 70) return { grade: "B", color: "text-warning", message: "Good response, room for improvement" };
-    if (overallScore >= 60) return { grade: "C", color: "text-warning", message: "Adequate response, needs work" };
-    return { grade: "D", color: "text-destructive", message: "Significant improvement needed" };
-  };
-
-  const gradeInfo = getGrade();
-
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b-4 border-border bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-auto" />
-            <div>
-              <span className="text-xl font-bold tracking-wider uppercase text-foreground">Greyguards</span>
-              <span className="block text-xs tracking-widest uppercase text-muted-foreground">Red Team</span>
-            </div>
-          </Link>
-          <Badge variant="outline" className="border-success text-success uppercase tracking-wider">
-            Exercise Complete
-          </Badge>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-3xl mx-auto">
-          <Card className="border-4 border-border bg-card mb-8">
-            <CardHeader className="border-b-4 border-border text-center py-8">
-              <div className="mb-4">
-                <span className={`text-8xl font-bold ${gradeInfo.color}`}>{gradeInfo.grade}</span>
-              </div>
-              <CardTitle className="text-2xl uppercase tracking-wider mb-2">Exercise Complete</CardTitle>
-              <p className="text-muted-foreground">{config.brandName} Crisis Simulation</p>
-            </CardHeader>
-            <CardContent className="p-8">
-              <p className={`text-center text-lg mb-8 ${gradeInfo.color}`}>{gradeInfo.message}</p>
-
-              <div className="grid grid-cols-2 gap-6 mb-8">
-                <div className="text-center p-4 bg-muted">
-                  <div className="text-3xl font-bold text-foreground">{score.narrativeControl}%</div>
-                  <div className="text-sm uppercase tracking-wider text-muted-foreground">Narrative Control</div>
-                </div>
-                <div className="text-center p-4 bg-muted">
-                  <div className="text-3xl font-bold text-destructive">{score.reputationDamage}%</div>
-                  <div className="text-sm uppercase tracking-wider text-muted-foreground">Reputation Damage</div>
-                </div>
-                <div className="text-center p-4 bg-muted">
-                  <div className="text-3xl font-bold text-foreground">{score.decisionsCorrect}/{score.decisionsTotal}</div>
-                  <div className="text-sm uppercase tracking-wider text-muted-foreground">Correct Decisions</div>
-                </div>
-                <div className="text-center p-4 bg-muted">
-                  <div className="text-3xl font-bold text-warning">{Math.round(score.responseTime)}s</div>
-                  <div className="text-sm uppercase tracking-wider text-muted-foreground">Avg Response Time</div>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <Button 
-                  onClick={onRestart}
-                  className="flex-1 uppercase tracking-wider"
-                >
-                  New Exercise
-                </Button>
-                <Link to="/" className="flex-1">
-                  <Button variant="outline" className="w-full uppercase tracking-wider">
-                    Return to Greyscan
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 border-border bg-card/50">
-            <CardContent className="p-6 text-center">
-              <h3 className="font-bold uppercase tracking-wider mb-2">Want to improve your score?</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Contact Greyguards for professional crisis management training and consultation.
-              </p>
-              <Button variant="outline" className="uppercase tracking-wider">
-                Contact Greyguards
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
     </div>
   );
 };
