@@ -1,10 +1,19 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const CounterNarrativeInputSchema = z.object({
+  brand: z.string().min(1).max(100),
+  topTopics: z.string().max(5000).optional().default(""),
+  sentimentSummary: z.string().max(1000).optional().default(""),
+  riskLevel: z.string().max(50).optional().default("unknown"),
+});
 
 async function callAIWithRetry(body: object, maxRetries = 3): Promise<Response> {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -54,11 +63,26 @@ serve(async (req) => {
   }
 
   try {
-    const { brand, topTopics, sentimentSummary, riskLevel } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const parseResult = CounterNarrativeInputSchema.safeParse(body);
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input" }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const { brand, topTopics, sentimentSummary, riskLevel } = parseResult.data;
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-
     if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+      console.error('LOVABLE_API_KEY is not configured');
+      return new Response(
+        JSON.stringify({ error: "Service configuration error" }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const prompt = `Brand: ${brand}. Current narratives: ${topTopics}. Sentiment: ${sentimentSummary}. Risk level: ${riskLevel}. Draft a 3–5 sentence counter-narrative statement suitable for public channels (press or social). Begin directly with the key message and focus on facts and reassurance.`;
@@ -79,24 +103,12 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limits exceeded, please try again later.' }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'Payment required, please add funds to your Lovable AI workspace.' }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      const errorText = await response.text();
-      console.error('AI gateway error:', response.status, errorText);
-      return new Response(JSON.stringify({ error: 'AI service temporarily unavailable, please try again.' }), {
-        status: 503,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      const errorId = crypto.randomUUID();
+      console.error('AI gateway error:', { errorId, status: response.status, timestamp: new Date().toISOString() });
+      return new Response(
+        JSON.stringify({ error: 'Service temporarily unavailable', errorId }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const data = await response.json();
@@ -108,11 +120,11 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Error in generate-counter-narrative function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    const errorId = crypto.randomUUID();
+    console.error('Error in generate-counter-narrative function:', { errorId, error: error instanceof Error ? error.message : "Unknown", timestamp: new Date().toISOString() });
+    return new Response(
+      JSON.stringify({ error: 'An error occurred', errorId }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });

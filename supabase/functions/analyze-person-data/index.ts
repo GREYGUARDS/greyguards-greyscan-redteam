@@ -1,10 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const AnalyzePersonInputSchema = z.object({
+  personId: z.string().uuid(),
+  brandName: z.string().min(1).max(100),
+  personName: z.string().min(1).max(200),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,7 +20,18 @@ serve(async (req) => {
   }
 
   try {
-    const { personId, brandName, personName } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const parseResult = AnalyzePersonInputSchema.safeParse(body);
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input", success: false }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const { personId, brandName, personName } = parseResult.data;
     console.log('Analyzing data for person:', personName);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -23,7 +42,10 @@ serve(async (req) => {
     // Get authorization header
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      return new Response(
+        JSON.stringify({ error: "Authentication required", success: false }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Get user from token
@@ -31,7 +53,18 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
     if (userError || !user) {
-      throw new Error('Invalid user token');
+      return new Response(
+        JSON.stringify({ error: "Authentication required", success: false }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!lovableApiKey) {
+      console.error("LOVABLE_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "Service configuration error", success: false }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Use Lovable AI to analyze person mentions and sentiment
@@ -57,9 +90,12 @@ serve(async (req) => {
     });
 
     if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('AI API error:', aiResponse.status, errorText);
-      throw new Error(`AI API error: ${aiResponse.status}`);
+      const errorId = crypto.randomUUID();
+      console.error('AI API error:', { errorId, status: aiResponse.status, timestamp: new Date().toISOString() });
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable", errorId, success: false }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const aiData = await aiResponse.json();
@@ -161,14 +197,11 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in analyze-person-data:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorId = crypto.randomUUID();
+    console.error('Error in analyze-person-data:', { errorId, error: error instanceof Error ? error.message : "Unknown", timestamp: new Date().toISOString() });
     return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify({ error: "An error occurred", errorId, success: false }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

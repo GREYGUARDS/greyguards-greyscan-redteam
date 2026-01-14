@@ -1,10 +1,16 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const BrandSearchSchema = z.object({
+  brand: z.string().min(1, "Brand name is required").max(100, "Brand name too long"),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,11 +18,18 @@ serve(async (req) => {
   }
 
   try {
-    const { brand } = await req.json();
+    const body = await req.json();
     
-    if (!brand) {
-      throw new Error("Brand name is required");
+    // Validate input
+    const parseResult = BrandSearchSchema.safeParse(body);
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input", articles: [] }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+    
+    const { brand } = parseResult.data;
 
     console.log("Searching Daily Mail RSS for:", brand);
 
@@ -30,9 +43,12 @@ serve(async (req) => {
     });
     
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Daily Mail RSS error:", response.status, errorText);
-      throw new Error(`Daily Mail RSS error: ${response.status}`);
+      const errorId = crypto.randomUUID();
+      console.error("Daily Mail RSS error:", { errorId, status: response.status, timestamp: new Date().toISOString() });
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable", errorId, articles: [] }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const xmlText = await response.text();
@@ -40,7 +56,12 @@ serve(async (req) => {
     const doc = parser.parseFromString(xmlText, "text/xml");
     
     if (!doc) {
-      throw new Error("Failed to parse RSS feed");
+      const errorId = crypto.randomUUID();
+      console.error("Failed to parse RSS feed:", { errorId, timestamp: new Date().toISOString() });
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable", errorId, articles: [] }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const items = doc.querySelectorAll("item");
@@ -71,10 +92,10 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Error in fetch-dailymail:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorId = crypto.randomUUID();
+    console.error("Error in fetch-dailymail:", { errorId, error: error instanceof Error ? error.message : "Unknown", timestamp: new Date().toISOString() });
     return new Response(
-      JSON.stringify({ error: errorMessage, articles: [] }),
+      JSON.stringify({ error: "An error occurred", errorId, articles: [] }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

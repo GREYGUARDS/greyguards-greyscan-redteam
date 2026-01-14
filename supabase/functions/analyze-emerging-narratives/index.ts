@@ -1,9 +1,28 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Input validation schema
+const MentionSchema = z.object({
+  text: z.string().max(5000),
+  source: z.string().max(100).optional(),
+}).passthrough();
+
+const NarrativeSchema = z.object({
+  title: z.string().max(200).optional(),
+  type: z.string().max(50).optional(),
+  severity: z.string().max(50).optional(),
+}).passthrough();
+
+const EmergingNarrativesInputSchema = z.object({
+  brand: z.string().min(1).max(100),
+  mentions: z.array(MentionSchema).max(100),
+  mdmNarratives: z.array(NarrativeSchema).max(50).optional(),
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -11,24 +30,39 @@ serve(async (req) => {
   }
 
   try {
-    const { brand, mentions, mdmNarratives } = await req.json();
+    const body = await req.json();
     
-    if (!brand || !mentions || mentions.length === 0) {
+    // Validate input
+    const parseResult = EmergingNarrativesInputSchema.safeParse(body);
+    if (!parseResult.success) {
       return new Response(
-        JSON.stringify({ predictions: [], error: "Brand name and mentions required" }),
+        JSON.stringify({ predictions: [], error: "Invalid input" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    const { brand, mentions, mdmNarratives } = parseResult.data;
+    
+    if (mentions.length === 0) {
+      return new Response(
+        JSON.stringify({ predictions: [], error: "No mentions provided" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY not configured");
+      console.error("LOVABLE_API_KEY not configured");
+      return new Response(
+        JSON.stringify({ predictions: [], error: "Service configuration error" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    // Prepare context from recent mentions (limit for token efficiency)
+    // Prepare context from recent mentions (already limited by schema)
     const recentMentions = mentions.slice(0, 50);
     const mentionsContext = recentMentions
-      .map((m: any, i: number) => `${i + 1}. [${m.source}] ${m.text}`)
+      .map((m: any, i: number) => `${i + 1}. [${m.source || 'unknown'}] ${m.text}`)
       .join("\n");
 
     // Include MDM context if available
@@ -86,27 +120,17 @@ Identify up to 5 distinct EMERGING narratives from these mentions - focus on NEW
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        temperature: 0.4, // Slightly higher for creative predictions
+        temperature: 0.4,
       }),
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again later.", predictions: [] }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Payment required. Please add credits to your workspace.", predictions: [] }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      const errorId = crypto.randomUUID();
+      console.error("AI gateway error:", { errorId, status: response.status, timestamp: new Date().toISOString() });
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable", errorId, predictions: [] }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const aiData = await response.json();
@@ -145,12 +169,12 @@ Identify up to 5 distinct EMERGING narratives from these mentions - focus on NEW
     );
 
   } catch (error) {
-    console.error("Error in analyze-emerging-narratives:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorId = crypto.randomUUID();
+    console.error("Error in analyze-emerging-narratives:", { errorId, error: error instanceof Error ? error.message : "Unknown", timestamp: new Date().toISOString() });
     return new Response(
-      JSON.stringify({ error: errorMessage, predictions: [] }),
+      JSON.stringify({ error: "An error occurred", errorId, predictions: [] }),
       { 
-        status: 200, // Return 200 to keep app working
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
     );

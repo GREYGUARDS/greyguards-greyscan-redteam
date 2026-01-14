@@ -1,9 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Input validation schema
+const ScenarioInputSchema = z.object({
+  brandName: z.string().min(1).max(100),
+  duration: z.number().min(1).max(60),
+  userScenario: z.string().max(5000).optional(),
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -11,11 +19,34 @@ serve(async (req) => {
   }
 
   try {
-    const { brandName, duration, userScenario } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const parseResult = ScenarioInputSchema.safeParse(body);
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    const { brandName, duration, userScenario } = parseResult.data;
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.error("LOVABLE_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ 
+          error: "Service configuration error",
+          title: "Executive Misconduct Allegations",
+          narrative: "Anonymous sources have begun circulating unverified claims about senior leadership. The campaign appears coordinated.",
+          basedOnTruth: false,
+          implicatedParties: ["[REDACTED - Executive]"],
+          severity: "severe",
+          spreadPattern: "coordinated"
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const systemPrompt = `You are an expert in crisis communications, disinformation campaigns, and brand reputation management. Your role is to create realistic but fictional crisis scenarios for training exercises.
@@ -56,9 +87,21 @@ Return a JSON object with these exact fields:
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      const errorId = crypto.randomUUID();
+      console.error("AI gateway error:", { errorId, status: response.status, timestamp: new Date().toISOString() });
+      return new Response(
+        JSON.stringify({ 
+          error: "Service temporarily unavailable",
+          errorId,
+          title: "Executive Misconduct Allegations",
+          narrative: "Anonymous sources have begun circulating unverified claims about senior leadership. The campaign appears coordinated.",
+          basedOnTruth: false,
+          implicatedParties: ["[REDACTED - Executive]"],
+          severity: "severe",
+          spreadPattern: "coordinated"
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const aiResponse = await response.json();
@@ -74,11 +117,12 @@ Return a JSON object with these exact fields:
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error generating scenario:", error);
+    const errorId = crypto.randomUUID();
+    console.error("Error generating scenario:", { errorId, error: error instanceof Error ? error.message : "Unknown", timestamp: new Date().toISOString() });
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Unknown error",
-        // Fallback scenario
+        error: "An error occurred",
+        errorId,
         title: "Executive Misconduct Allegations",
         narrative: "Anonymous sources have begun circulating unverified claims about senior leadership. The campaign appears coordinated.",
         basedOnTruth: false,
@@ -86,10 +130,7 @@ Return a JSON object with these exact fields:
         severity: "severe",
         spreadPattern: "coordinated"
       }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
