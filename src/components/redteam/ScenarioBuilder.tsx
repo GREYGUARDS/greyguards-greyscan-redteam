@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +19,36 @@ import {
 import { ExerciseConfig, Scenario } from "@/pages/RedTeam";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+// Countdown component that actually counts down
+const CountdownToStart = ({ onComplete }: { onComplete: () => void }) => {
+  const [count, setCount] = useState(3);
+
+  useEffect(() => {
+    if (count <= 0) {
+      onComplete();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCount(prev => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [count, onComplete]);
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-32 h-32 mx-auto border-4 border-destructive flex items-center justify-center mb-8 animate-pulse">
+          <span className="text-6xl font-bold text-destructive">{count}</span>
+        </div>
+        <h2 className="text-2xl font-bold uppercase tracking-wider mb-4">Exercise Starting...</h2>
+        <p className="text-muted-foreground mb-8">The narrative is spreading. Counter it effectively.</p>
+      </div>
+    </div>
+  );
+};
 
 interface ScenarioBuilderProps {
   config: ExerciseConfig;
@@ -349,23 +379,7 @@ The AI will enhance your scenario with realistic details and create dynamic inje
 
   // Ready confirmation - countdown to start
   if (isReady && previewScenario) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-32 h-32 mx-auto border-4 border-destructive flex items-center justify-center mb-8 animate-pulse-scale">
-            <span className="text-6xl font-bold text-destructive">3</span>
-          </div>
-          <h2 className="text-2xl font-bold uppercase tracking-wider mb-4">Exercise Starting...</h2>
-          <p className="text-muted-foreground mb-8">The narrative is spreading. Counter it effectively.</p>
-          <Button
-            onClick={handleBeginExercise}
-            className="uppercase tracking-wider"
-          >
-            Start Now
-          </Button>
-        </div>
-      </div>
-    );
+    return <CountdownToStart onComplete={handleBeginExercise} />;
   }
 
   return null;
