@@ -1,10 +1,16 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const DiscoverPeopleInputSchema = z.object({
+  brandName: z.string().min(1).max(100),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,7 +18,18 @@ serve(async (req) => {
   }
 
   try {
-    const { brandName } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const parseResult = DiscoverPeopleInputSchema.safeParse(body);
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input", success: false, people: [], count: 0 }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const { brandName } = parseResult.data;
     console.log('Discovering people for brand:', brandName);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -23,7 +40,10 @@ serve(async (req) => {
     // Get authorization header
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      return new Response(
+        JSON.stringify({ error: "Authentication required", success: false, people: [], count: 0 }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Get user from token
@@ -31,7 +51,18 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     
     if (userError || !user) {
-      throw new Error('Invalid user token');
+      return new Response(
+        JSON.stringify({ error: "Authentication required", success: false, people: [], count: 0 }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!lovableApiKey) {
+      console.error("LOVABLE_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "Service configuration error", success: false, people: [], count: 0 }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Use Lovable AI to discover key people
@@ -57,9 +88,12 @@ serve(async (req) => {
     });
 
     if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('AI API error:', aiResponse.status, errorText);
-      throw new Error(`AI API error: ${aiResponse.status}`);
+      const errorId = crypto.randomUUID();
+      console.error('AI API error:', { errorId, status: aiResponse.status, timestamp: new Date().toISOString() });
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable", errorId, success: false, people: [], count: 0 }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const aiData = await aiResponse.json();
@@ -121,14 +155,11 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in discover-brand-people:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorId = crypto.randomUUID();
+    console.error('Error in discover-brand-people:', { errorId, error: error instanceof Error ? error.message : "Unknown", timestamp: new Date().toISOString() });
     return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify({ error: "An error occurred", errorId, success: false, people: [], count: 0 }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

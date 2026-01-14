@@ -1,9 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const BrandSearchSchema = z.object({
+  brand: z.string().min(1, "Brand name is required").max(100, "Brand name too long"),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,11 +17,18 @@ serve(async (req) => {
   }
 
   try {
-    const { brand } = await req.json();
+    const body = await req.json();
     
-    if (!brand) {
-      throw new Error("Brand name is required");
+    // Validate input
+    const parseResult = BrandSearchSchema.safeParse(body);
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input", posts: [] }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+    
+    const { brand } = parseResult.data;
 
     console.log("Searching Hacker News for:", brand);
 
@@ -25,9 +38,12 @@ serve(async (req) => {
     const response = await fetch(searchUrl);
     
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Hacker News API error:", response.status, errorText);
-      throw new Error(`Hacker News API error: ${response.status}`);
+      const errorId = crypto.randomUUID();
+      console.error("Hacker News API error:", { errorId, status: response.status, timestamp: new Date().toISOString() });
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable", errorId, posts: [] }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
@@ -54,10 +70,10 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Error in fetch-hackernews:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorId = crypto.randomUUID();
+    console.error("Error in fetch-hackernews:", { errorId, error: error instanceof Error ? error.message : "Unknown", timestamp: new Date().toISOString() });
     return new Response(
-      JSON.stringify({ error: errorMessage, posts: [] }),
+      JSON.stringify({ error: "An error occurred", errorId, posts: [] }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

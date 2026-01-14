@@ -1,10 +1,19 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const ActionsInputSchema = z.object({
+  brand: z.string().min(1).max(100),
+  sentimentSummary: z.string().max(1000).optional().default(""),
+  topTopics: z.string().max(5000).optional().default(""),
+  riskLevel: z.string().max(50).optional().default("unknown"),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,11 +21,26 @@ serve(async (req) => {
   }
 
   try {
-    const { brand, sentimentSummary, topTopics, riskLevel } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const parseResult = ActionsInputSchema.safeParse(body);
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input" }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const { brand, sentimentSummary, topTopics, riskLevel } = parseResult.data;
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-
     if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+      console.error('LOVABLE_API_KEY is not configured');
+      return new Response(
+        JSON.stringify({ error: "Service configuration error" }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const prompt = `Brand: ${brand}. Sentiment summary: ${sentimentSummary}. Top narratives: ${topTopics}. Threat level: ${riskLevel}. Generate 3 clear, strategic actions for the comms team, written as numbered points in plain language. Tone: factual, calm, and authoritative.`;
@@ -42,24 +66,12 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limits exceeded, please try again later.' }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'Payment required, please add funds to your Lovable AI workspace.' }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      const errorText = await response.text();
-      console.error('AI gateway error:', response.status, errorText);
-      return new Response(JSON.stringify({ error: 'AI gateway error' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      const errorId = crypto.randomUUID();
+      console.error('AI gateway error:', { errorId, status: response.status, timestamp: new Date().toISOString() });
+      return new Response(
+        JSON.stringify({ error: 'Service temporarily unavailable', errorId }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const data = await response.json();
@@ -69,11 +81,11 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Error in generate-actions function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    const errorId = crypto.randomUUID();
+    console.error('Error in generate-actions function:', { errorId, error: error instanceof Error ? error.message : "Unknown", timestamp: new Date().toISOString() });
+    return new Response(
+      JSON.stringify({ error: 'An error occurred', errorId }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });

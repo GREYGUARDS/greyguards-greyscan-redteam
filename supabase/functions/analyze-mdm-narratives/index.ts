@@ -1,10 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Input validation schema
+const MentionSchema = z.object({
+  text: z.string().max(5000),
+  source: z.string().max(100).optional(),
+}).passthrough();
+
+const MdmNarrativesInputSchema = z.object({
+  brand: z.string().min(1).max(100),
+  mentions: z.array(MentionSchema).max(100),
+});
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -12,11 +24,22 @@ serve(async (req) => {
   }
 
   try {
-    const { brand, mentions } = await req.json();
+    const body = await req.json();
     
-    if (!brand || !mentions || mentions.length === 0) {
+    // Validate input
+    const parseResult = MdmNarrativesInputSchema.safeParse(body);
+    if (!parseResult.success) {
       return new Response(
-        JSON.stringify({ narratives: [], alerts: [], error: "Brand name and mentions required" }),
+        JSON.stringify({ narratives: [], alerts: [], error: "Invalid input" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    const { brand, mentions } = parseResult.data;
+    
+    if (mentions.length === 0) {
+      return new Response(
+        JSON.stringify({ narratives: [], alerts: [], error: "No mentions provided" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -56,7 +79,7 @@ serve(async (req) => {
     
     if (!userId) {
       console.log('No user ID found, returning empty results');
-      return new Response(JSON.stringify({ narratives: [], alerts: [], error: 'User identification failed' }), {
+      return new Response(JSON.stringify({ narratives: [], alerts: [], error: 'Authentication required' }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -64,13 +87,17 @@ serve(async (req) => {
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY not configured");
+      console.error("LOVABLE_API_KEY not configured");
+      return new Response(
+        JSON.stringify({ narratives: [], alerts: [], error: "Service configuration error" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Prepare context from mentions (limit to 50 most recent for token efficiency)
     const recentMentions = mentions.slice(0, 50);
     const mentionsContext = recentMentions
-      .map((m: any, i: number) => `${i + 1}. [${m.source}] ${m.text}`)
+      .map((m: any, i: number) => `${i + 1}. [${m.source || 'unknown'}] ${m.text}`)
       .join("\n");
 
     const systemPrompt = `You are an expert in narrative intelligence and information warfare. Your task is to identify and categorize potential Misinformation (false info shared without malicious intent), Disinformation (false info deliberately spread to deceive), and Malinformation (true info used to inflict harm) narratives about brands.
@@ -120,27 +147,17 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        temperature: 0.3, // Lower temperature for more consistent analysis
+        temperature: 0.3,
       }),
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again later.", narratives: [], alerts: [] }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Payment required. Please add credits to your workspace.", narratives: [], alerts: [] }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      const errorId = crypto.randomUUID();
+      console.error("AI gateway error:", { errorId, status: response.status, timestamp: new Date().toISOString() });
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable", errorId, narratives: [], alerts: [] }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const aiData = await response.json();
@@ -262,12 +279,12 @@ Identify up to 8 distinct MDM narratives from these mentions. Return ONLY valid 
     );
 
   } catch (error) {
-    console.error("Error in analyze-mdm-narratives:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorId = crypto.randomUUID();
+    console.error("Error in analyze-mdm-narratives:", { errorId, error: error instanceof Error ? error.message : "Unknown", timestamp: new Date().toISOString() });
     return new Response(
-      JSON.stringify({ error: errorMessage, narratives: [], alerts: [] }),
+      JSON.stringify({ error: "An error occurred", errorId, narratives: [], alerts: [] }),
       { 
-        status: 200, // Return 200 to keep app working
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
     );

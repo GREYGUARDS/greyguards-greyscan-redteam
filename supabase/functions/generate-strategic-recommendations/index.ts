@@ -1,9 +1,18 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const RecommendationsInputSchema = z.object({
+  brand: z.string().min(1).max(100),
+  topTopics: z.string().max(5000).optional().default(""),
+  sentimentSummary: z.string().max(1000).optional().default(""),
+  riskLevel: z.string().max(50).optional().default("unknown"),
+});
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,11 +20,26 @@ serve(async (req) => {
   }
 
   try {
-    const { brand, topTopics, sentimentSummary, riskLevel } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const parseResult = RecommendationsInputSchema.safeParse(body);
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input" }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const { brand, topTopics, sentimentSummary, riskLevel } = parseResult.data;
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-
     if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+      console.error('LOVABLE_API_KEY is not configured');
+      return new Response(
+        JSON.stringify({ error: "Service configuration error" }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('Generating strategic recommendations for:', brand);
@@ -43,24 +67,12 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Lovable AI error:', response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'Payment required. Please add credits to your workspace.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      throw new Error(`AI request failed: ${response.status}`);
+      const errorId = crypto.randomUUID();
+      console.error('AI gateway error:', { errorId, status: response.status, timestamp: new Date().toISOString() });
+      return new Response(
+        JSON.stringify({ error: 'Service temporarily unavailable', errorId }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const data = await response.json();
@@ -74,9 +86,10 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in generate-strategic-recommendations:', error);
+    const errorId = crypto.randomUUID();
+    console.error('Error in generate-strategic-recommendations:', { errorId, error: error instanceof Error ? error.message : "Unknown", timestamp: new Date().toISOString() });
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: 'An error occurred', errorId }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
