@@ -22,6 +22,9 @@ import ScenarioBuilder from "@/components/redteam/ScenarioBuilder";
 import ExercisePlayer from "@/components/redteam/ExercisePlayer";
 import ConsultantDashboard from "@/components/redteam/ConsultantDashboard";
 import ExerciseDebrief from "@/components/redteam/ExerciseDebrief";
+import TeamJoin from "@/components/redteam/TeamJoin";
+import BlueTeamDashboard from "@/components/redteam/BlueTeamDashboard";
+import RedTeamDashboard from "@/components/redteam/RedTeamDashboard";
 
 export type ExerciseMode = "self" | "consultant";
 export type ExerciseDuration = 10 | 20 | 30;
@@ -92,12 +95,19 @@ export interface ResponseRecord {
   timestamp: number;
 }
 
-type Phase = "landing" | "scenario-build" | "exercise" | "consultant-dashboard" | "results";
+type Phase = "landing" | "scenario-build" | "exercise" | "consultant-dashboard" | "results" | "team-join" | "team-dashboard";
 
 interface ExerciseResults {
   score: TeamScore;
   responseHistory: ResponseRecord[];
   eventLog: Array<{ time: number; message: string; type: string }>;
+}
+
+interface TeamSessionData {
+  sessionId: string;
+  teamId: string;
+  teamType: "blue" | "red";
+  sessionData: any;
 }
 
 const RedTeam = () => {
@@ -110,6 +120,7 @@ const RedTeam = () => {
   });
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [exerciseResults, setExerciseResults] = useState<ExerciseResults | null>(null);
+  const [teamSession, setTeamSession] = useState<TeamSessionData | null>(null);
 
   const handleStartExercise = () => {
     if (config.mode === "consultant") {
@@ -143,11 +154,56 @@ const RedTeam = () => {
     });
     setScenario(null);
     setExerciseResults(null);
+    setTeamSession(null);
+  };
+
+  const handleTeamJoin = (sessionId: string, teamId: string, teamType: "blue" | "red", sessionData: any) => {
+    setTeamSession({ sessionId, teamId, teamType, sessionData });
+    setPhase("team-dashboard");
+  };
+
+  const handleTeamComplete = (score: TeamScore) => {
+    setExerciseResults({ score, responseHistory: [], eventLog: [] });
+    setPhase("results");
   };
 
   const handleScenarioFromConsultant = (generatedScenario: Scenario) => {
     setScenario(generatedScenario);
   };
+
+  // Team Join Phase
+  if (phase === "team-join") {
+    return (
+      <TeamJoin 
+        onJoinSession={handleTeamJoin}
+        onBack={() => setPhase("landing")}
+      />
+    );
+  }
+
+  // Team Dashboard Phase
+  if (phase === "team-dashboard" && teamSession) {
+    if (teamSession.teamType === "blue") {
+      return (
+        <BlueTeamDashboard
+          sessionId={teamSession.sessionId}
+          teamId={teamSession.teamId}
+          sessionData={teamSession.sessionData}
+          onLeave={() => setPhase("landing")}
+          onComplete={handleTeamComplete}
+        />
+      );
+    } else {
+      return (
+        <RedTeamDashboard
+          sessionId={teamSession.sessionId}
+          teamId={teamSession.teamId}
+          sessionData={teamSession.sessionData}
+          onLeave={() => setPhase("landing")}
+        />
+      );
+    }
+  }
 
   if (phase === "consultant-dashboard") {
     return (
@@ -237,7 +293,7 @@ const RedTeam = () => {
               Navigate evolving disinformation narratives in real-time. Test your team's crisis response capabilities under pressure.
             </p>
 
-            <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground mb-8">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-warning" />
                 <span>10-30 min exercises</span>
@@ -251,6 +307,16 @@ const RedTeam = () => {
                 <span>Team vs Team mode</span>
               </div>
             </div>
+
+            {/* Join Session Button */}
+            <Button 
+              variant="outline" 
+              onClick={() => setPhase("team-join")}
+              className="border-2 border-primary text-primary hover:bg-primary/10 uppercase tracking-wider"
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Join Existing Session
+            </Button>
           </div>
         </div>
       </section>
