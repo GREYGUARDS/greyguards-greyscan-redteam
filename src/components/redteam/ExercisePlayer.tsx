@@ -25,14 +25,18 @@ import {
   Send,
   PenLine
 } from "lucide-react";
-import { ExerciseConfig, Scenario, Inject, ResponseOption, TeamScore } from "@/pages/RedTeam";
+import { ExerciseConfig, Scenario, Inject, ResponseOption, TeamScore, ResponseRecord } from "@/pages/RedTeam";
 import CountdownTimer from "./CountdownTimer";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ExercisePlayerProps {
   config: ExerciseConfig;
   scenario: Scenario;
-  onComplete: (score: TeamScore) => void;
+  onComplete: (
+    score: TeamScore, 
+    responseHistory: ResponseRecord[], 
+    eventLog: Array<{ time: number; message: string; type: string }>
+  ) => void;
   onBack: () => void;
 }
 
@@ -48,6 +52,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   const [responseTimes, setResponseTimes] = useState<number[]>([]);
   const [injectStartTime, setInjectStartTime] = useState<number | null>(null);
   const [eventLog, setEventLog] = useState<Array<{ time: number; message: string; type: "inject" | "response" | "system" }>>([]);
+  const [responseHistory, setResponseHistory] = useState<ResponseRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [customCountermeasure, setCustomCountermeasure] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -294,11 +299,27 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     if (!activeInject || !injectStartTime) return;
 
     const responseTime = (Date.now() - injectStartTime) / 1000;
+    const wasCorrect = option.effectiveness >= 65;
+    
     setResponseTimes((prev) => [...prev, responseTime]);
     setDecisionsTotal((prev) => prev + 1);
 
+    // Record response for debrief
+    const record: ResponseRecord = {
+      injectId: activeInject.id,
+      injectType: activeInject.type,
+      injectContent: activeInject.content,
+      responseLabel: option.label,
+      responseType: option.type,
+      effectiveness: option.effectiveness,
+      responseTime,
+      wasCorrect,
+      timestamp: totalDuration - timeRemaining
+    };
+    setResponseHistory((prev) => [...prev, record]);
+
     // Calculate if decision was correct (effectiveness > 65 = correct)
-    if (option.effectiveness >= 65) {
+    if (wasCorrect) {
       setDecisionsCorrect((prev) => prev + 1);
       setNarrativeControl((prev) => Math.min(100, prev + (option.effectiveness / 10)));
       setReputationDamage((prev) => Math.max(0, prev - (option.effectiveness / 15)));
@@ -340,8 +361,23 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     );
     const lengthBonus = Math.min(20, customCountermeasure.length / 10);
     const effectiveness = Math.min(85, 55 + (hasKeywords ? 15 : 0) + lengthBonus);
+    const wasCorrect = effectiveness >= 65;
+
+    // Record response for debrief
+    const record: ResponseRecord = {
+      injectId: activeInject.id,
+      injectType: activeInject.type,
+      injectContent: activeInject.content,
+      responseLabel: customCountermeasure.substring(0, 50) + (customCountermeasure.length > 50 ? '...' : ''),
+      responseType: 'custom',
+      effectiveness: Math.round(effectiveness),
+      responseTime,
+      wasCorrect,
+      timestamp: totalDuration - timeRemaining
+    };
+    setResponseHistory((prev) => [...prev, record]);
     
-    if (effectiveness >= 65) {
+    if (wasCorrect) {
       setDecisionsCorrect((prev) => prev + 1);
       setNarrativeControl((prev) => Math.min(100, prev + (effectiveness / 10)));
       setReputationDamage((prev) => Math.max(0, prev - (effectiveness / 15)));
@@ -382,7 +418,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       decisionsTotal
     };
 
-    onComplete(score);
+    onComplete(score, responseHistory, eventLog);
   };
 
   const getInjectIcon = (type: Inject["type"]) => {
