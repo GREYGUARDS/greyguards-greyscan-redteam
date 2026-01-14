@@ -220,7 +220,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     loadInjects();
   }, [generateInjects]);
 
-  // Timer effect
+  // Timer effect with improved inject reactivity
   useEffect(() => {
     if (isPaused || timeRemaining <= 0) return;
 
@@ -240,21 +240,25 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
           ? elapsedTime - lastResponseTimeRef.current 
           : null;
         
-        // If we responded recently (within last 8 seconds), look for next inject sooner
-        const acceleratedTiming = timeSinceLastResponse !== null && timeSinceLastResponse >= 5 && timeSinceLastResponse <= 12;
+        // If we responded recently (within 3-8 seconds), trigger next inject immediately
+        const shouldAccelerate = timeSinceLastResponse !== null && 
+                                  timeSinceLastResponse >= 3 && 
+                                  timeSinceLastResponse <= 8;
         
-        const nextInject = injects.find(
-          (inject) => {
-            const notYetTriggered = !eventLog.some(e => e.message.includes(inject.source));
-            if (acceleratedTiming && notYetTriggered) {
-              // After a response, trigger the next available inject faster
-              return inject.timestamp <= elapsedTime + 30;
-            }
-            return inject.timestamp <= elapsedTime && 
-                   inject.timestamp > elapsedTime - 1 &&
-                   notYetTriggered;
+        // Find the next untriggered inject
+        const triggeredSources = eventLog.filter(e => e.type === "inject").map(e => e.message);
+        const nextInject = injects.find((inject) => {
+          const notYetTriggered = !triggeredSources.some(msg => msg.includes(inject.source));
+          if (!notYetTriggered) return false;
+          
+          if (shouldAccelerate) {
+            // Immediately trigger next available inject after a response
+            return true;
           }
-        );
+          
+          // Normal timing check
+          return inject.timestamp <= elapsedTime && inject.timestamp > elapsedTime - 2;
+        });
 
         if (nextInject && !activeInject) {
           triggerInject(nextInject);
@@ -406,7 +410,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-auto">
       {/* Top Bar with Timer */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b-4 border-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -428,11 +432,11 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
             onPauseToggle={() => setIsPaused(!isPaused)}
           />
 
-          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6">
             <div className="text-right">
               <div className="flex items-center gap-2 justify-end">
                 <span className={`text-xl font-bold ${narrativeControl >= 50 ? 'text-success' : 'text-destructive'}`}>
-                  {narrativeControl}%
+                  {Math.round(narrativeControl)}%
                 </span>
                 {narrativeControl >= 50 ? 
                   <TrendingUp className="h-4 w-4 text-success" /> : 
@@ -444,7 +448,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
             <div className="text-right">
               <div className="flex items-center gap-2 justify-end">
                 <span className={`text-xl font-bold ${reputationDamage <= 30 ? 'text-success' : 'text-destructive'}`}>
-                  {reputationDamage}%
+                  {Math.round(reputationDamage)}%
                 </span>
                 <Shield className={`h-4 w-4 ${reputationDamage <= 30 ? 'text-success' : 'text-destructive'}`} />
               </div>
@@ -459,7 +463,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       </header>
 
       {/* Main Content */}
-      <main className="pt-24 pb-8 container mx-auto px-4">
+      <main className="pt-28 pb-8 container mx-auto px-4 min-h-screen">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Scenario & Event Log */}
           <div className="lg:col-span-1 space-y-6">
