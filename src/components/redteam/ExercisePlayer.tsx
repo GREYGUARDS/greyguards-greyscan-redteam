@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import {
   AlertTriangle,
   Clock,
@@ -20,7 +21,9 @@ import {
   CheckCircle,
   XCircle,
   Volume2,
-  ArrowLeft
+  ArrowLeft,
+  Send,
+  PenLine
 } from "lucide-react";
 import { ExerciseConfig, Scenario, Inject, ResponseOption, TeamScore } from "@/pages/RedTeam";
 import CountdownTimer from "./CountdownTimer";
@@ -46,8 +49,11 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   const [injectStartTime, setInjectStartTime] = useState<number | null>(null);
   const [eventLog, setEventLog] = useState<Array<{ time: number; message: string; type: "inject" | "response" | "system" }>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [customCountermeasure, setCustomCountermeasure] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
   const nextInjectTimeRef = useRef<number>(15); // First inject after 15 seconds
   const injectCountRef = useRef<number>(0);
+  const lastResponseTimeRef = useRef<number | null>(null);
   const totalDuration = config.duration * 60;
 
   // Generate pre-defined injects based on scenario
@@ -228,13 +234,26 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
           return 0;
         }
 
-        // Check for timed injects
+        // Check for timed injects - accelerated if we just responded
         const elapsedTime = totalDuration - newTime;
+        const timeSinceLastResponse = lastResponseTimeRef.current 
+          ? elapsedTime - lastResponseTimeRef.current 
+          : null;
+        
+        // If we responded recently (within last 8 seconds), look for next inject sooner
+        const acceleratedTiming = timeSinceLastResponse !== null && timeSinceLastResponse >= 5 && timeSinceLastResponse <= 12;
+        
         const nextInject = injects.find(
-          (inject) => 
-            inject.timestamp <= elapsedTime && 
-            inject.timestamp > elapsedTime - 1 &&
-            !eventLog.some(e => e.message.includes(inject.source))
+          (inject) => {
+            const notYetTriggered = !eventLog.some(e => e.message.includes(inject.source));
+            if (acceleratedTiming && notYetTriggered) {
+              // After a response, trigger the next available inject faster
+              return inject.timestamp <= elapsedTime + 30;
+            }
+            return inject.timestamp <= elapsedTime && 
+                   inject.timestamp > elapsedTime - 1 &&
+                   notYetTriggered;
+          }
         );
 
         if (nextInject && !activeInject) {
@@ -295,8 +314,53 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       ...prev
     ]);
 
+    // Track when we responded for accelerated next inject
+    lastResponseTimeRef.current = totalDuration - timeRemaining;
+    
     setActiveInject(null);
     setInjectStartTime(null);
+    setShowCustomInput(false);
+    setCustomCountermeasure("");
+  };
+
+  const handleCustomResponse = () => {
+    if (!activeInject || !injectStartTime || !customCountermeasure.trim()) return;
+
+    const responseTime = (Date.now() - injectStartTime) / 1000;
+    setResponseTimes((prev) => [...prev, responseTime]);
+    setDecisionsTotal((prev) => prev + 1);
+
+    // Custom responses get moderate effectiveness (55-75 based on length and keywords)
+    const hasKeywords = ['statement', 'media', 'respond', 'clarify', 'deny', 'evidence', 'fact', 'truth', 'report'].some(
+      keyword => customCountermeasure.toLowerCase().includes(keyword)
+    );
+    const lengthBonus = Math.min(20, customCountermeasure.length / 10);
+    const effectiveness = Math.min(85, 55 + (hasKeywords ? 15 : 0) + lengthBonus);
+    
+    if (effectiveness >= 65) {
+      setDecisionsCorrect((prev) => prev + 1);
+      setNarrativeControl((prev) => Math.min(100, prev + (effectiveness / 10)));
+      setReputationDamage((prev) => Math.max(0, prev - (effectiveness / 15)));
+    } else {
+      setNarrativeControl((prev) => Math.max(0, prev - 3));
+    }
+
+    setEventLog((prev) => [
+      {
+        time: totalDuration - timeRemaining,
+        message: `Custom Response: "${customCountermeasure.substring(0, 40)}..." (${Math.round(effectiveness)}% effective)`,
+        type: "response"
+      },
+      ...prev
+    ]);
+
+    // Track when we responded for accelerated next inject
+    lastResponseTimeRef.current = totalDuration - timeRemaining;
+
+    setActiveInject(null);
+    setInjectStartTime(null);
+    setShowCustomInput(false);
+    setCustomCountermeasure("");
   };
 
   const handleExerciseComplete = () => {
@@ -522,6 +586,56 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                           </div>
                         </button>
                       ))}
+                    </div>
+
+                    {/* Custom Countermeasure Option */}
+                    <div className="mt-6 border-t-2 border-border pt-4">
+                      {!showCustomInput ? (
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setShowCustomInput(true)}
+                          className="w-full border-2 border-primary/50 hover:bg-primary/10 uppercase tracking-wider"
+                        >
+                          <PenLine className="h-4 w-4 mr-2" />
+                          Write Your Own Countermeasure
+                        </Button>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <PenLine className="h-4 w-4" />
+                            <span className="uppercase tracking-wider">Custom Response</span>
+                          </div>
+                          <Textarea
+                            placeholder="Describe your countermeasure strategy... (e.g., 'Issue a transparent statement addressing the claims directly, provide evidence of our practices, and engage key media contacts for balanced coverage')"
+                            value={customCountermeasure}
+                            onChange={(e) => setCustomCountermeasure(e.target.value)}
+                            className="min-h-[100px] border-2 border-primary/30 focus:border-primary"
+                          />
+                          <div className="flex gap-2">
+                            <Button 
+                              onClick={handleCustomResponse}
+                              disabled={!customCountermeasure.trim()}
+                              className="flex-1 uppercase tracking-wider"
+                            >
+                              <Send className="h-4 w-4 mr-2" />
+                              Submit Response
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              onClick={() => {
+                                setShowCustomInput(false);
+                                setCustomCountermeasure("");
+                              }}
+                              className="uppercase tracking-wider"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Tip: Include specific actions, channels, and key messages for higher effectiveness
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
