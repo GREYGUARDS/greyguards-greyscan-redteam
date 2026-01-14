@@ -44,6 +44,221 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_injects: {
+        Row: {
+          content: string
+          created_at: string | null
+          created_by: string
+          id: string
+          inject_type: string
+          is_aggressive: boolean | null
+          is_sent: boolean | null
+          reach: number | null
+          sent_at: string | null
+          sentiment: string | null
+          session_id: string
+          source: string
+          timestamp_offset: number
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          inject_type: string
+          is_aggressive?: boolean | null
+          is_sent?: boolean | null
+          reach?: number | null
+          sent_at?: string | null
+          sentiment?: string | null
+          session_id: string
+          source: string
+          timestamp_offset?: number
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          inject_type?: string
+          is_aggressive?: boolean | null
+          is_sent?: boolean | null
+          reach?: number | null
+          sent_at?: string | null
+          sentiment?: string | null
+          session_id?: string
+          source?: string
+          timestamp_offset?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_injects_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercise_responses: {
+        Row: {
+          created_at: string | null
+          custom_response: string | null
+          effectiveness: number
+          id: string
+          inject_id: string
+          response_label: string
+          response_time_seconds: number
+          response_type: string
+          session_id: string
+          team_id: string
+          was_correct: boolean
+        }
+        Insert: {
+          created_at?: string | null
+          custom_response?: string | null
+          effectiveness: number
+          id?: string
+          inject_id: string
+          response_label: string
+          response_time_seconds: number
+          response_type: string
+          session_id: string
+          team_id: string
+          was_correct: boolean
+        }
+        Update: {
+          created_at?: string | null
+          custom_response?: string | null
+          effectiveness?: number
+          id?: string
+          inject_id?: string
+          response_label?: string
+          response_time_seconds?: number
+          response_type?: string
+          session_id?: string
+          team_id?: string
+          was_correct?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_responses_inject_id_fkey"
+            columns: ["inject_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_injects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_responses_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_responses_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercise_sessions: {
+        Row: {
+          blue_team_score: Json | null
+          brand_name: string
+          completed_at: string | null
+          created_at: string
+          duration: number
+          id: string
+          red_team_score: Json | null
+          scenario_narrative: string | null
+          scenario_title: string | null
+          session_code: string
+          started_at: string | null
+          status: string
+          team_mode: string
+        }
+        Insert: {
+          blue_team_score?: Json | null
+          brand_name: string
+          completed_at?: string | null
+          created_at?: string
+          duration?: number
+          id?: string
+          red_team_score?: Json | null
+          scenario_narrative?: string | null
+          scenario_title?: string | null
+          session_code: string
+          started_at?: string | null
+          status?: string
+          team_mode?: string
+        }
+        Update: {
+          blue_team_score?: Json | null
+          brand_name?: string
+          completed_at?: string | null
+          created_at?: string
+          duration?: number
+          id?: string
+          red_team_score?: Json | null
+          scenario_narrative?: string | null
+          scenario_title?: string | null
+          session_code?: string
+          started_at?: string | null
+          status?: string
+          team_mode?: string
+        }
+        Relationships: []
+      }
+      exercise_teams: {
+        Row: {
+          decisions_correct: number | null
+          decisions_total: number | null
+          id: string
+          is_connected: boolean | null
+          joined_at: string | null
+          narrative_control: number | null
+          reputation_damage: number | null
+          session_id: string
+          team_name: string | null
+          team_type: string
+        }
+        Insert: {
+          decisions_correct?: number | null
+          decisions_total?: number | null
+          id?: string
+          is_connected?: boolean | null
+          joined_at?: string | null
+          narrative_control?: number | null
+          reputation_damage?: number | null
+          session_id: string
+          team_name?: string | null
+          team_type: string
+        }
+        Update: {
+          decisions_correct?: number | null
+          decisions_total?: number | null
+          id?: string
+          is_connected?: boolean | null
+          joined_at?: string | null
+          narrative_control?: number | null
+          reputation_damage?: number | null
+          session_id?: string
+          team_name?: string | null
+          team_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_teams_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mdm_alerts: {
         Row: {
           alert_type: string
