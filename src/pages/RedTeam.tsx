@@ -256,10 +256,10 @@ const RedTeam = () => {
       <header className="border-b-4 border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-auto" />
+            <img src={greyguardsLogo} alt="Greyguards" className="h-8 w-8 sm:h-10 sm:w-10" />
             <div>
-              <span className="text-xl font-bold tracking-wider uppercase text-foreground">Greyguards</span>
-              <span className="block text-xs tracking-widest uppercase text-muted-foreground">Red Team using GreyScan</span>
+              <span className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">Greyguards – Red Team</span>
+              <span className="block text-muted-foreground text-xs sm:text-sm hidden sm:block">Crisis Simulation using GreyScan</span>
             </div>
           </Link>
           <Badge variant="outline" className="border-destructive text-destructive uppercase tracking-wider animate-pulse-glow">
