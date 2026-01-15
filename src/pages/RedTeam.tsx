@@ -25,6 +25,7 @@ import ExerciseDebrief from "@/components/redteam/ExerciseDebrief";
 import TeamJoin from "@/components/redteam/TeamJoin";
 import BlueTeamDashboard from "@/components/redteam/BlueTeamDashboard";
 import RedTeamDashboard from "@/components/redteam/RedTeamDashboard";
+import ToolsNavDropdown from "@/components/ToolsNavDropdown";
 
 export type ExerciseMode = "self" | "consultant";
 export type ExerciseDuration = 10 | 20 | 30;
@@ -255,13 +256,7 @@ const RedTeam = () => {
       <header className="border-b-4 border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link 
-              to="/" 
-              className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors border border-border px-2 py-1 hover:bg-muted"
-            >
-              <ArrowRight className="h-3 w-3 rotate-180" />
-              GreyScan
-            </Link>
+            <ToolsNavDropdown />
             <div className="h-6 w-px bg-border" />
             <Link to="/redteam" className="flex items-center gap-3">
               <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-auto" />
