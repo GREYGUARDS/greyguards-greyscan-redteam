@@ -254,13 +254,23 @@ const RedTeam = () => {
       {/* Header */}
       <header className="border-b-4 border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/redteam" className="flex items-center gap-3">
-            <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-auto" />
-            <div>
-              <span className="text-xl font-bold tracking-wider uppercase text-foreground">Greyguards</span>
-              <span className="block text-xs tracking-widest uppercase text-muted-foreground">Red Team</span>
-            </div>
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link 
+              to="/" 
+              className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors border border-border px-2 py-1 hover:bg-muted"
+            >
+              <ArrowRight className="h-3 w-3 rotate-180" />
+              GreyScan
+            </Link>
+            <div className="h-6 w-px bg-border" />
+            <Link to="/redteam" className="flex items-center gap-3">
+              <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-auto" />
+              <div>
+                <span className="text-xl font-bold tracking-wider uppercase text-foreground">Greyguards</span>
+                <span className="block text-xs tracking-widest uppercase text-muted-foreground">Red Team</span>
+              </div>
+            </Link>
+          </div>
           <Badge variant="outline" className="border-destructive text-destructive uppercase tracking-wider animate-pulse-glow">
             <Crosshair className="h-3 w-3 mr-1" />
             Crisis Simulation
