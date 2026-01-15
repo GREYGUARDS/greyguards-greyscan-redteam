@@ -25,7 +25,7 @@ import ExerciseDebrief from "@/components/redteam/ExerciseDebrief";
 import TeamJoin from "@/components/redteam/TeamJoin";
 import BlueTeamDashboard from "@/components/redteam/BlueTeamDashboard";
 import RedTeamDashboard from "@/components/redteam/RedTeamDashboard";
-import ToolsNavDropdown from "@/components/ToolsNavDropdown";
+
 
 export type ExerciseMode = "self" | "consultant";
 export type ExerciseDuration = 10 | 20 | 30;
@@ -255,17 +255,13 @@ const RedTeam = () => {
       {/* Header */}
       <header className="border-b-4 border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <ToolsNavDropdown />
-            <div className="h-6 w-px bg-border" />
-            <Link to="/redteam" className="flex items-center gap-3">
-              <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-auto" />
-              <div>
-                <span className="text-xl font-bold tracking-wider uppercase text-foreground">Greyguards</span>
-                <span className="block text-xs tracking-widest uppercase text-muted-foreground">Red Team</span>
-              </div>
-            </Link>
-          </div>
+          <Link to="/" className="flex items-center gap-3">
+            <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-auto" />
+            <div>
+              <span className="text-xl font-bold tracking-wider uppercase text-foreground">Greyguards</span>
+              <span className="block text-xs tracking-widest uppercase text-muted-foreground">Red Team using GreyScan</span>
+            </div>
+          </Link>
           <Badge variant="outline" className="border-destructive text-destructive uppercase tracking-wider animate-pulse-glow">
             <Crosshair className="h-3 w-3 mr-1" />
             Crisis Simulation
