@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Search, Download, AlertTriangle, Send, LogOut, Users, Target } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, Download, AlertTriangle, Send, LogOut, Users, ChevronDown } from "lucide-react";
 import greyguardsLogo from "@/assets/greyguards-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
+import ToolsNavDropdown from "@/components/ToolsNavDropdown";
 
 const Index = () => {
   const [brandName, setBrandName] = useState("");
@@ -721,23 +721,7 @@ const Index = () => {
                 currentCompany={demoCompany}
               />
               <NotificationCenter alerts={mdmAlerts} onAlertsUpdate={fetchMDMAlerts} />
-              <Link to="/redteam">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="hidden sm:flex border-destructive/50 text-destructive hover:bg-destructive/10"
-                >
-                  <Target className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Red Team</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="sm:hidden h-8 w-8 border-destructive/50 text-destructive hover:bg-destructive/10"
-                >
-                  <Target className="h-4 w-4" />
-                </Button>
-              </Link>
+              <ToolsNavDropdown />
               <Button
                 variant="outline"
                 size="sm"
