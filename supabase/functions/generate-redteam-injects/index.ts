@@ -48,7 +48,10 @@ serve(async (req) => {
     }
 
     const totalSeconds = duration * 60;
-    const numInjects = Math.min(Math.floor(duration / 2), 10);
+    // Generate more injects: 1 per minute minimum, up to 20 for longer exercises
+    const numInjects = Math.max(duration, Math.min(Math.floor(duration * 1.5), 20));
+    // Allow injects until 30 seconds before end (not 60 seconds)
+    const lastInjectTime = totalSeconds - 30;
 
     const systemPrompt = `You are creating crisis simulation injects for a ${duration}-minute exercise. The scenario is:
 
@@ -57,15 +60,23 @@ Narrative: ${scenario.narrative}
 Severity: ${scenario.severity}
 Brand: ${brandName}
 
-Generate ${numInjects} realistic crisis injects that escalate throughout the exercise. Each inject should:
-- Have a timestamp (in seconds from start, spread evenly but not too predictably)
+Generate EXACTLY ${numInjects} realistic crisis injects that are DISTRIBUTED THROUGHOUT THE ENTIRE exercise duration. 
+
+CRITICAL TIMING REQUIREMENTS:
+- First inject at 10-15 seconds
+- Injects should be spaced 30-90 seconds apart (vary the gaps)
+- MUST have injects in the final 2 minutes of the exercise
+- The LAST inject should be between ${lastInjectTime - 60} and ${lastInjectTime} seconds
+
+Each inject should:
+- Have a timestamp (in seconds from start, spread across the FULL duration)
 - Represent realistic social media posts, news articles, influencer mentions, leaks, or coordinated amplification
 - Include 3 response options with varying effectiveness
 - Some should be aggressive (marked isAggressive: true) to increase pressure
 
 Return a JSON object with an "injects" array. Each inject should have:
 - id: unique string
-- timestamp: number (seconds from start, ranging from 15 to ${totalSeconds - 60})
+- timestamp: number (seconds from start, ranging from 10 to ${lastInjectTime})
 - type: "social_post" | "news_article" | "influencer" | "official_response" | "leak" | "amplification"
 - content: the inject content (realistic social post, headline, etc.)
 - source: who posted it (e.g., "@AnonymousTipper (50K followers)")

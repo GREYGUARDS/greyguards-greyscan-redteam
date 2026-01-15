@@ -82,10 +82,11 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   }, [scenario, config]);
 
   const generateFallbackInjects = (): Inject[] => {
+    const totalSeconds = config.duration * 60;
     const baseInjects: Inject[] = [
       {
         id: "1",
-        timestamp: 15,
+        timestamp: 10,
         type: "social_post",
         content: `BREAKING: Anonymous source claims ${config.brandName} has been covering up major scandal. Thread incoming... 🧵`,
         source: "@TruthSeeker_Anon (47K followers)",
@@ -101,7 +102,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       },
       {
         id: "2",
-        timestamp: 45,
+        timestamp: 40,
         type: "news_article",
         content: `Mid-tier news site picks up the story: "Social Media Buzzes with Unverified Claims About ${config.brandName}"`,
         source: "DailyBuzz.net",
@@ -116,7 +117,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       },
       {
         id: "3",
-        timestamp: 90,
+        timestamp: 75,
         type: "influencer",
         content: `Major tech influencer shares: "Hearing some wild things about ${config.brandName}. Anyone have more info?" - This dramatically increases visibility.`,
         source: "@TechInsider (890K followers)",
@@ -132,7 +133,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       },
       {
         id: "4",
-        timestamp: 150,
+        timestamp: 120,
         type: "amplification",
         content: `Coordinated amplification detected! 50+ accounts simultaneously sharing the allegations with identical messaging. Bot behavior suspected.`,
         source: "Multiple bot accounts",
@@ -148,7 +149,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       },
       {
         id: "5",
-        timestamp: 240,
+        timestamp: 180,
         type: "leak",
         content: `Fake "leaked" internal document surfaces claiming to show ${config.brandName} executives discussing the coverup. Document has obvious signs of fabrication.`,
         source: "Anonymous paste site",
@@ -164,7 +165,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       },
       {
         id: "6",
-        timestamp: 360,
+        timestamp: 240,
         type: "news_article",
         content: `Major outlet publishes: "${config.brandName} Faces Online Campaign - Company Calls It Coordinated Disinformation"`,
         source: "Reuters",
@@ -179,7 +180,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       },
       {
         id: "7",
-        timestamp: 480,
+        timestamp: 300,
         type: "official_response",
         content: `Competitor's marketing account posts thinly-veiled reference: "At [Competitor], we believe in transparency. Always." - Seems opportunistic.`,
         source: "@CompetitorOfficial (250K followers)",
@@ -195,7 +196,70 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       },
       {
         id: "8",
-        timestamp: 600,
+        timestamp: 360,
+        type: "social_post",
+        content: `Hashtag #${config.brandName}Exposed is now trending. Organic users are joining in, mixing legitimate questions with the coordinated attacks.`,
+        source: "Twitter Trending",
+        reach: 1500000,
+        sentiment: "hostile",
+        requiresResponse: true,
+        isAggressive: true,
+        responseOptions: [
+          { id: "8a", label: "Launch counter-hashtag", description: "Start a positive hashtag campaign with supporters", type: "social_response", effectiveness: 65, riskLevel: "medium", timeToExecute: 45 },
+          { id: "8b", label: "Address trending topic", description: "Post official statement addressing the trend", type: "statement", effectiveness: 75, riskLevel: "medium", timeToExecute: 30 },
+          { id: "8c", label: "Greyguards monitoring", description: "Deploy real-time narrative monitoring", type: "greyguards_service", effectiveness: 85, riskLevel: "low", timeToExecute: 15 }
+        ]
+      },
+      {
+        id: "9",
+        timestamp: 420,
+        type: "influencer",
+        content: `A supportive industry analyst posts: "I've worked with ${config.brandName} for years. This attack seems orchestrated. Here's what I know..."`,
+        source: "@IndustryAnalyst (120K followers)",
+        reach: 120000,
+        sentiment: "neutral",
+        requiresResponse: true,
+        responseOptions: [
+          { id: "9a", label: "Amplify support", description: "Share and thank the supportive voice", type: "social_response", effectiveness: 80, riskLevel: "low", timeToExecute: 10 },
+          { id: "9b", label: "Provide more info", description: "DM additional context they can share", type: "social_response", effectiveness: 75, riskLevel: "low", timeToExecute: 30 },
+          { id: "9c", label: "Stay silent", description: "Let organic support speak for itself", type: "internal_action", effectiveness: 60, riskLevel: "low", timeToExecute: 0 }
+        ]
+      },
+      {
+        id: "10",
+        timestamp: 480,
+        type: "news_article",
+        content: `TV news picks up the story: "Tonight on Evening News: The viral allegations against ${config.brandName} - fact or fiction?"`,
+        source: "National Evening News",
+        reach: 5000000,
+        sentiment: "confused",
+        requiresResponse: true,
+        isAggressive: false,
+        responseOptions: [
+          { id: "10a", label: "Offer interview", description: "Offer spokesperson for live interview", type: "media_outreach", effectiveness: 80, riskLevel: "high", timeToExecute: 60 },
+          { id: "10b", label: "Send statement", description: "Provide written statement to producers", type: "statement", effectiveness: 70, riskLevel: "low", timeToExecute: 30 },
+          { id: "10c", label: "Decline comment", description: "Politely decline to participate", type: "internal_action", effectiveness: 40, riskLevel: "medium", timeToExecute: 0 }
+        ]
+      },
+      {
+        id: "11",
+        timestamp: 540,
+        type: "leak",
+        content: `New "whistleblower" appears claiming to be a former ${config.brandName} employee. Posts vague allegations with no specifics.`,
+        source: "@FormerEmployee2024",
+        reach: 80000,
+        sentiment: "hostile",
+        requiresResponse: true,
+        isAggressive: true,
+        responseOptions: [
+          { id: "11a", label: "Investigate identity", description: "Verify if this person ever worked for us", type: "internal_action", effectiveness: 85, riskLevel: "low", timeToExecute: 90 },
+          { id: "11b", label: "Public challenge", description: "Publicly ask for specifics or evidence", type: "statement", effectiveness: 55, riskLevel: "high", timeToExecute: 20 },
+          { id: "11c", label: "Document for legal", description: "Prepare defamation case documentation", type: "legal", effectiveness: 65, riskLevel: "low", timeToExecute: 60 }
+        ]
+      },
+      {
+        id: "12",
+        timestamp: Math.min(totalSeconds - 90, 570),
         type: "social_post",
         content: `The original anonymous account admits: "Okay I may have exaggerated some things but I stand by the core claims!" - Narrative is weakening.`,
         source: "@TruthSeeker_Anon",
@@ -203,15 +267,45 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
         sentiment: "confused",
         requiresResponse: true,
         responseOptions: [
-          { id: "8a", label: "Amplify admission", description: "Highlight the admission widely", type: "social_response", effectiveness: 90, riskLevel: "low", timeToExecute: 15 },
-          { id: "8b", label: "Demand full retraction", description: "Push for complete retraction", type: "statement", effectiveness: 70, riskLevel: "medium", timeToExecute: 45 },
-          { id: "8c", label: "Continue monitoring", description: "Don't pile on, keep watching", type: "internal_action", effectiveness: 60, riskLevel: "low", timeToExecute: 0 }
+          { id: "12a", label: "Amplify admission", description: "Highlight the admission widely", type: "social_response", effectiveness: 90, riskLevel: "low", timeToExecute: 15 },
+          { id: "12b", label: "Demand full retraction", description: "Push for complete retraction", type: "statement", effectiveness: 70, riskLevel: "medium", timeToExecute: 45 },
+          { id: "12c", label: "Continue monitoring", description: "Don't pile on, keep watching", type: "internal_action", effectiveness: 60, riskLevel: "low", timeToExecute: 0 }
+        ]
+      },
+      {
+        id: "13",
+        timestamp: Math.min(totalSeconds - 60, 600),
+        type: "amplification",
+        content: `Some accounts are now backtracking. Mixed messages emerging in the attack network - signs of internal discord.`,
+        source: "Social Media Monitoring",
+        reach: 200000,
+        sentiment: "neutral",
+        requiresResponse: true,
+        responseOptions: [
+          { id: "13a", label: "Press the advantage", description: "Highlight the contradictions publicly", type: "statement", effectiveness: 80, riskLevel: "medium", timeToExecute: 30 },
+          { id: "13b", label: "Document patterns", description: "Capture evidence of coordination for later", type: "internal_action", effectiveness: 75, riskLevel: "low", timeToExecute: 45 },
+          { id: "13c", label: "Victory lap", description: "Declare the attack debunked", type: "social_response", effectiveness: 45, riskLevel: "high", timeToExecute: 15 }
+        ]
+      },
+      {
+        id: "14",
+        timestamp: Math.min(totalSeconds - 30, 630),
+        type: "news_article",
+        content: `Breaking: Major outlets now reporting "${config.brandName} Successfully Counters Coordinated Disinformation Campaign"`,
+        source: "AP News",
+        reach: 10000000,
+        sentiment: "neutral",
+        requiresResponse: true,
+        responseOptions: [
+          { id: "14a", label: "Thank supporters", description: "Post thanking those who stood by you", type: "social_response", effectiveness: 85, riskLevel: "low", timeToExecute: 20 },
+          { id: "14b", label: "Lessons learned post", description: "Share insights about fighting disinfo", type: "statement", effectiveness: 80, riskLevel: "low", timeToExecute: 60 },
+          { id: "14c", label: "Focus on recovery", description: "Shift messaging back to normal business", type: "internal_action", effectiveness: 70, riskLevel: "low", timeToExecute: 30 }
         ]
       }
     ];
 
-    // Filter based on duration
-    return baseInjects.filter(inject => inject.timestamp <= config.duration * 60 - 60);
+    // Filter based on duration - allow injects until 30 seconds before end
+    return baseInjects.filter(inject => inject.timestamp <= totalSeconds - 30);
   };
 
   // Initialize injects
