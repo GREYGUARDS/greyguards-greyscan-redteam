@@ -254,7 +254,7 @@ const RedTeam = () => {
       {/* Header */}
       <header className="border-b-4 border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/redteam" className="flex items-center gap-3">
             <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-auto" />
             <div>
               <span className="text-xl font-bold tracking-wider uppercase text-foreground">Greyguards</span>
