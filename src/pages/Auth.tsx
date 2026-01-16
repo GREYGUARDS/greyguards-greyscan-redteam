@@ -105,6 +105,28 @@ export default function Auth() {
     }
   };
 
+  const handleGuestAccess = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+      
+      toast({
+        title: "Welcome, Guest!",
+        description: "You're accessing the demo as a guest",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md border-4 border-border">
@@ -165,6 +187,25 @@ export default function Auth() {
 
             <Button type="submit" className="w-full" disabled={loading || !consentGiven}>
               {loading ? "Processing..." : "Access Demo"}
+            </Button>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">Or</span>
+              </div>
+            </div>
+
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full" 
+              onClick={handleGuestAccess}
+              disabled={loading}
+            >
+              {loading ? "Processing..." : "Continue as Guest"}
             </Button>
           </form>
         </CardContent>
