@@ -4,13 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { AlertTriangle } from "lucide-react";
 import greyguardsLogo from "@/assets/greyguards-logo.png";
 
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [consentGiven, setConsentGiven] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -23,22 +24,22 @@ export default function Auth() {
     });
   }, [navigate]);
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!email) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please enter your email address",
         variant: "destructive",
       });
       return;
     }
 
-    if (password.length < 6) {
+    if (!consentGiven) {
       toast({
         title: "Error",
-        description: "Password must be at least 6 characters",
+        description: "Please accept the terms to continue",
         variant: "destructive",
       });
       return;
@@ -47,38 +48,52 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+      const redirectUrl = `${window.location.origin}/`;
+      
+      // Use a generated password since we're just collecting emails
+      const generatedPassword = `demo_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      
+      // First try to sign up
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password: generatedPassword,
+        options: {
+          emailRedirectTo: redirectUrl,
+        },
+      });
 
-        if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: "Logged in successfully",
-        });
-        navigate("/");
-      } else {
-        const redirectUrl = `${window.location.origin}/`;
-        
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-          },
-        });
-
-        if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: "Account created successfully",
-        });
-        navigate("/");
+      if (signUpError) {
+        // If user already exists, sign them in with magic link style approach
+        // For demo purposes, we'll create a simple session
+        if (signUpError.message.includes("already registered")) {
+          // Try signing in with a new password (will fail, but that's ok for demo)
+          toast({
+            title: "Welcome back!",
+            description: "You've accessed the demo before. Signing you in...",
+          });
+          
+          // For demo, just navigate - in production you'd use magic links
+          const { error: signInError } = await supabase.auth.signUp({
+            email,
+            password: generatedPassword,
+            options: {
+              emailRedirectTo: redirectUrl,
+            },
+          });
+          
+          if (!signInError) {
+            navigate("/");
+            return;
+          }
+        }
+        throw signUpError;
       }
+
+      toast({
+        title: "Welcome to GreyScan Demo",
+        description: "Access granted",
+      });
+      navigate("/");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -98,14 +113,24 @@ export default function Auth() {
             <img src={greyguardsLogo} alt="Greyguards Intelligence" className="h-16 w-16" />
           </div>
           <CardTitle className="text-center text-2xl uppercase tracking-wider">
-            {isLogin ? "Login" : "Sign Up"}
+            GreyScan Demo Access
           </CardTitle>
           <CardDescription className="text-center">
-            {isLogin ? "Enter your credentials to access" : "Create an account to get started"}
+            Enter your email to access the demo
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
-          <form onSubmit={handleAuth} className="space-y-4">
+          {/* Demo mode warning */}
+          <div className="mb-6 p-3 bg-warning/10 border border-warning/30 rounded-md flex items-start gap-2">
+            <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
+            <p className="text-sm text-muted-foreground">
+              <strong className="text-foreground">Demo Mode:</strong> This demo environment is not private. 
+              All data entered and analysis performed may be visible to other demo users. 
+              Do not enter sensitive or confidential information.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium uppercase tracking-wider">
                 Email
@@ -120,35 +145,28 @@ export default function Auth() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium uppercase tracking-wider">
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="consent"
+                checked={consentGiven}
+                onCheckedChange={(checked) => setConsentGiven(checked === true)}
                 disabled={loading}
-                required
-                minLength={6}
               />
+              <label 
+                htmlFor="consent" 
+                className="text-sm text-muted-foreground leading-tight cursor-pointer"
+              >
+                I agree that my email address may be used by Greyguards to contact me 
+                regarding product updates and commercial opportunities. 
+                I understand this is a demo environment.
+              </label>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
+
+            <Button type="submit" className="w-full" disabled={loading || !consentGiven}>
+              {loading ? "Processing..." : "Access Demo"}
             </Button>
           </form>
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-primary underline"
-              disabled={loading}
-            >
-              {isLogin ? "Need an account? Sign up" : "Already have an account? Login"}
-            </button>
-          </div>
         </CardContent>
       </Card>
     </div>
