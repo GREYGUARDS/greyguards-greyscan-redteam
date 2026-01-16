@@ -309,15 +309,6 @@ const RedTeam = () => {
               </div>
             </div>
 
-            {/* Join Session Button */}
-            <Button 
-              variant="outline" 
-              onClick={() => setPhase("team-join")}
-              className="border-2 border-primary text-primary hover:bg-primary/10 uppercase tracking-wider"
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Join Existing Session
-            </Button>
           </div>
         </div>
       </section>
@@ -444,6 +435,25 @@ const RedTeam = () => {
                 <Target className="h-5 w-5 mr-3 group-hover:animate-pulse" />
                 Start Red Teaming
                 <ArrowRight className="h-5 w-5 ml-3 group-hover:translate-x-1 transition-transform" />
+              </Button>
+
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Or</span>
+                </div>
+              </div>
+
+              {/* Join Session Button */}
+              <Button 
+                variant="outline" 
+                onClick={() => setPhase("team-join")}
+                className="w-full h-12 border-2 border-primary text-primary hover:bg-primary/10 uppercase tracking-wider"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Join Existing Session
               </Button>
             </CardContent>
           </Card>
