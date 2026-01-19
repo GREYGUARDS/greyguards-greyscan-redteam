@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Search, Download, AlertTriangle, Send, LogOut, Users, ChevronDown, Target } from "lucide-react";
+import { Search, Download, AlertTriangle, Send, LogOut, Users, ChevronDown, Target, FileText } from "lucide-react";
 import greyguardsLogo from "@/assets/greyguards-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ import { DemoSocialMentions } from "@/components/DemoSocialMentions";
 import { KeyPeopleSummary } from "@/components/KeyPeopleSummary";
 import { DEMO_COMPANIES } from "@/lib/demoData";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
+import { exportToPDF } from "@/lib/pdfExport";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -544,6 +545,41 @@ const Index = () => {
     }
   };
 
+  const handlePDFExport = async () => {
+    if (!results) return;
+
+    try {
+      await exportToPDF({
+        brandName,
+        threatLevel: results.threatLevel,
+        threatScore: results.threatScore,
+        sentimentDistribution: results.sentimentDistribution,
+        keywords: results.keywords,
+        sources,
+        mdmNarratives,
+        emergingPredictions,
+        people: brandPeople,
+        personMentions,
+        personNarratives,
+        totalMentions: allMentions.length,
+        shortTermSentiment: results.shortTermSentiment,
+        longTermSentiment: results.longTermSentiment
+      });
+
+      toast({
+        title: "PDF Report downloaded",
+        description: "Full report exported successfully",
+      });
+    } catch (error) {
+      console.error("PDF export error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to export PDF report",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDiscoverPeople = async () => {
     if (!brandName || !userId) return;
     
@@ -790,10 +826,19 @@ const Index = () => {
               </Button>
             </div>
             {results && (
-              <div className="mt-4 flex justify-end">
+              <div className="mt-4 flex justify-end gap-2">
                 <Button onClick={handleDownload} variant="outline" size="sm" className="uppercase tracking-wider">
                   <Download className="mr-2 h-4 w-4" />
-                  Export Report
+                  Export PNG
+                </Button>
+                <Button 
+                  onClick={handlePDFExport} 
+                  variant="outline" 
+                  size="sm" 
+                  className="uppercase tracking-wider"
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Export PDF
                 </Button>
               </div>
             )}
