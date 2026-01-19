@@ -563,7 +563,8 @@ const Index = () => {
         personNarratives,
         totalMentions: allMentions.length,
         shortTermSentiment: results.shortTermSentiment,
-        longTermSentiment: results.longTermSentiment
+        longTermSentiment: results.longTermSentiment,
+        timeline: results.timeline || []
       });
 
       toast({

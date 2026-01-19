@@ -45,6 +45,12 @@ interface MDMNarrative {
   frequency?: number;
 }
 
+interface TimelinePoint {
+  date: string;
+  mentions: number;
+  sentiment?: number;
+}
+
 interface ExportData {
   brandName: string;
   threatLevel: string;
@@ -60,6 +66,7 @@ interface ExportData {
   totalMentions: number;
   shortTermSentiment: number;
   longTermSentiment: number;
+  timeline: TimelinePoint[];
 }
 
 export const exportToPDF = async (data: ExportData) => {
@@ -182,6 +189,74 @@ export const exportToPDF = async (data: ExportData) => {
   yPosition += 6;
   doc.text(`Long-term Sentiment (30 days): ${data.longTermSentiment > 0 ? '+' : ''}${data.longTermSentiment.toFixed(1)}`, margin, yPosition);
   yPosition += 15;
+
+  // ===== TIMELINE CHART =====
+  if (data.timeline && data.timeline.length > 0) {
+    checkPageBreak(100);
+    drawSectionHeader('Mention Timeline');
+    
+    const chartWidth = pageWidth - 2 * margin;
+    const chartHeight = 60;
+    const chartX = margin;
+    const chartY = yPosition;
+    
+    // Draw chart background
+    doc.setFillColor(248, 248, 248);
+    doc.rect(chartX, chartY, chartWidth, chartHeight, 'F');
+    doc.setDrawColor(200, 200, 200);
+    doc.rect(chartX, chartY, chartWidth, chartHeight, 'S');
+    
+    // Get data range
+    const mentions = data.timeline.map(t => t.mentions);
+    const maxMentions = Math.max(...mentions, 1);
+    const minMentions = Math.min(...mentions, 0);
+    const range = maxMentions - minMentions || 1;
+    
+    // Draw grid lines
+    doc.setDrawColor(220, 220, 220);
+    doc.setLineWidth(0.1);
+    for (let i = 1; i < 4; i++) {
+      const gridY = chartY + (chartHeight / 4) * i;
+      doc.line(chartX, gridY, chartX + chartWidth, gridY);
+    }
+    
+    // Draw the line chart
+    doc.setDrawColor(59, 130, 246); // Blue color
+    doc.setLineWidth(1.5);
+    
+    const points: [number, number][] = data.timeline.map((point, index) => {
+      const x = chartX + (index / (data.timeline.length - 1 || 1)) * chartWidth;
+      const y = chartY + chartHeight - ((point.mentions - minMentions) / range) * (chartHeight - 10) - 5;
+      return [x, y];
+    });
+    
+    // Draw line segments
+    for (let i = 0; i < points.length - 1; i++) {
+      doc.line(points[i][0], points[i][1], points[i + 1][0], points[i + 1][1]);
+    }
+    
+    // Draw data points
+    doc.setFillColor(59, 130, 246);
+    points.forEach(([x, y]) => {
+      doc.circle(x, y, 1.5, 'F');
+    });
+    
+    // Draw Y-axis labels
+    doc.setFontSize(7);
+    doc.setTextColor(100, 100, 100);
+    doc.text(maxMentions.toString(), chartX - 2, chartY + 5, { align: 'right' });
+    doc.text(minMentions.toString(), chartX - 2, chartY + chartHeight - 2, { align: 'right' });
+    
+    // Draw X-axis labels (first and last dates)
+    const firstDate = data.timeline[0]?.date || '';
+    const lastDate = data.timeline[data.timeline.length - 1]?.date || '';
+    doc.text(firstDate.slice(5), chartX, chartY + chartHeight + 8); // MM-DD format
+    doc.text(lastDate.slice(5), chartX + chartWidth, chartY + chartHeight + 8, { align: 'right' });
+    
+    doc.setTextColor(0, 0, 0);
+    yPosition = chartY + chartHeight + 15;
+  }
+
 
 // ===== MDM NARRATIVES =====
   drawSectionHeader('Active MDM Narratives');
