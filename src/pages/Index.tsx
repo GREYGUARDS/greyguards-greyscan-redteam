@@ -20,6 +20,7 @@ import { MentionsTicker } from "@/components/MentionsTicker";
 import SentimentTrendComparison from "@/components/SentimentTrendComparison";
 import StrategicRecommendations from "@/components/StrategicRecommendations";
 import SourcesTable from "@/components/SourcesTable";
+import { APIStatusPanel, type APIStatus } from "@/components/APIStatusPanel";
 import { GDELTEntitiesChart } from "@/components/GDELTEntitiesChart";
 import { GDELTLocationsMap } from "@/components/GDELTLocationsMap";
 import { GDELTThemesChart } from "@/components/GDELTThemesChart";
@@ -65,8 +66,29 @@ const Index = () => {
   const [demoMode, setDemoMode] = useState(false);
   const [demoCompany, setDemoCompany] = useState<string>("");
   const [trackedStories, setTrackedStories] = useState<any[]>([]);
+  const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Define all API sources configuration
+  const API_SOURCES: Omit<APIStatus, 'status' | 'count'>[] = [
+    { name: 'NewsAPI', type: 'news', hasComments: false },
+    { name: 'Reddit', type: 'social', hasComments: true },
+    { name: 'Google Trends', type: 'search', hasComments: false },
+    { name: 'Hacker News', type: 'tech', hasComments: true },
+    { name: 'Mastodon', type: 'social', hasComments: true },
+    { name: 'Wikipedia', type: 'news', hasComments: false },
+    { name: 'RSS Aggregator', type: 'news', hasComments: false },
+    { name: 'GDELT DOC', type: 'global', hasComments: false },
+    { name: 'GDELT GKG', type: 'global', hasComments: false },
+    { name: 'Google News', type: 'news', hasComments: false },
+    { name: 'Bluesky', type: 'social', hasComments: true },
+    { name: 'Lobsters', type: 'tech', hasComments: true },
+    { name: 'Dev.to', type: 'tech', hasComments: true },
+    { name: 'Lemmy', type: 'social', hasComments: true },
+    { name: 'Stack Exchange', type: 'tech', hasComments: true },
+    { name: 'Product Hunt', type: 'tech', hasComments: true },
+  ];
 
   const loadDemoData = (companyName: string) => {
     const data = DEMO_COMPANIES[companyName];
@@ -215,6 +237,9 @@ const Index = () => {
     }
 
     setLoading(true);
+    // Initialize API statuses to loading
+    setApiStatuses(API_SOURCES.map(api => ({ ...api, status: 'loading', count: 0 })));
+    
     try {
       // Check cache first
       const cacheKey = `narrative_${brandName.toLowerCase()}`;
@@ -395,6 +420,27 @@ const Index = () => {
       } else {
         console.warn("Product Hunt unavailable:", productHuntData.status === "fulfilled" ? productHuntData.value.error : productHuntData.reason);
       }
+
+      // Update API statuses with results
+      const apiResults: APIStatus[] = [
+        { name: 'NewsAPI', type: 'news', hasComments: false, status: newsData.status === "fulfilled" && !newsData.value.error ? 'success' : 'failed', count: articles.length },
+        { name: 'Reddit', type: 'social', hasComments: true, status: redditData.status === "fulfilled" && !redditData.value.error ? 'success' : 'failed', count: redditPosts.length },
+        { name: 'Google Trends', type: 'search', hasComments: false, status: trends.status === "fulfilled" && !trends.value.error ? 'success' : 'failed', count: trends.status === "fulfilled" && trends.value.data ? 1 : 0 },
+        { name: 'Hacker News', type: 'tech', hasComments: true, status: hnData.status === "fulfilled" && !hnData.value.error ? 'success' : 'failed', count: hnPosts.length },
+        { name: 'Mastodon', type: 'social', hasComments: true, status: mastodonData.status === "fulfilled" && !mastodonData.value.error ? 'success' : 'failed', count: mastodonPosts.length },
+        { name: 'Wikipedia', type: 'news', hasComments: false, status: wikiData.status === "fulfilled" && !wikiData.value.error ? 'success' : 'failed', count: wikiArticles.length },
+        { name: 'RSS Aggregator', type: 'news', hasComments: false, status: rssAggregatorData.status === "fulfilled" && !rssAggregatorData.value.error ? 'success' : 'failed', count: rssArticles.length },
+        { name: 'GDELT DOC', type: 'global', hasComments: false, status: gdeltDocData.status === "fulfilled" && !gdeltDocData.value.error ? 'success' : 'failed', count: gdeltArticles.length },
+        { name: 'GDELT GKG', type: 'global', hasComments: false, status: gdeltGkgData.status === "fulfilled" && !gdeltGkgData.value.error ? 'success' : 'failed', count: gdeltGkgData.status === "fulfilled" && gdeltGkgData.value.data ? (gdeltGkgData.value.data.entities?.length || 0) + (gdeltGkgData.value.data.themes?.length || 0) : 0 },
+        { name: 'Google News', type: 'news', hasComments: false, status: googleNewsData.status === "fulfilled" && !googleNewsData.value.error ? 'success' : 'failed', count: googleNewsArticles.length },
+        { name: 'Bluesky', type: 'social', hasComments: true, status: blueskyData.status === "fulfilled" && !blueskyData.value.error ? 'success' : 'failed', count: blueskyPosts.length },
+        { name: 'Lobsters', type: 'tech', hasComments: true, status: lobstersData.status === "fulfilled" && !lobstersData.value.error ? 'success' : 'failed', count: lobstersPosts.length },
+        { name: 'Dev.to', type: 'tech', hasComments: true, status: devtoData.status === "fulfilled" && !devtoData.value.error ? 'success' : 'failed', count: devtoArticles.length },
+        { name: 'Lemmy', type: 'social', hasComments: true, status: lemmyData.status === "fulfilled" && !lemmyData.value.error ? 'success' : 'failed', count: lemmyPosts.length },
+        { name: 'Stack Exchange', type: 'tech', hasComments: true, status: stackExchangeData.status === "fulfilled" && !stackExchangeData.value.error ? 'success' : 'failed', count: stackExchangeQuestions.length },
+        { name: 'Product Hunt', type: 'tech', hasComments: true, status: productHuntData.status === "fulfilled" && !productHuntData.value.error ? 'success' : 'failed', count: productHuntProducts.length },
+      ];
+      setApiStatuses(apiResults);
 
       // Combine and analyze data from ALL sources
       const mentions = [
@@ -1188,6 +1234,9 @@ const Index = () => {
                   }}
                   threatLevel={results.threatLevel}
                 />
+
+                {/* API Status Panel */}
+                <APIStatusPanel apiStatuses={apiStatuses} isLoading={loading} />
 
                 {/* Sources Table */}
                 <SourcesTable sources={sources} />
