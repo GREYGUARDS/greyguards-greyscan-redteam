@@ -6,6 +6,36 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Simple in-memory rate limiter (resets on function cold start)
+// For production, consider using Deno KV or a database
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per hour per IP
+
+function checkRateLimit(clientIp: string): { allowed: boolean; remaining: number } {
+  const now = Date.now();
+  const record = rateLimitMap.get(clientIp);
+  
+  if (!record || now > record.resetTime) {
+    // New window
+    rateLimitMap.set(clientIp, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1 };
+  }
+  
+  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return { allowed: false, remaining: 0 };
+  }
+  
+  record.count++;
+  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - record.count };
+}
+
+function getClientIp(req: Request): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+         req.headers.get('x-real-ip') || 
+         'unknown';
+}
+
 // Input validation schema
 const ScenarioSchema = z.object({
   title: z.string().max(200),
@@ -22,6 +52,26 @@ const InjectsInputSchema = z.object({
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Rate limiting check
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(clientIp);
+  
+  if (!rateLimit.allowed) {
+    console.warn("Rate limit exceeded:", { clientIp, timestamp: new Date().toISOString() });
+    return new Response(
+      JSON.stringify({ injects: [], error: "Rate limit exceeded. Try again later." }),
+      { 
+        status: 429, 
+        headers: { 
+          ...corsHeaders, 
+          "Content-Type": "application/json",
+          "X-RateLimit-Remaining": "0",
+          "Retry-After": "3600"
+        } 
+      }
+    );
   }
 
   try {
@@ -95,6 +145,8 @@ Return a JSON object with an "injects" array. Each inject should have:
 
 Make the exercise progressively more challenging. Include at least one "greyguards_service" response option to subtly promote Greyguards capabilities.`;
 
+    console.log("Generating injects:", { brandName, duration, numInjects, clientIp, remaining: rateLimit.remaining });
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -130,7 +182,11 @@ Make the exercise progressively more challenging. Include at least one "greyguar
     const injectsData = JSON.parse(content);
 
     return new Response(JSON.stringify(injectsData), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { 
+        ...corsHeaders, 
+        "Content-Type": "application/json",
+        "X-RateLimit-Remaining": String(rateLimit.remaining)
+      },
     });
   } catch (error) {
     const errorId = crypto.randomUUID();
