@@ -12,6 +12,7 @@ interface TrackedStory {
   reach: number;
   type: string;
   screenshot?: boolean;
+  imageUrl?: string;
 }
 
 interface TrackedStoriesProps {
@@ -60,10 +61,22 @@ export const TrackedStories = ({ stories, brandName }: TrackedStoriesProps) => {
               className="border-2 border-border bg-secondary/30 p-4 hover:bg-secondary/50 transition-colors"
             >
               <div className="flex flex-col lg:flex-row gap-4">
-                {/* Story Screenshot Placeholder */}
-                {story.screenshot && (
-                  <div className="lg:w-48 h-32 bg-muted border-2 border-border flex items-center justify-center flex-shrink-0">
-                    <div className="text-center p-4">
+                {/* Story Screenshot/Image */}
+                {(story.screenshot || story.imageUrl) && (
+                  <div className="lg:w-48 h-32 bg-muted border-2 border-border flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {story.imageUrl ? (
+                      <img 
+                        src={story.imageUrl} 
+                        alt={story.headline}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback to placeholder on error
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <div className={`text-center p-4 ${story.imageUrl ? 'hidden' : ''}`}>
                       <Newspaper className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                       <span className="text-xs text-muted-foreground uppercase tracking-wider">
                         Story Preview

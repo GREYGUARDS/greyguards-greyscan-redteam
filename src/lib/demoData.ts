@@ -303,7 +303,8 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
         sentiment: -0.8,
         reach: 2400000,
         type: "investigative",
-        screenshot: true
+        screenshot: true,
+        imageUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop"
       },
       {
         id: "story-stark-002",
@@ -313,7 +314,8 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
         sentiment: -0.6,
         reach: 890000,
         type: "feature",
-        screenshot: true
+        screenshot: true,
+        imageUrl: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=400&h=300&fit=crop"
       }
     ]
   },
@@ -568,7 +570,8 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
         sentiment: -0.7,
         reach: 3200000,
         type: "investigative",
-        screenshot: true
+        screenshot: true,
+        imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop"
       }
     ]
   },
