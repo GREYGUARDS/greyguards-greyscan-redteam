@@ -232,7 +232,7 @@ const Index = () => {
       }
 
       // Fetch all data sources in parallel (non-blocking)
-      const [newsData, redditData, trends, hnData, mastodonData, wikiData, rssAggregatorData, gdeltDocData, gdeltGkgData, googleNewsData, blueskyData, lobstersData, devtoData] = await Promise.allSettled([
+      const [newsData, redditData, trends, hnData, mastodonData, wikiData, rssAggregatorData, gdeltDocData, gdeltGkgData, googleNewsData, blueskyData, lobstersData, devtoData, lemmyData, stackExchangeData, productHuntData] = await Promise.allSettled([
         supabase.functions.invoke("fetch-news", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-reddit", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-trends", { body: { brand: brandName } }),
@@ -242,11 +242,15 @@ const Index = () => {
         supabase.functions.invoke("fetch-rss-aggregator", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-gdelt-doc", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-gdelt-gkg", { body: { brand: brandName } }),
-        // New free sources (no API keys required)
+        // Free sources (no API keys required)
         supabase.functions.invoke("fetch-googlenews-rss", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-bluesky", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-lobsters", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-devto", { body: { brand: brandName } }),
+        // Comment-enabled sources (free, no API keys)
+        supabase.functions.invoke("fetch-lemmy", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-stackexchange", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-producthunt", { body: { brand: brandName } }),
       ]);
 
       // Process news data
@@ -365,6 +369,33 @@ const Index = () => {
         console.warn("Dev.to unavailable:", devtoData.status === "fulfilled" ? devtoData.value.error : devtoData.reason);
       }
 
+      // Process Lemmy data (free, federated Reddit alternative)
+      let lemmyPosts = [];
+      if (lemmyData.status === "fulfilled" && !lemmyData.value.error) {
+        lemmyPosts = lemmyData.value.data?.posts || [];
+        console.log(`Lemmy: ${lemmyPosts.length} posts`);
+      } else {
+        console.warn("Lemmy unavailable:", lemmyData.status === "fulfilled" ? lemmyData.value.error : lemmyData.reason);
+      }
+
+      // Process Stack Exchange data (free, Q&A with comments)
+      let stackExchangeQuestions = [];
+      if (stackExchangeData.status === "fulfilled" && !stackExchangeData.value.error) {
+        stackExchangeQuestions = stackExchangeData.value.data?.questions || [];
+        console.log(`Stack Exchange: ${stackExchangeQuestions.length} questions`);
+      } else {
+        console.warn("Stack Exchange unavailable:", stackExchangeData.status === "fulfilled" ? stackExchangeData.value.error : stackExchangeData.reason);
+      }
+
+      // Process Product Hunt data (free, product launches with comments)
+      let productHuntProducts = [];
+      if (productHuntData.status === "fulfilled" && !productHuntData.value.error) {
+        productHuntProducts = productHuntData.value.data?.products || [];
+        console.log(`Product Hunt: ${productHuntProducts.length} products`);
+      } else {
+        console.warn("Product Hunt unavailable:", productHuntData.status === "fulfilled" ? productHuntData.value.error : productHuntData.reason);
+      }
+
       // Combine and analyze data from ALL sources
       const mentions = [
         ...articles.map((a: any) => ({
@@ -431,6 +462,30 @@ const Index = () => {
           source: "Dev.to",
           date: new Date(a.created),
           score: a.reactions,
+        })),
+        // Comment-enabled sources
+        ...lemmyPosts.map((p: any) => ({
+          text: p.title || p.text,
+          source: `Lemmy (${p.instance || 'federated'})`,
+          date: new Date(p.created),
+          author: p.author,
+          score: p.score,
+          comments: p.comments,
+        })),
+        ...stackExchangeQuestions.map((q: any) => ({
+          text: `${q.title} ${q.text || ''}`,
+          source: `Stack Exchange (${q.site})`,
+          date: new Date(q.created),
+          author: q.author,
+          score: q.score,
+          comments: q.answerCount,
+        })),
+        ...productHuntProducts.map((p: any) => ({
+          text: p.text || `${p.name}: ${p.tagline}`,
+          source: "Product Hunt",
+          date: new Date(p.created),
+          score: p.votes,
+          comments: p.comments,
         })),
       ];
 
