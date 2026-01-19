@@ -140,7 +140,123 @@ export const exportToPDF = async (data: ExportData) => {
     }
   };
 
-  // ===== HEADER =====
+  // Calculate sentiment values for executive summary
+  const positive = data.sentimentDistribution.find(s => s.name === 'Positive')?.value || 0;
+  const negative = data.sentimentDistribution.find(s => s.name === 'Negative')?.value || 0;
+  const neutral = data.sentimentDistribution.find(s => s.name === 'Neutral')?.value || 0;
+  const total = positive + negative + neutral;
+  const threatColor = getThreatColor(data.threatLevel);
+
+  const dateStr = new Date().toLocaleDateString('en-GB', { 
+    day: '2-digit', 
+    month: 'short', 
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  // ===== COVER PAGE =====
+  // Dark background
+  doc.setFillColor(5, 5, 5);
+  doc.rect(0, 0, pageWidth, pageHeight, 'F');
+  
+  // Decorative top accent line
+  doc.setFillColor(59, 130, 246);
+  doc.rect(0, 0, pageWidth, 4, 'F');
+  
+  // Company branding
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(36);
+  doc.setFont('helvetica', 'bold');
+  doc.text('GREYGUARDS', pageWidth / 2, 60, { align: 'center' });
+  
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(156, 163, 175);
+  doc.text('GREYSCAN – NARRATIVE INTELLIGENCE SCANNER', pageWidth / 2, 72, { align: 'center' });
+  
+  // Separator line
+  doc.setDrawColor(59, 130, 246);
+  doc.setLineWidth(0.5);
+  doc.line(margin + 40, 85, pageWidth - margin - 40, 85);
+  
+  // Report title
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.text('NARRATIVE INTELLIGENCE REPORT', pageWidth / 2, 110, { align: 'center' });
+  
+  // Brand name box
+  doc.setFillColor(30, 30, 30);
+  doc.roundedRect(margin + 30, 125, pageWidth - 2 * margin - 60, 25, 3, 3, 'F');
+  doc.setFontSize(18);
+  doc.setTextColor(59, 130, 246);
+  doc.text(data.brandName.toUpperCase(), pageWidth / 2, 141, { align: 'center' });
+  
+  // Date
+  doc.setFontSize(11);
+  doc.setTextColor(156, 163, 175);
+  doc.text(`Report Generated: ${dateStr}`, pageWidth / 2, 165, { align: 'center' });
+  
+  // ===== EXECUTIVE SUMMARY BOX =====
+  const summaryY = 185;
+  doc.setFillColor(20, 20, 20);
+  doc.roundedRect(margin, summaryY, pageWidth - 2 * margin, 85, 3, 3, 'F');
+  doc.setDrawColor(50, 50, 50);
+  doc.roundedRect(margin, summaryY, pageWidth - 2 * margin, 85, 3, 3, 'S');
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('EXECUTIVE SUMMARY', margin + 10, summaryY + 15);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(200, 200, 200);
+  
+  // Threat status with color
+  doc.text('Threat Status:', margin + 10, summaryY + 30);
+  doc.setTextColor(...threatColor);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${data.threatLevel.toUpperCase()} (${data.threatScore}/100)`, margin + 50, summaryY + 30);
+  
+  // Total mentions
+  doc.setTextColor(200, 200, 200);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Total Mentions Analyzed: ${data.totalMentions}`, margin + 10, summaryY + 42);
+  
+  // Sentiment breakdown
+  const posPercent = total > 0 ? Math.round(positive / total * 100) : 0;
+  const negPercent = total > 0 ? Math.round(negative / total * 100) : 0;
+  const neuPercent = total > 0 ? Math.round(neutral / total * 100) : 0;
+  doc.text(`Sentiment: ${posPercent}% Positive | ${neuPercent}% Neutral | ${negPercent}% Negative`, margin + 10, summaryY + 54);
+  
+  // Trends
+  const shortTrend = data.shortTermSentiment > 0 ? '↑' : data.shortTermSentiment < 0 ? '↓' : '→';
+  const longTrend = data.longTermSentiment > 0 ? '↑' : data.longTermSentiment < 0 ? '↓' : '→';
+  doc.text(`7-Day Trend: ${shortTrend} ${data.shortTermSentiment > 0 ? '+' : ''}${data.shortTermSentiment.toFixed(1)}  |  30-Day Trend: ${longTrend} ${data.longTermSentiment > 0 ? '+' : ''}${data.longTermSentiment.toFixed(1)}`, margin + 10, summaryY + 66);
+  
+  // Active narratives count
+  const narrativeCount = data.mdmNarratives?.length || 0;
+  const highSeverity = data.mdmNarratives?.filter(n => n.severity?.toLowerCase() === 'high' || n.severity?.toLowerCase() === 'critical').length || 0;
+  doc.text(`Active MDM Narratives: ${narrativeCount} (${highSeverity} high/critical severity)`, margin + 10, summaryY + 78);
+  
+  // Key People count
+  const peopleX = pageWidth / 2 + 10;
+  doc.text(`Key People Monitored: ${data.people?.length || 0}`, peopleX, summaryY + 42);
+  doc.text(`Top Keywords: ${data.keywords?.length || 0} identified`, peopleX, summaryY + 54);
+  doc.text(`Sources Tracked: ${data.sources?.length || 0}`, peopleX, summaryY + 66);
+  
+  // Footer on cover
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 100);
+  doc.text('CONFIDENTIAL – FOR AUTHORIZED PERSONNEL ONLY', pageWidth / 2, pageHeight - 20, { align: 'center' });
+  doc.text('© Greyguards Intelligence', pageWidth / 2, pageHeight - 12, { align: 'center' });
+  
+  // ===== START MAIN REPORT ON NEW PAGE =====
+  addNewPage();
+
+  // ===== HEADER ON SUBSEQUENT PAGES =====
   doc.setFillColor(5, 5, 5);
   doc.rect(0, 0, pageWidth, 40, 'F');
   
@@ -154,13 +270,6 @@ export const exportToPDF = async (data: ExportData) => {
   doc.text('NARRATIVE INTELLIGENCE REPORT', margin, 30);
   
   doc.setFontSize(10);
-  const dateStr = new Date().toLocaleDateString('en-GB', { 
-    day: '2-digit', 
-    month: 'short', 
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
   doc.text(dateStr, pageWidth - margin - doc.getTextWidth(dateStr), 30);
   
   yPosition = 50;
@@ -174,8 +283,6 @@ export const exportToPDF = async (data: ExportData) => {
 
   // ===== THREAT ASSESSMENT WITH GAUGE =====
   drawSectionHeader('Threat Assessment');
-  
-  const threatColor = getThreatColor(data.threatLevel);
   
   // Draw threat gauge
   const gaugeX = margin + 40;
@@ -244,10 +351,6 @@ export const exportToPDF = async (data: ExportData) => {
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  const positive = data.sentimentDistribution.find(s => s.name === 'Positive')?.value || 0;
-  const negative = data.sentimentDistribution.find(s => s.name === 'Negative')?.value || 0;
-  const neutral = data.sentimentDistribution.find(s => s.name === 'Neutral')?.value || 0;
-  const total = positive + negative + neutral;
   
   const summaryX = gaugeX + gaugeRadius + 30;
   doc.text(`Total Mentions: ${data.totalMentions}`, summaryX, yPosition + 8);
