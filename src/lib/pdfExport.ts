@@ -182,6 +182,105 @@ export const exportToPDF = async (data: ExportData) => {
   
   yPosition += 35;
 
+  // ===== SENTIMENT PIE CHART =====
+  if (total > 0) {
+    drawSectionHeader('Sentiment Distribution');
+    
+    const pieRadius = 25;
+    const pieCenterX = margin + pieRadius + 10;
+    const pieCenterY = yPosition + pieRadius;
+    
+    // Pie chart colors
+    const pieColors: { name: string; color: [number, number, number] }[] = [
+      { name: 'Positive', color: [34, 197, 94] },   // Green
+      { name: 'Neutral', color: [156, 163, 175] },  // Gray
+      { name: 'Negative', color: [239, 68, 68] }    // Red
+    ];
+    
+    // Calculate angles
+    const segments = [
+      { name: 'Positive', value: positive, color: pieColors[0].color },
+      { name: 'Neutral', value: neutral, color: pieColors[1].color },
+      { name: 'Negative', value: negative, color: pieColors[2].color }
+    ].filter(s => s.value > 0);
+    
+    let startAngle = -Math.PI / 2; // Start from top
+    
+    segments.forEach(segment => {
+      const sliceAngle = (segment.value / total) * 2 * Math.PI;
+      const endAngle = startAngle + sliceAngle;
+      
+      // Draw pie slice using path
+      doc.setFillColor(...segment.color);
+      
+      // Create arc path manually
+      const steps = 30;
+      const path: [number, number][] = [[pieCenterX, pieCenterY]];
+      
+      for (let i = 0; i <= steps; i++) {
+        const angle = startAngle + (sliceAngle * i) / steps;
+        const x = pieCenterX + Math.cos(angle) * pieRadius;
+        const y = pieCenterY + Math.sin(angle) * pieRadius;
+        path.push([x, y]);
+      }
+      path.push([pieCenterX, pieCenterY]);
+      
+      // Draw the slice
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(0.5);
+      
+      // Move to center, arc around, back to center
+      let pathStr = '';
+      path.forEach((point, idx) => {
+        if (idx === 0) {
+          pathStr = `${point[0]} ${point[1]} m `;
+        } else {
+          pathStr += `${point[0]} ${point[1]} l `;
+        }
+      });
+      
+      // Use triangle approximation for pie slices
+      const midAngle = startAngle + sliceAngle / 2;
+      doc.triangle(
+        pieCenterX, pieCenterY,
+        pieCenterX + Math.cos(startAngle) * pieRadius, pieCenterY + Math.sin(startAngle) * pieRadius,
+        pieCenterX + Math.cos(endAngle) * pieRadius, pieCenterY + Math.sin(endAngle) * pieRadius,
+        'F'
+      );
+      
+      // Fill the arc with small triangles for smooth appearance
+      const arcSteps = Math.max(5, Math.ceil(sliceAngle * 10));
+      for (let i = 0; i < arcSteps; i++) {
+        const a1 = startAngle + (sliceAngle * i) / arcSteps;
+        const a2 = startAngle + (sliceAngle * (i + 1)) / arcSteps;
+        doc.triangle(
+          pieCenterX, pieCenterY,
+          pieCenterX + Math.cos(a1) * pieRadius, pieCenterY + Math.sin(a1) * pieRadius,
+          pieCenterX + Math.cos(a2) * pieRadius, pieCenterY + Math.sin(a2) * pieRadius,
+          'F'
+        );
+      }
+      
+      startAngle = endAngle;
+    });
+    
+    // Draw legend
+    const legendX = pieCenterX + pieRadius + 20;
+    let legendY = yPosition + 5;
+    
+    doc.setFontSize(9);
+    segments.forEach(segment => {
+      doc.setFillColor(...segment.color);
+      doc.rect(legendX, legendY - 3, 8, 8, 'F');
+      doc.setTextColor(0, 0, 0);
+      const percent = Math.round((segment.value / total) * 100);
+      doc.text(`${segment.name}: ${percent}% (${segment.value})`, legendX + 12, legendY + 3);
+      legendY += 12;
+    });
+    
+    yPosition = pieCenterY + pieRadius + 15;
+  }
+
   // ===== SENTIMENT TREND =====
   drawSectionHeader('Sentiment Trend');
   doc.setFontSize(10);
