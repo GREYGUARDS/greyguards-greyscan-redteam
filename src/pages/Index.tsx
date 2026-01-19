@@ -232,7 +232,7 @@ const Index = () => {
       }
 
       // Fetch all data sources in parallel (non-blocking)
-      const [newsData, redditData, trends, hnData, mastodonData, wikiData, rssAggregatorData, gdeltDocData, gdeltGkgData] = await Promise.allSettled([
+      const [newsData, redditData, trends, hnData, mastodonData, wikiData, rssAggregatorData, gdeltDocData, gdeltGkgData, googleNewsData, blueskyData, lobstersData, devtoData] = await Promise.allSettled([
         supabase.functions.invoke("fetch-news", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-reddit", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-trends", { body: { brand: brandName } }),
@@ -242,6 +242,11 @@ const Index = () => {
         supabase.functions.invoke("fetch-rss-aggregator", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-gdelt-doc", { body: { brand: brandName } }),
         supabase.functions.invoke("fetch-gdelt-gkg", { body: { brand: brandName } }),
+        // New free sources (no API keys required)
+        supabase.functions.invoke("fetch-googlenews-rss", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-bluesky", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-lobsters", { body: { brand: brandName } }),
+        supabase.functions.invoke("fetch-devto", { body: { brand: brandName } }),
       ]);
 
       // Process news data
@@ -324,34 +329,70 @@ const Index = () => {
         setGdeltThemes([]);
       }
 
+      // Process Google News RSS data (free, no API key)
+      let googleNewsArticles = [];
+      if (googleNewsData.status === "fulfilled" && !googleNewsData.value.error) {
+        googleNewsArticles = googleNewsData.value.data?.articles || [];
+        console.log(`Google News RSS: ${googleNewsArticles.length} articles`);
+      } else {
+        console.warn("Google News RSS unavailable:", googleNewsData.status === "fulfilled" ? googleNewsData.value.error : googleNewsData.reason);
+      }
+
+      // Process Bluesky data (free, no API key)
+      let blueskyPosts = [];
+      if (blueskyData.status === "fulfilled" && !blueskyData.value.error) {
+        blueskyPosts = blueskyData.value.data?.posts || [];
+        console.log(`Bluesky: ${blueskyPosts.length} posts`);
+      } else {
+        console.warn("Bluesky unavailable:", blueskyData.status === "fulfilled" ? blueskyData.value.error : blueskyData.reason);
+      }
+
+      // Process Lobsters data (free, no API key)
+      let lobstersPosts = [];
+      if (lobstersData.status === "fulfilled" && !lobstersData.value.error) {
+        lobstersPosts = lobstersData.value.data?.posts || [];
+        console.log(`Lobsters: ${lobstersPosts.length} posts`);
+      } else {
+        console.warn("Lobsters unavailable:", lobstersData.status === "fulfilled" ? lobstersData.value.error : lobstersData.reason);
+      }
+
+      // Process Dev.to data (free, no API key)
+      let devtoArticles = [];
+      if (devtoData.status === "fulfilled" && !devtoData.value.error) {
+        devtoArticles = devtoData.value.data?.articles || [];
+        console.log(`Dev.to: ${devtoArticles.length} articles`);
+      } else {
+        console.warn("Dev.to unavailable:", devtoData.status === "fulfilled" ? devtoData.value.error : devtoData.reason);
+      }
+
       // Combine and analyze data from ALL sources
       const mentions = [
         ...articles.map((a: any) => ({
           text: `${a.title} ${a.description || ''}`,
-          source: "news",
+          source: "NewsAPI",
           date: new Date(a.publishedAt),
         })),
         ...redditPosts.map((p: any) => ({
           text: `${p.title} ${p.selftext || ''}`,
-          source: "reddit",
+          source: "Reddit",
           date: new Date(p.created_utc * 1000),
           score: p.score,
         })),
         ...hnPosts.map((p: any) => ({
           text: p.text || p.title,
-          source: "hackernews",
+          source: "Hacker News",
           date: new Date(p.created),
           score: p.score,
         })),
         ...mastodonPosts.map((p: any) => ({
           text: p.text,
-          source: "mastodon",
+          source: "Mastodon",
           date: new Date(p.created),
           score: p.score,
         })),
         ...wikiArticles.map((a: any) => ({
           text: `${a.title}: ${a.snippet}`,
-          source: "wikipedia",
+          source: "Wikipedia",
           date: new Date(a.timestamp),
         })),
         ...rssArticles.map((a: any) => ({
@@ -365,6 +406,31 @@ const Index = () => {
           source: `GDELT (${a.country})`,
           country: a.country,
           date: new Date(a.publishedAt),
+        })),
+        // New free sources
+        ...googleNewsArticles.map((a: any) => ({
+          text: a.title || a.text,
+          source: `Google News (${a.source || 'News'})`,
+          date: new Date(a.publishedAt),
+        })),
+        ...blueskyPosts.map((p: any) => ({
+          text: p.text,
+          source: "Bluesky",
+          date: new Date(p.created),
+          author: p.displayName || p.author,
+          score: (p.likes || 0) + (p.reposts || 0),
+        })),
+        ...lobstersPosts.map((p: any) => ({
+          text: p.title || p.text,
+          source: "Lobsters",
+          date: new Date(p.created),
+          score: p.score,
+        })),
+        ...devtoArticles.map((a: any) => ({
+          text: `${a.title} ${a.text || ''}`,
+          source: "Dev.to",
+          date: new Date(a.created),
+          score: a.reactions,
         })),
       ];
 
