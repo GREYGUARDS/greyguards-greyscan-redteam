@@ -51,6 +51,23 @@ interface TimelinePoint {
   sentiment?: number;
 }
 
+interface GDELTEntity {
+  name: string;
+  count: number;
+}
+
+interface GDELTLocation {
+  name: string;
+  count: number;
+  lat?: number;
+  lon?: number;
+}
+
+interface GDELTTheme {
+  name: string;
+  count: number;
+}
+
 interface ExportData {
   brandName: string;
   threatLevel: string;
@@ -67,6 +84,9 @@ interface ExportData {
   shortTermSentiment: number;
   longTermSentiment: number;
   timeline: TimelinePoint[];
+  gdeltEntities: GDELTEntity[];
+  gdeltLocations: GDELTLocation[];
+  gdeltThemes: GDELTTheme[];
 }
 
 export const exportToPDF = async (data: ExportData) => {
@@ -152,35 +172,92 @@ export const exportToPDF = async (data: ExportData) => {
   doc.text(data.brandName, margin, yPosition);
   yPosition += 15;
 
-  // ===== THREAT ASSESSMENT =====
+  // ===== THREAT ASSESSMENT WITH GAUGE =====
   drawSectionHeader('Threat Assessment');
   
   const threatColor = getThreatColor(data.threatLevel);
-  doc.setFillColor(...threatColor);
-  doc.roundedRect(margin, yPosition, 80, 25, 2, 2, 'F');
   
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(14);
+  // Draw threat gauge
+  const gaugeX = margin + 40;
+  const gaugeY = yPosition + 20;
+  const gaugeRadius = 30;
+  
+  // Draw gauge background arc (semi-circle)
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(8);
+  
+  // Draw background arc segments
+  const arcSteps = 20;
+  for (let i = 0; i < arcSteps; i++) {
+    const startAngle = Math.PI + (Math.PI * i) / arcSteps;
+    const endAngle = Math.PI + (Math.PI * (i + 1)) / arcSteps;
+    const x1 = gaugeX + Math.cos(startAngle) * gaugeRadius;
+    const y1 = gaugeY + Math.sin(startAngle) * gaugeRadius;
+    const x2 = gaugeX + Math.cos(endAngle) * gaugeRadius;
+    const y2 = gaugeY + Math.sin(endAngle) * gaugeRadius;
+    doc.line(x1, y1, x2, y2);
+  }
+  
+  // Draw colored arc based on score
+  const scorePercent = data.threatScore / 100;
+  const filledSteps = Math.floor(scorePercent * arcSteps);
+  
+  for (let i = 0; i < filledSteps; i++) {
+    const stepPercent = i / arcSteps;
+    let stepColor: [number, number, number];
+    if (stepPercent < 0.25) stepColor = [34, 197, 94];      // Green
+    else if (stepPercent < 0.5) stepColor = [234, 179, 8];   // Yellow
+    else if (stepPercent < 0.75) stepColor = [234, 88, 12];  // Orange
+    else stepColor = [220, 38, 38];                          // Red
+    
+    doc.setDrawColor(...stepColor);
+    const startAngle = Math.PI + (Math.PI * i) / arcSteps;
+    const endAngle = Math.PI + (Math.PI * (i + 1)) / arcSteps;
+    const x1 = gaugeX + Math.cos(startAngle) * gaugeRadius;
+    const y1 = gaugeY + Math.sin(startAngle) * gaugeRadius;
+    const x2 = gaugeX + Math.cos(endAngle) * gaugeRadius;
+    const y2 = gaugeY + Math.sin(endAngle) * gaugeRadius;
+    doc.line(x1, y1, x2, y2);
+  }
+  
+  // Draw score in center
+  doc.setLineWidth(0.5);
+  doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.text(data.threatLevel.toUpperCase(), margin + 10, yPosition + 10);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Score: ${data.threatScore}/100`, margin + 10, yPosition + 20);
+  doc.setTextColor(...threatColor);
+  doc.text(data.threatScore.toString(), gaugeX, gaugeY + 5, { align: 'center' });
   
-  // Sentiment summary next to threat
+  // Draw threat level label below gauge
+  doc.setFillColor(...threatColor);
+  doc.roundedRect(gaugeX - 25, gaugeY + 10, 50, 12, 2, 2, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(8);
+  doc.text(data.threatLevel.toUpperCase(), gaugeX, gaugeY + 18, { align: 'center' });
+  
+  // Draw gauge labels
+  doc.setFontSize(6);
+  doc.setTextColor(100, 100, 100);
+  doc.text('0', gaugeX - gaugeRadius - 5, gaugeY + 3);
+  doc.text('100', gaugeX + gaugeRadius + 2, gaugeY + 3);
+  
+  // Sentiment summary next to gauge
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
   const positive = data.sentimentDistribution.find(s => s.name === 'Positive')?.value || 0;
   const negative = data.sentimentDistribution.find(s => s.name === 'Negative')?.value || 0;
   const neutral = data.sentimentDistribution.find(s => s.name === 'Neutral')?.value || 0;
   const total = positive + negative + neutral;
   
-  doc.text(`Total Mentions: ${data.totalMentions}`, margin + 100, yPosition + 8);
-  doc.text(`Positive: ${total > 0 ? Math.round(positive / total * 100) : 0}%`, margin + 100, yPosition + 16);
-  doc.text(`Neutral: ${total > 0 ? Math.round(neutral / total * 100) : 0}%`, margin + 140, yPosition + 16);
-  doc.text(`Negative: ${total > 0 ? Math.round(negative / total * 100) : 0}%`, margin + 100, yPosition + 24);
+  const summaryX = gaugeX + gaugeRadius + 30;
+  doc.text(`Total Mentions: ${data.totalMentions}`, summaryX, yPosition + 8);
+  doc.text(`Positive: ${total > 0 ? Math.round(positive / total * 100) : 0}%`, summaryX, yPosition + 16);
+  doc.text(`Neutral: ${total > 0 ? Math.round(neutral / total * 100) : 0}%`, summaryX + 40, yPosition + 16);
+  doc.text(`Negative: ${total > 0 ? Math.round(negative / total * 100) : 0}%`, summaryX, yPosition + 24);
+  doc.text(`Short-term: ${data.shortTermSentiment > 0 ? '+' : ''}${data.shortTermSentiment.toFixed(1)}`, summaryX, yPosition + 32);
+  doc.text(`Long-term: ${data.longTermSentiment > 0 ? '+' : ''}${data.longTermSentiment.toFixed(1)}`, summaryX + 40, yPosition + 32);
   
-  yPosition += 35;
+  yPosition += 50;
 
   // ===== SENTIMENT PIE CHART =====
   if (total > 0) {
@@ -281,13 +358,6 @@ export const exportToPDF = async (data: ExportData) => {
     yPosition = pieCenterY + pieRadius + 15;
   }
 
-  // ===== SENTIMENT TREND =====
-  drawSectionHeader('Sentiment Trend');
-  doc.setFontSize(10);
-  doc.text(`Short-term Sentiment (7 days): ${data.shortTermSentiment > 0 ? '+' : ''}${data.shortTermSentiment.toFixed(1)}`, margin, yPosition);
-  yPosition += 6;
-  doc.text(`Long-term Sentiment (30 days): ${data.longTermSentiment > 0 ? '+' : ''}${data.longTermSentiment.toFixed(1)}`, margin, yPosition);
-  yPosition += 15;
 
   // ===== TIMELINE CHART =====
   if (data.timeline && data.timeline.length > 0) {
@@ -426,27 +496,42 @@ export const exportToPDF = async (data: ExportData) => {
     yPosition += 10;
   }
 
-  // ===== KEYWORDS =====
-  checkPageBreak(50);
+  // ===== KEYWORDS BAR CHART =====
+  checkPageBreak(90);
   drawSectionHeader('Top Keywords');
   
   if (data.keywords && data.keywords.length > 0) {
-    const keywordData = data.keywords.slice(0, 15).map(k => [k.word || '', (k.count || 0).toString()]);
+    const topKeywords = data.keywords.slice(0, 10);
+    const maxCount = Math.max(...topKeywords.map(k => k.count), 1);
+    const barChartX = margin;
+    const barChartWidth = pageWidth - 2 * margin;
+    const barHeight = 6;
+    const barSpacing = 2;
     
-    autoTable(doc, {
-      startY: yPosition,
-      head: [['Keyword', 'Mentions']],
-      body: keywordData,
-      margin: { left: margin, right: margin },
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [30, 30, 30], textColor: [255, 255, 255] },
-      columnStyles: {
-        0: { cellWidth: 'auto' },
-        1: { cellWidth: 30 }
-      }
+    topKeywords.forEach((keyword, index) => {
+      const barY = yPosition + index * (barHeight + barSpacing);
+      const barWidth = (keyword.count / maxCount) * (barChartWidth - 60);
+      
+      // Draw bar background
+      doc.setFillColor(240, 240, 240);
+      doc.rect(barChartX + 50, barY, barChartWidth - 60, barHeight, 'F');
+      
+      // Draw bar
+      doc.setFillColor(59, 130, 246);
+      doc.rect(barChartX + 50, barY, barWidth, barHeight, 'F');
+      
+      // Draw label
+      doc.setFontSize(7);
+      doc.setTextColor(0, 0, 0);
+      const labelText = keyword.word.length > 12 ? keyword.word.substring(0, 12) + '...' : keyword.word;
+      doc.text(labelText, barChartX, barY + 5);
+      
+      // Draw count
+      doc.setTextColor(100, 100, 100);
+      doc.text(keyword.count.toString(), barChartX + barChartWidth - 5, barY + 5, { align: 'right' });
     });
     
-    yPosition = (doc as any).lastAutoTable.finalY + 10;
+    yPosition += topKeywords.length * (barHeight + barSpacing) + 10;
   } else {
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
@@ -454,27 +539,160 @@ export const exportToPDF = async (data: ExportData) => {
     yPosition += 10;
   }
 
-  // ===== SOURCES =====
-  checkPageBreak(50);
+  // ===== GDELT ENTITIES BAR CHART =====
+  if (data.gdeltEntities && data.gdeltEntities.length > 0) {
+    checkPageBreak(90);
+    drawSectionHeader('Key Entities (GDELT)');
+    
+    const topEntities = data.gdeltEntities.slice(0, 8);
+    const maxCount = Math.max(...topEntities.map(e => e.count), 1);
+    const barChartX = margin;
+    const barChartWidth = pageWidth - 2 * margin;
+    const barHeight = 6;
+    const barSpacing = 2;
+    
+    topEntities.forEach((entity, index) => {
+      const barY = yPosition + index * (barHeight + barSpacing);
+      const barWidth = (entity.count / maxCount) * (barChartWidth - 70);
+      
+      // Draw bar background
+      doc.setFillColor(240, 240, 240);
+      doc.rect(barChartX + 60, barY, barChartWidth - 70, barHeight, 'F');
+      
+      // Draw bar (purple color)
+      doc.setFillColor(147, 51, 234);
+      doc.rect(barChartX + 60, barY, barWidth, barHeight, 'F');
+      
+      // Draw label
+      doc.setFontSize(7);
+      doc.setTextColor(0, 0, 0);
+      const labelText = entity.name.length > 15 ? entity.name.substring(0, 15) + '...' : entity.name;
+      doc.text(labelText, barChartX, barY + 5);
+      
+      // Draw count
+      doc.setTextColor(100, 100, 100);
+      doc.text(entity.count.toString(), barChartX + barChartWidth - 5, barY + 5, { align: 'right' });
+    });
+    
+    yPosition += topEntities.length * (barHeight + barSpacing) + 10;
+  }
+
+  // ===== GDELT THEMES BAR CHART =====
+  if (data.gdeltThemes && data.gdeltThemes.length > 0) {
+    checkPageBreak(90);
+    drawSectionHeader('Top Themes (GDELT)');
+    
+    const topThemes = data.gdeltThemes.slice(0, 8);
+    const maxCount = Math.max(...topThemes.map(t => t.count), 1);
+    const barChartX = margin;
+    const barChartWidth = pageWidth - 2 * margin;
+    const barHeight = 6;
+    const barSpacing = 2;
+    
+    topThemes.forEach((theme, index) => {
+      const barY = yPosition + index * (barHeight + barSpacing);
+      const barWidth = (theme.count / maxCount) * (barChartWidth - 80);
+      
+      // Draw bar background
+      doc.setFillColor(240, 240, 240);
+      doc.rect(barChartX + 70, barY, barChartWidth - 80, barHeight, 'F');
+      
+      // Draw bar (orange color)
+      doc.setFillColor(249, 115, 22);
+      doc.rect(barChartX + 70, barY, barWidth, barHeight, 'F');
+      
+      // Draw label
+      doc.setFontSize(7);
+      doc.setTextColor(0, 0, 0);
+      const labelText = theme.name.replace(/_/g, ' ').length > 18 ? 
+        theme.name.replace(/_/g, ' ').substring(0, 18) + '...' : 
+        theme.name.replace(/_/g, ' ');
+      doc.text(labelText, barChartX, barY + 5);
+      
+      // Draw count
+      doc.setTextColor(100, 100, 100);
+      doc.text(theme.count.toString(), barChartX + barChartWidth - 5, barY + 5, { align: 'right' });
+    });
+    
+    yPosition += topThemes.length * (barHeight + barSpacing) + 10;
+  }
+
+  // ===== GDELT LOCATIONS =====
+  if (data.gdeltLocations && data.gdeltLocations.length > 0) {
+    checkPageBreak(70);
+    drawSectionHeader('Geographic Distribution (GDELT)');
+    
+    const topLocations = data.gdeltLocations.slice(0, 10);
+    const maxCount = Math.max(...topLocations.map(l => l.count), 1);
+    
+    // Draw horizontal bar chart for locations
+    const barChartX = margin;
+    const barChartWidth = pageWidth - 2 * margin;
+    const barHeight = 5;
+    const barSpacing = 2;
+    
+    topLocations.forEach((location, index) => {
+      const barY = yPosition + index * (barHeight + barSpacing);
+      const barWidth = (location.count / maxCount) * (barChartWidth - 60);
+      
+      // Draw bar background
+      doc.setFillColor(240, 240, 240);
+      doc.rect(barChartX + 50, barY, barChartWidth - 60, barHeight, 'F');
+      
+      // Draw bar (teal color)
+      doc.setFillColor(20, 184, 166);
+      doc.rect(barChartX + 50, barY, barWidth, barHeight, 'F');
+      
+      // Draw label
+      doc.setFontSize(7);
+      doc.setTextColor(0, 0, 0);
+      const labelText = location.name.length > 12 ? location.name.substring(0, 12) + '...' : location.name;
+      doc.text(labelText, barChartX, barY + 4);
+      
+      // Draw count
+      doc.setTextColor(100, 100, 100);
+      doc.text(location.count.toString(), barChartX + barChartWidth - 5, barY + 4, { align: 'right' });
+    });
+    
+    yPosition += topLocations.length * (barHeight + barSpacing) + 10;
+  }
+
+  // ===== SOURCES BAR CHART =====
+  checkPageBreak(70);
   drawSectionHeader('Data Sources');
   
   if (data.sources && data.sources.length > 0) {
-    const sourceData = data.sources.slice(0, 15).map(s => [
-      s.name || '',
-      (s.count || 0).toString(),
-      s.country || '-'
-    ]);
-
-    autoTable(doc, {
-      startY: yPosition,
-      head: [['Source', 'Mentions', 'Country']],
-      body: sourceData,
-      margin: { left: margin, right: margin },
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [30, 30, 30], textColor: [255, 255, 255] }
+    const topSources = data.sources.slice(0, 10);
+    const maxCount = Math.max(...topSources.map(s => s.count), 1);
+    const barChartX = margin;
+    const barChartWidth = pageWidth - 2 * margin;
+    const barHeight = 5;
+    const barSpacing = 2;
+    
+    topSources.forEach((source, index) => {
+      const barY = yPosition + index * (barHeight + barSpacing);
+      const barWidth = (source.count / maxCount) * (barChartWidth - 60);
+      
+      // Draw bar background
+      doc.setFillColor(240, 240, 240);
+      doc.rect(barChartX + 50, barY, barChartWidth - 60, barHeight, 'F');
+      
+      // Draw bar (green color)
+      doc.setFillColor(34, 197, 94);
+      doc.rect(barChartX + 50, barY, barWidth, barHeight, 'F');
+      
+      // Draw label
+      doc.setFontSize(7);
+      doc.setTextColor(0, 0, 0);
+      const labelText = source.name.length > 12 ? source.name.substring(0, 12) + '...' : source.name;
+      doc.text(labelText, barChartX, barY + 4);
+      
+      // Draw count
+      doc.setTextColor(100, 100, 100);
+      doc.text(source.count.toString(), barChartX + barChartWidth - 5, barY + 4, { align: 'right' });
     });
     
-    yPosition = (doc as any).lastAutoTable.finalY + 10;
+    yPosition += topSources.length * (barHeight + barSpacing) + 10;
   } else {
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
