@@ -53,25 +53,25 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     threatLevel: "elevated",
     threatScore: 68,
     sentimentDistribution: [
-      { name: "Positive", value: 342, color: "hsl(var(--chart-1))" },
-      { name: "Neutral", value: 487, color: "hsl(var(--chart-3))" },
-      { name: "Negative", value: 284, color: "hsl(var(--chart-2))" }
+      { name: "Positive", value: 28, color: "hsl(var(--chart-1))" },
+      { name: "Neutral", value: 39, color: "hsl(var(--chart-3))" },
+      { name: "Negative", value: 23, color: "hsl(var(--chart-2))" }
     ],
     shortTermSentiment: -12,
     longTermSentiment: 8,
     trendIcon: "down",
     previousSentiment: 15,
     keywords: [
-      { word: "weapons", count: 234 },
-      { word: "arc reactor", count: 189 },
-      { word: "military contracts", count: 156 },
-      { word: "Tony Stark", count: 143 },
-      { word: "clean energy", count: 128 },
-      { word: "AI systems", count: 112 },
-      { word: "defense spending", count: 98 },
-      { word: "government", count: 87 },
-      { word: "innovation", count: 76 },
-      { word: "controversy", count: 65 }
+      { word: "weapons", count: 19 },
+      { word: "arc reactor", count: 15 },
+      { word: "military contracts", count: 13 },
+      { word: "Tony Stark", count: 12 },
+      { word: "clean energy", count: 10 },
+      { word: "AI systems", count: 9 },
+      { word: "defense spending", count: 8 },
+      { word: "government", count: 7 },
+      { word: "innovation", count: 6 },
+      { word: "controversy", count: 5 }
     ],
     timeline: generateTimelineData(30, 45, 30),
     mdmNarratives: [
@@ -208,38 +208,38 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       }
     },
     gdeltEntities: [
-      { name: "Tony Stark", count: 234 },
-      { name: "Pepper Potts", count: 145 },
-      { name: "US Department of Defense", count: 132 },
-      { name: "Stark Industries", count: 456 },
-      { name: "Congress", count: 89 },
-      { name: "UN Security Council", count: 67 }
+      { name: "Tony Stark", count: 19 },
+      { name: "Pepper Potts", count: 12 },
+      { name: "US Department of Defense", count: 11 },
+      { name: "Stark Industries", count: 37 },
+      { name: "Congress", count: 7 },
+      { name: "UN Security Council", count: 5 }
     ],
     gdeltLocations: [
-      { name: "New York", count: 234, lat: 40.7128, lon: -74.006 },
-      { name: "Washington D.C.", count: 189, lat: 38.9072, lon: -77.0369 },
-      { name: "Los Angeles", count: 145, lat: 34.0522, lon: -118.2437 },
-      { name: "Geneva", count: 78, lat: 46.2044, lon: 6.1432 },
-      { name: "Beijing", count: 56, lat: 39.9042, lon: 116.4074 }
+      { name: "New York", count: 19, lat: 40.7128, lon: -74.006 },
+      { name: "Washington D.C.", count: 15, lat: 38.9072, lon: -77.0369 },
+      { name: "Los Angeles", count: 12, lat: 34.0522, lon: -118.2437 },
+      { name: "Geneva", count: 6, lat: 46.2044, lon: 6.1432 },
+      { name: "Beijing", count: 4, lat: 39.9042, lon: 116.4074 }
     ],
     gdeltThemes: [
-      { name: "MILITARY_TECHNOLOGY", count: 345 },
-      { name: "WEAPONS_PROLIFERATION", count: 234 },
-      { name: "CORPORATE_GOVERNANCE", count: 189 },
-      { name: "ENVIRONMENTAL_IMPACT", count: 156 },
-      { name: "ARTIFICIAL_INTELLIGENCE", count: 134 },
-      { name: "GOVERNMENT_CONTRACTS", count: 112 }
+      { name: "MILITARY_TECHNOLOGY", count: 28 },
+      { name: "WEAPONS_PROLIFERATION", count: 19 },
+      { name: "CORPORATE_GOVERNANCE", count: 15 },
+      { name: "ENVIRONMENTAL_IMPACT", count: 13 },
+      { name: "ARTIFICIAL_INTELLIGENCE", count: 11 },
+      { name: "GOVERNMENT_CONTRACTS", count: 9 }
     ],
     sources: [
-      { name: "Twitter/X", count: 456 },
-      { name: "Reddit", count: 234 },
-      { name: "NewsAPI", count: 189 },
-      { name: "GDELT (US)", count: 145 },
-      { name: "Mastodon", count: 67 },
-      { name: "Hacker News", count: 45 },
-      { name: "BBC News", count: 34 },
-      { name: "Reuters", count: 29 },
-      { name: "GDELT (UK)", count: 23 }
+      { name: "Twitter/X", count: 37 },
+      { name: "Reddit", count: 19 },
+      { name: "NewsAPI", count: 15 },
+      { name: "GDELT (US)", count: 12 },
+      { name: "Mastodon", count: 5 },
+      { name: "Hacker News", count: 4 },
+      { name: "BBC News", count: 3 },
+      { name: "Reuters", count: 2 },
+      { name: "GDELT (UK)", count: 2 }
     ],
     people: [
       { id: "stark-ceo", person_name: "Tony Stark", person_role: "CEO & Founder" },
@@ -249,25 +249,25 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     ],
     personMentions: {
       "stark-ceo": {
-        mention_count: 567,
+        mention_count: 46,
         sentiment_score: -18,
-        positive_count: 145,
-        negative_count: 234,
-        neutral_count: 188
+        positive_count: 12,
+        negative_count: 19,
+        neutral_count: 15
       },
       "stark-coo": {
-        mention_count: 234,
+        mention_count: 19,
         sentiment_score: 24,
-        positive_count: 112,
-        negative_count: 45,
-        neutral_count: 77
+        positive_count: 9,
+        negative_count: 4,
+        neutral_count: 6
       },
       "stark-cto": {
-        mention_count: 189,
+        mention_count: 15,
         sentiment_score: 8,
-        positive_count: 78,
-        negative_count: 56,
-        neutral_count: 55
+        positive_count: 6,
+        negative_count: 4,
+        neutral_count: 5
       }
     },
     personNarratives: {
@@ -325,25 +325,25 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     threatLevel: "high",
     threatScore: 76,
     sentimentDistribution: [
-      { name: "Positive", value: 256, color: "hsl(var(--chart-1))" },
-      { name: "Neutral", value: 398, color: "hsl(var(--chart-3))" },
-      { name: "Negative", value: 412, color: "hsl(var(--chart-2))" }
+      { name: "Positive", value: 18, color: "hsl(var(--chart-1))" },
+      { name: "Neutral", value: 29, color: "hsl(var(--chart-3))" },
+      { name: "Negative", value: 31, color: "hsl(var(--chart-2))" }
     ],
     shortTermSentiment: -28,
     longTermSentiment: 5,
     trendIcon: "down",
     previousSentiment: 12,
     keywords: [
-      { word: "Bruce Wayne", count: 312 },
-      { word: "Gotham", count: 267 },
-      { word: "philanthropy", count: 198 },
-      { word: "corruption", count: 187 },
-      { word: "real estate", count: 156 },
-      { word: "Wayne Foundation", count: 134 },
-      { word: "crime", count: 123 },
-      { word: "investment", count: 98 },
-      { word: "development", count: 87 },
-      { word: "scandal", count: 76 }
+      { word: "Bruce Wayne", count: 24 },
+      { word: "Gotham", count: 21 },
+      { word: "philanthropy", count: 16 },
+      { word: "corruption", count: 15 },
+      { word: "real estate", count: 12 },
+      { word: "Wayne Foundation", count: 11 },
+      { word: "crime", count: 10 },
+      { word: "investment", count: 8 },
+      { word: "development", count: 7 },
+      { word: "scandal", count: 6 }
     ],
     timeline: generateTimelineData(30, 55, 35),
     mdmNarratives: [
@@ -437,6 +437,41 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
         date: new Date(Date.now() - 172800000),
         title: "Wayne's Convenient Charity",
         outlet: "Gotham Gazette"
+      },
+      {
+        text: "Bruce Wayne spotted at charity gala while Gotham crime rates hit 10-year high. Priorities?",
+        source: "twitter",
+        date: new Date(Date.now() - 259200000),
+        author: "@GothamWatch",
+        engagement: 45000
+      },
+      {
+        text: "Wayne Enterprises stock drops 8% amid corruption probe rumors. Investors nervous.",
+        source: "news",
+        date: new Date(Date.now() - 345600000),
+        title: "Wayne Stock Tumbles",
+        outlet: "Financial Times"
+      },
+      {
+        text: "The Wayne family has been profiting off Gotham's misery for generations. Time for accountability.",
+        source: "reddit",
+        date: new Date(Date.now() - 432000000),
+        author: "u/GothamActivist",
+        score: 3200
+      },
+      {
+        text: "Lucius Fox defends Wayne Enterprises' new green initiative. 'We're committed to Gotham's future.'",
+        source: "news",
+        date: new Date(Date.now() - 518400000),
+        title: "Wayne Goes Green",
+        outlet: "Gotham Gazette"
+      },
+      {
+        text: "Wayne Foundation donating $500M to rebuild Crime Alley neighborhood. PR stunt or genuine change?",
+        source: "twitter",
+        date: new Date(Date.now() - 604800000),
+        author: "@GothamNews",
+        engagement: 89000
       }
     ],
     trendsData: {
@@ -457,35 +492,35 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       }
     },
     gdeltEntities: [
-      { name: "Bruce Wayne", count: 312 },
-      { name: "Wayne Enterprises", count: 489 },
-      { name: "Wayne Foundation", count: 234 },
-      { name: "Gotham City", count: 567 },
-      { name: "Alfred Pennyworth", count: 89 },
-      { name: "Lucius Fox", count: 145 }
+      { name: "Bruce Wayne", count: 24 },
+      { name: "Wayne Enterprises", count: 38 },
+      { name: "Wayne Foundation", count: 18 },
+      { name: "Gotham City", count: 45 },
+      { name: "Alfred Pennyworth", count: 7 },
+      { name: "Lucius Fox", count: 12 }
     ],
     gdeltLocations: [
-      { name: "Gotham City", count: 456, lat: 40.7128, lon: -74.006 },
-      { name: "Metropolis", count: 123, lat: 38.9072, lon: -77.0369 },
-      { name: "London", count: 89, lat: 51.5074, lon: -0.1278 },
-      { name: "Hong Kong", count: 67, lat: 22.3193, lon: 114.1694 }
+      { name: "Gotham City", count: 35, lat: 40.7128, lon: -74.006 },
+      { name: "Metropolis", count: 10, lat: 38.9072, lon: -77.0369 },
+      { name: "London", count: 7, lat: 51.5074, lon: -0.1278 },
+      { name: "Hong Kong", count: 5, lat: 22.3193, lon: 114.1694 }
     ],
     gdeltThemes: [
-      { name: "CORPORATE_CORRUPTION", count: 423 },
-      { name: "PHILANTHROPY", count: 289 },
-      { name: "REAL_ESTATE", count: 234 },
-      { name: "ORGANIZED_CRIME", count: 198 },
-      { name: "URBAN_DEVELOPMENT", count: 167 },
-      { name: "FINANCIAL_CRIME", count: 145 }
+      { name: "CORPORATE_CORRUPTION", count: 33 },
+      { name: "PHILANTHROPY", count: 22 },
+      { name: "REAL_ESTATE", count: 18 },
+      { name: "ORGANIZED_CRIME", count: 15 },
+      { name: "URBAN_DEVELOPMENT", count: 13 },
+      { name: "FINANCIAL_CRIME", count: 11 }
     ],
     sources: [
-      { name: "Twitter/X", count: 523 },
-      { name: "Reddit", count: 312 },
-      { name: "NewsAPI", count: 234 },
-      { name: "GDELT (US)", count: 178 },
-      { name: "Mastodon", count: 89 },
-      { name: "Gotham Gazette", count: 67 },
-      { name: "Daily Planet", count: 45 }
+      { name: "Twitter/X", count: 28 },
+      { name: "Reddit", count: 18 },
+      { name: "NewsAPI", count: 14 },
+      { name: "GDELT (US)", count: 11 },
+      { name: "Mastodon", count: 5 },
+      { name: "Gotham Gazette", count: 4 },
+      { name: "Daily Planet", count: 3 }
     ],
     people: [
       { id: "wayne-ceo", person_name: "Bruce Wayne", person_role: "CEO & Chairman" },
@@ -494,18 +529,18 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     ],
     personMentions: {
       "wayne-ceo": {
-        mention_count: 789,
+        mention_count: 58,
         sentiment_score: -32,
-        positive_count: 156,
-        negative_count: 412,
-        neutral_count: 221
+        positive_count: 12,
+        negative_count: 31,
+        neutral_count: 15
       },
       "wayne-cto": {
-        mention_count: 145,
+        mention_count: 12,
         sentiment_score: 18,
-        positive_count: 67,
-        negative_count: 34,
-        neutral_count: 44
+        positive_count: 5,
+        negative_count: 3,
+        neutral_count: 4
       }
     },
     personNarratives: {
@@ -545,25 +580,25 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     threatLevel: "moderate",
     threatScore: 45,
     sentimentDistribution: [
-      { name: "Positive", value: 512, color: "hsl(var(--chart-1))" },
-      { name: "Neutral", value: 378, color: "hsl(var(--chart-3))" },
-      { name: "Negative", value: 198, color: "hsl(var(--chart-2))" }
+      { name: "Positive", value: 42, color: "hsl(var(--chart-1))" },
+      { name: "Neutral", value: 31, color: "hsl(var(--chart-3))" },
+      { name: "Negative", value: 16, color: "hsl(var(--chart-2))" }
     ],
     shortTermSentiment: 8,
     longTermSentiment: 22,
     trendIcon: "stable",
     previousSentiment: 18,
     keywords: [
-      { word: "chocolate", count: 456 },
-      { word: "factory", count: 312 },
-      { word: "Willy Wonka", count: 289 },
-      { word: "labor", count: 187 },
-      { word: "Oompa Loompa", count: 167 },
-      { word: "candy", count: 145 },
-      { word: "workers rights", count: 134 },
-      { word: "golden ticket", count: 112 },
-      { word: "innovation", count: 98 },
-      { word: "secret recipe", count: 87 }
+      { word: "chocolate", count: 37 },
+      { word: "factory", count: 25 },
+      { word: "Willy Wonka", count: 23 },
+      { word: "labor", count: 15 },
+      { word: "Oompa Loompa", count: 13 },
+      { word: "candy", count: 12 },
+      { word: "workers rights", count: 11 },
+      { word: "golden ticket", count: 9 },
+      { word: "innovation", count: 8 },
+      { word: "secret recipe", count: 7 }
     ],
     timeline: generateTimelineData(30, 40, 20),
     mdmNarratives: [
@@ -639,26 +674,26 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       }
     },
     gdeltEntities: [
-      { name: "Willy Wonka", count: 289 },
-      { name: "Wonka Industries", count: 456 },
-      { name: "Charlie Bucket", count: 67 }
+      { name: "Willy Wonka", count: 23 },
+      { name: "Wonka Industries", count: 37 },
+      { name: "Charlie Bucket", count: 5 }
     ],
     gdeltLocations: [
-      { name: "London", count: 234, lat: 51.5074, lon: -0.1278 },
-      { name: "Ghana", count: 145, lat: 7.9465, lon: -1.0232 },
-      { name: "Belgium", count: 89, lat: 50.8503, lon: 4.3517 }
+      { name: "London", count: 19, lat: 51.5074, lon: -0.1278 },
+      { name: "Ghana", count: 12, lat: 7.9465, lon: -1.0232 },
+      { name: "Belgium", count: 7, lat: 50.8503, lon: 4.3517 }
     ],
     gdeltThemes: [
-      { name: "FOOD_INDUSTRY", count: 345 },
-      { name: "LABOR_PRACTICES", count: 234 },
-      { name: "SUSTAINABILITY", count: 189 },
-      { name: "CORPORATE_SOCIAL_RESPONSIBILITY", count: 145 }
+      { name: "FOOD_INDUSTRY", count: 28 },
+      { name: "LABOR_PRACTICES", count: 19 },
+      { name: "SUSTAINABILITY", count: 15 },
+      { name: "CORPORATE_SOCIAL_RESPONSIBILITY", count: 12 }
     ],
     sources: [
-      { name: "Twitter/X", count: 345 },
-      { name: "Reddit", count: 234 },
-      { name: "NewsAPI", count: 167 },
-      { name: "GDELT (UK)", count: 123 }
+      { name: "Twitter/X", count: 28 },
+      { name: "Reddit", count: 19 },
+      { name: "NewsAPI", count: 13 },
+      { name: "GDELT (UK)", count: 10 }
     ],
     people: [
       { id: "wonka-founder", person_name: "Willy Wonka", person_role: "Founder & Chief Imagineer" },
@@ -666,11 +701,11 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     ],
     personMentions: {
       "wonka-founder": {
-        mention_count: 345,
+        mention_count: 28,
         sentiment_score: 12,
-        positive_count: 156,
-        negative_count: 89,
-        neutral_count: 100
+        positive_count: 13,
+        negative_count: 7,
+        neutral_count: 8
       }
     },
     personNarratives: {
@@ -693,25 +728,25 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     threatLevel: "critical",
     threatScore: 89,
     sentimentDistribution: [
-      { name: "Positive", value: 123, color: "hsl(var(--chart-1))" },
-      { name: "Neutral", value: 234, color: "hsl(var(--chart-3))" },
-      { name: "Negative", value: 567, color: "hsl(var(--chart-2))" }
+      { name: "Positive", value: 10, color: "hsl(var(--chart-1))" },
+      { name: "Neutral", value: 19, color: "hsl(var(--chart-3))" },
+      { name: "Negative", value: 46, color: "hsl(var(--chart-2))" }
     ],
     shortTermSentiment: -45,
     longTermSentiment: -12,
     trendIcon: "down",
     previousSentiment: -8,
     keywords: [
-      { word: "intelligence", count: 456 },
-      { word: "espionage", count: 389 },
-      { word: "government", count: 312 },
-      { word: "front company", count: 289 },
-      { word: "MI6", count: 234 },
-      { word: "classified", count: 198 },
-      { word: "operations", count: 167 },
-      { word: "secret", count: 145 },
-      { word: "London", count: 134 },
-      { word: "agents", count: 112 }
+      { word: "intelligence", count: 37 },
+      { word: "espionage", count: 31 },
+      { word: "government", count: 25 },
+      { word: "front company", count: 23 },
+      { word: "MI6", count: 19 },
+      { word: "classified", count: 16 },
+      { word: "operations", count: 13 },
+      { word: "secret", count: 12 },
+      { word: "London", count: 11 },
+      { word: "agents", count: 9 }
     ],
     timeline: generateTimelineData(30, 35, 25),
     mdmNarratives: [
@@ -809,30 +844,30 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       }
     },
     gdeltEntities: [
-      { name: "Universal Exports", count: 567 },
-      { name: "MI6", count: 456 },
-      { name: "British Government", count: 345 },
-      { name: "Foreign Office", count: 234 }
+      { name: "Universal Exports", count: 46 },
+      { name: "MI6", count: 37 },
+      { name: "British Government", count: 28 },
+      { name: "Foreign Office", count: 19 }
     ],
     gdeltLocations: [
-      { name: "London", count: 456, lat: 51.5074, lon: -0.1278 },
-      { name: "Moscow", count: 234, lat: 55.7558, lon: 37.6173 },
-      { name: "Washington D.C.", count: 189, lat: 38.9072, lon: -77.0369 },
-      { name: "Beijing", count: 145, lat: 39.9042, lon: 116.4074 }
+      { name: "London", count: 37, lat: 51.5074, lon: -0.1278 },
+      { name: "Moscow", count: 19, lat: 55.7558, lon: 37.6173 },
+      { name: "Washington D.C.", count: 15, lat: 38.9072, lon: -77.0369 },
+      { name: "Beijing", count: 12, lat: 39.9042, lon: 116.4074 }
     ],
     gdeltThemes: [
-      { name: "INTELLIGENCE_SERVICES", count: 567 },
-      { name: "ESPIONAGE", count: 456 },
-      { name: "GOVERNMENT_SECRECY", count: 345 },
-      { name: "FOREIGN_RELATIONS", count: 234 },
-      { name: "POLITICAL_SCANDAL", count: 189 }
+      { name: "INTELLIGENCE_SERVICES", count: 46 },
+      { name: "ESPIONAGE", count: 37 },
+      { name: "GOVERNMENT_SECRECY", count: 28 },
+      { name: "FOREIGN_RELATIONS", count: 19 },
+      { name: "POLITICAL_SCANDAL", count: 15 }
     ],
     sources: [
-      { name: "Twitter/X", count: 678 },
-      { name: "Reddit", count: 456 },
-      { name: "GDELT (UK)", count: 345 },
-      { name: "WikiLeaks Archive", count: 234 },
-      { name: "The Guardian", count: 123 }
+      { name: "Twitter/X", count: 28 },
+      { name: "Reddit", count: 19 },
+      { name: "GDELT (UK)", count: 14 },
+      { name: "WikiLeaks Archive", count: 9 },
+      { name: "The Guardian", count: 5 }
     ],
     people: [
       { id: "ue-director", person_name: "M", person_role: "Director" },
@@ -840,11 +875,11 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     ],
     personMentions: {
       "ue-agent": {
-        mention_count: 456,
+        mention_count: 37,
         sentiment_score: -28,
-        positive_count: 89,
-        negative_count: 234,
-        neutral_count: 133
+        positive_count: 7,
+        negative_count: 19,
+        neutral_count: 11
       }
     },
     personNarratives: {
@@ -878,25 +913,25 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     threatLevel: "high",
     threatScore: 72,
     sentimentDistribution: [
-      { name: "Positive", value: 189, color: "hsl(var(--chart-1))" },
-      { name: "Neutral", value: 345, color: "hsl(var(--chart-3))" },
-      { name: "Negative", value: 478, color: "hsl(var(--chart-2))" }
+      { name: "Positive", value: 15, color: "hsl(var(--chart-1))" },
+      { name: "Neutral", value: 28, color: "hsl(var(--chart-3))" },
+      { name: "Negative", value: 39, color: "hsl(var(--chart-2))" }
     ],
     shortTermSentiment: -35,
     longTermSentiment: -18,
     trendIcon: "down",
     previousSentiment: -12,
     keywords: [
-      { word: "Gordon Gekko", count: 389 },
-      { word: "Wall Street", count: 312 },
-      { word: "insider trading", count: 278 },
-      { word: "greed", count: 234 },
-      { word: "manipulation", count: 198 },
-      { word: "SEC", count: 167 },
-      { word: "hostile takeover", count: 145 },
-      { word: "corporate raider", count: 134 },
-      { word: "stocks", count: 112 },
-      { word: "fraud", count: 98 }
+      { word: "Gordon Gekko", count: 31 },
+      { word: "Wall Street", count: 25 },
+      { word: "insider trading", count: 22 },
+      { word: "greed", count: 19 },
+      { word: "manipulation", count: 16 },
+      { word: "SEC", count: 13 },
+      { word: "hostile takeover", count: 12 },
+      { word: "corporate raider", count: 11 },
+      { word: "stocks", count: 9 },
+      { word: "fraud", count: 8 }
     ],
     timeline: generateTimelineData(30, 50, 30),
     mdmNarratives: [
@@ -985,28 +1020,28 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       }
     },
     gdeltEntities: [
-      { name: "Gordon Gekko", count: 389 },
-      { name: "Gekko & Co.", count: 456 },
-      { name: "SEC", count: 234 },
-      { name: "Wall Street", count: 345 }
+      { name: "Gordon Gekko", count: 31 },
+      { name: "Gekko & Co.", count: 37 },
+      { name: "SEC", count: 19 },
+      { name: "Wall Street", count: 28 }
     ],
     gdeltLocations: [
-      { name: "New York", count: 456, lat: 40.7128, lon: -74.006 },
-      { name: "Washington D.C.", count: 189, lat: 38.9072, lon: -77.0369 },
-      { name: "Chicago", count: 123, lat: 41.8781, lon: -87.6298 }
+      { name: "New York", count: 37, lat: 40.7128, lon: -74.006 },
+      { name: "Washington D.C.", count: 15, lat: 38.9072, lon: -77.0369 },
+      { name: "Chicago", count: 10, lat: 41.8781, lon: -87.6298 }
     ],
     gdeltThemes: [
-      { name: "FINANCIAL_CRIME", count: 456 },
-      { name: "STOCK_MARKET", count: 345 },
-      { name: "CORPORATE_GREED", count: 289 },
-      { name: "REGULATORY_INVESTIGATION", count: 234 }
+      { name: "FINANCIAL_CRIME", count: 37 },
+      { name: "STOCK_MARKET", count: 28 },
+      { name: "CORPORATE_GREED", count: 23 },
+      { name: "REGULATORY_INVESTIGATION", count: 19 }
     ],
     sources: [
-      { name: "Twitter/X", count: 456 },
-      { name: "Reddit - WallStreetBets", count: 345 },
-      { name: "Bloomberg", count: 234 },
-      { name: "CNBC", count: 189 },
-      { name: "Financial Times", count: 145 }
+      { name: "Twitter/X", count: 37 },
+      { name: "Reddit - WallStreetBets", count: 28 },
+      { name: "Bloomberg", count: 19 },
+      { name: "CNBC", count: 15 },
+      { name: "Financial Times", count: 12 }
     ],
     people: [
       { id: "gekko-ceo", person_name: "Gordon Gekko", person_role: "Founder & Managing Partner" },
@@ -1014,11 +1049,11 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     ],
     personMentions: {
       "gekko-ceo": {
-        mention_count: 567,
+        mention_count: 46,
         sentiment_score: -45,
-        positive_count: 78,
-        negative_count: 356,
-        neutral_count: 133
+        positive_count: 6,
+        negative_count: 29,
+        neutral_count: 11
       }
     },
     personNarratives: {
@@ -1052,25 +1087,25 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     threatLevel: "moderate",
     threatScore: 52,
     sentimentDistribution: [
-      { name: "Positive", value: 345, color: "hsl(var(--chart-1))" },
-      { name: "Neutral", value: 456, color: "hsl(var(--chart-3))" },
-      { name: "Negative", value: 267, color: "hsl(var(--chart-2))" }
+      { name: "Positive", value: 28, color: "hsl(var(--chart-1))" },
+      { name: "Neutral", value: 37, color: "hsl(var(--chart-3))" },
+      { name: "Negative", value: 22, color: "hsl(var(--chart-2))" }
     ],
     shortTermSentiment: -8,
     longTermSentiment: 15,
     trendIcon: "stable",
     previousSentiment: 12,
     keywords: [
-      { word: "Nakatomi Plaza", count: 312 },
-      { word: "Los Angeles", count: 267 },
-      { word: "security", count: 234 },
-      { word: "terrorism", count: 198 },
-      { word: "Japanese investment", count: 167 },
-      { word: "real estate", count: 145 },
-      { word: "corporate security", count: 134 },
-      { word: "hostage", count: 112 },
-      { word: "1988", count: 98 },
-      { word: "Christmas Eve", count: 87 }
+      { word: "Nakatomi Plaza", count: 25 },
+      { word: "Los Angeles", count: 21 },
+      { word: "security", count: 19 },
+      { word: "terrorism", count: 16 },
+      { word: "Japanese investment", count: 13 },
+      { word: "real estate", count: 12 },
+      { word: "corporate security", count: 11 },
+      { word: "hostage", count: 9 },
+      { word: "1988", count: 8 },
+      { word: "Christmas Eve", count: 7 }
     ],
     timeline: generateTimelineData(30, 38, 18),
     mdmNarratives: [
@@ -1146,27 +1181,27 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       }
     },
     gdeltEntities: [
-      { name: "Nakatomi Corporation", count: 345 },
-      { name: "Joseph Takagi", count: 156 },
-      { name: "Nakatomi Plaza", count: 234 }
+      { name: "Nakatomi Corporation", count: 28 },
+      { name: "Joseph Takagi", count: 13 },
+      { name: "Nakatomi Plaza", count: 19 }
     ],
     gdeltLocations: [
-      { name: "Los Angeles", count: 345, lat: 34.0522, lon: -118.2437 },
-      { name: "Tokyo", count: 234, lat: 35.6762, lon: 139.6503 },
-      { name: "New York", count: 123, lat: 40.7128, lon: -74.006 }
+      { name: "Los Angeles", count: 28, lat: 34.0522, lon: -118.2437 },
+      { name: "Tokyo", count: 19, lat: 35.6762, lon: 139.6503 },
+      { name: "New York", count: 10, lat: 40.7128, lon: -74.006 }
     ],
     gdeltThemes: [
-      { name: "CORPORATE_SECURITY", count: 345 },
-      { name: "REAL_ESTATE", count: 267 },
-      { name: "FOREIGN_INVESTMENT", count: 198 },
-      { name: "TERRORISM_HISTORY", count: 156 }
+      { name: "CORPORATE_SECURITY", count: 28 },
+      { name: "REAL_ESTATE", count: 21 },
+      { name: "FOREIGN_INVESTMENT", count: 16 },
+      { name: "TERRORISM_HISTORY", count: 13 }
     ],
     sources: [
-      { name: "Twitter/X", count: 345 },
-      { name: "Reddit", count: 234 },
-      { name: "NewsAPI", count: 189 },
-      { name: "GDELT (US)", count: 145 },
-      { name: "LA Times", count: 89 }
+      { name: "Twitter/X", count: 28 },
+      { name: "Reddit", count: 19 },
+      { name: "NewsAPI", count: 15 },
+      { name: "GDELT (US)", count: 12 },
+      { name: "LA Times", count: 7 }
     ],
     people: [
       { id: "nak-ceo", person_name: "Joseph Takagi", person_role: "CEO (Memorial)" },
@@ -1174,11 +1209,11 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     ],
     personMentions: {
       "nak-vp": {
-        mention_count: 189,
+        mention_count: 15,
         sentiment_score: 22,
-        positive_count: 89,
-        negative_count: 34,
-        neutral_count: 66
+        positive_count: 7,
+        negative_count: 3,
+        neutral_count: 5
       }
     },
     personNarratives: {
