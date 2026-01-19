@@ -183,14 +183,14 @@ export const exportToPDF = async (data: ExportData) => {
   doc.text(`Long-term Sentiment (30 days): ${data.longTermSentiment > 0 ? '+' : ''}${data.longTermSentiment.toFixed(1)}`, margin, yPosition);
   yPosition += 15;
 
-  // ===== MDM NARRATIVES =====
-  if (data.mdmNarratives.length > 0) {
-    drawSectionHeader('Active MDM Narratives');
-    
+// ===== MDM NARRATIVES =====
+  drawSectionHeader('Active MDM Narratives');
+  
+  if (data.mdmNarratives && data.mdmNarratives.length > 0) {
     const narrativeData = data.mdmNarratives.slice(0, 10).map(n => [
-      n.narrative_type.toUpperCase(),
-      n.severity.toUpperCase(),
-      n.narrative_description.substring(0, 80) + (n.narrative_description.length > 80 ? '...' : ''),
+      (n.narrative_type || 'Unknown').toUpperCase(),
+      (n.severity || 'Unknown').toUpperCase(),
+      (n.narrative_description || '').substring(0, 80) + ((n.narrative_description?.length || 0) > 80 ? '...' : ''),
       n.frequency?.toString() || '-'
     ]);
 
@@ -207,13 +207,6 @@ export const exportToPDF = async (data: ExportData) => {
         2: { cellWidth: 'auto' },
         3: { cellWidth: 15 }
       },
-      didDrawCell: (hookData) => {
-        if (hookData.section === 'body' && hookData.column.index === 1) {
-          const severity = hookData.cell.raw as string;
-          const color = getSeverityColor(severity.toLowerCase());
-          doc.setTextColor(...color);
-        }
-      },
       didParseCell: (hookData) => {
         if (hookData.section === 'body' && hookData.column.index === 1) {
           const severity = (hookData.cell.raw as string).toLowerCase();
@@ -224,22 +217,27 @@ export const exportToPDF = async (data: ExportData) => {
     });
     
     yPosition = (doc as any).lastAutoTable.finalY + 10;
+  } else {
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('No active MDM narratives detected', margin, yPosition);
+    yPosition += 10;
   }
 
   // ===== EMERGING PREDICTIONS =====
-  if (data.emergingPredictions.length > 0) {
-    checkPageBreak(50);
-    drawSectionHeader('Emerging Narrative Predictions');
-    
+  checkPageBreak(50);
+  drawSectionHeader('Emerging Narrative Predictions');
+  
+  if (data.emergingPredictions && data.emergingPredictions.length > 0) {
     const predictionData = data.emergingPredictions.slice(0, 5).map(p => [
       p.narrative || p.prediction || '-',
       `${p.confidence || p.probability || 0}%`,
-      p.timeframe || '-'
+      p.timeframe || p.trajectory || '-'
     ]);
 
     autoTable(doc, {
       startY: yPosition,
-      head: [['Prediction', 'Confidence', 'Timeframe']],
+      head: [['Prediction', 'Confidence', 'Status']],
       body: predictionData,
       margin: { left: margin, right: margin },
       styles: { fontSize: 8, cellPadding: 2 },
@@ -247,54 +245,74 @@ export const exportToPDF = async (data: ExportData) => {
     });
     
     yPosition = (doc as any).lastAutoTable.finalY + 10;
+  } else {
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('No emerging predictions detected', margin, yPosition);
+    yPosition += 10;
   }
 
   // ===== KEYWORDS =====
   checkPageBreak(50);
   drawSectionHeader('Top Keywords');
   
-  const keywordData = data.keywords.slice(0, 15).map(k => [k.word, k.count.toString()]);
-  
-  autoTable(doc, {
-    startY: yPosition,
-    head: [['Keyword', 'Mentions']],
-    body: keywordData,
-    margin: { left: margin, right: margin },
-    styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [30, 30, 30], textColor: [255, 255, 255] },
-    columnStyles: {
-      0: { cellWidth: 'auto' },
-      1: { cellWidth: 30 }
-    }
-  });
-  
-  yPosition = (doc as any).lastAutoTable.finalY + 10;
+  if (data.keywords && data.keywords.length > 0) {
+    const keywordData = data.keywords.slice(0, 15).map(k => [k.word || '', (k.count || 0).toString()]);
+    
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Keyword', 'Mentions']],
+      body: keywordData,
+      margin: { left: margin, right: margin },
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [30, 30, 30], textColor: [255, 255, 255] },
+      columnStyles: {
+        0: { cellWidth: 'auto' },
+        1: { cellWidth: 30 }
+      }
+    });
+    
+    yPosition = (doc as any).lastAutoTable.finalY + 10;
+  } else {
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('No keywords extracted', margin, yPosition);
+    yPosition += 10;
+  }
 
   // ===== SOURCES =====
   checkPageBreak(50);
   drawSectionHeader('Data Sources');
   
-  const sourceData = data.sources.slice(0, 15).map(s => [
-    s.name,
-    s.count.toString(),
-    s.country || '-'
-  ]);
+  if (data.sources && data.sources.length > 0) {
+    const sourceData = data.sources.slice(0, 15).map(s => [
+      s.name || '',
+      (s.count || 0).toString(),
+      s.country || '-'
+    ]);
 
-  autoTable(doc, {
-    startY: yPosition,
-    head: [['Source', 'Mentions', 'Country']],
-    body: sourceData,
-    margin: { left: margin, right: margin },
-    styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [30, 30, 30], textColor: [255, 255, 255] }
-  });
-  
-  yPosition = (doc as any).lastAutoTable.finalY + 10;
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Source', 'Mentions', 'Country']],
+      body: sourceData,
+      margin: { left: margin, right: margin },
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [30, 30, 30], textColor: [255, 255, 255] }
+    });
+    
+    yPosition = (doc as any).lastAutoTable.finalY + 10;
+  } else {
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('No sources tracked', margin, yPosition);
+    yPosition += 10;
+  }
 
   // ===== KEY PEOPLE =====
-  if (data.people.length > 0) {
-    checkPageBreak(60);
-    drawSectionHeader('Key People Intelligence');
+  checkPageBreak(60);
+  drawSectionHeader('Key People Intelligence');
+  
+  if (data.people && data.people.length > 0) {
     
     const peopleData = data.people.map(person => {
       const mentions = data.personMentions[person.id] || { mention_count: 0, sentiment_score: 0 };
@@ -366,6 +384,11 @@ export const exportToPDF = async (data: ExportData) => {
         yPosition = (doc as any).lastAutoTable.finalY + 8;
       }
     }
+  } else {
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('No key people identified', margin, yPosition);
+    yPosition += 10;
   }
 
   // ===== FOOTER =====
