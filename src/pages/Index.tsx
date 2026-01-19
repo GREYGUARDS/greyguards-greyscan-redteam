@@ -36,6 +36,7 @@ import { DEMO_COMPANIES } from "@/lib/demoData";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { exportToPDF } from "@/lib/pdfExport";
 import { supabase } from "@/integrations/supabase/client";
+import { generateFallbackData } from "@/lib/fallbackData";
 import html2canvas from "html2canvas";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -383,16 +384,33 @@ const Index = () => {
       
       setSources(Object.values(sourceStats));
 
+      // Check if we should use fallback data (all APIs failed)
+      let useFallback = false;
+      let fallbackData = null;
+      
       if (mentions.length === 0) {
+        console.log("All APIs failed or returned no data - using fallback demo data");
+        useFallback = true;
+        fallbackData = generateFallbackData(brandName);
+        
         toast({
-          title: "No results",
-          description: "No mentions found for this brand",
+          title: "Using demo data",
+          description: "APIs unavailable - showing sample intelligence data",
         });
-        setLoading(false);
-        return;
       }
 
-      setAllMentions(mentions);
+      // Use either real data or fallback
+      const finalMentions = useFallback && fallbackData ? fallbackData.mentions : mentions;
+      setAllMentions(finalMentions);
+      
+      if (useFallback && fallbackData) {
+        // Set fallback data for all dashboard components
+        setTrendsData(fallbackData.trendsData);
+        setSources(fallbackData.sources);
+        setGdeltEntities(fallbackData.gdeltEntities);
+        setGdeltLocations(fallbackData.gdeltLocations);
+        setGdeltThemes(fallbackData.gdeltThemes);
+      }
       
       if (!userId) {
         toast({
@@ -410,7 +428,13 @@ const Index = () => {
         brand_name: brandName,
       }, { onConflict: 'user_id,brand_name' });
 
-      const analysis = await analyzeSentiment(mentions, brandName, userId);
+      // Use fallback analysis or run real sentiment analysis
+      let analysis: AnalysisResult;
+      if (useFallback && fallbackData) {
+        analysis = fallbackData.analysis;
+      } else {
+        analysis = await analyzeSentiment(finalMentions, brandName, userId);
+      }
       setResults(analysis);
 
       // Get fresh session for authorization (used by multiple edge function calls)
@@ -419,39 +443,48 @@ const Index = () => {
         throw new Error("No active session");
       }
 
-      // Analyze MDM narratives using AI
+      // Analyze MDM narratives using AI (skip if using fallback data)
       setMdmLoading(true);
       let mdmResults: any[] = [];
-      try {
-        const { data: mdmData, error: mdmError } = await supabase.functions.invoke("analyze-mdm-narratives", {
-          body: { brand: brandName, mentions },
-          headers: {
-            Authorization: `Bearer ${currentSession.access_token}`
-          }
-        });
-        
-        if (!mdmError && mdmData?.narratives) {
-          setMdmNarratives(mdmData.narratives);
-          mdmResults = mdmData.narratives;
-          
-          // Handle alerts
-          if (mdmData.alerts && mdmData.alerts.length > 0) {
-            setMdmAlerts(mdmData.alerts);
-            toast({
-              title: `${mdmData.alerts.length} MDM Alert${mdmData.alerts.length > 1 ? 's' : ''}`,
-              description: "New or surging narratives detected",
-              variant: "destructive",
-            });
-          }
-        } else {
-          console.warn("MDM analysis failed:", mdmError);
-          setMdmNarratives([]);
-        }
-      } catch (mdmErr) {
-        console.error("MDM analysis error:", mdmErr);
-        setMdmNarratives([]);
-      } finally {
+      
+      if (useFallback && fallbackData) {
+        // Use fallback MDM data
+        setMdmNarratives(fallbackData.mdmNarratives);
+        setEmergingPredictions(fallbackData.emergingPredictions);
+        mdmResults = fallbackData.mdmNarratives;
         setMdmLoading(false);
+      } else {
+        try {
+          const { data: mdmData, error: mdmError } = await supabase.functions.invoke("analyze-mdm-narratives", {
+            body: { brand: brandName, mentions },
+            headers: {
+              Authorization: `Bearer ${currentSession.access_token}`
+            }
+          });
+          
+          if (!mdmError && mdmData?.narratives) {
+            setMdmNarratives(mdmData.narratives);
+            mdmResults = mdmData.narratives;
+            
+            // Handle alerts
+            if (mdmData.alerts && mdmData.alerts.length > 0) {
+              setMdmAlerts(mdmData.alerts);
+              toast({
+                title: `${mdmData.alerts.length} MDM Alert${mdmData.alerts.length > 1 ? 's' : ''}`,
+                description: "New or surging narratives detected",
+                variant: "destructive",
+              });
+            }
+          } else {
+            console.warn("MDM analysis failed:", mdmError);
+            setMdmNarratives([]);
+          }
+        } catch (mdmErr) {
+          console.error("MDM analysis error:", mdmErr);
+          setMdmNarratives([]);
+        } finally {
+          setMdmLoading(false);
+        }
       }
       
       // Fetch existing alerts for this brand (all, not just unread)
@@ -470,36 +503,42 @@ const Index = () => {
         console.error("Error fetching existing alerts:", err);
       }
 
-      // Analyze emerging narratives using AI
-      setPredictionsLoading(true);
-      try {
-        const { data: predData, error: predError } = await supabase.functions.invoke("analyze-emerging-narratives", {
-          body: { brand: brandName, mentions, mdmNarratives: mdmResults },
-          headers: {
-            Authorization: `Bearer ${currentSession.access_token}`
+      // Analyze emerging narratives using AI (skip if using fallback - already set above)
+      if (!useFallback) {
+        setPredictionsLoading(true);
+        try {
+          const { data: predData, error: predError } = await supabase.functions.invoke("analyze-emerging-narratives", {
+            body: { brand: brandName, mentions, mdmNarratives: mdmResults },
+            headers: {
+              Authorization: `Bearer ${currentSession.access_token}`
+            }
+          });
+          
+          if (!predError && predData?.predictions) {
+            setEmergingPredictions(predData.predictions);
+          } else {
+            console.warn("Emerging narratives analysis failed:", predError);
+            setEmergingPredictions([]);
           }
-        });
-        
-        if (!predError && predData?.predictions) {
-          setEmergingPredictions(predData.predictions);
-        } else {
-          console.warn("Emerging narratives analysis failed:", predError);
+        } catch (predErr) {
+          console.error("Emerging narratives error:", predErr);
           setEmergingPredictions([]);
+        } finally {
+          setPredictionsLoading(false);
         }
-      } catch (predErr) {
-        console.error("Emerging narratives error:", predErr);
-        setEmergingPredictions([]);
-      } finally {
-        setPredictionsLoading(false);
       }
 
-      // Cache results
-      localStorage.setItem(cacheKey, JSON.stringify(analysis));
-      localStorage.setItem(`${cacheKey}_time`, Date.now().toString());
+      // Cache results (skip caching fallback data)
+      if (!useFallback) {
+        localStorage.setItem(cacheKey, JSON.stringify(analysis));
+        localStorage.setItem(`${cacheKey}_time`, Date.now().toString());
+      }
 
       toast({
-        title: "Analysis complete",
-        description: `Found ${mentions.length} mentions`,
+        title: useFallback ? "Demo data loaded" : "Analysis complete",
+        description: useFallback 
+          ? `Showing sample data for "${brandName}" (APIs unavailable)`
+          : `Found ${finalMentions.length} mentions`,
       });
     } catch (error: any) {
       console.error("Search error:", error);
