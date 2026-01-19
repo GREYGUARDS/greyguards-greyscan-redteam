@@ -282,16 +282,17 @@ export const exportToPDF = async (data: ExportData) => {
   yPosition += 15;
 
   // ===== THREAT ASSESSMENT WITH GAUGE =====
+  checkPageBreak(70);
   drawSectionHeader('Threat Assessment');
   
   // Draw threat gauge
   const gaugeX = margin + 40;
-  const gaugeY = yPosition + 20;
-  const gaugeRadius = 30;
+  const gaugeY = yPosition + 25;
+  const gaugeRadius = 25;
   
   // Draw gauge background arc (semi-circle)
   doc.setDrawColor(220, 220, 220);
-  doc.setLineWidth(8);
+  doc.setLineWidth(6);
   
   // Draw background arc segments
   const arcSteps = 20;
@@ -329,17 +330,17 @@ export const exportToPDF = async (data: ExportData) => {
   
   // Draw score in center
   doc.setLineWidth(0.5);
-  doc.setFontSize(16);
+  doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...threatColor);
-  doc.text(data.threatScore.toString(), gaugeX, gaugeY + 5, { align: 'center' });
+  doc.text(data.threatScore.toString(), gaugeX, gaugeY + 3, { align: 'center' });
   
   // Draw threat level label below gauge
   doc.setFillColor(...threatColor);
-  doc.roundedRect(gaugeX - 25, gaugeY + 10, 50, 12, 2, 2, 'F');
+  doc.roundedRect(gaugeX - 22, gaugeY + 8, 44, 10, 2, 2, 'F');
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(8);
-  doc.text(data.threatLevel.toUpperCase(), gaugeX, gaugeY + 18, { align: 'center' });
+  doc.setFontSize(7);
+  doc.text(data.threatLevel.toUpperCase(), gaugeX, gaugeY + 15, { align: 'center' });
   
   // Draw gauge labels
   doc.setFontSize(6);
@@ -349,26 +350,27 @@ export const exportToPDF = async (data: ExportData) => {
   
   // Sentiment summary next to gauge
   doc.setTextColor(0, 0, 0);
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   
-  const summaryX = gaugeX + gaugeRadius + 30;
-  doc.text(`Total Mentions: ${data.totalMentions}`, summaryX, yPosition + 8);
-  doc.text(`Positive: ${total > 0 ? Math.round(positive / total * 100) : 0}%`, summaryX, yPosition + 16);
-  doc.text(`Neutral: ${total > 0 ? Math.round(neutral / total * 100) : 0}%`, summaryX + 40, yPosition + 16);
-  doc.text(`Negative: ${total > 0 ? Math.round(negative / total * 100) : 0}%`, summaryX, yPosition + 24);
-  doc.text(`Short-term: ${data.shortTermSentiment > 0 ? '+' : ''}${data.shortTermSentiment.toFixed(1)}`, summaryX, yPosition + 32);
-  doc.text(`Long-term: ${data.longTermSentiment > 0 ? '+' : ''}${data.longTermSentiment.toFixed(1)}`, summaryX + 40, yPosition + 32);
+  const summaryX = gaugeX + gaugeRadius + 25;
+  doc.text(`Total Mentions: ${data.totalMentions}`, summaryX, yPosition + 5);
+  doc.text(`Positive: ${total > 0 ? Math.round(positive / total * 100) : 0}%`, summaryX, yPosition + 14);
+  doc.text(`Neutral: ${total > 0 ? Math.round(neutral / total * 100) : 0}%`, summaryX + 35, yPosition + 14);
+  doc.text(`Negative: ${total > 0 ? Math.round(negative / total * 100) : 0}%`, summaryX + 70, yPosition + 14);
+  doc.text(`Short-term: ${data.shortTermSentiment > 0 ? '+' : ''}${data.shortTermSentiment.toFixed(1)}`, summaryX, yPosition + 23);
+  doc.text(`Long-term: ${data.longTermSentiment > 0 ? '+' : ''}${data.longTermSentiment.toFixed(1)}`, summaryX + 45, yPosition + 23);
   
-  yPosition += 50;
+  yPosition += 55;
 
   // ===== SENTIMENT PIE CHART =====
   if (total > 0) {
+    checkPageBreak(80);
     drawSectionHeader('Sentiment Distribution');
     
-    const pieRadius = 25;
+    const pieRadius = 22;
     const pieCenterX = margin + pieRadius + 10;
-    const pieCenterY = yPosition + pieRadius;
+    const pieCenterY = yPosition + pieRadius + 5;
     
     // Pie chart colors
     const pieColors: { name: string; color: [number, number, number] }[] = [
@@ -390,43 +392,8 @@ export const exportToPDF = async (data: ExportData) => {
       const sliceAngle = (segment.value / total) * 2 * Math.PI;
       const endAngle = startAngle + sliceAngle;
       
-      // Draw pie slice using path
+      // Draw pie slice using triangles
       doc.setFillColor(...segment.color);
-      
-      // Create arc path manually
-      const steps = 30;
-      const path: [number, number][] = [[pieCenterX, pieCenterY]];
-      
-      for (let i = 0; i <= steps; i++) {
-        const angle = startAngle + (sliceAngle * i) / steps;
-        const x = pieCenterX + Math.cos(angle) * pieRadius;
-        const y = pieCenterY + Math.sin(angle) * pieRadius;
-        path.push([x, y]);
-      }
-      path.push([pieCenterX, pieCenterY]);
-      
-      // Draw the slice
-      doc.setDrawColor(255, 255, 255);
-      doc.setLineWidth(0.5);
-      
-      // Move to center, arc around, back to center
-      let pathStr = '';
-      path.forEach((point, idx) => {
-        if (idx === 0) {
-          pathStr = `${point[0]} ${point[1]} m `;
-        } else {
-          pathStr += `${point[0]} ${point[1]} l `;
-        }
-      });
-      
-      // Use triangle approximation for pie slices
-      const midAngle = startAngle + sliceAngle / 2;
-      doc.triangle(
-        pieCenterX, pieCenterY,
-        pieCenterX + Math.cos(startAngle) * pieRadius, pieCenterY + Math.sin(startAngle) * pieRadius,
-        pieCenterX + Math.cos(endAngle) * pieRadius, pieCenterY + Math.sin(endAngle) * pieRadius,
-        'F'
-      );
       
       // Fill the arc with small triangles for smooth appearance
       const arcSteps = Math.max(5, Math.ceil(sliceAngle * 10));
@@ -444,38 +411,39 @@ export const exportToPDF = async (data: ExportData) => {
       startAngle = endAngle;
     });
     
-    // Draw legend
-    const legendX = pieCenterX + pieRadius + 20;
-    let legendY = yPosition + 5;
+    // Draw legend to the right of pie
+    const legendX = pieCenterX + pieRadius + 15;
+    let legendY = yPosition + 8;
     
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     segments.forEach(segment => {
       doc.setFillColor(...segment.color);
-      doc.rect(legendX, legendY - 3, 8, 8, 'F');
+      doc.rect(legendX, legendY - 3, 6, 6, 'F');
       doc.setTextColor(0, 0, 0);
       const percent = Math.round((segment.value / total) * 100);
-      doc.text(`${segment.name}: ${percent}% (${segment.value})`, legendX + 12, legendY + 3);
-      legendY += 12;
+      doc.text(`${segment.name}: ${percent}% (${segment.value})`, legendX + 10, legendY + 2);
+      legendY += 10;
     });
     
-    yPosition = pieCenterY + pieRadius + 15;
+    yPosition = pieCenterY + pieRadius + 12;
   }
 
 
   // ===== TIMELINE CHART =====
   if (data.timeline && data.timeline.length > 0) {
-    checkPageBreak(100);
+    checkPageBreak(90);
     drawSectionHeader('Mention Timeline');
     
-    const chartWidth = pageWidth - 2 * margin;
-    const chartHeight = 60;
-    const chartX = margin;
+    const chartWidth = pageWidth - 2 * margin - 10;
+    const chartHeight = 50;
+    const chartX = margin + 10;
     const chartY = yPosition;
     
     // Draw chart background
     doc.setFillColor(248, 248, 248);
     doc.rect(chartX, chartY, chartWidth, chartHeight, 'F');
     doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.3);
     doc.rect(chartX, chartY, chartWidth, chartHeight, 'S');
     
     // Get data range
@@ -494,11 +462,11 @@ export const exportToPDF = async (data: ExportData) => {
     
     // Draw the line chart
     doc.setDrawColor(59, 130, 246); // Blue color
-    doc.setLineWidth(1.5);
+    doc.setLineWidth(1.2);
     
     const points: [number, number][] = data.timeline.map((point, index) => {
       const x = chartX + (index / (data.timeline.length - 1 || 1)) * chartWidth;
-      const y = chartY + chartHeight - ((point.mentions - minMentions) / range) * (chartHeight - 10) - 5;
+      const y = chartY + chartHeight - ((point.mentions - minMentions) / range) * (chartHeight - 8) - 4;
       return [x, y];
     });
     
@@ -510,34 +478,35 @@ export const exportToPDF = async (data: ExportData) => {
     // Draw data points
     doc.setFillColor(59, 130, 246);
     points.forEach(([x, y]) => {
-      doc.circle(x, y, 1.5, 'F');
+      doc.circle(x, y, 1.2, 'F');
     });
     
     // Draw Y-axis labels
-    doc.setFontSize(7);
+    doc.setFontSize(6);
     doc.setTextColor(100, 100, 100);
-    doc.text(maxMentions.toString(), chartX - 2, chartY + 5, { align: 'right' });
-    doc.text(minMentions.toString(), chartX - 2, chartY + chartHeight - 2, { align: 'right' });
+    doc.text(maxMentions.toString(), chartX - 2, chartY + 4, { align: 'right' });
+    doc.text(minMentions.toString(), chartX - 2, chartY + chartHeight - 1, { align: 'right' });
     
     // Draw X-axis labels (first and last dates)
     const firstDate = data.timeline[0]?.date || '';
     const lastDate = data.timeline[data.timeline.length - 1]?.date || '';
-    doc.text(firstDate.slice(5), chartX, chartY + chartHeight + 8); // MM-DD format
-    doc.text(lastDate.slice(5), chartX + chartWidth, chartY + chartHeight + 8, { align: 'right' });
+    doc.text(firstDate.slice(5), chartX, chartY + chartHeight + 6); // MM-DD format
+    doc.text(lastDate.slice(5), chartX + chartWidth, chartY + chartHeight + 6, { align: 'right' });
     
     doc.setTextColor(0, 0, 0);
-    yPosition = chartY + chartHeight + 15;
+    yPosition = chartY + chartHeight + 12;
   }
 
 
-// ===== MDM NARRATIVES =====
+  // ===== MDM NARRATIVES =====
+  checkPageBreak(60);
   drawSectionHeader('Active MDM Narratives');
   
   if (data.mdmNarratives && data.mdmNarratives.length > 0) {
-    const narrativeData = data.mdmNarratives.slice(0, 10).map(n => [
+    const narrativeData = data.mdmNarratives.slice(0, 8).map(n => [
       (n.narrative_type || 'Unknown').toUpperCase(),
       (n.severity || 'Unknown').toUpperCase(),
-      (n.narrative_description || '').substring(0, 80) + ((n.narrative_description?.length || 0) > 80 ? '...' : ''),
+      (n.narrative_description || '').substring(0, 70) + ((n.narrative_description?.length || 0) > 70 ? '...' : ''),
       n.frequency?.toString() || '-'
     ]);
 
@@ -546,13 +515,13 @@ export const exportToPDF = async (data: ExportData) => {
       head: [['Type', 'Severity', 'Description', 'Freq']],
       body: narrativeData,
       margin: { left: margin, right: margin },
-      styles: { fontSize: 8, cellPadding: 2 },
+      styles: { fontSize: 7, cellPadding: 2 },
       headStyles: { fillColor: [30, 30, 30], textColor: [255, 255, 255] },
       columnStyles: {
-        0: { cellWidth: 25 },
-        1: { cellWidth: 20 },
+        0: { cellWidth: 22 },
+        1: { cellWidth: 18 },
         2: { cellWidth: 'auto' },
-        3: { cellWidth: 15 }
+        3: { cellWidth: 12 }
       },
       didParseCell: (hookData) => {
         if (hookData.section === 'body' && hookData.column.index === 1) {
@@ -563,16 +532,16 @@ export const exportToPDF = async (data: ExportData) => {
       }
     });
     
-    yPosition = (doc as any).lastAutoTable.finalY + 10;
+    yPosition = (doc as any).lastAutoTable.finalY + 8;
   } else {
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.text('No active MDM narratives detected', margin, yPosition);
-    yPosition += 10;
+    yPosition += 8;
   }
 
   // ===== EMERGING PREDICTIONS =====
-  checkPageBreak(50);
+  checkPageBreak(45);
   drawSectionHeader('Emerging Narrative Predictions');
   
   if (data.emergingPredictions && data.emergingPredictions.length > 0) {
@@ -587,220 +556,220 @@ export const exportToPDF = async (data: ExportData) => {
       head: [['Prediction', 'Confidence', 'Status']],
       body: predictionData,
       margin: { left: margin, right: margin },
-      styles: { fontSize: 8, cellPadding: 2 },
+      styles: { fontSize: 7, cellPadding: 2 },
       headStyles: { fillColor: [30, 30, 30], textColor: [255, 255, 255] }
     });
     
-    yPosition = (doc as any).lastAutoTable.finalY + 10;
+    yPosition = (doc as any).lastAutoTable.finalY + 8;
   } else {
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.text('No emerging predictions detected', margin, yPosition);
-    yPosition += 10;
+    yPosition += 8;
   }
 
   // ===== KEYWORDS BAR CHART =====
-  checkPageBreak(90);
+  checkPageBreak(80);
   drawSectionHeader('Top Keywords');
   
   if (data.keywords && data.keywords.length > 0) {
-    const topKeywords = data.keywords.slice(0, 10);
+    const topKeywords = data.keywords.slice(0, 8);
     const maxCount = Math.max(...topKeywords.map(k => k.count), 1);
     const barChartX = margin;
     const barChartWidth = pageWidth - 2 * margin;
-    const barHeight = 6;
+    const barHeight = 5;
     const barSpacing = 2;
     
     topKeywords.forEach((keyword, index) => {
       const barY = yPosition + index * (barHeight + barSpacing);
-      const barWidth = (keyword.count / maxCount) * (barChartWidth - 60);
+      const barWidth = (keyword.count / maxCount) * (barChartWidth - 55);
+      
+      // Draw bar background
+      doc.setFillColor(240, 240, 240);
+      doc.rect(barChartX + 45, barY, barChartWidth - 55, barHeight, 'F');
+      
+      // Draw bar
+      doc.setFillColor(59, 130, 246);
+      doc.rect(barChartX + 45, barY, barWidth, barHeight, 'F');
+      
+      // Draw label
+      doc.setFontSize(6);
+      doc.setTextColor(0, 0, 0);
+      const labelText = keyword.word.length > 10 ? keyword.word.substring(0, 10) + '...' : keyword.word;
+      doc.text(labelText, barChartX, barY + 4);
+      
+      // Draw count
+      doc.setTextColor(100, 100, 100);
+      doc.text(keyword.count.toString(), barChartX + barChartWidth - 5, barY + 4, { align: 'right' });
+    });
+    
+    yPosition += topKeywords.length * (barHeight + barSpacing) + 8;
+  } else {
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('No keywords extracted', margin, yPosition);
+    yPosition += 8;
+  }
+
+  // ===== GDELT ENTITIES BAR CHART =====
+  if (data.gdeltEntities && data.gdeltEntities.length > 0) {
+    checkPageBreak(70);
+    drawSectionHeader('Key Entities (GDELT)');
+    
+    const topEntities = data.gdeltEntities.slice(0, 6);
+    const maxCount = Math.max(...topEntities.map(e => e.count), 1);
+    const barChartX = margin;
+    const barChartWidth = pageWidth - 2 * margin;
+    const barHeight = 5;
+    const barSpacing = 2;
+    
+    topEntities.forEach((entity, index) => {
+      const barY = yPosition + index * (barHeight + barSpacing);
+      const barWidth = (entity.count / maxCount) * (barChartWidth - 60);
       
       // Draw bar background
       doc.setFillColor(240, 240, 240);
       doc.rect(barChartX + 50, barY, barChartWidth - 60, barHeight, 'F');
       
-      // Draw bar
-      doc.setFillColor(59, 130, 246);
+      // Draw bar (purple color)
+      doc.setFillColor(147, 51, 234);
       doc.rect(barChartX + 50, barY, barWidth, barHeight, 'F');
       
       // Draw label
-      doc.setFontSize(7);
+      doc.setFontSize(6);
       doc.setTextColor(0, 0, 0);
-      const labelText = keyword.word.length > 12 ? keyword.word.substring(0, 12) + '...' : keyword.word;
-      doc.text(labelText, barChartX, barY + 5);
+      const labelText = entity.name.length > 12 ? entity.name.substring(0, 12) + '...' : entity.name;
+      doc.text(labelText, barChartX, barY + 4);
       
       // Draw count
       doc.setTextColor(100, 100, 100);
-      doc.text(keyword.count.toString(), barChartX + barChartWidth - 5, barY + 5, { align: 'right' });
+      doc.text(entity.count.toString(), barChartX + barChartWidth - 5, barY + 4, { align: 'right' });
     });
     
-    yPosition += topKeywords.length * (barHeight + barSpacing) + 10;
-  } else {
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text('No keywords extracted', margin, yPosition);
-    yPosition += 10;
-  }
-
-  // ===== GDELT ENTITIES BAR CHART =====
-  if (data.gdeltEntities && data.gdeltEntities.length > 0) {
-    checkPageBreak(90);
-    drawSectionHeader('Key Entities (GDELT)');
-    
-    const topEntities = data.gdeltEntities.slice(0, 8);
-    const maxCount = Math.max(...topEntities.map(e => e.count), 1);
-    const barChartX = margin;
-    const barChartWidth = pageWidth - 2 * margin;
-    const barHeight = 6;
-    const barSpacing = 2;
-    
-    topEntities.forEach((entity, index) => {
-      const barY = yPosition + index * (barHeight + barSpacing);
-      const barWidth = (entity.count / maxCount) * (barChartWidth - 70);
-      
-      // Draw bar background
-      doc.setFillColor(240, 240, 240);
-      doc.rect(barChartX + 60, barY, barChartWidth - 70, barHeight, 'F');
-      
-      // Draw bar (purple color)
-      doc.setFillColor(147, 51, 234);
-      doc.rect(barChartX + 60, barY, barWidth, barHeight, 'F');
-      
-      // Draw label
-      doc.setFontSize(7);
-      doc.setTextColor(0, 0, 0);
-      const labelText = entity.name.length > 15 ? entity.name.substring(0, 15) + '...' : entity.name;
-      doc.text(labelText, barChartX, barY + 5);
-      
-      // Draw count
-      doc.setTextColor(100, 100, 100);
-      doc.text(entity.count.toString(), barChartX + barChartWidth - 5, barY + 5, { align: 'right' });
-    });
-    
-    yPosition += topEntities.length * (barHeight + barSpacing) + 10;
+    yPosition += topEntities.length * (barHeight + barSpacing) + 8;
   }
 
   // ===== GDELT THEMES BAR CHART =====
   if (data.gdeltThemes && data.gdeltThemes.length > 0) {
-    checkPageBreak(90);
+    checkPageBreak(70);
     drawSectionHeader('Top Themes (GDELT)');
     
-    const topThemes = data.gdeltThemes.slice(0, 8);
+    const topThemes = data.gdeltThemes.slice(0, 6);
     const maxCount = Math.max(...topThemes.map(t => t.count), 1);
     const barChartX = margin;
     const barChartWidth = pageWidth - 2 * margin;
-    const barHeight = 6;
+    const barHeight = 5;
     const barSpacing = 2;
     
     topThemes.forEach((theme, index) => {
       const barY = yPosition + index * (barHeight + barSpacing);
-      const barWidth = (theme.count / maxCount) * (barChartWidth - 80);
+      const barWidth = (theme.count / maxCount) * (barChartWidth - 65);
       
       // Draw bar background
       doc.setFillColor(240, 240, 240);
-      doc.rect(barChartX + 70, barY, barChartWidth - 80, barHeight, 'F');
+      doc.rect(barChartX + 55, barY, barChartWidth - 65, barHeight, 'F');
       
       // Draw bar (orange color)
       doc.setFillColor(249, 115, 22);
-      doc.rect(barChartX + 70, barY, barWidth, barHeight, 'F');
+      doc.rect(barChartX + 55, barY, barWidth, barHeight, 'F');
       
       // Draw label
-      doc.setFontSize(7);
+      doc.setFontSize(6);
       doc.setTextColor(0, 0, 0);
-      const labelText = theme.name.replace(/_/g, ' ').length > 18 ? 
-        theme.name.replace(/_/g, ' ').substring(0, 18) + '...' : 
+      const labelText = theme.name.replace(/_/g, ' ').length > 14 ? 
+        theme.name.replace(/_/g, ' ').substring(0, 14) + '...' : 
         theme.name.replace(/_/g, ' ');
-      doc.text(labelText, barChartX, barY + 5);
+      doc.text(labelText, barChartX, barY + 4);
       
       // Draw count
       doc.setTextColor(100, 100, 100);
-      doc.text(theme.count.toString(), barChartX + barChartWidth - 5, barY + 5, { align: 'right' });
+      doc.text(theme.count.toString(), barChartX + barChartWidth - 5, barY + 4, { align: 'right' });
     });
     
-    yPosition += topThemes.length * (barHeight + barSpacing) + 10;
+    yPosition += topThemes.length * (barHeight + barSpacing) + 8;
   }
 
   // ===== GDELT LOCATIONS =====
   if (data.gdeltLocations && data.gdeltLocations.length > 0) {
-    checkPageBreak(70);
+    checkPageBreak(60);
     drawSectionHeader('Geographic Distribution (GDELT)');
     
-    const topLocations = data.gdeltLocations.slice(0, 10);
+    const topLocations = data.gdeltLocations.slice(0, 8);
     const maxCount = Math.max(...topLocations.map(l => l.count), 1);
     
     // Draw horizontal bar chart for locations
     const barChartX = margin;
     const barChartWidth = pageWidth - 2 * margin;
-    const barHeight = 5;
+    const barHeight = 4;
     const barSpacing = 2;
     
     topLocations.forEach((location, index) => {
       const barY = yPosition + index * (barHeight + barSpacing);
-      const barWidth = (location.count / maxCount) * (barChartWidth - 60);
+      const barWidth = (location.count / maxCount) * (barChartWidth - 50);
       
       // Draw bar background
       doc.setFillColor(240, 240, 240);
-      doc.rect(barChartX + 50, barY, barChartWidth - 60, barHeight, 'F');
+      doc.rect(barChartX + 40, barY, barChartWidth - 50, barHeight, 'F');
       
       // Draw bar (teal color)
       doc.setFillColor(20, 184, 166);
-      doc.rect(barChartX + 50, barY, barWidth, barHeight, 'F');
+      doc.rect(barChartX + 40, barY, barWidth, barHeight, 'F');
       
       // Draw label
-      doc.setFontSize(7);
+      doc.setFontSize(6);
       doc.setTextColor(0, 0, 0);
-      const labelText = location.name.length > 12 ? location.name.substring(0, 12) + '...' : location.name;
-      doc.text(labelText, barChartX, barY + 4);
+      const labelText = location.name.length > 10 ? location.name.substring(0, 10) + '...' : location.name;
+      doc.text(labelText, barChartX, barY + 3);
       
       // Draw count
       doc.setTextColor(100, 100, 100);
-      doc.text(location.count.toString(), barChartX + barChartWidth - 5, barY + 4, { align: 'right' });
+      doc.text(location.count.toString(), barChartX + barChartWidth - 5, barY + 3, { align: 'right' });
     });
     
-    yPosition += topLocations.length * (barHeight + barSpacing) + 10;
+    yPosition += topLocations.length * (barHeight + barSpacing) + 8;
   }
 
   // ===== SOURCES BAR CHART =====
-  checkPageBreak(70);
+  checkPageBreak(60);
   drawSectionHeader('Data Sources');
   
   if (data.sources && data.sources.length > 0) {
-    const topSources = data.sources.slice(0, 10);
+    const topSources = data.sources.slice(0, 8);
     const maxCount = Math.max(...topSources.map(s => s.count), 1);
     const barChartX = margin;
     const barChartWidth = pageWidth - 2 * margin;
-    const barHeight = 5;
+    const barHeight = 4;
     const barSpacing = 2;
     
     topSources.forEach((source, index) => {
       const barY = yPosition + index * (barHeight + barSpacing);
-      const barWidth = (source.count / maxCount) * (barChartWidth - 60);
+      const barWidth = (source.count / maxCount) * (barChartWidth - 50);
       
       // Draw bar background
       doc.setFillColor(240, 240, 240);
-      doc.rect(barChartX + 50, barY, barChartWidth - 60, barHeight, 'F');
+      doc.rect(barChartX + 40, barY, barChartWidth - 50, barHeight, 'F');
       
       // Draw bar (green color)
       doc.setFillColor(34, 197, 94);
-      doc.rect(barChartX + 50, barY, barWidth, barHeight, 'F');
+      doc.rect(barChartX + 40, barY, barWidth, barHeight, 'F');
       
       // Draw label
-      doc.setFontSize(7);
+      doc.setFontSize(6);
       doc.setTextColor(0, 0, 0);
-      const labelText = source.name.length > 12 ? source.name.substring(0, 12) + '...' : source.name;
-      doc.text(labelText, barChartX, barY + 4);
+      const labelText = source.name.length > 10 ? source.name.substring(0, 10) + '...' : source.name;
+      doc.text(labelText, barChartX, barY + 3);
       
       // Draw count
       doc.setTextColor(100, 100, 100);
-      doc.text(source.count.toString(), barChartX + barChartWidth - 5, barY + 4, { align: 'right' });
+      doc.text(source.count.toString(), barChartX + barChartWidth - 5, barY + 3, { align: 'right' });
     });
     
-    yPosition += topSources.length * (barHeight + barSpacing) + 10;
+    yPosition += topSources.length * (barHeight + barSpacing) + 8;
   } else {
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.text('No sources tracked', margin, yPosition);
-    yPosition += 10;
+    yPosition += 8;
   }
 
   // ===== KEY PEOPLE =====
