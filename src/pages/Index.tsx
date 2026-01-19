@@ -31,6 +31,7 @@ import { BrandPeopleList } from "@/components/BrandPeopleList";
 import { DemoModeSelector } from "@/components/DemoModeSelector";
 import { TrackedStories } from "@/components/TrackedStories";
 import { DemoSocialMentions } from "@/components/DemoSocialMentions";
+import { KeyPeopleSummary } from "@/components/KeyPeopleSummary";
 import { DEMO_COMPANIES } from "@/lib/demoData";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { supabase } from "@/integrations/supabase/client";
@@ -981,6 +982,15 @@ const Index = () => {
 
                 {/* Sources Table */}
                 <SourcesTable sources={sources} />
+
+                {/* Demo Mode: Key People Summary for Report */}
+                {demoMode && brandPeople.length > 0 && (
+                  <KeyPeopleSummary
+                    people={brandPeople}
+                    mentions={personMentions}
+                    narratives={personNarratives}
+                  />
+                )}
               </TabsContent>
 
               {demoMode && (
