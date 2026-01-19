@@ -35,23 +35,25 @@ const typeIcons: Record<string, React.ElementType> = {
 };
 
 const typeColors: Record<string, string> = {
-  social: 'text-blue-400',
-  news: 'text-amber-400',
-  tech: 'text-purple-400',
-  global: 'text-cyan-400',
-  search: 'text-green-400',
+  social: 'text-primary',
+  news: 'text-warning',
+  tech: 'text-accent-foreground',
+  global: 'text-success',
+  search: 'text-muted-foreground',
 };
 
 export const APIStatusPanel = ({ apiStatuses, isLoading }: APIStatusPanelProps) => {
   const successCount = apiStatuses.filter(api => api.status === 'success').length;
   const failedCount = apiStatuses.filter(api => api.status === 'failed').length;
+  const loadingCount = apiStatuses.filter(api => api.status === 'loading').length;
   const totalMentions = apiStatuses.reduce((sum, api) => sum + api.count, 0);
   const sourcesWithComments = apiStatuses.filter(api => api.hasComments && api.status === 'success').length;
 
   const sortedStatuses = [...apiStatuses].sort((a, b) => {
-    // Sort by status (success first), then by count
-    if (a.status === 'success' && b.status !== 'success') return -1;
-    if (a.status !== 'success' && b.status === 'success') return 1;
+    // Sort by status: loading first (to show progress), then success, then failed
+    const statusOrder = { loading: 0, success: 1, failed: 2, pending: 3 };
+    const orderDiff = statusOrder[a.status] - statusOrder[b.status];
+    if (orderDiff !== 0) return orderDiff;
     return b.count - a.count;
   });
 
@@ -91,6 +93,12 @@ export const APIStatusPanel = ({ apiStatuses, isLoading }: APIStatusPanelProps) 
             {isLoading && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
           </span>
           <div className="flex items-center gap-2 text-sm font-mono">
+            {loadingCount > 0 && (
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 animate-pulse">
+                <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                {loadingCount} Loading
+              </Badge>
+            )}
             <Badge variant="outline" className="bg-success/10 text-success border-success/30">
               {successCount} Connected
             </Badge>
@@ -103,6 +111,22 @@ export const APIStatusPanel = ({ apiStatuses, isLoading }: APIStatusPanelProps) 
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-4 space-y-4">
+        {/* Progress Bar - only show while loading */}
+        {loadingCount > 0 && (
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs text-muted-foreground uppercase tracking-wider">
+              <span>Fetching data sources...</span>
+              <span>{successCount + failedCount} / {apiStatuses.length} complete</span>
+            </div>
+            <div className="h-2 bg-muted border border-border overflow-hidden">
+              <div 
+                className="h-full bg-primary transition-all duration-300 ease-out"
+                style={{ width: `${((successCount + failedCount) / apiStatuses.length) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Quick Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="p-3 bg-success/10 border-2 border-success/30 text-center">
@@ -113,8 +137,8 @@ export const APIStatusPanel = ({ apiStatuses, isLoading }: APIStatusPanelProps) 
             <div className="text-xl font-bold text-primary font-mono">{totalMentions.toLocaleString()}</div>
             <div className="text-xs uppercase tracking-wider text-muted-foreground">Total Hits</div>
           </div>
-          <div className="p-3 bg-blue-500/10 border-2 border-blue-500/30 text-center">
-            <div className="text-xl font-bold text-blue-400 font-mono">{sourcesWithComments}</div>
+          <div className="p-3 border-2 border-accent/30 bg-accent/10 text-center">
+            <div className="text-xl font-bold text-accent-foreground font-mono">{sourcesWithComments}</div>
             <div className="text-xs uppercase tracking-wider text-muted-foreground">With Comments</div>
           </div>
           <div className="p-3 bg-muted border-2 border-border text-center">
@@ -138,7 +162,7 @@ export const APIStatusPanel = ({ apiStatuses, isLoading }: APIStatusPanelProps) 
                     <div className="flex items-center gap-1.5">
                       <span className="font-semibold text-sm truncate">{api.name}</span>
                       {api.hasComments && (
-                        <MessageSquare className="h-3 w-3 text-blue-400 flex-shrink-0" />
+                        <MessageSquare className="h-3 w-3 text-accent-foreground flex-shrink-0" />
                       )}
                     </div>
                     <div className="flex items-center gap-1">
@@ -168,8 +192,12 @@ export const APIStatusPanel = ({ apiStatuses, isLoading }: APIStatusPanelProps) 
             <span>Failed</span>
           </div>
           <div className="flex items-center gap-1">
-            <MessageSquare className="h-3 w-3 text-blue-400" />
+            <MessageSquare className="h-3 w-3 text-accent-foreground" />
             <span>Has Comments</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Loader2 className="h-3 w-3 text-primary" />
+            <span>Loading</span>
           </div>
         </div>
       </CardContent>

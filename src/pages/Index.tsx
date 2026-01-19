@@ -256,191 +256,118 @@ const Index = () => {
         return;
       }
 
-      // Fetch all data sources in parallel (non-blocking)
-      const [newsData, redditData, trends, hnData, mastodonData, wikiData, rssAggregatorData, gdeltDocData, gdeltGkgData, googleNewsData, blueskyData, lobstersData, devtoData, lemmyData, stackExchangeData, productHuntData] = await Promise.allSettled([
-        supabase.functions.invoke("fetch-news", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-reddit", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-trends", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-hackernews", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-mastodon", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-wikipedia", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-rss-aggregator", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-gdelt-doc", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-gdelt-gkg", { body: { brand: brandName } }),
-        // Free sources (no API keys required)
-        supabase.functions.invoke("fetch-googlenews-rss", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-bluesky", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-lobsters", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-devto", { body: { brand: brandName } }),
-        // Comment-enabled sources (free, no API keys)
-        supabase.functions.invoke("fetch-lemmy", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-stackexchange", { body: { brand: brandName } }),
-        supabase.functions.invoke("fetch-producthunt", { body: { brand: brandName } }),
-      ]);
+      // Helper to update individual API status
+      const updateApiStatus = (name: string, status: 'success' | 'failed', count: number) => {
+        setApiStatuses(prev => prev.map(api => 
+          api.name === name ? { ...api, status, count } : api
+        ));
+      };
 
-      // Process news data
-      let articles = [];
-      if (newsData.status === "fulfilled" && !newsData.value.error) {
-        articles = newsData.value.data?.articles || [];
-      } else {
-        console.warn("News API unavailable:", newsData.status === "fulfilled" ? newsData.value.error : newsData.reason);
-      }
+      // Create individual promises that update status on completion
+      const createApiCall = async (
+        name: string,
+        functionName: string,
+        extractData: (data: any) => any[],
+        dataKey: string = 'articles'
+      ) => {
+        try {
+          const result = await supabase.functions.invoke(functionName, { body: { brand: brandName } });
+          if (result.error) {
+            console.warn(`${name} unavailable:`, result.error);
+            updateApiStatus(name, 'failed', 0);
+            return { name, data: [], success: false };
+          }
+          const items = extractData(result.data) || [];
+          updateApiStatus(name, 'success', items.length);
+          return { name, data: items, success: true, rawData: result.data };
+        } catch (error) {
+          console.warn(`${name} error:`, error);
+          updateApiStatus(name, 'failed', 0);
+          return { name, data: [], success: false };
+        }
+      };
 
-      // Process Reddit data
-      let redditPosts = [];
-      if (redditData.status === "fulfilled" && !redditData.value.error) {
-        redditPosts = redditData.value.data?.posts || [];
-      } else {
-        console.warn("Reddit API unavailable:", redditData.status === "fulfilled" ? redditData.value.error : redditData.reason);
-      }
-
-      // Process Google Trends data
-      if (trends.status === "fulfilled" && !trends.value.error) {
-        setTrendsData(trends.value.data);
-      } else {
-        console.warn("Trends API unavailable:", trends.status === "fulfilled" ? trends.value.error : trends.reason);
-        setTrendsData(null);
-      }
-
-      // Process Hacker News data
-      let hnPosts = [];
-      if (hnData.status === "fulfilled" && !hnData.value.error) {
-        hnPosts = hnData.value.data?.posts || [];
-      } else {
-        console.warn("Hacker News API unavailable:", hnData.status === "fulfilled" ? hnData.value.error : hnData.reason);
-      }
-
-      // Process Mastodon data
-      let mastodonPosts = [];
-      if (mastodonData.status === "fulfilled" && !mastodonData.value.error) {
-        mastodonPosts = mastodonData.value.data?.posts || [];
-      } else {
-        console.warn("Mastodon API unavailable:", mastodonData.status === "fulfilled" ? mastodonData.value.error : mastodonData.reason);
-      }
-
-      // Process Wikipedia data
-      let wikiArticles = [];
-      if (wikiData.status === "fulfilled" && !wikiData.value.error) {
-        wikiArticles = wikiData.value.data?.articles || [];
-      } else {
-        console.warn("Wikipedia API unavailable:", wikiData.status === "fulfilled" ? wikiData.value.error : wikiData.reason);
-      }
-
-      // Process RSS Aggregator data (50+ news sources)
-      let rssArticles = [];
-      if (rssAggregatorData.status === "fulfilled" && !rssAggregatorData.value.error) {
-        rssArticles = rssAggregatorData.value.data?.articles || [];
-        console.log(`RSS Aggregator: ${rssAggregatorData.value.data?.activeSources || 0} active sources`);
-      } else {
-        console.warn("RSS Aggregator unavailable:", rssAggregatorData.status === "fulfilled" ? rssAggregatorData.value.error : rssAggregatorData.reason);
-      }
-
-      // Process GDELT DOC data (global news articles)
-      let gdeltArticles = [];
-      if (gdeltDocData.status === "fulfilled" && !gdeltDocData.value.error) {
-        gdeltArticles = gdeltDocData.value.data?.articles || [];
-        console.log(`GDELT DOC: ${gdeltArticles.length} global articles`);
-      } else {
-        console.warn("GDELT DOC unavailable:", gdeltDocData.status === "fulfilled" ? gdeltDocData.value.error : gdeltDocData.reason);
-      }
-
-      // Process GDELT GKG data (entities, themes, locations)
-      if (gdeltGkgData.status === "fulfilled" && !gdeltGkgData.value.error) {
-        const gkgData = gdeltGkgData.value.data;
-        setGdeltEntities(gkgData?.entities || []);
-        setGdeltLocations(gkgData?.locations || []);
-        setGdeltThemes(gkgData?.themes || []);
-        console.log(`GDELT GKG: ${gkgData?.entities?.length || 0} entities, ${gkgData?.themes?.length || 0} themes, ${gkgData?.locations?.length || 0} locations`);
-      } else {
-        console.warn("GDELT GKG unavailable:", gdeltGkgData.status === "fulfilled" ? gdeltGkgData.value.error : gdeltGkgData.reason);
-        setGdeltEntities([]);
-        setGdeltLocations([]);
-        setGdeltThemes([]);
-      }
-
-      // Process Google News RSS data (free, no API key)
-      let googleNewsArticles = [];
-      if (googleNewsData.status === "fulfilled" && !googleNewsData.value.error) {
-        googleNewsArticles = googleNewsData.value.data?.articles || [];
-        console.log(`Google News RSS: ${googleNewsArticles.length} articles`);
-      } else {
-        console.warn("Google News RSS unavailable:", googleNewsData.status === "fulfilled" ? googleNewsData.value.error : googleNewsData.reason);
-      }
-
-      // Process Bluesky data (free, no API key)
-      let blueskyPosts = [];
-      if (blueskyData.status === "fulfilled" && !blueskyData.value.error) {
-        blueskyPosts = blueskyData.value.data?.posts || [];
-        console.log(`Bluesky: ${blueskyPosts.length} posts`);
-      } else {
-        console.warn("Bluesky unavailable:", blueskyData.status === "fulfilled" ? blueskyData.value.error : blueskyData.reason);
-      }
-
-      // Process Lobsters data (free, no API key)
-      let lobstersPosts = [];
-      if (lobstersData.status === "fulfilled" && !lobstersData.value.error) {
-        lobstersPosts = lobstersData.value.data?.posts || [];
-        console.log(`Lobsters: ${lobstersPosts.length} posts`);
-      } else {
-        console.warn("Lobsters unavailable:", lobstersData.status === "fulfilled" ? lobstersData.value.error : lobstersData.reason);
-      }
-
-      // Process Dev.to data (free, no API key)
-      let devtoArticles = [];
-      if (devtoData.status === "fulfilled" && !devtoData.value.error) {
-        devtoArticles = devtoData.value.data?.articles || [];
-        console.log(`Dev.to: ${devtoArticles.length} articles`);
-      } else {
-        console.warn("Dev.to unavailable:", devtoData.status === "fulfilled" ? devtoData.value.error : devtoData.reason);
-      }
-
-      // Process Lemmy data (free, federated Reddit alternative)
-      let lemmyPosts = [];
-      if (lemmyData.status === "fulfilled" && !lemmyData.value.error) {
-        lemmyPosts = lemmyData.value.data?.posts || [];
-        console.log(`Lemmy: ${lemmyPosts.length} posts`);
-      } else {
-        console.warn("Lemmy unavailable:", lemmyData.status === "fulfilled" ? lemmyData.value.error : lemmyData.reason);
-      }
-
-      // Process Stack Exchange data (free, Q&A with comments)
-      let stackExchangeQuestions = [];
-      if (stackExchangeData.status === "fulfilled" && !stackExchangeData.value.error) {
-        stackExchangeQuestions = stackExchangeData.value.data?.questions || [];
-        console.log(`Stack Exchange: ${stackExchangeQuestions.length} questions`);
-      } else {
-        console.warn("Stack Exchange unavailable:", stackExchangeData.status === "fulfilled" ? stackExchangeData.value.error : stackExchangeData.reason);
-      }
-
-      // Process Product Hunt data (free, product launches with comments)
-      let productHuntProducts = [];
-      if (productHuntData.status === "fulfilled" && !productHuntData.value.error) {
-        productHuntProducts = productHuntData.value.data?.products || [];
-        console.log(`Product Hunt: ${productHuntProducts.length} products`);
-      } else {
-        console.warn("Product Hunt unavailable:", productHuntData.status === "fulfilled" ? productHuntData.value.error : productHuntData.reason);
-      }
-
-      // Update API statuses with results
-      const apiResults: APIStatus[] = [
-        { name: 'NewsAPI', type: 'news', hasComments: false, status: newsData.status === "fulfilled" && !newsData.value.error ? 'success' : 'failed', count: articles.length },
-        { name: 'Reddit', type: 'social', hasComments: true, status: redditData.status === "fulfilled" && !redditData.value.error ? 'success' : 'failed', count: redditPosts.length },
-        { name: 'Google Trends', type: 'search', hasComments: false, status: trends.status === "fulfilled" && !trends.value.error ? 'success' : 'failed', count: trends.status === "fulfilled" && trends.value.data ? 1 : 0 },
-        { name: 'Hacker News', type: 'tech', hasComments: true, status: hnData.status === "fulfilled" && !hnData.value.error ? 'success' : 'failed', count: hnPosts.length },
-        { name: 'Mastodon', type: 'social', hasComments: true, status: mastodonData.status === "fulfilled" && !mastodonData.value.error ? 'success' : 'failed', count: mastodonPosts.length },
-        { name: 'Wikipedia', type: 'news', hasComments: false, status: wikiData.status === "fulfilled" && !wikiData.value.error ? 'success' : 'failed', count: wikiArticles.length },
-        { name: 'RSS Aggregator', type: 'news', hasComments: false, status: rssAggregatorData.status === "fulfilled" && !rssAggregatorData.value.error ? 'success' : 'failed', count: rssArticles.length },
-        { name: 'GDELT DOC', type: 'global', hasComments: false, status: gdeltDocData.status === "fulfilled" && !gdeltDocData.value.error ? 'success' : 'failed', count: gdeltArticles.length },
-        { name: 'GDELT GKG', type: 'global', hasComments: false, status: gdeltGkgData.status === "fulfilled" && !gdeltGkgData.value.error ? 'success' : 'failed', count: gdeltGkgData.status === "fulfilled" && gdeltGkgData.value.data ? (gdeltGkgData.value.data.entities?.length || 0) + (gdeltGkgData.value.data.themes?.length || 0) : 0 },
-        { name: 'Google News', type: 'news', hasComments: false, status: googleNewsData.status === "fulfilled" && !googleNewsData.value.error ? 'success' : 'failed', count: googleNewsArticles.length },
-        { name: 'Bluesky', type: 'social', hasComments: true, status: blueskyData.status === "fulfilled" && !blueskyData.value.error ? 'success' : 'failed', count: blueskyPosts.length },
-        { name: 'Lobsters', type: 'tech', hasComments: true, status: lobstersData.status === "fulfilled" && !lobstersData.value.error ? 'success' : 'failed', count: lobstersPosts.length },
-        { name: 'Dev.to', type: 'tech', hasComments: true, status: devtoData.status === "fulfilled" && !devtoData.value.error ? 'success' : 'failed', count: devtoArticles.length },
-        { name: 'Lemmy', type: 'social', hasComments: true, status: lemmyData.status === "fulfilled" && !lemmyData.value.error ? 'success' : 'failed', count: lemmyPosts.length },
-        { name: 'Stack Exchange', type: 'tech', hasComments: true, status: stackExchangeData.status === "fulfilled" && !stackExchangeData.value.error ? 'success' : 'failed', count: stackExchangeQuestions.length },
-        { name: 'Product Hunt', type: 'tech', hasComments: true, status: productHuntData.status === "fulfilled" && !productHuntData.value.error ? 'success' : 'failed', count: productHuntProducts.length },
+      // Launch all API calls in parallel - each updates status independently
+      const apiCalls = [
+        createApiCall('NewsAPI', 'fetch-news', d => d?.articles),
+        createApiCall('Reddit', 'fetch-reddit', d => d?.posts),
+        createApiCall('Hacker News', 'fetch-hackernews', d => d?.posts),
+        createApiCall('Mastodon', 'fetch-mastodon', d => d?.posts),
+        createApiCall('Wikipedia', 'fetch-wikipedia', d => d?.articles),
+        createApiCall('RSS Aggregator', 'fetch-rss-aggregator', d => d?.articles),
+        createApiCall('GDELT DOC', 'fetch-gdelt-doc', d => d?.articles),
+        createApiCall('Google News', 'fetch-googlenews-rss', d => d?.articles),
+        createApiCall('Bluesky', 'fetch-bluesky', d => d?.posts),
+        createApiCall('Lobsters', 'fetch-lobsters', d => d?.posts),
+        createApiCall('Dev.to', 'fetch-devto', d => d?.articles),
+        createApiCall('Lemmy', 'fetch-lemmy', d => d?.posts),
+        createApiCall('Stack Exchange', 'fetch-stackexchange', d => d?.questions),
+        createApiCall('Product Hunt', 'fetch-producthunt', d => d?.products),
       ];
-      setApiStatuses(apiResults);
+
+      // Special handlers for Trends and GDELT GKG (different data structure)
+      const trendsCall = (async () => {
+        try {
+          const result = await supabase.functions.invoke('fetch-trends', { body: { brand: brandName } });
+          if (result.error) {
+            updateApiStatus('Google Trends', 'failed', 0);
+            return { name: 'Google Trends', data: null, success: false };
+          }
+          setTrendsData(result.data);
+          updateApiStatus('Google Trends', 'success', result.data ? 1 : 0);
+          return { name: 'Google Trends', data: result.data, success: true };
+        } catch {
+          updateApiStatus('Google Trends', 'failed', 0);
+          return { name: 'Google Trends', data: null, success: false };
+        }
+      })();
+
+      const gdeltGkgCall = (async () => {
+        try {
+          const result = await supabase.functions.invoke('fetch-gdelt-gkg', { body: { brand: brandName } });
+          if (result.error) {
+            updateApiStatus('GDELT GKG', 'failed', 0);
+            setGdeltEntities([]);
+            setGdeltLocations([]);
+            setGdeltThemes([]);
+            return { name: 'GDELT GKG', data: null, success: false };
+          }
+          const gkgData = result.data;
+          setGdeltEntities(gkgData?.entities || []);
+          setGdeltLocations(gkgData?.locations || []);
+          setGdeltThemes(gkgData?.themes || []);
+          const count = (gkgData?.entities?.length || 0) + (gkgData?.themes?.length || 0);
+          updateApiStatus('GDELT GKG', 'success', count);
+          return { name: 'GDELT GKG', data: gkgData, success: true };
+        } catch {
+          updateApiStatus('GDELT GKG', 'failed', 0);
+          setGdeltEntities([]);
+          setGdeltLocations([]);
+          setGdeltThemes([]);
+          return { name: 'GDELT GKG', data: null, success: false };
+        }
+      })();
+
+      // Wait for all to complete
+      const allResults = await Promise.all([...apiCalls, trendsCall, gdeltGkgCall]);
+
+      // Extract data from results
+      const getResult = (name: string) => allResults.find(r => r.name === name);
+      
+      const articles = getResult('NewsAPI')?.data || [];
+      const redditPosts = getResult('Reddit')?.data || [];
+      const hnPosts = getResult('Hacker News')?.data || [];
+      const mastodonPosts = getResult('Mastodon')?.data || [];
+      const wikiArticles = getResult('Wikipedia')?.data || [];
+      const rssArticles = getResult('RSS Aggregator')?.data || [];
+      const gdeltArticles = getResult('GDELT DOC')?.data || [];
+      const googleNewsArticles = getResult('Google News')?.data || [];
+      const blueskyPosts = getResult('Bluesky')?.data || [];
+      const lobstersPosts = getResult('Lobsters')?.data || [];
+      const devtoArticles = getResult('Dev.to')?.data || [];
+      const lemmyPosts = getResult('Lemmy')?.data || [];
+      const stackExchangeQuestions = getResult('Stack Exchange')?.data || [];
+      const productHuntProducts = getResult('Product Hunt')?.data || [];
 
       // Combine and analyze data from ALL sources
       const mentions = [
