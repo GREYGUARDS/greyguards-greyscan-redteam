@@ -77,7 +77,7 @@ export function ThreatIndicator({ threatLevel, threatScore }: ThreatIndicatorPro
               </div>
               <div className="sm:text-center">
                 <p className="text-xs text-muted-foreground tracking-wide mb-1">Status</p>
-                <Badge variant={getBadgeVariant()} className="text-sm px-3 py-1 capitalize">
+                <Badge variant={getBadgeVariant()} className="text-sm px-3 py-1.5 capitalize min-w-[70px]">
                   {threatLevel}
                 </Badge>
               </div>

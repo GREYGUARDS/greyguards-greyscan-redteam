@@ -519,10 +519,15 @@ const Index = () => {
       const canvas = await html2canvas(element, {
         backgroundColor: "#050505",
         scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        windowWidth: 1200,
+        windowHeight: element.scrollHeight,
       });
       const link = document.createElement("a");
       link.download = `${brandName}_narrative_snapshot.png`;
-      link.href = canvas.toDataURL();
+      link.href = canvas.toDataURL("image/png", 1.0);
       link.click();
 
       toast({

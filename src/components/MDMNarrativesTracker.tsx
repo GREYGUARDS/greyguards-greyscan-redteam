@@ -197,11 +197,11 @@ export function MDMNarrativesTracker({ narratives, loading }: MDMNarrativesTrack
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-sm truncate pr-2">{narrative.title}</div>
                         <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                          <Badge variant="outline" className={`text-xs ${getSeverityColor(narrative.severity)}`}>
+                          <Badge variant="outline" className={`text-xs min-w-[50px] ${getSeverityColor(narrative.severity)}`}>
                             {narrative.severity}
                           </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            <TrendingUp className="h-3 w-3 mr-1" />
+                          <Badge variant="outline" className="text-xs min-w-[45px]">
+                            <TrendingUp className="h-3 w-3 mr-1 flex-shrink-0" />
                             {narrative.frequency}
                           </Badge>
                         </div>

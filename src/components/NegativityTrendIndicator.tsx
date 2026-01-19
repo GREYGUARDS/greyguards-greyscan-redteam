@@ -74,7 +74,7 @@ export function NegativityTrendIndicator({
             <div className={`w-24 h-24 sm:w-32 sm:h-32 rounded-full border-8 ${threat.glow} flex items-center justify-center`}>
               <Badge 
                 variant={negativePercentage >= 50 ? "destructive" : "secondary"}
-                className="text-base sm:text-lg px-3 sm:px-4 py-2 uppercase tracking-wider animate-pulse-scale"
+                className="text-base sm:text-lg px-4 sm:px-5 py-2.5 uppercase tracking-wider animate-pulse-scale min-w-[80px]"
               >
                 {threat.level}
               </Badge>
@@ -166,7 +166,7 @@ export function NegativityTrendIndicator({
                   <span className="text-sm font-bold uppercase tracking-wider">{source.source}</span>
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-muted-foreground font-semibold">{source.count} negative</span>
-                    <Badge variant="destructive" className="text-xs font-bold">
+                    <Badge variant="destructive" className="text-xs font-bold min-w-[50px]">
                       {source.percentage.toFixed(1)}%
                     </Badge>
                   </div>

@@ -130,10 +130,10 @@ export const EmergingNarrativesPrediction = ({ predictions, isLoading }: Emergin
                           </h3>
                         </div>
                         <div className="flex flex-wrap gap-1.5 items-center">
-                          <Badge variant={getConfidenceVariant(prediction.confidence)} className="text-xs">
+                          <Badge variant={getConfidenceVariant(prediction.confidence)} className="text-xs min-w-[50px]">
                             {prediction.confidence}
                           </Badge>
-                          <Badge variant="outline" className="text-xs capitalize">
+                          <Badge variant="outline" className="text-xs capitalize min-w-[55px]">
                             {prediction.trajectory}
                           </Badge>
                           <span className={`text-xs font-mono ${prediction.mentionTrend > 0 ? 'text-destructive' : 'text-success'}`}>
