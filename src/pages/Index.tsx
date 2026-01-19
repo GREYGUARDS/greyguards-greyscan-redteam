@@ -564,7 +564,10 @@ const Index = () => {
         totalMentions: allMentions.length,
         shortTermSentiment: results.shortTermSentiment,
         longTermSentiment: results.longTermSentiment,
-        timeline: results.timeline || []
+        timeline: results.timeline || [],
+        gdeltEntities,
+        gdeltLocations,
+        gdeltThemes
       });
 
       toast({
