@@ -6,18 +6,16 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Simple in-memory rate limiter (resets on function cold start)
-// For production, consider using Deno KV or a database
+// Simple in-memory rate limiter
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per hour per IP
+const RATE_LIMIT_MAX_REQUESTS = 10;
 
 function checkRateLimit(clientIp: string): { allowed: boolean; remaining: number } {
   const now = Date.now();
   const record = rateLimitMap.get(clientIp);
   
   if (!record || now > record.resetTime) {
-    // New window
     rateLimitMap.set(clientIp, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
     return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1 };
   }
@@ -98,54 +96,59 @@ serve(async (req) => {
     }
 
     const totalSeconds = duration * 60;
-    // Generate more injects: 1 per minute minimum, up to 20 for longer exercises
     const numInjects = Math.max(duration, Math.min(Math.floor(duration * 1.5), 20));
-    // Allow injects until 30 seconds before end (not 60 seconds)
     const lastInjectTime = totalSeconds - 30;
 
-    const systemPrompt = `You are creating crisis simulation injects for a ${duration}-minute exercise. The scenario is:
+    const systemPrompt = `You are creating crisis simulation injects for a ${duration}-minute exercise about ${brandName}. 
 
+SCENARIO CONTEXT:
 Title: ${scenario.title}
 Narrative: ${scenario.narrative}
 Severity: ${scenario.severity}
-Brand: ${brandName}
 
-Generate EXACTLY ${numInjects} realistic crisis injects that are DISTRIBUTED THROUGHOUT THE ENTIRE exercise duration. 
+Generate EXACTLY ${numInjects} realistic crisis injects that are DIRECTLY RELATED to this specific scenario about ${brandName}.
 
-CRITICAL TIMING REQUIREMENTS:
+CRITICAL REQUIREMENTS:
+1. ALL injects must be SPECIFIC to the scenario narrative - reference the same claims, accusations, and storyline
+2. Show the crisis EVOLVING over time - early injects should be discovery/early spread, middle should be peak virality, late should be media attention or resolution pressure
+3. Include realistic platform-specific content (Twitter/X posts with hashtags, Reddit threads, news headlines, etc.)
+4. Response options must be CONTEXTUALLY APPROPRIATE to the specific inject
+
+TIMING REQUIREMENTS:
 - First inject at 10-15 seconds
-- Injects should be spaced 30-90 seconds apart (vary the gaps)
-- MUST have injects in the final 2 minutes of the exercise
-- The LAST inject should be between ${lastInjectTime - 60} and ${lastInjectTime} seconds
+- Injects spaced 30-90 seconds apart (vary the gaps)
+- MUST have injects in the final 2 minutes
+- LAST inject between ${lastInjectTime - 60} and ${lastInjectTime} seconds
 
-Each inject should:
-- Have a timestamp (in seconds from start, spread across the FULL duration)
-- Represent realistic social media posts, news articles, influencer mentions, leaks, or coordinated amplification
-- Include 3 response options with varying effectiveness
-- Some should be aggressive (marked isAggressive: true) to increase pressure
+RESPONSE OPTIONS - Make them SPECIFIC and ACCURATE:
+Each inject needs 3 response options that are DIRECTLY relevant to that inject's content:
+- Options should have REALISTIC effectiveness scores based on crisis management best practices
+- A well-crafted public statement addressing specific allegations should score 70-85%
+- "No comment" or ignoring should score 20-40%
+- Aggressive legal threats should score 40-60% (can backfire)
+- Engaging credible third-party validators should score 75-90%
+- Greyguards services (monitoring, counter-narrative, elf network) should score 80-90%
 
 Return a JSON object with an "injects" array. Each inject should have:
 - id: unique string
 - timestamp: number (seconds from start, ranging from 10 to ${lastInjectTime})
 - type: "social_post" | "news_article" | "influencer" | "official_response" | "leak" | "amplification"
-- content: the inject content (realistic social post, headline, etc.)
-- source: who posted it (e.g., "@AnonymousTipper (50K followers)")
+- content: the inject content (realistic, platform-appropriate, SPECIFIC to the scenario)
+- source: who posted it (e.g., "@WhistleblowerX (120K followers)", "BBC News", "r/technology")
 - reach: number (estimated reach)
 - sentiment: "hostile" | "confused" | "neutral"
 - requiresResponse: true
 - isAggressive: boolean
 - responseOptions: array of 3 options, each with:
   - id: unique string
-  - label: short action name
-  - description: what this response involves
+  - label: short action name (e.g., "Issue Factual Rebuttal", "Request Correction", "Deploy Greyguards ELF Network")
+  - description: specific description of what this response involves and why it might work or fail
   - type: "statement" | "social_response" | "internal_action" | "media_outreach" | "legal" | "greyguards_service"
-  - effectiveness: 0-100
+  - effectiveness: 0-100 (be realistic - not everything is 70-80%)
   - riskLevel: "low" | "medium" | "high"
-  - timeToExecute: seconds
+  - timeToExecute: seconds`;
 
-Make the exercise progressively more challenging. Include at least one "greyguards_service" response option to subtly promote Greyguards capabilities.`;
-
-    console.log("Generating injects:", { brandName, duration, numInjects, clientIp, remaining: rateLimit.remaining });
+    console.log("Generating injects:", { brandName, duration, numInjects, scenario: scenario.title, clientIp, remaining: rateLimit.remaining });
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -157,7 +160,7 @@ Make the exercise progressively more challenging. Include at least one "greyguar
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Generate ${numInjects} crisis injects for this ${duration}-minute exercise targeting ${brandName}.` }
+          { role: "user", content: `Generate ${numInjects} crisis injects for this ${duration}-minute exercise. The scenario is "${scenario.title}" targeting ${brandName}. Make every inject directly connected to the scenario narrative and ensure response options are realistic and specific to each situation.` }
         ],
         response_format: { type: "json_object" }
       }),

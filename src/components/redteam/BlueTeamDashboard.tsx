@@ -257,12 +257,45 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
     if (!activeInject || !injectStartTime.current || !customCountermeasure.trim()) return;
 
     const responseTime = (Date.now() - injectStartTime.current) / 1000;
-    const hasKeywords = ['statement', 'media', 'respond', 'clarify', 'deny', 'evidence', 'fact', 'truth', 'report'].some(
-      keyword => customCountermeasure.toLowerCase().includes(keyword)
-    );
-    const lengthBonus = Math.min(20, customCountermeasure.length / 10);
-    const effectiveness = Math.min(85, 55 + (hasKeywords ? 15 : 0) + lengthBonus);
-    const wasCorrect = effectiveness >= 65;
+    
+    // Use AI to evaluate the custom response
+    let effectiveness = 50;
+    let feedback = "";
+    let wasCorrect = false;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("evaluate-crisis-response", {
+        body: {
+          injectContent: activeInject.content,
+          injectType: activeInject.inject_type,
+          customResponse: customCountermeasure,
+          brandName: session.brand_name,
+          scenarioTitle: session.scenario_title
+        }
+      });
+      
+      if (data && !error) {
+        effectiveness = data.effectiveness || 50;
+        feedback = data.feedback || "";
+        wasCorrect = data.wasCorrect || effectiveness >= 65;
+        
+        if (feedback) {
+          toast(wasCorrect ? "Good response!" : "Response could be improved", {
+            description: feedback,
+            duration: 4000
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Error evaluating response:", err);
+      // Fallback to basic evaluation
+      const hasKeywords = ['statement', 'media', 'respond', 'clarify', 'evidence', 'fact', 'truth', 'investigate'].some(
+        keyword => customCountermeasure.toLowerCase().includes(keyword)
+      );
+      const lengthBonus = Math.min(20, customCountermeasure.length / 10);
+      effectiveness = Math.min(85, 50 + (hasKeywords ? 15 : 0) + lengthBonus);
+      wasCorrect = effectiveness >= 65;
+    }
 
     setResponseTimes(prev => [...prev, responseTime]);
     setDecisionsTotal(prev => prev + 1);
