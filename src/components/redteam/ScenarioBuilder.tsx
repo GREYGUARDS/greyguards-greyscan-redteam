@@ -94,18 +94,107 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderPro
     } catch (error) {
       console.error("Error generating scenario:", error);
       toast.error("Failed to generate scenario. Please try again.");
-      
-      // Fallback scenario for demo purposes
-      const fallbackScenario: Scenario = {
-        id: crypto.randomUUID(),
-        title: `${config.brandName} Executive Misconduct Allegations`,
-        narrative: `Anonymous sources have begun circulating claims that a senior executive at ${config.brandName} has been involved in financial impropriety and workplace misconduct. Initial posts appeared on fringe social media platforms before being picked up by a pseudonymous "investigative journalist" account with 50,000 followers. The allegations mix verifiable public information about the executive with fabricated claims designed to damage the company's reputation.`,
-        basedOnTruth: true,
-        truthElement: "The named executive did recently attend a conference mentioned in the allegations, but all other claims are fabricated.",
-        implicatedParties: ["[REDACTED - Senior Executive]", "[REDACTED - Board Member]"],
-        severity: "severe",
-        spreadPattern: "coordinated"
+ 
+      // Fallback scenario for demo purposes (avoid repeating the exec-misconduct scenario)
+      const category = (config.scenarioCategory || "random") as string;
+      const pick = (key: string) => key === "random" ? "product_safety" : key;
+      const type = pick(category);
+
+      const fallbacks: Record<string, Omit<Scenario, "id">> = {
+        product_safety: {
+          title: `${config.brandName} Product Safety Claims Go Viral`,
+          narrative: `A coordinated campaign is alleging that ${config.brandName}'s products pose safety risks. Doctored images and out-of-context test results are circulating, and the narrative is spreading rapidly across social platforms. Some posts cite a legitimate past recall in the wider industry, but the core claims are unverified and exaggerated.`,
+          basedOnTruth: true,
+          truthElement: "A similar safety issue occurred in the industry previously, but the current claims about this product are unsubstantiated.",
+          implicatedParties: ["[REDACTED - Product Lead]", "[REDACTED - Quality Lead]"],
+          severity: "severe",
+          spreadPattern: "coordinated",
+        },
+        data_breach: {
+          title: `Alleged ${config.brandName} Customer Data Leak`,
+          narrative: `Anonymous accounts are claiming that ${config.brandName} suffered a data breach. Screenshots of purported customer records are being shared, alongside a fake "breach notification" email. The story is gaining traction with tech commentators before any verification.`,
+          basedOnTruth: false,
+          truthElement: undefined,
+          implicatedParties: ["[REDACTED - Security Lead]", "[REDACTED - Engineering Lead]"],
+          severity: "critical",
+          spreadPattern: "viral",
+        },
+        environmental: {
+          title: `${config.brandName} Environmental Violation Rumors`,
+          narrative: `A disinformation narrative alleges ${config.brandName} is responsible for environmental harm. Doctored documents and misleading images are circulating, prompting calls for boycotts. Activist accounts amplify the claims while key details remain unverified.`,
+          basedOnTruth: false,
+          truthElement: undefined,
+          implicatedParties: ["[REDACTED - Operations Lead]", "[REDACTED - Sustainability Lead]"],
+          severity: "severe",
+          spreadPattern: "organic",
+        },
+        labor_practices: {
+          title: `${config.brandName} Labor Practices Under Attack`,
+          narrative: `Coordinated posts accuse ${config.brandName} of abusive labor practices. Some content uses real workplace anecdotes, but key allegations are embellished with fabricated screenshots and anonymous "whistleblower" claims. The narrative is spreading via short-form video and repost networks.`,
+          basedOnTruth: true,
+          truthElement: "There have been minor workplace complaints in the past, but the current claims are amplified and distorted.",
+          implicatedParties: ["[REDACTED - HR Lead]", "[REDACTED - Site Manager]"],
+          severity: "moderate",
+          spreadPattern: "viral",
+        },
+        financial_fraud: {
+          title: `${config.brandName} Financial Irregularities Alleged`,
+          narrative: `Investor forums and anonymous accounts are spreading claims that ${config.brandName} is hiding financial issues. Fake documents and misleading charts are circulating, timed to coincide with a reporting cycle. The narrative aims to erode trust and trigger panic reactions.`,
+          basedOnTruth: false,
+          truthElement: undefined,
+          implicatedParties: ["[REDACTED - Finance Lead]", "[REDACTED - Audit Committee]"],
+          severity: "critical",
+          spreadPattern: "coordinated",
+        },
+        astroturfing: {
+          title: `${config.brandName} Accused of Astroturfing`,
+          narrative: `A narrative claims ${config.brandName} runs a fake grassroots campaign using coordinated accounts and paid influencers. Cherry-picked evidence is presented as definitive proof, pushing a boycott movement across multiple platforms.`,
+          basedOnTruth: false,
+          truthElement: undefined,
+          implicatedParties: ["[REDACTED - Marketing Lead]", "[REDACTED - Agency Partner]"],
+          severity: "moderate",
+          spreadPattern: "coordinated",
+        },
+        supply_chain: {
+          title: `${config.brandName} Supply Chain Controversy`,
+          narrative: `Posts allege ${config.brandName} sources from unethical suppliers. Fake shipping manifests and supplier lists circulate alongside emotional stories designed to provoke outrage. Pressure builds for an immediate public response before facts are established.`,
+          basedOnTruth: false,
+          truthElement: undefined,
+          implicatedParties: ["[REDACTED - Procurement Lead]", "[REDACTED - Compliance Lead]"],
+          severity: "severe",
+          spreadPattern: "organic",
+        },
+        ai_ethics: {
+          title: `${config.brandName} AI Ethics Allegations`,
+          narrative: `A narrative claims ${config.brandName}'s AI systems are biased or harmful. Examples are cherry-picked and context removed. Tech influencers amplify the story, and stakeholders demand transparency and remediation steps.`,
+          basedOnTruth: false,
+          truthElement: undefined,
+          implicatedParties: ["[REDACTED - AI Lead]", "[REDACTED - Data Lead]"],
+          severity: "moderate",
+          spreadPattern: "viral",
+        },
+        health_claims: {
+          title: `Health Claims About ${config.brandName} Spread`,
+          narrative: `Wellness accounts push claims that ${config.brandName}'s products cause health harms. Pseudo-scientific language and fake testimonials circulate, triggering anxiety and calls for recalls.`,
+          basedOnTruth: false,
+          truthElement: undefined,
+          implicatedParties: ["[REDACTED - Regulatory Lead]", "[REDACTED - Product Lead]"],
+          severity: "severe",
+          spreadPattern: "organic",
+        },
+        political_ties: {
+          title: `${config.brandName} Political Entanglement Narrative`,
+          narrative: `Fabricated claims link ${config.brandName} to controversial political actors. Bot networks amplify contradictory takes to polarize audiences, driving reputational damage from multiple angles.`,
+          basedOnTruth: false,
+          truthElement: undefined,
+          implicatedParties: ["[REDACTED - Comms Lead]", "[REDACTED - Government Affairs]"],
+          severity: "critical",
+          spreadPattern: "coordinated",
+        },
       };
+
+      const chosen = fallbacks[type] || fallbacks.product_safety;
+      const fallbackScenario: Scenario = { id: crypto.randomUUID(), ...chosen };
       setPreviewScenario(fallbackScenario);
     } finally {
       setIsGenerating(false);
