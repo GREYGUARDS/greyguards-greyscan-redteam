@@ -6,6 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   ArrowLeft,
   Shield,
   Clock,
@@ -20,7 +26,10 @@ import {
   Send,
   PenLine,
   Loader2,
-  Volume2
+  Volume2,
+  CheckCircle2,
+  XCircle,
+  Lightbulb
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -72,6 +81,15 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
   const [customCountermeasure, setCustomCountermeasure] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [eventLog, setEventLog] = useState<Array<{ time: number; message: string; type: string }>>([]);
+  const [feedbackModal, setFeedbackModal] = useState<{
+    open: boolean;
+    effectiveness: number;
+    feedback: string;
+    strengths: string[];
+    weaknesses: string[];
+    wasCorrect: boolean;
+  }>({ open: false, effectiveness: 0, feedback: "", strengths: [], weaknesses: [], wasCorrect: false });
+  const [isEvaluating, setIsEvaluating] = useState(false);
   const injectStartTime = useRef<number | null>(null);
 
   const totalDuration = sessionData.duration * 60;
@@ -261,7 +279,11 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
     // Use AI to evaluate the custom response
     let effectiveness = 50;
     let feedback = "";
+    let strengths: string[] = [];
+    let weaknesses: string[] = [];
     let wasCorrect = false;
+    
+    setIsEvaluating(true);
     
     try {
       const { data, error } = await supabase.functions.invoke("evaluate-crisis-response", {
@@ -277,14 +299,19 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
       if (data && !error) {
         effectiveness = data.effectiveness || 50;
         feedback = data.feedback || "";
+        strengths = data.strengths || [];
+        weaknesses = data.weaknesses || [];
         wasCorrect = data.wasCorrect || effectiveness >= 65;
         
-        if (feedback) {
-          toast(wasCorrect ? "Good response!" : "Response could be improved", {
-            description: feedback,
-            duration: 4000
-          });
-        }
+        // Show feedback modal with detailed analysis
+        setFeedbackModal({
+          open: true,
+          effectiveness,
+          feedback,
+          strengths,
+          weaknesses,
+          wasCorrect
+        });
       }
     } catch (err) {
       console.error("Error evaluating response:", err);
@@ -295,6 +322,18 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
       const lengthBonus = Math.min(20, customCountermeasure.length / 10);
       effectiveness = Math.min(85, 50 + (hasKeywords ? 15 : 0) + lengthBonus);
       wasCorrect = effectiveness >= 65;
+      feedback = wasCorrect ? "Solid response approach." : "Response could be more strategic.";
+      
+      setFeedbackModal({
+        open: true,
+        effectiveness,
+        feedback,
+        strengths: hasKeywords ? ["Uses relevant crisis response language"] : [],
+        weaknesses: !hasKeywords ? ["Consider using more specific crisis management terminology"] : [],
+        wasCorrect
+      });
+    } finally {
+      setIsEvaluating(false);
     }
 
     setResponseTimes(prev => [...prev, responseTime]);
@@ -551,11 +590,20 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
                             <div className="flex gap-2">
                               <Button
                                 onClick={handleCustomResponse}
-                                disabled={!customCountermeasure.trim()}
+                                disabled={!customCountermeasure.trim() || isEvaluating}
                                 className="flex-1 uppercase tracking-wider"
                               >
-                                <Send className="h-4 w-4 mr-2" />
-                                Submit
+                                {isEvaluating ? (
+                                  <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    Evaluating...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Send className="h-4 w-4 mr-2" />
+                                    Submit
+                                  </>
+                                )}
                               </Button>
                               <Button
                                 variant="ghost"
@@ -588,6 +636,82 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
           </div>
         )}
       </main>
+
+      {/* AI Feedback Modal */}
+      <Dialog open={feedbackModal.open} onOpenChange={(open) => setFeedbackModal(prev => ({ ...prev, open }))}>
+        <DialogContent className="max-w-md border-4 border-border">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3 uppercase tracking-wider">
+              <Lightbulb className="h-5 w-5 text-warning" />
+              Response Evaluation
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Score Display */}
+            <div className="text-center">
+              <div className={`inline-flex items-center justify-center w-24 h-24 rounded-full border-4 ${
+                feedbackModal.wasCorrect ? 'border-success bg-success/10' : 'border-destructive bg-destructive/10'
+              }`}>
+                <span className={`text-3xl font-bold ${feedbackModal.wasCorrect ? 'text-success' : 'text-destructive'}`}>
+                  {Math.round(feedbackModal.effectiveness)}%
+                </span>
+              </div>
+              <p className={`mt-3 font-medium uppercase tracking-wider text-sm ${
+                feedbackModal.wasCorrect ? 'text-success' : 'text-destructive'
+              }`}>
+                {feedbackModal.wasCorrect ? 'Effective Response' : 'Needs Improvement'}
+              </p>
+            </div>
+
+            {/* Feedback Text */}
+            <p className="text-center text-muted-foreground">{feedbackModal.feedback}</p>
+
+            {/* Strengths */}
+            {feedbackModal.strengths.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-success">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Strengths
+                </h4>
+                <ul className="space-y-1">
+                  {feedbackModal.strengths.map((s, i) => (
+                    <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <span className="text-success mt-1">•</span>
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Weaknesses */}
+            {feedbackModal.weaknesses.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-destructive">
+                  <XCircle className="h-4 w-4" />
+                  Areas to Improve
+                </h4>
+                <ul className="space-y-1">
+                  {feedbackModal.weaknesses.map((w, i) => (
+                    <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <span className="text-destructive mt-1">•</span>
+                      {w}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <Button 
+              onClick={() => setFeedbackModal(prev => ({ ...prev, open: false }))}
+              className="w-full uppercase tracking-wider"
+            >
+              Continue
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
