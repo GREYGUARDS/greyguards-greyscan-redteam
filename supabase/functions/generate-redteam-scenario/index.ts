@@ -39,6 +39,7 @@ const ScenarioInputSchema = z.object({
   brandName: z.string().min(1).max(100),
   duration: z.number().min(1).max(60),
   userScenario: z.string().max(5000).optional(),
+  scenarioCategory: z.string().max(50).optional(),
 });
 
 // Brand-specific scenario categories for more variety
@@ -184,7 +185,7 @@ serve(async (req) => {
       );
     }
     
-    const { brandName, duration, userScenario } = parseResult.data;
+    const { brandName, duration, userScenario, scenarioCategory } = parseResult.data;
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -196,21 +197,26 @@ serve(async (req) => {
       );
     }
 
-    // Pick a random category to ensure variety
-    const randomCategory = SCENARIO_CATEGORIES[Math.floor(Math.random() * SCENARIO_CATEGORIES.length)];
+    // Use selected category or pick random
+    let selectedCategory;
+    if (scenarioCategory && scenarioCategory !== "random") {
+      selectedCategory = SCENARIO_CATEGORIES.find(c => c.type === scenarioCategory) || SCENARIO_CATEGORIES[Math.floor(Math.random() * SCENARIO_CATEGORIES.length)];
+    } else {
+      selectedCategory = SCENARIO_CATEGORIES[Math.floor(Math.random() * SCENARIO_CATEGORIES.length)];
+    }
 
     const systemPrompt = `You are an expert in crisis communications, disinformation campaigns, and brand reputation management. Your role is to create realistic but fictional crisis scenarios for training exercises.
 
 Generate a detailed disinformation scenario targeting "${brandName}". 
 
-IMPORTANT: Create a scenario specifically about ${randomCategory.name} (${randomCategory.description}). Make it highly specific and relevant to what a company named "${brandName}" would realistically face based on their likely industry and operations.
+IMPORTANT: Create a scenario specifically about ${selectedCategory.name} (${selectedCategory.description}). Make it highly specific and relevant to what a company named "${brandName}" would realistically face based on their likely industry and operations.
 
 The scenario should be:
 - UNIQUE and specific to ${brandName} - reference plausible products, services, or operations they might have
 - Based on common disinformation tactics (mixing truth with lies, emotional manipulation, coordinated amplification)
 - Challenging but not impossible to counter
 - Appropriate for a ${duration}-minute crisis simulation exercise
-- DIFFERENT from generic "executive misconduct" scenarios - focus on ${randomCategory.type}
+- DIFFERENT from generic "executive misconduct" scenarios - focus on ${selectedCategory.type}
 
 Return a JSON object with these exact fields:
 - title: A concise, impactful title mentioning ${brandName} by name
@@ -223,9 +229,9 @@ Return a JSON object with these exact fields:
 
     const userPrompt = userScenario 
       ? `The user has provided this scenario outline. Enhance and professionalize it while keeping the core concept:\n\n"${userScenario}"\n\nMake it more realistic with specific details, spreading patterns, and implicated parties. Ensure it's specific to ${brandName}.`
-      : `Create a completely original ${randomCategory.name.toLowerCase()} disinformation scenario targeting ${brandName}. Make it specific to what this brand likely does based on their name. Include specific platform names (Twitter/X, Reddit, TikTok, etc.), realistic account names, and a clear timeline of how the narrative is developing.`;
+      : `Create a completely original ${selectedCategory.name.toLowerCase()} disinformation scenario targeting ${brandName}. Make it specific to what this brand likely does based on their name. Include specific platform names (Twitter/X, Reddit, TikTok, etc.), realistic account names, and a clear timeline of how the narrative is developing.`;
 
-    console.log("Generating scenario:", { brandName, duration, category: randomCategory.type, clientIp, remaining: rateLimit.remaining });
+    console.log("Generating scenario:", { brandName, duration, category: selectedCategory.type, clientIp, remaining: rateLimit.remaining });
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

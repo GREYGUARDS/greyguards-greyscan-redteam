@@ -31,11 +31,25 @@ export type ExerciseMode = "self" | "consultant";
 export type ExerciseDuration = 10 | 20 | 30;
 export type TeamMode = "solo" | "team-vs-team";
 
+export type ScenarioCategory = 
+  | "random"
+  | "product_safety"
+  | "data_breach"
+  | "environmental"
+  | "labor_practices"
+  | "financial_fraud"
+  | "astroturfing"
+  | "supply_chain"
+  | "ai_ethics"
+  | "health_claims"
+  | "political_ties";
+
 export interface ExerciseConfig {
   brandName: string;
   mode: ExerciseMode;
   duration: ExerciseDuration;
   teamMode: TeamMode;
+  scenarioCategory: ScenarioCategory;
 }
 
 export interface Scenario {
@@ -117,7 +131,8 @@ const RedTeam = () => {
     brandName: "",
     mode: "self",
     duration: 10,
-    teamMode: "solo"
+    teamMode: "solo",
+    scenarioCategory: "random"
   });
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [exerciseResults, setExerciseResults] = useState<ExerciseResults | null>(null);
@@ -151,7 +166,8 @@ const RedTeam = () => {
       brandName: "",
       mode: "self",
       duration: 10,
-      teamMode: "solo"
+      teamMode: "solo",
+      scenarioCategory: "random"
     });
     setScenario(null);
     setExerciseResults(null);
@@ -425,6 +441,42 @@ const RedTeam = () => {
                   </RadioGroup>
                 </div>
               )}
+
+              {/* Scenario Category */}
+              <div className="space-y-3">
+                <Label className="text-sm uppercase tracking-wider font-medium">Crisis Category</Label>
+                <p className="text-xs text-muted-foreground -mt-1">Choose a specific scenario type or let AI surprise you</p>
+                <RadioGroup
+                  value={config.scenarioCategory}
+                  onValueChange={(value: ScenarioCategory) => setConfig({ ...config, scenarioCategory: value })}
+                  className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+                >
+                  {[
+                    { value: "random", label: "Surprise Me", icon: "🎲" },
+                    { value: "product_safety", label: "Product Safety", icon: "⚠️" },
+                    { value: "data_breach", label: "Data Breach", icon: "🔓" },
+                    { value: "environmental", label: "Environmental", icon: "🌍" },
+                    { value: "labor_practices", label: "Labor Practices", icon: "👷" },
+                    { value: "financial_fraud", label: "Financial", icon: "💰" },
+                    { value: "astroturfing", label: "Astroturfing", icon: "🤖" },
+                    { value: "supply_chain", label: "Supply Chain", icon: "📦" },
+                    { value: "ai_ethics", label: "AI Ethics", icon: "🧠" },
+                    { value: "health_claims", label: "Health Claims", icon: "💊" },
+                    { value: "political_ties", label: "Political Ties", icon: "🏛️" },
+                  ].map((cat) => (
+                    <div 
+                      key={cat.value}
+                      className={`relative border-2 p-3 cursor-pointer transition-all text-center ${config.scenarioCategory === cat.value ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}
+                    >
+                      <RadioGroupItem value={cat.value} id={`cat-${cat.value}`} className="absolute top-2 right-2 h-3 w-3" />
+                      <Label htmlFor={`cat-${cat.value}`} className="cursor-pointer">
+                        <span className="text-xl block mb-1">{cat.icon}</span>
+                        <span className="text-xs font-medium uppercase tracking-wider">{cat.label}</span>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
 
               {/* Start Button */}
               <Button
