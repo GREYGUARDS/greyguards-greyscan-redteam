@@ -1,1 +1,82 @@
 project_id = "pszrmmsjaracqxlzljxr"
+
+[functions.analyze-emerging-narratives]
+verify_jwt = false
+
+[functions.analyze-mdm-narratives]
+verify_jwt = false
+
+[functions.analyze-person-data]
+verify_jwt = false
+
+[functions.discover-brand-people]
+verify_jwt = false
+
+[functions.fetch-bluesky]
+verify_jwt = false
+
+[functions.fetch-dailymail]
+verify_jwt = false
+
+[functions.fetch-devto]
+verify_jwt = false
+
+[functions.fetch-gdelt-doc]
+verify_jwt = false
+
+[functions.fetch-gdelt-gkg]
+verify_jwt = false
+
+[functions.fetch-googlenews-rss]
+verify_jwt = false
+
+[functions.fetch-hackernews]
+verify_jwt = false
+
+[functions.fetch-lemmy]
+verify_jwt = false
+
+[functions.fetch-lobsters]
+verify_jwt = false
+
+[functions.fetch-mastodon]
+verify_jwt = false
+
+[functions.fetch-news]
+verify_jwt = false
+
+[functions.fetch-producthunt]
+verify_jwt = false
+
+[functions.fetch-reddit]
+verify_jwt = false
+
+[functions.fetch-rss-aggregator]
+verify_jwt = false
+
+[functions.fetch-stackexchange]
+verify_jwt = false
+
+[functions.fetch-trends]
+verify_jwt = false
+
+[functions.fetch-wikipedia]
+verify_jwt = false
+
+[functions.generate-actions]
+verify_jwt = false
+
+[functions.generate-counter-narrative]
+verify_jwt = false
+
+[functions.generate-redteam-injects]
+verify_jwt = false
+
+[functions.generate-redteam-scenario]
+verify_jwt = false
+
+[functions.generate-strategic-recommendations]
+verify_jwt = false
+
+[functions.evaluate-crisis-response]
+verify_jwt = false
