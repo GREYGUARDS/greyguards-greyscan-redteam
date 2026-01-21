@@ -27,6 +27,7 @@ import {
   PenLine,
   Loader2,
   Volume2,
+  VolumeX,
   CheckCircle2,
   XCircle,
   Lightbulb
@@ -36,6 +37,7 @@ import { toast } from "sonner";
 import greyguardsLogo from "@/assets/greyguards-logo.png";
 import { Link } from "react-router-dom";
 import CountdownTimer from "./CountdownTimer";
+import { useSoundEffects } from "@/hooks/use-sound-effects";
 
 interface BlueTeamDashboardProps {
   sessionId: string;
@@ -90,9 +92,17 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
     wasCorrect: boolean;
   }>({ open: false, effectiveness: 0, feedback: "", strengths: [], weaknesses: [], wasCorrect: false });
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const injectStartTime = useRef<number | null>(null);
+  
+  const { playSound, setEnabled: setSoundEffectsEnabled } = useSoundEffects();
 
   const totalDuration = sessionData.duration * 60;
+  
+  // Sync sound enabled state
+  useEffect(() => {
+    setSoundEffectsEnabled(soundEnabled);
+  }, [soundEnabled, setSoundEffectsEnabled]);
 
   // Generate response options for an inject
   const generateResponseOptions = (inject: Inject): ResponseOption[] => {
@@ -148,6 +158,10 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
           if (newInject.is_sent && !activeInject) {
             setActiveInject(newInject);
             injectStartTime.current = Date.now();
+            
+            // Play inject alert sound
+            playSound("inject");
+            
             setEventLog(prev => [{
               time: totalDuration - timeRemaining,
               message: `[${newInject.inject_type.toUpperCase()}] ${newInject.source}: "${newInject.content.substring(0, 50)}..."`,
@@ -233,6 +247,9 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
     const responseTime = (Date.now() - injectStartTime.current) / 1000;
     const wasCorrect = option.effectiveness >= 65;
 
+    // Play feedback sound
+    playSound(wasCorrect ? "success" : "warning");
+
     setResponseTimes(prev => [...prev, responseTime]);
     setDecisionsTotal(prev => prev + 1);
 
@@ -312,6 +329,9 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
           weaknesses,
           wasCorrect
         });
+        
+        // Play feedback sound
+        playSound(wasCorrect ? "success" : "error");
       }
     } catch (err) {
       console.error("Error evaluating response:", err);
@@ -324,6 +344,8 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
       wasCorrect = effectiveness >= 65;
       feedback = wasCorrect ? "Solid response approach." : "Response could be more strategic.";
       
+      // Play feedback sound for fallback
+      playSound(wasCorrect ? "success" : "error");
       setFeedbackModal({
         open: true,
         effectiveness,
@@ -430,7 +452,22 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
             </Badge>
           )}
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
+            {/* Sound Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className="p-2"
+              title={soundEnabled ? "Mute sounds" : "Enable sounds"}
+            >
+              {soundEnabled ? (
+                <Volume2 className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <VolumeX className="h-4 w-4 text-muted-foreground" />
+              )}
+            </Button>
+            
             <div className="text-right">
               <div className="flex items-center gap-2 justify-end">
                 <span className={`text-xl font-bold ${narrativeControl >= 50 ? 'text-success' : 'text-destructive'}`}>
