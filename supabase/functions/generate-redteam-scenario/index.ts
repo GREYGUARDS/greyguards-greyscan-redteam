@@ -207,29 +207,46 @@ serve(async (req) => {
 
     const systemPrompt = `You are an expert in crisis communications, disinformation campaigns, and brand reputation management. Your role is to create realistic but fictional crisis scenarios for training exercises.
 
-Generate a detailed disinformation scenario targeting "${brandName}". 
+CRITICAL FIRST STEP - ANALYZE THE BRAND:
+Before creating any scenario, you MUST first analyze "${brandName}" to understand:
+1. What industry/sector is this brand in? (e.g., military, tech, healthcare, retail, government, NGO, etc.)
+2. What is their primary purpose/mission? (e.g., national defense, selling products, providing services, etc.)
+3. What are their likely operations, stakeholders, and public perception?
+4. What types of crises would be MOST RELEVANT to this specific organization?
 
-IMPORTANT: Create a scenario specifically about ${selectedCategory.name} (${selectedCategory.description}). Make it highly specific and relevant to what a company named "${brandName}" would realistically face based on their likely industry and operations.
+BRAND CONTEXT EXAMPLES:
+- "British Army" → Military/Defense → Scenarios about recruitment practices, veterans treatment, operations transparency, equipment failures, leaked intelligence
+- "Apple" → Consumer Tech → Product safety, privacy, supply chain, labor practices
+- "NHS" → Healthcare → Patient data, treatment quality, resource allocation, staff conditions
+- "Greenpeace" → NGO/Activism → Funding sources, campaign effectiveness, internal practices
+
+Now generate a disinformation scenario for "${brandName}" in the category: ${selectedCategory.name} (${selectedCategory.description}).
+
+ADAPT THE CRISIS CATEGORY TO THE BRAND:
+The category "${selectedCategory.type}" should be interpreted through the lens of what "${brandName}" actually does:
+- For military orgs: "product_safety" → equipment/weapons reliability; "data_breach" → intelligence/personnel data leaks
+- For governments: "labor_practices" → civil servant treatment; "environmental" → policy failures
+- For charities: "financial_fraud" → donation misuse; "astroturfing" → fake grassroots campaigns
 
 The scenario should be:
-- UNIQUE and specific to ${brandName} - reference plausible products, services, or operations they might have
+- DEEPLY SPECIFIC to ${brandName}'s actual likely purpose and operations
+- Reference realistic aspects of their work (not generic corporate scenarios)
 - Based on common disinformation tactics (mixing truth with lies, emotional manipulation, coordinated amplification)
 - Challenging but not impossible to counter
 - Appropriate for a ${duration}-minute crisis simulation exercise
-- DIFFERENT from generic "executive misconduct" scenarios - focus on ${selectedCategory.type}
 
 Return a JSON object with these exact fields:
 - title: A concise, impactful title mentioning ${brandName} by name
-- narrative: A 2-3 paragraph description of the disinformation campaign, including how it started, what's being claimed, and how it's spreading. Be specific about platforms, tactics, and timeline.
+- narrative: A 2-3 paragraph description of the disinformation campaign that is SPECIFIC to what ${brandName} does. Include how it started, what's being claimed, and how it's spreading. Be specific about platforms, tactics, and timeline.
 - basedOnTruth: Boolean - whether the narrative contains any real/true elements that are being twisted
 - truthElement: If basedOnTruth is true, explain what the kernel of truth is
-- implicatedParties: Array of 2-3 roles (use generic titles like "[REDACTED - Senior Executive]" instead of real names)
+- implicatedParties: Array of 2-3 roles appropriate to ${brandName}'s organization type (use generic titles like "[REDACTED - Senior Officer]" or "[REDACTED - Department Head]" instead of real names)
 - severity: "moderate", "severe", or "critical"
 - spreadPattern: "viral" (organic fast spread), "coordinated" (bot/troll farm), or "organic" (slow natural spread)`;
 
     const userPrompt = userScenario 
-      ? `The user has provided this scenario outline. Enhance and professionalize it while keeping the core concept:\n\n"${userScenario}"\n\nMake it more realistic with specific details, spreading patterns, and implicated parties. Ensure it's specific to ${brandName}.`
-      : `Create a completely original ${selectedCategory.name.toLowerCase()} disinformation scenario targeting ${brandName}. Make it specific to what this brand likely does based on their name. Include specific platform names (Twitter/X, Reddit, TikTok, etc.), realistic account names, and a clear timeline of how the narrative is developing.`;
+      ? `The user has provided this scenario outline. Enhance and professionalize it while keeping the core concept:\n\n"${userScenario}"\n\nMake it more realistic with specific details, spreading patterns, and implicated parties. Ensure it's deeply specific to what ${brandName} actually does as an organization.`
+      : `First, determine what "${brandName}" most likely is (their industry, purpose, and operations). Then create a completely original ${selectedCategory.name.toLowerCase()} disinformation scenario that is HIGHLY RELEVANT to that type of organization. Do NOT use generic corporate scenarios - make it specific to what this brand actually does. Include specific platform names (Twitter/X, Reddit, TikTok, Telegram, etc.), realistic account types that would target this brand, and a clear timeline of how the narrative is developing.`;
 
     console.log("Generating scenario:", { brandName, duration, category: selectedCategory.type, clientIp, remaining: rateLimit.remaining });
 
