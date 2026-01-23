@@ -14,7 +14,8 @@ import {
   Loader2,
   Shield,
   Target,
-  Eye
+  Eye,
+  RefreshCw
 } from "lucide-react";
 import { ExerciseConfig, Scenario } from "@/pages/RedTeam";
 import { supabase } from "@/integrations/supabase/client";
@@ -453,13 +454,25 @@ The AI will enhance your scenario with realistic details and create dynamic inje
               <p className="text-muted-foreground mb-6">
                 You have {config.duration} minutes to respond to this crisis. Think carefully, the clock is ticking.
               </p>
-              <Button
-                onClick={handleConfirmScenario}
-                className="uppercase tracking-widest font-bold h-14 px-8 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-              >
-                <Target className="h-5 w-5 mr-3" />
-                I'm Ready - Begin Exercise
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => generateScenario(buildMode === "write" ? userScenario : undefined)}
+                  disabled={isGenerating}
+                  className="uppercase tracking-widest font-bold h-14 px-6"
+                >
+                  <RefreshCw className={`h-5 w-5 mr-3 ${isGenerating ? 'animate-spin' : ''}`} />
+                  Regenerate Scenario
+                </Button>
+                <Button
+                  onClick={handleConfirmScenario}
+                  disabled={isGenerating}
+                  className="uppercase tracking-widest font-bold h-14 px-8 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                >
+                  <Target className="h-5 w-5 mr-3" />
+                  I'm Ready - Begin Exercise
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
