@@ -68,7 +68,7 @@ export const TrackedStories = ({ stories, brandName }: TrackedStoriesProps) => {
                       <img 
                         src={story.imageUrl} 
                         alt={story.headline}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover grayscale"
                         onError={(e) => {
                           // Fallback to placeholder on error
                           e.currentTarget.style.display = 'none';

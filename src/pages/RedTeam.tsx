@@ -15,7 +15,18 @@ import {
   ArrowRight,
   Zap,
   AlertTriangle,
-  Timer
+  Timer,
+  Shuffle,
+  LockOpen,
+  Leaf,
+  HardHat,
+  DollarSign,
+  Bot,
+  Package,
+  Cpu,
+  Pill,
+  Landmark,
+  type LucideIcon
 } from "lucide-react";
 import greyguardsLogo from "@/assets/greyguards-logo.png";
 import ScenarioBuilder from "@/components/redteam/ScenarioBuilder";
@@ -25,6 +36,26 @@ import ExerciseDebrief from "@/components/redteam/ExerciseDebrief";
 import TeamJoin from "@/components/redteam/TeamJoin";
 import BlueTeamDashboard from "@/components/redteam/BlueTeamDashboard";
 import RedTeamDashboard from "@/components/redteam/RedTeamDashboard";
+
+// Icon mapping for scenario categories
+const scenarioIconMap: Record<string, LucideIcon> = {
+  "shuffle": Shuffle,
+  "alert-triangle": AlertTriangle,
+  "lock-open": LockOpen,
+  "leaf": Leaf,
+  "hard-hat": HardHat,
+  "dollar-sign": DollarSign,
+  "bot": Bot,
+  "package": Package,
+  "cpu": Cpu,
+  "pill": Pill,
+  "landmark": Landmark,
+};
+
+const ScenarioIcon = ({ name, className }: { name: string; className?: string }) => {
+  const IconComponent = scenarioIconMap[name] || AlertTriangle;
+  return <IconComponent className={className} />;
+};
 
 
 export type ExerciseMode = "self" | "consultant";
@@ -452,17 +483,17 @@ const RedTeam = () => {
                   className="grid grid-cols-2 sm:grid-cols-3 gap-3"
                 >
                   {[
-                    { value: "random", label: "Surprise Me", icon: "🎲" },
-                    { value: "product_safety", label: "Product Safety", icon: "⚠️" },
-                    { value: "data_breach", label: "Data Breach", icon: "🔓" },
-                    { value: "environmental", label: "Environmental", icon: "🌍" },
-                    { value: "labor_practices", label: "Labor Practices", icon: "👷" },
-                    { value: "financial_fraud", label: "Financial", icon: "💰" },
-                    { value: "astroturfing", label: "Astroturfing", icon: "🤖" },
-                    { value: "supply_chain", label: "Supply Chain", icon: "📦" },
-                    { value: "ai_ethics", label: "AI Ethics", icon: "🧠" },
-                    { value: "health_claims", label: "Health Claims", icon: "💊" },
-                    { value: "political_ties", label: "Political Ties", icon: "🏛️" },
+                    { value: "random", label: "Random", icon: "shuffle" },
+                    { value: "product_safety", label: "Product Safety", icon: "alert-triangle" },
+                    { value: "data_breach", label: "Data Breach", icon: "lock-open" },
+                    { value: "environmental", label: "Environmental", icon: "leaf" },
+                    { value: "labor_practices", label: "Labor Practices", icon: "hard-hat" },
+                    { value: "financial_fraud", label: "Financial", icon: "dollar-sign" },
+                    { value: "astroturfing", label: "Astroturfing", icon: "bot" },
+                    { value: "supply_chain", label: "Supply Chain", icon: "package" },
+                    { value: "ai_ethics", label: "AI Ethics", icon: "cpu" },
+                    { value: "health_claims", label: "Health Claims", icon: "pill" },
+                    { value: "political_ties", label: "Political Ties", icon: "landmark" },
                   ].map((cat) => (
                     <div 
                       key={cat.value}
@@ -470,7 +501,7 @@ const RedTeam = () => {
                     >
                       <RadioGroupItem value={cat.value} id={`cat-${cat.value}`} className="absolute top-2 right-2 h-3 w-3" />
                       <Label htmlFor={`cat-${cat.value}`} className="cursor-pointer">
-                        <span className="text-xl block mb-1">{cat.icon}</span>
+                        <ScenarioIcon name={cat.icon} className="h-5 w-5 mx-auto mb-1 text-muted-foreground" />
                         <span className="text-xs font-medium uppercase tracking-wider">{cat.label}</span>
                       </Label>
                     </div>
