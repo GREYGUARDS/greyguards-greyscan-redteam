@@ -44,7 +44,7 @@ const ServicesDropdown = ({ compact = false }: ServicesDropdownProps) => {
         "Elf Network Deployment",
         "Grey Zone Counter-Narrative Lab",
         "Digital Rapid Response Cell",
-        "Creative Counter Communications Campaign",
+        "Greyguards Command",
         "Narrative Repair Campaign",
         "Narrative Defence & Disruption Retainer"
       ]
