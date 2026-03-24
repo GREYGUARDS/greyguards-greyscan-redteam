@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Search, Download, AlertTriangle, Send, LogOut, Users, ChevronDown, Target, FileText } from "lucide-react";
 import greyguardsLogo from "@/assets/greyguards-logo.png";
+import { SyntheticContentMonitor } from "@/components/SyntheticContentMonitor";
+import { AIEngineExposure } from "@/components/AIEngineExposure";
+import { ComplianceBadge } from "@/components/ComplianceBadge";
+import { DailyBriefModal } from "@/components/DailyBriefModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -67,8 +71,15 @@ const Index = () => {
   const [demoCompany, setDemoCompany] = useState<string>("");
   const [trackedStories, setTrackedStories] = useState<any[]>([]);
   const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([]);
+  const [liveTimestamp, setLiveTimestamp] = useState(new Date());
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Live timestamp refresh every 60 seconds
+  useEffect(() => {
+    const interval = setInterval(() => setLiveTimestamp(new Date()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Define all API sources configuration
   const API_SOURCES: Omit<APIStatus, 'status' | 'count'>[] = [
@@ -885,16 +896,37 @@ const Index = () => {
                 <img src={greyguardsLogo} alt="Greyguards" className="h-8 w-8 sm:h-10 sm:w-10" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-semibold tracking-tight truncate">
-                  Greyguards – Greyscan
-                </h1>
-                <p className="text-muted-foreground text-xs sm:text-sm hidden sm:block">
-                  Narrative Intelligence Scanner
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-semibold tracking-tight truncate">
+                    GREYSCAN
+                  </h1>
+                  <span className="text-xs text-muted-foreground hidden sm:inline">—</span>
+                  <span className="text-xs text-muted-foreground hidden sm:inline uppercase tracking-wider">Narrative Intelligence Platform</span>
+                  {results && (
+                    <span className="flex items-center gap-1 ml-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+                      </span>
+                      <span className="text-[10px] text-success font-medium uppercase tracking-wider hidden sm:inline">LIVE</span>
+                    </span>
+                  )}
+                </div>
+                <p className="text-muted-foreground text-[10px] sm:text-xs hidden sm:block uppercase tracking-wider">
+                  Methodology Demonstration Environment — v1
+                </p>
+                <p className="text-muted-foreground/60 text-[9px] hidden lg:block uppercase tracking-widest">
+                  For qualified partner use only
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
-              <DemoModeSelector 
+              {results && (
+                <span className="text-[10px] text-muted-foreground hidden lg:inline mr-2">
+                  Updated: {liveTimestamp.toLocaleTimeString()}
+                </span>
+              )}
+              <DemoModeSelector
                 onSelectCompany={loadDemoData}
                 isActive={demoMode}
                 currentCompany={demoCompany}
@@ -964,6 +996,14 @@ const Index = () => {
             </div>
             {results && (
               <div className="mt-4 flex justify-end gap-2">
+                <DailyBriefModal
+                  brandName={brandName}
+                  threatLevel={results.threatLevel}
+                  threatScore={results.threatScore}
+                  mdmNarratives={mdmNarratives}
+                  sentimentDistribution={results.sentimentDistribution}
+                  brandPeople={brandPeople}
+                />
                 <Button onClick={handleDownload} variant="outline" size="sm" className="uppercase tracking-wider">
                   <Download className="mr-2 h-4 w-4" />
                   Export PNG
@@ -1004,6 +1044,12 @@ const Index = () => {
                   threatLevel={results.threatLevel}
                   threatScore={results.threatScore}
                 />
+
+                {/* Synthetic Content Monitor */}
+                <SyntheticContentMonitor brandName={brandName} />
+
+                {/* AI Engine Exposure */}
+                <AIEngineExposure brandName={brandName} />
 
                 {/* Sentiment Analysis & Trend */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1258,6 +1304,7 @@ const Index = () => {
           </div>
         )}
       </div>
+      {results && <ComplianceBadge />}
     </div>
   );
 };
