@@ -896,16 +896,37 @@ const Index = () => {
                 <img src={greyguardsLogo} alt="Greyguards" className="h-8 w-8 sm:h-10 sm:w-10" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-semibold tracking-tight truncate">
-                  Greyguards – Greyscan
-                </h1>
-                <p className="text-muted-foreground text-xs sm:text-sm hidden sm:block">
-                  Narrative Intelligence Scanner
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-semibold tracking-tight truncate">
+                    GREYSCAN
+                  </h1>
+                  <span className="text-xs text-muted-foreground hidden sm:inline">—</span>
+                  <span className="text-xs text-muted-foreground hidden sm:inline uppercase tracking-wider">Narrative Intelligence Platform</span>
+                  {results && (
+                    <span className="flex items-center gap-1 ml-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
+                      </span>
+                      <span className="text-[10px] text-success font-medium uppercase tracking-wider hidden sm:inline">LIVE</span>
+                    </span>
+                  )}
+                </div>
+                <p className="text-muted-foreground text-[10px] sm:text-xs hidden sm:block uppercase tracking-wider">
+                  Methodology Demonstration Environment — v1
+                </p>
+                <p className="text-muted-foreground/60 text-[9px] hidden lg:block uppercase tracking-widest">
+                  For qualified partner use only
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
-              <DemoModeSelector 
+              {results && (
+                <span className="text-[10px] text-muted-foreground hidden lg:inline mr-2">
+                  Updated: {liveTimestamp.toLocaleTimeString()}
+                </span>
+              )}
+              <DemoModeSelector
                 onSelectCompany={loadDemoData}
                 isActive={demoMode}
                 currentCompany={demoCompany}
