@@ -996,6 +996,14 @@ const Index = () => {
             </div>
             {results && (
               <div className="mt-4 flex justify-end gap-2">
+                <DailyBriefModal
+                  brandName={brandName}
+                  threatLevel={results.threatLevel}
+                  threatScore={results.threatScore}
+                  mdmNarratives={mdmNarratives}
+                  sentimentDistribution={results.sentimentDistribution}
+                  brandPeople={brandPeople}
+                />
                 <Button onClick={handleDownload} variant="outline" size="sm" className="uppercase tracking-wider">
                   <Download className="mr-2 h-4 w-4" />
                   Export PNG
