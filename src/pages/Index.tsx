@@ -1304,6 +1304,7 @@ const Index = () => {
           </div>
         )}
       </div>
+      {results && <ComplianceBadge />}
     </div>
   );
 };
