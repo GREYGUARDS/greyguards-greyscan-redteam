@@ -71,8 +71,15 @@ const Index = () => {
   const [demoCompany, setDemoCompany] = useState<string>("");
   const [trackedStories, setTrackedStories] = useState<any[]>([]);
   const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([]);
+  const [liveTimestamp, setLiveTimestamp] = useState(new Date());
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Live timestamp refresh every 60 seconds
+  useEffect(() => {
+    const interval = setInterval(() => setLiveTimestamp(new Date()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Define all API sources configuration
   const API_SOURCES: Omit<APIStatus, 'status' | 'count'>[] = [
