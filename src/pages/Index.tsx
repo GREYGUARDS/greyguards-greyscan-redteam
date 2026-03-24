@@ -1045,6 +1045,12 @@ const Index = () => {
                   threatScore={results.threatScore}
                 />
 
+                {/* Synthetic Content Monitor */}
+                <SyntheticContentMonitor brandName={brandName} />
+
+                {/* AI Engine Exposure */}
+                <AIEngineExposure brandName={brandName} />
+
                 {/* Sentiment Analysis & Trend */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <SentimentTrendComparison
