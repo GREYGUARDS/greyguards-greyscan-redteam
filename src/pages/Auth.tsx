@@ -14,6 +14,7 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [organisation, setOrganisation] = useState("");
+  const [brandName, setBrandName] = useState("");
   const [useCase, setUseCase] = useState("");
   const [consentGiven, setConsentGiven] = useState(false);
   const [loading, setLoading] = useState(false);
