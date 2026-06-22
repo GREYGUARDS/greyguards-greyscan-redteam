@@ -961,24 +961,20 @@ const Index = () => {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
 
-            {access.isAdmin && (
-              <>
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-                  <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or</span></div>
-                </div>
-                <div className="flex justify-center">
-                  <DemoModeSelector
-                    onSelectCompany={loadDemoData}
-                    isActive={demoMode}
-                    currentCompany={demoCompany}
-                  />
-                </div>
-                <p className="text-[10px] text-muted-foreground text-center uppercase tracking-widest">
-                  Admin · Demo case studies available
-                </p>
-              </>
-            )}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+              <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or explore</span></div>
+            </div>
+            <div className="flex justify-center">
+              <DemoModeSelector
+                onSelectCompany={loadDemoData}
+                isActive={demoMode}
+                currentCompany={demoCompany}
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground text-center uppercase tracking-widest">
+              Browse case studies — no brand name required
+            </p>
           </CardContent>
         </Card>
       </div>
