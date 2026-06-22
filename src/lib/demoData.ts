@@ -48,8 +48,8 @@ const generateTimelineData = (days: number, baseVolume: number, volatility: numb
 export const DEMO_COMPANIES: Record<string, DemoCompany> = {
   "Stark Industries": {
     name: "Stark Industries",
-    description: "Global defense technology and clean energy conglomerate",
-    industry: "Defense & Technology",
+    description: "Global defence technology and clean energy conglomerate",
+    industry: "Defence & Technology",
     threatLevel: "elevated",
     threatScore: 68,
     sentimentDistribution: [
@@ -68,7 +68,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       { word: "Tony Stark", count: 12 },
       { word: "clean energy", count: 10 },
       { word: "AI systems", count: 9 },
-      { word: "defense spending", count: 8 },
+      { word: "defence spending", count: 8 },
       { word: "government", count: 7 },
       { word: "innovation", count: 6 },
       { word: "controversy", count: 5 }
@@ -105,7 +105,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       {
         id: "stark-004",
         narrative_type: "disinformation",
-        narrative_description: "Fabricated claims that AI defense systems have autonomous kill capabilities",
+        narrative_description: "Fabricated claims that AI defence systems have autonomous kill capabilities",
         severity: "critical",
         frequency: 52,
         keywords: ["AI", "autonomous weapons", "killer robots", "no oversight"],
@@ -169,11 +169,11 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
         score: 2340
       },
       {
-        text: "INVESTIGATION: How Stark Industries' AI Defense Systems Could Operate Without Human Oversight",
+        text: "INVESTIGATION: How Stark Industries' AI Defence Systems Could Operate Without Human Oversight",
         source: "news",
         date: new Date(Date.now() - 172800000),
         title: "The Dark Side of Stark Tech",
-        outlet: "Global Defense Weekly"
+        outlet: "Global Defence Weekly"
       },
       {
         text: "Stark Industries announces $50B clean energy initiative. Critics call it 'greenwashing' to distract from weapons contracts.",
@@ -244,7 +244,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     people: [
       { id: "stark-ceo", person_name: "Tony Stark", person_role: "CEO & Founder" },
       { id: "stark-coo", person_name: "Pepper Potts", person_role: "COO" },
-      { id: "stark-cto", person_name: "James Rhodes", person_role: "Defense Liaison" },
+      { id: "stark-cto", person_name: "James Rhodes", person_role: "Defence Liaison" },
       { id: "stark-cfo", person_name: "Harold Hogan", person_role: "Head of Security" }
     ],
     personMentions: {
@@ -288,7 +288,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       "stark-coo": [
         {
           narrative_type: "misinformation",
-          narrative_description: "False rumors about company financial irregularities",
+          narrative_description: "False rumours about company financial irregularities",
           severity: "moderate",
           frequency: 23
         }
@@ -298,7 +298,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       {
         id: "story-stark-001",
         headline: "EXCLUSIVE: Stark Industries Weapons Found in Conflict Zone",
-        outlet: "Global Defense Weekly",
+        outlet: "Global Defence Weekly",
         published: new Date(Date.now() - 86400000).toISOString(),
         sentiment: -0.8,
         reach: 2400000,
@@ -352,10 +352,10 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       {
         id: "wayne-001",
         narrative_type: "disinformation",
-        narrative_description: "Coordinated campaign claiming Wayne Enterprises launders money for organized crime",
+        narrative_description: "Coordinated campaign claiming Wayne Enterprises launders money for organised crime",
         severity: "critical",
         frequency: 67,
-        keywords: ["money laundering", "organized crime", "corruption", "Gotham underworld"],
+        keywords: ["money laundering", "organised crime", "corruption", "Gotham underworld"],
         detected_at: new Date().toISOString()
       },
       {
@@ -373,7 +373,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
         narrative_description: "False claims that Wayne Foundation charities are tax evasion schemes",
         severity: "high",
         frequency: 52,
-        keywords: ["tax evasion", "charity fraud", "shell organizations", "offshore"],
+        keywords: ["tax evasion", "charity fraud", "shell organisations", "offshore"],
         detected_at: new Date().toISOString()
       },
       {
@@ -448,7 +448,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
         engagement: 45000
       },
       {
-        text: "Wayne Enterprises stock drops 8% amid corruption probe rumors. Investors nervous.",
+        text: "Wayne Enterprises stock drops 8% amid corruption probe rumours. Investors nervous.",
         source: "news",
         date: new Date(Date.now() - 345600000),
         title: "Wayne Stock Tumbles",
@@ -525,7 +525,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
       "wayne-ceo": [
         {
           narrative_type: "disinformation",
-          narrative_description: "Fabricated evidence linking Bruce Wayne to organized crime figures",
+          narrative_description: "Fabricated evidence linking Bruce Wayne to organised crime figures",
           severity: "critical",
           frequency: 112
         },
@@ -851,7 +851,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
 
   "Anon Defence & Aerospace": {
     name: "Anon Defence & Aerospace",
-    description: "Major defense contractor and aerospace manufacturer",
+    description: "Major defence contractor and aerospace manufacturer",
     industry: "Defence & Aerospace",
     threatLevel: "critical",
     threatScore: 92,
@@ -927,7 +927,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     emergingPredictions: [
       {
         id: "pred-ada-001",
-        narrative: "Foreign intelligence service preparing major document release ahead of defense contract vote",
+        narrative: "Foreign intelligence service preparing major document release ahead of defence contract vote",
         confidence: 94,
         trajectory: "accelerating",
         signals: ["Diplomatic chatter intercepted", "Dark web activity increase", "Known APT group active"],
@@ -981,7 +981,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
         score: 18900
       },
       {
-        text: "Anon Defence awarded $45B contract despite ongoing fraud investigation. Defense analysts question decision.",
+        text: "Anon Defence awarded $45B contract despite ongoing fraud investigation. Defence analysts question decision.",
         source: "news",
         date: new Date(Date.now() - 172800000),
         title: "Controversial Contract Award",
@@ -1051,7 +1051,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
     people: [
       { id: "ada-ceo", person_name: "Mr A Defence", person_role: "CEO" },
       { id: "ada-coo", person_name: "Mrs B Defence", person_role: "COO" },
-      { id: "ada-evp", person_name: "Mr C Defence", person_role: "EVP Defense Systems" },
+      { id: "ada-evp", person_name: "Mr C Defence", person_role: "EVP Defence Systems" },
       { id: "ada-gc", person_name: "Mrs D Defence", person_role: "General Counsel" }
     ],
     personMentions: {
@@ -1407,7 +1407,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
 
   "Anon Tech": {
     name: "Anon Tech",
-    description: "Global technology conglomerate specializing in AI, cloud computing, and social platforms",
+    description: "Global technology conglomerate specialising in AI, cloud computing, and social platforms",
     industry: "Technology",
     threatLevel: "critical",
     threatScore: 88,
@@ -1643,7 +1643,7 @@ export const DEMO_COMPANIES: Record<string, DemoCompany> = {
         },
         {
           narrative_type: "disinformation",
-          narrative_description: "Fabricated internal email showing CEO prioritizing growth over user safety",
+          narrative_description: "Fabricated internal email showing CEO prioritising growth over user safety",
           severity: "critical",
           frequency: 178
         }
