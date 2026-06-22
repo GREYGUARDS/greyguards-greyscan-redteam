@@ -14,6 +14,7 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [organisation, setOrganisation] = useState("");
+  const [brandName, setBrandName] = useState("");
   const [useCase, setUseCase] = useState("");
   const [consentGiven, setConsentGiven] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -54,10 +55,10 @@ export default function Auth() {
   const handleRequestAccess = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !name || !organisation) {
+    if (!email || !name || !organisation || !brandName) {
       toast({
         title: "Missing details",
-        description: "Please complete name, organisation and email",
+        description: "Please complete name, organisation, brand and email",
         variant: "destructive",
       });
       return;
@@ -74,35 +75,32 @@ export default function Auth() {
 
     setLoading(true);
     try {
-      // Record the request as a signup (acts as a lead capture).
-      const generatedPassword = `request_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password: generatedPassword,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            full_name: name,
-            organisation,
-            use_case: useCase,
-            request_type: "full_access",
-          },
-        },
-      });
+      // Persist the request so the admin can review it.
+      const { error: insertError } = await supabase
+        .from("platform_access_requests")
+        .insert({
+          full_name: name,
+          organisation,
+          email,
+          brand_name: brandName,
+          use_case: useCase || null,
+        });
+      if (insertError) throw insertError;
 
-      if (signUpError && !signUpError.message.includes("already registered")) {
-        throw signUpError;
-      }
+      // Open the user's mail client pre-filled to the admin so they get notified immediately.
+      const subject = encodeURIComponent(`GreyScan full-access request — ${organisation}`);
+      const body = encodeURIComponent(
+        `Name: ${name}\nOrganisation: ${organisation}\nBrand: ${brandName}\nEmail: ${email}\n\nUse case:\n${useCase || "(none provided)"}\n\n— Submitted via GreyScan`
+      );
+      window.location.href = `mailto:info@greyguards.com?subject=${subject}&body=${body}`;
 
       toast({
         title: "Request received",
-        description: "Our team will be in touch within one business day. Opening the case-study environment now.",
+        description: "We've recorded your request and opened your email client to notify the Greyguards team. You'll be contacted within one business day.",
       });
 
-      // Drop them into the case-study environment in the meantime.
-      const { error } = await supabase.auth.signInAnonymously();
-      if (error) throw error;
-      navigate("/");
+      setShowRequestForm(false);
+      setName(""); setOrganisation(""); setBrandName(""); setEmail(""); setUseCase(""); setConsentGiven(false);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -113,6 +111,7 @@ export default function Auth() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -187,6 +186,11 @@ export default function Auth() {
               <div className="space-y-2">
                 <label htmlFor="org" className="text-xs font-medium uppercase tracking-wider">Organisation</label>
                 <Input id="org" value={organisation} onChange={(e) => setOrganisation(e.target.value)} placeholder="Acme Defence Ltd" disabled={loading} required />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="brand" className="text-xs font-medium uppercase tracking-wider">Brand to Monitor</label>
+                <Input id="brand" value={brandName} onChange={(e) => setBrandName(e.target.value)} placeholder="The single brand your account will be locked to" disabled={loading} required />
+                <p className="text-[10px] text-muted-foreground">Your account will be limited to this one brand only.</p>
               </div>
               <div className="space-y-2">
                 <label htmlFor="email" className="text-xs font-medium uppercase tracking-wider">Work Email</label>
