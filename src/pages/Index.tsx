@@ -45,7 +45,7 @@ import { generateFallbackData } from "@/lib/fallbackData";
 import html2canvas from "html2canvas";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAccessProfile } from "@/hooks/useAccessProfile";
-import { Lock, ArrowRight } from "lucide-react";
+import { Lock, ArrowRight, ShieldCheck } from "lucide-react";
 
 
 const Index = () => {
