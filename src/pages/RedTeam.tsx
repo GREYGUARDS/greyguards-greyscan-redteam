@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,7 @@ import {
   Cpu,
   Pill,
   Landmark,
+  Lock,
   type LucideIcon
 } from "lucide-react";
 import greyguardsLogo from "@/assets/greyguards-logo.png";
@@ -36,6 +37,7 @@ import ExerciseDebrief from "@/components/redteam/ExerciseDebrief";
 import TeamJoin from "@/components/redteam/TeamJoin";
 import BlueTeamDashboard from "@/components/redteam/BlueTeamDashboard";
 import RedTeamDashboard from "@/components/redteam/RedTeamDashboard";
+import { useAccessProfile } from "@/hooks/useAccessProfile";
 
 // Icon mapping for scenario categories
 const scenarioIconMap: Record<string, LucideIcon> = {
