@@ -45,7 +45,7 @@ import { generateFallbackData } from "@/lib/fallbackData";
 import html2canvas from "html2canvas";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAccessProfile } from "@/hooks/useAccessProfile";
-import { Lock, ArrowRight } from "lucide-react";
+import { Lock, ArrowRight, ShieldCheck } from "lucide-react";
 
 
 const Index = () => {
@@ -912,6 +912,13 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <img src={greyguardsLogo} alt="Greyguards" className="h-12 w-auto object-contain" />
               <div className="flex items-center gap-2">
+                {access.isAdmin && (
+                  <Link to="/admin/requests">
+                    <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
+                      <ShieldCheck className="h-4 w-4 mr-1" /> Requests
+                    </Button>
+                  </Link>
+                )}
                 <Link to="/redteam">
                   <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10">
                     <Target className="h-4 w-4 mr-1" /> Red Team
