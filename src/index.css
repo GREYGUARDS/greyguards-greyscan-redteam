@@ -2,133 +2,123 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* =============================================================
+   Greyguards Brand System
+   Bone     #E8E2D5  →  41 29% 87%   (primary light / text on dark)
+   Forest   #24342C  →  150 18% 17%  (primary dark background)
+   Graphite #2C2E33  →  223 7% 19%   (secondary dark surfaces)
+   Crimson  #C8321E  →  7 74% 45%    (alerts, accents, CTAs)
+   WarmGrey #9E968A  →  36 9% 58%    (muted text, borders)
+   Typography: IBM Plex Mono (300 / 400 / 500 / 600)
+   ============================================================= */
 
 @layer base {
   :root {
-    /* Deep charcoal backgrounds with grey undertones */
-    --background: 210 8% 8%;
-    --foreground: 210 8% 92%;
+    /* Forest as canvas, Bone as ink */
+    --background: 150 18% 17%;
+    --foreground: 41 29% 87%;
 
-    --card: 210 10% 12%;
-    --card-foreground: 210 8% 92%;
+    /* Graphite surfaces */
+    --card: 223 7% 19%;
+    --card-foreground: 41 29% 87%;
 
-    --popover: 210 10% 12%;
-    --popover-foreground: 210 8% 92%;
+    --popover: 223 7% 19%;
+    --popover-foreground: 41 29% 87%;
 
-    /* Steel grey primary with military undertone */
-    --primary: 210 12% 48%;
-    --primary-foreground: 210 8% 8%;
+    /* Crimson is the brand's only true accent */
+    --primary: 7 74% 45%;
+    --primary-foreground: 41 29% 87%;
 
-    /* Dark slate secondary */
-    --secondary: 210 10% 18%;
-    --secondary-foreground: 210 8% 88%;
+    /* A slightly lifted forest for secondary blocks */
+    --secondary: 150 16% 22%;
+    --secondary-foreground: 41 29% 87%;
 
-    /* Muted gunmetal greys */
-    --muted: 210 10% 22%;
-    --muted-foreground: 210 6% 58%;
+    /* Warm grey for muted */
+    --muted: 150 12% 24%;
+    --muted-foreground: 36 9% 58%;
 
-    /* Accent pewter */
-    --accent: 210 10% 42%;
-    --accent-foreground: 210 8% 8%;
+    /* Bone as the calm accent */
+    --accent: 41 18% 32%;
+    --accent-foreground: 41 29% 87%;
 
-    /* Subdued red for destructive */
-    --destructive: 0 48% 38%;
-    --destructive-foreground: 210 8% 92%;
+    --destructive: 7 74% 45%;
+    --destructive-foreground: 41 29% 87%;
 
-    /* Border and input in graphite */
-    --border: 210 10% 28%;
-    --input: 210 10% 16%;
-    --ring: 210 12% 48%;
+    /* Borders: warm-grey tinted, low contrast */
+    --border: 150 10% 28%;
+    --input: 150 14% 22%;
+    --ring: 7 74% 45%;
 
-    /* Tactical success green with grey base */
-    --success: 145 20% 52%;
-    --success-foreground: 210 8% 8%;
+    /* Status colours kept restrained, in brand register */
+    --success: 145 22% 48%;
+    --success-foreground: 41 29% 87%;
 
-    /* Amber warning with grey tone */
-    --warning: 38 48% 48%;
-    --warning-foreground: 210 8% 92%;
+    --warning: 36 60% 56%;
+    --warning-foreground: 150 18% 12%;
 
-    /* Charts with sophisticated grey-blues */
-    --chart-1: 145 20% 52%;
-    --chart-2: 0 48% 48%;
-    --chart-3: 210 12% 55%;
-    --chart-4: 210 10% 35%;
-    --chart-5: 38 35% 52%;
+    /* Charts in brand palette */
+    --chart-1: 7 74% 45%;     /* crimson */
+    --chart-2: 41 29% 87%;    /* bone */
+    --chart-3: 36 9% 58%;     /* warm grey */
+    --chart-4: 145 22% 48%;   /* sage success */
+    --chart-5: 36 60% 56%;    /* warning amber */
 
     --radius: 0rem;
 
-    --sidebar-background: 210 10% 10%;
-    --sidebar-foreground: 210 8% 92%;
-    --sidebar-primary: 210 12% 48%;
-    --sidebar-primary-foreground: 210 8% 92%;
-    --sidebar-accent: 210 10% 15%;
-    --sidebar-accent-foreground: 210 8% 92%;
-    --sidebar-border: 210 10% 28%;
-    --sidebar-ring: 210 12% 48%;
+    --sidebar-background: 150 18% 14%;
+    --sidebar-foreground: 41 29% 87%;
+    --sidebar-primary: 7 74% 45%;
+    --sidebar-primary-foreground: 41 29% 87%;
+    --sidebar-accent: 223 7% 19%;
+    --sidebar-accent-foreground: 41 29% 87%;
+    --sidebar-border: 150 10% 28%;
+    --sidebar-ring: 7 74% 45%;
+
+    /* Raw brand tokens (utility access via arbitrary values if ever needed) */
+    --brand-bone: 41 29% 87%;
+    --brand-forest: 150 18% 17%;
+    --brand-graphite: 223 7% 19%;
+    --brand-crimson: 7 74% 45%;
+    --brand-warmgrey: 36 9% 58%;
   }
 
   .dark {
-    /* Deep charcoal backgrounds with grey undertones */
-    --background: 210 8% 8%;
-    --foreground: 210 8% 92%;
-
-    --card: 210 10% 12%;
-    --card-foreground: 210 8% 92%;
-
-    --popover: 210 10% 12%;
-    --popover-foreground: 210 8% 92%;
-
-    /* Steel grey primary with military undertone */
-    --primary: 210 12% 48%;
-    --primary-foreground: 210 8% 8%;
-
-    /* Dark slate secondary */
-    --secondary: 210 10% 18%;
-    --secondary-foreground: 210 8% 88%;
-
-    /* Muted gunmetal greys */
-    --muted: 210 10% 22%;
-    --muted-foreground: 210 6% 58%;
-
-    /* Accent pewter */
-    --accent: 210 10% 42%;
-    --accent-foreground: 210 8% 8%;
-
-    /* Subdued red for destructive */
-    --destructive: 0 48% 38%;
-    --destructive-foreground: 210 8% 92%;
-
-    /* Border and input in graphite */
-    --border: 210 10% 28%;
-    --input: 210 10% 16%;
-    --ring: 210 12% 48%;
-
-    /* Tactical success green with grey base */
-    --success: 145 20% 52%;
-    --success-foreground: 210 8% 8%;
-
-    /* Amber warning with grey tone */
-    --warning: 38 48% 48%;
-    --warning-foreground: 210 8% 92%;
-
-    /* Charts with sophisticated grey-blues */
-    --chart-1: 145 20% 52%;
-    --chart-2: 0 48% 48%;
-    --chart-3: 210 12% 55%;
-    --chart-4: 210 10% 35%;
-    --chart-5: 38 35% 52%;
-
-    --sidebar-background: 210 10% 10%;
-    --sidebar-foreground: 210 8% 92%;
-    --sidebar-primary: 210 12% 48%;
-    --sidebar-primary-foreground: 210 8% 92%;
-    --sidebar-accent: 210 10% 15%;
-    --sidebar-accent-foreground: 210 8% 92%;
-    --sidebar-border: 210 10% 28%;
-    --sidebar-ring: 210 12% 48%;
+    --background: 150 18% 17%;
+    --foreground: 41 29% 87%;
+    --card: 223 7% 19%;
+    --card-foreground: 41 29% 87%;
+    --popover: 223 7% 19%;
+    --popover-foreground: 41 29% 87%;
+    --primary: 7 74% 45%;
+    --primary-foreground: 41 29% 87%;
+    --secondary: 150 16% 22%;
+    --secondary-foreground: 41 29% 87%;
+    --muted: 150 12% 24%;
+    --muted-foreground: 36 9% 58%;
+    --accent: 41 18% 32%;
+    --accent-foreground: 41 29% 87%;
+    --destructive: 7 74% 45%;
+    --destructive-foreground: 41 29% 87%;
+    --border: 150 10% 28%;
+    --input: 150 14% 22%;
+    --ring: 7 74% 45%;
+    --success: 145 22% 48%;
+    --success-foreground: 41 29% 87%;
+    --warning: 36 60% 56%;
+    --warning-foreground: 150 18% 12%;
+    --chart-1: 7 74% 45%;
+    --chart-2: 41 29% 87%;
+    --chart-3: 36 9% 58%;
+    --chart-4: 145 22% 48%;
+    --chart-5: 36 60% 56%;
+    --sidebar-background: 150 18% 14%;
+    --sidebar-foreground: 41 29% 87%;
+    --sidebar-primary: 7 74% 45%;
+    --sidebar-primary-foreground: 41 29% 87%;
+    --sidebar-accent: 223 7% 19%;
+    --sidebar-accent-foreground: 41 29% 87%;
+    --sidebar-border: 150 10% 28%;
+    --sidebar-ring: 7 74% 45%;
   }
 }
 
@@ -137,97 +127,81 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html, body {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 300;
+    letter-spacing: -0.005em;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "cv11", "ss01";
+    font-feature-settings: "zero", "ss01";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  label, button, .uppercase {
+    font-weight: 500;
+  }
+
+  /* Selection in crimson */
+  ::selection {
+    background: hsl(var(--primary) / 0.35);
+    color: hsl(var(--foreground));
   }
 }
 
 @layer utilities {
-  /* Subtle glow effects for status indicators */
-  .glow-success {
-    box-shadow: 0 0 12px hsl(var(--success) / 0.3);
-  }
+  .glow-success { box-shadow: 0 0 12px hsl(var(--success) / 0.3); }
+  .glow-warning { box-shadow: 0 0 12px hsl(var(--warning) / 0.3); }
+  .glow-danger  { box-shadow: 0 0 12px hsl(var(--destructive) / 0.3); }
+  .glow-primary { box-shadow: 0 0 12px hsl(var(--primary) / 0.35); }
 
-  .glow-warning {
-    box-shadow: 0 0 12px hsl(var(--warning) / 0.3);
-  }
+  .hover-glow-success:hover { box-shadow: 0 0 16px hsl(var(--success) / 0.4); transition: box-shadow 0.2s ease; }
+  .hover-glow-warning:hover { box-shadow: 0 0 16px hsl(var(--warning) / 0.4); transition: box-shadow 0.2s ease; }
+  .hover-glow-danger:hover  { box-shadow: 0 0 16px hsl(var(--destructive) / 0.4); transition: box-shadow 0.2s ease; }
 
-  .glow-danger {
-    box-shadow: 0 0 12px hsl(var(--destructive) / 0.3);
-  }
+  .border-glow-success { border: 1px solid hsl(var(--success));    box-shadow: 0 0 8px hsl(var(--success) / 0.25); }
+  .border-glow-warning { border: 1px solid hsl(var(--warning));    box-shadow: 0 0 8px hsl(var(--warning) / 0.25); }
+  .border-glow-danger  { border: 1px solid hsl(var(--destructive)); box-shadow: 0 0 8px hsl(var(--destructive) / 0.3); }
 
-  .glow-primary {
-    box-shadow: 0 0 12px hsl(var(--primary) / 0.3);
-  }
-
-  /* Hover glow effects - more subtle */
-  .hover-glow-success:hover {
-    box-shadow: 0 0 16px hsl(var(--success) / 0.4);
-    transition: box-shadow 0.2s ease;
-  }
-
-  .hover-glow-warning:hover {
-    box-shadow: 0 0 16px hsl(var(--warning) / 0.4);
-    transition: box-shadow 0.2s ease;
-  }
-
-  .hover-glow-danger:hover {
-    box-shadow: 0 0 16px hsl(var(--destructive) / 0.4);
-    transition: box-shadow 0.2s ease;
-  }
-
-  /* Border glow effects - refined */
-  .border-glow-success {
-    border: 1px solid hsl(var(--success));
-    box-shadow: 0 0 8px hsl(var(--success) / 0.25);
-  }
-
-  .border-glow-warning {
-    border: 1px solid hsl(var(--warning));
-    box-shadow: 0 0 8px hsl(var(--warning) / 0.25);
-  }
-
-  .border-glow-danger {
-    border: 1px solid hsl(var(--destructive));
-    box-shadow: 0 0 8px hsl(var(--destructive) / 0.25);
-  }
-
-  /* Backdrop blur for depth */
   .glass-effect {
     background: hsl(var(--card) / 0.9);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
 
-  /* Metric display styles - more refined */
   .metric-display {
-    @apply text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight;
+    @apply text-4xl sm:text-5xl md:text-6xl tracking-tight;
+    font-weight: 600;
   }
 
   .metric-display-xl {
-    @apply text-5xl sm:text-6xl md:text-7xl font-semibold tracking-tight;
+    @apply text-5xl sm:text-6xl md:text-7xl tracking-tight;
+    font-weight: 600;
   }
 
-  /* Smooth transitions */
-  .smooth-transition {
-    transition: all 0.2s ease;
-  }
+  .smooth-transition { transition: all 0.2s ease; }
+  .card-padding { @apply p-4 sm:p-6; }
+  .section-spacing { @apply space-y-4 sm:space-y-6; }
 
-  /* Mobile-first responsive utilities */
-  .card-padding {
-    @apply p-4 sm:p-6;
-  }
-
-  .section-spacing {
-    @apply space-y-4 sm:space-y-6;
-  }
-
-  /* Text overflow handling */
   .text-truncate-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /* Brand-tinted utilities for the rare component that needs raw brand colours */
+  .bg-bone     { background-color: hsl(var(--brand-bone)); }
+  .bg-forest   { background-color: hsl(var(--brand-forest)); }
+  .bg-graphite { background-color: hsl(var(--brand-graphite)); }
+  .bg-crimson  { background-color: hsl(var(--brand-crimson)); }
+  .text-bone     { color: hsl(var(--brand-bone)); }
+  .text-crimson  { color: hsl(var(--brand-crimson)); }
+  .text-warmgrey { color: hsl(var(--brand-warmgrey)); }
+  .border-crimson { border-color: hsl(var(--brand-crimson)); }
 }
