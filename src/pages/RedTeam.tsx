@@ -303,7 +303,7 @@ const RedTeam = () => {
       <header className="border-b-4 border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={greyguardsLogo} alt="Greyguards" className="h-8 w-8 sm:h-10 sm:w-10" />
+            <img src={greyguardsLogo} alt="Greyguards" className="h-8 sm:h-10 w-auto object-contain" />
             <div>
               <span className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">Greyguards – Red Team</span>
               <span className="block text-muted-foreground text-xs sm:text-sm hidden sm:block">Crisis Simulation using GreyScan</span>
