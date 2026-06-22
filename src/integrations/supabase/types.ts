@@ -469,9 +469,13 @@ export type Database = {
       }
       platform_access_requests: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           brand_name: string
           created_at: string
+          decision_notes: string | null
           email: string
+          email_domain_matches_brand: boolean | null
           full_name: string
           id: string
           organisation: string
@@ -479,9 +483,13 @@ export type Database = {
           use_case: string | null
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           brand_name: string
           created_at?: string
+          decision_notes?: string | null
           email: string
+          email_domain_matches_brand?: boolean | null
           full_name: string
           id?: string
           organisation: string
@@ -489,9 +497,13 @@ export type Database = {
           use_case?: string | null
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           brand_name?: string
           created_at?: string
+          decision_notes?: string | null
           email?: string
+          email_domain_matches_brand?: boolean | null
           full_name?: string
           id?: string
           organisation?: string
@@ -562,6 +574,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_approve_access_request: {
+        Args: { _notes?: string; _request_id: string }
+        Returns: Json
+      }
+      admin_reject_access_request: {
+        Args: { _notes?: string; _request_id: string }
+        Returns: undefined
+      }
       get_my_locked_brand: { Args: never; Returns: string }
       is_admin: { Args: { _uid: string }; Returns: boolean }
       is_session_participant: {
