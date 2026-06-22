@@ -893,7 +893,7 @@ const Index = () => {
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center flex-shrink-0">
-                <img src={greyguardsLogo} alt="Greyguards" className="h-8 w-8 sm:h-10 sm:w-10" />
+                <img src={greyguardsLogo} alt="Greyguards" className="h-8 sm:h-10 w-auto object-contain" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
