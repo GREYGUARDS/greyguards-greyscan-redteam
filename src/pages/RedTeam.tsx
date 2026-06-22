@@ -380,6 +380,13 @@ const RedTeam = () => {
                   placeholder="Enter brand or organization name..."
                   className="border-2 border-border bg-input h-12 text-lg uppercase tracking-wide"
                 />
+                <button
+                  type="button"
+                  onClick={() => setConfig({ ...config, brandName: "Anon Business" })}
+                  className="text-xs uppercase tracking-wider text-muted-foreground hover:text-crimson underline-offset-4 hover:underline transition-colors"
+                >
+                  Or use "Anon Business" (generic demo target)
+                </button>
               </div>
 
               {/* Exercise Mode */}
