@@ -14,6 +14,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_admins: {
+        Row: {
+          created_at: string
+          email: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+        }
+        Relationships: []
+      }
       brand_people: {
         Row: {
           brand_name: string
@@ -452,6 +467,39 @@ export type Database = {
           },
         ]
       }
+      platform_access_requests: {
+        Row: {
+          brand_name: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          organisation: string
+          status: string
+          use_case: string | null
+        }
+        Insert: {
+          brand_name: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          organisation: string
+          status?: string
+          use_case?: string | null
+        }
+        Update: {
+          brand_name?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          organisation?: string
+          status?: string
+          use_case?: string | null
+        }
+        Relationships: []
+      }
       sentiment_history: {
         Row: {
           brand_name: string
@@ -514,6 +562,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_my_locked_brand: { Args: never; Returns: string }
+      is_admin: { Args: { _uid: string }; Returns: boolean }
       is_session_participant: {
         Args: { _session_id: string; _user_id: string }
         Returns: boolean
