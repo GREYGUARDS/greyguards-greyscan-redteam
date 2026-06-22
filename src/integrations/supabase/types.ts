@@ -522,6 +522,14 @@ export type Database = {
         Args: { _session_id: string; _team_name: string; _team_type: string }
         Returns: string
       }
+      list_session_team_slots: {
+        Args: { _session_id: string }
+        Returns: {
+          is_connected: boolean
+          team_name: string
+          team_type: string
+        }[]
+      }
       lookup_session_by_code: {
         Args: { _code: string }
         Returns: {
