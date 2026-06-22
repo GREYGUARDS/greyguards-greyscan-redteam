@@ -912,6 +912,13 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <img src={greyguardsLogo} alt="Greyguards" className="h-12 w-auto object-contain" />
               <div className="flex items-center gap-2">
+                {access.isAdmin && (
+                  <Link to="/admin/requests">
+                    <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
+                      <ShieldCheck className="h-4 w-4 mr-1" /> Requests
+                    </Button>
+                  </Link>
+                )}
                 <Link to="/redteam">
                   <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10">
                     <Target className="h-4 w-4 mr-1" /> Red Team
