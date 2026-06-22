@@ -76,6 +76,21 @@ interface DatabaseSession {
   completed_at: string | null;
 }
 
+const CONSULTANT_GENERATION_TIMEOUT_MS = 10000;
+
+const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error("Generation timed out")), timeoutMs);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+};
+
 const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScenario }: ConsultantDashboardProps) => {
   const [isExerciseActive, setIsExerciseActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(config.duration * 60);
@@ -504,29 +519,40 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
   const handleGenerateScenario = async () => {
     setIsGeneratingScenario(true);
     try {
-      const { data: scenarioData, error: scenarioError } = await supabase.functions.invoke('generate-redteam-scenario', {
-        body: { brandName: config.brandName }
-      });
+      const { data: scenarioData, error: scenarioError } = await withTimeout(
+        supabase.functions.invoke('generate-redteam-scenario', {
+          body: {
+            brandName: config.brandName,
+            duration: config.duration,
+            scenarioCategory: config.scenarioCategory || "random"
+          }
+        }),
+        CONSULTANT_GENERATION_TIMEOUT_MS
+      );
 
       if (scenarioError) throw scenarioError;
 
       const generatedScenario: Scenario = {
-        ...scenarioData.scenario,
+        ...scenarioData,
+        id: scenarioData.id || crypto.randomUUID(),
         refCode: generateRefCode()
       };
 
-      const { data: injectsData, error: injectsError } = await supabase.functions.invoke('generate-redteam-injects', {
-        body: {
-          scenario: generatedScenario,
-          brandName: config.brandName,
-          duration: config.duration
-        }
-      });
+      const { data: injectsData, error: injectsError } = await withTimeout(
+        supabase.functions.invoke('generate-redteam-injects', {
+          body: {
+            scenario: generatedScenario,
+            brandName: config.brandName,
+            duration: config.duration
+          }
+        }),
+        CONSULTANT_GENERATION_TIMEOUT_MS
+      );
 
       if (injectsError) throw injectsError;
 
       setScenario(generatedScenario);
-      setPreviewInjects(injectsData.injects || []);
+      setPreviewInjects(injectsData?.injects || []);
       onScenarioGenerated?.(generatedScenario);
       toast.success("Scenario generated successfully!");
     } catch (error) {

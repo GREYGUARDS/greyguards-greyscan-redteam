@@ -29,6 +29,21 @@ import { ExerciseConfig, Scenario, Inject, ResponseOption, TeamScore, ResponseRe
 import CountdownTimer from "./CountdownTimer";
 import { supabase } from "@/integrations/supabase/client";
 
+const INJECT_GENERATION_TIMEOUT_MS = 8000;
+
+const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error("Inject generation timed out")), timeoutMs);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+};
+
 interface ExercisePlayerProps {
   config: ExerciseConfig;
   scenario: Scenario;
@@ -64,16 +79,20 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   // Generate pre-defined injects based on scenario
   const generateInjects = useCallback(async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('generate-redteam-injects', {
-        body: {
-          scenario,
-          brandName: config.brandName,
-          duration: config.duration
-        }
-      });
+      const { data, error } = await withTimeout(
+        supabase.functions.invoke('generate-redteam-injects', {
+          body: {
+            scenario,
+            brandName: config.brandName,
+            duration: config.duration
+          }
+        }),
+        INJECT_GENERATION_TIMEOUT_MS
+      );
 
       if (error) throw error;
-      return data.injects as Inject[];
+      const generatedInjects = Array.isArray(data?.injects) ? data.injects as Inject[] : [];
+      return generatedInjects.length > 0 ? generatedInjects : generateFallbackInjects();
     } catch (error) {
       console.error("Error generating injects:", error);
       // Return fallback injects
