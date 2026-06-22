@@ -119,7 +119,7 @@ export default function Auth() {
       <Card className="w-full max-w-md border-4 border-border">
         <CardHeader className="space-y-4 border-b-4 border-border bg-secondary">
           <div className="flex items-center justify-center">
-            <img src={greyguardsLogo} alt="Greyguards Intelligence" className="h-16 w-16" />
+            <img src={greyguardsLogo} alt="Greyguards Intelligence" className="h-20 w-auto object-contain" />
           </div>
           <CardTitle className="text-center text-2xl uppercase tracking-wider">
             GreyScan Access
