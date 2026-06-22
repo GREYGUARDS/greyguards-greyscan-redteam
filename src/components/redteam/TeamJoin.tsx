@@ -32,30 +32,25 @@ const TeamJoin = ({ onJoinSession, onBack }: TeamJoinProps) => {
     setIsJoining(true);
     try {
       const { data, error } = await supabase
-        .from("exercise_sessions")
-        .select("*")
-        .eq("session_code", sessionCode.toUpperCase())
-        .maybeSingle();
+        .rpc("lookup_session_by_code", { _code: sessionCode.toUpperCase() });
 
       if (error) throw error;
 
-      if (!data) {
+      const session = Array.isArray(data) ? data[0] : data;
+      if (!session) {
         toast.error("Session not found. Check the code and try again.");
         return;
       }
 
-      if (data.status === "completed") {
+      if (session.status === "completed") {
         toast.error("This session has already ended.");
         return;
       }
 
-      // Check which teams are available
       const { data: teams } = await supabase
-        .from("exercise_teams")
-        .select("*")
-        .eq("session_id", data.id);
+        .rpc("list_session_team_slots", { _session_id: session.id });
 
-      setSessionData({ ...data, teams });
+      setSessionData({ ...session, teams: teams || [] });
       setStep("team");
     } catch (error) {
       console.error("Error looking up session:", error);
@@ -70,7 +65,6 @@ const TeamJoin = ({ onJoinSession, onBack }: TeamJoinProps) => {
 
     setIsJoining(true);
     try {
-      // Check if team slot is already taken
       const existingTeam = sessionData.teams?.find((t: any) => t.team_type === selectedTeam && t.is_connected);
       if (existingTeam) {
         toast.error(`The ${selectedTeam} team is already connected`);
@@ -78,47 +72,18 @@ const TeamJoin = ({ onJoinSession, onBack }: TeamJoinProps) => {
         return;
       }
 
-      // Try to join or create the team entry
-      const { data: existingEntry } = await supabase
-        .from("exercise_teams")
-        .select("*")
-        .eq("session_id", sessionData.id)
-        .eq("team_type", selectedTeam)
-        .maybeSingle();
+      const finalTeamName = teamName || `${selectedTeam.charAt(0).toUpperCase() + selectedTeam.slice(1)} Team`;
+      const { data: teamId, error } = await supabase
+        .rpc("join_exercise_team", {
+          _session_id: sessionData.id,
+          _team_type: selectedTeam,
+          _team_name: finalTeamName,
+        });
 
-      let teamId: string;
-
-      if (existingEntry) {
-        // Update existing entry
-        const { error } = await supabase
-          .from("exercise_teams")
-          .update({ 
-            is_connected: true, 
-            team_name: teamName || `${selectedTeam.charAt(0).toUpperCase() + selectedTeam.slice(1)} Team` 
-          })
-          .eq("id", existingEntry.id);
-
-        if (error) throw error;
-        teamId = existingEntry.id;
-      } else {
-        // Create new team entry
-        const { data: newTeam, error } = await supabase
-          .from("exercise_teams")
-          .insert({
-            session_id: sessionData.id,
-            team_type: selectedTeam,
-            team_name: teamName || `${selectedTeam.charAt(0).toUpperCase() + selectedTeam.slice(1)} Team`,
-            is_connected: true
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        teamId = newTeam.id;
-      }
+      if (error) throw error;
 
       toast.success(`Joined as ${selectedTeam} team!`);
-      onJoinSession(sessionData.id, teamId, selectedTeam, sessionData);
+      onJoinSession(sessionData.id, teamId as string, selectedTeam, sessionData);
     } catch (error) {
       console.error("Error joining team:", error);
       toast.error("Failed to join team");
@@ -126,6 +91,7 @@ const TeamJoin = ({ onJoinSession, onBack }: TeamJoinProps) => {
       setIsJoining(false);
     }
   };
+
 
   const isTeamTaken = (teamType: "blue" | "red") => {
     return sessionData?.teams?.some((t: any) => t.team_type === teamType && t.is_connected);

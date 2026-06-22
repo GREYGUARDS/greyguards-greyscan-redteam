@@ -170,6 +170,7 @@ export type Database = {
           brand_name: string
           completed_at: string | null
           created_at: string
+          created_by_user_id: string | null
           duration: number
           id: string
           red_team_score: Json | null
@@ -185,6 +186,7 @@ export type Database = {
           brand_name: string
           completed_at?: string | null
           created_at?: string
+          created_by_user_id?: string | null
           duration?: number
           id?: string
           red_team_score?: Json | null
@@ -200,6 +202,7 @@ export type Database = {
           brand_name?: string
           completed_at?: string | null
           created_at?: string
+          created_by_user_id?: string | null
           duration?: number
           id?: string
           red_team_score?: Json | null
@@ -224,6 +227,7 @@ export type Database = {
           session_id: string
           team_name: string | null
           team_type: string
+          user_id: string | null
         }
         Insert: {
           decisions_correct?: number | null
@@ -236,6 +240,7 @@ export type Database = {
           session_id: string
           team_name?: string | null
           team_type: string
+          user_id?: string | null
         }
         Update: {
           decisions_correct?: number | null
@@ -248,6 +253,7 @@ export type Database = {
           session_id?: string
           team_name?: string | null
           team_type?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -508,7 +514,38 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_session_participant: {
+        Args: { _session_id: string; _user_id: string }
+        Returns: boolean
+      }
+      join_exercise_team: {
+        Args: { _session_id: string; _team_name: string; _team_type: string }
+        Returns: string
+      }
+      list_session_team_slots: {
+        Args: { _session_id: string }
+        Returns: {
+          is_connected: boolean
+          team_name: string
+          team_type: string
+        }[]
+      }
+      lookup_session_by_code: {
+        Args: { _code: string }
+        Returns: {
+          brand_name: string
+          created_at: string
+          duration: number
+          id: string
+          session_code: string
+          status: string
+          team_mode: string
+        }[]
+      }
+      user_can_access_realtime_topic: {
+        Args: { _topic: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
