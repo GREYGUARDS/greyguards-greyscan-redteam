@@ -87,12 +87,6 @@ const StrategicRecommendations = ({
                 {recommendations}
               </p>
             </div>
-            <div className="pt-4 border-t-2 border-border">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-4">
-                Greyguards Intelligence Solutions
-              </p>
-              <ServicesDropdown compact />
-            </div>
           </div>
         )}
       </CardContent>
