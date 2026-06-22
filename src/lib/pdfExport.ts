@@ -223,7 +223,7 @@ export const exportToPDF = async (data: ExportData) => {
   // Total mentions
   doc.setTextColor(200, 200, 200);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Total Mentions Analyzed: ${data.totalMentions}`, margin + 10, summaryY + 42);
+  doc.text(`Total Mentions Analysed: ${data.totalMentions}`, margin + 10, summaryY + 42);
   
   // Sentiment breakdown
   const posPercent = total > 0 ? Math.round(positive / total * 100) : 0;
@@ -250,7 +250,7 @@ export const exportToPDF = async (data: ExportData) => {
   // Footer on cover
   doc.setFontSize(8);
   doc.setTextColor(100, 100, 100);
-  doc.text('CONFIDENTIAL – FOR AUTHORIZED PERSONNEL ONLY', pageWidth / 2, pageHeight - 20, { align: 'center' });
+  doc.text('CONFIDENTIAL – FOR AUTHORISED PERSONNEL ONLY', pageWidth / 2, pageHeight - 20, { align: 'center' });
   doc.text('© Greyguards Intelligence', pageWidth / 2, pageHeight - 12, { align: 'center' });
   
   // ===== START MAIN REPORT ON NEW PAGE =====

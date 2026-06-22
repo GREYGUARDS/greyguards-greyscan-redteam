@@ -505,7 +505,7 @@ const RedTeam = () => {
                 { value: "product_safety", label: "Product", icon: "alert-triangle" },
                 { value: "data_breach", label: "Data Breach", icon: "lock-open" },
                 { value: "environmental", label: "Environ.", icon: "leaf" },
-                { value: "labor_practices", label: "Labor", icon: "hard-hat" },
+                { value: "labor_practices", label: "Labour", icon: "hard-hat" },
                 { value: "financial_fraud", label: "Financial", icon: "dollar-sign" },
                 { value: "astroturfing", label: "Astroturf", icon: "bot" },
                 { value: "supply_chain", label: "Supply", icon: "package" },

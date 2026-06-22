@@ -170,7 +170,7 @@ export function generateFallbackData(brandName: string): FallbackData {
       narrative_description: `Unverified claims circulating about ${brandName}'s business practices require monitoring`,
       severity: "moderate",
       frequency: 12,
-      keywords: [brandName.toLowerCase(), "rumors", "unverified", "claims"],
+      keywords: [brandName.toLowerCase(), "rumours", "unverified", "claims"],
       detected_at: new Date().toISOString()
     },
     {

@@ -45,10 +45,10 @@ const ScenarioInputSchema = z.object({
 // Brand-specific scenario categories for more variety
 const SCENARIO_CATEGORIES = [
   { type: "product_safety", name: "Product Safety Crisis", description: "Claims about defective or dangerous products" },
-  { type: "data_breach", name: "Data Breach Allegations", description: "Rumors of customer data being compromised" },
+  { type: "data_breach", name: "Data Breach Allegations", description: "Rumours of customer data being compromised" },
   { type: "environmental", name: "Environmental Violation", description: "False claims about pollution or eco damage" },
-  { type: "labor_practices", name: "Labor Practice Scandal", description: "Disinformation about worker treatment" },
-  { type: "financial_fraud", name: "Financial Misconduct", description: "Rumors of accounting irregularities" },
+  { type: "labor_practices", name: "Labour Practice Scandal", description: "Disinformation about worker treatment" },
+  { type: "financial_fraud", name: "Financial Misconduct", description: "Rumours of accounting irregularities" },
   { type: "astroturfing", name: "Astroturfing Accusations", description: "Claims the brand uses fake grassroots support" },
   { type: "supply_chain", name: "Supply Chain Controversy", description: "Allegations about unethical sourcing" },
   { type: "ai_ethics", name: "AI Ethics Scandal", description: "Claims about harmful AI use or bias" },
@@ -113,7 +113,7 @@ function generateFallbackScenario(brandName: string): any {
     },
     supply_chain: {
       title: `${brandName} Supply Chain Ethics Under Fire`,
-      narrative: `A campaign is spreading claims that ${brandName}'s supply chain involves unethical labor practices or sourcing from sanctioned regions. Fake shipping manifests and supplier documents are being shared. Activist groups are amplifying the narrative without verification.`,
+      narrative: `A campaign is spreading claims that ${brandName}'s supply chain involves unethical labour practices or sourcing from sanctioned regions. Fake shipping manifests and supplier documents are being shared. Activist groups are amplifying the narrative without verification.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - Procurement Lead]", "[REDACTED - Compliance Officer]"],
       severity: "severe",
@@ -121,7 +121,7 @@ function generateFallbackScenario(brandName: string): any {
     },
     ai_ethics: {
       title: `${brandName} AI Systems Face Bias Allegations`,
-      narrative: `Claims are circulating that ${brandName}'s AI systems exhibit discriminatory behavior. The campaign uses cherry-picked examples and misleading statistics. Tech commentators are weighing in before any independent verification, and the hashtag #${brandName.replace(/\s/g, '')}Bias is trending.`,
+      narrative: `Claims are circulating that ${brandName}'s AI systems exhibit discriminatory behaviour. The campaign uses cherry-picked examples and misleading statistics. Tech commentators are weighing in before any independent verification, and the hashtag #${brandName.replace(/\s/g, '')}Bias is trending.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - AI Lead]", "[REDACTED - Data Science Director]"],
       severity: "moderate",
