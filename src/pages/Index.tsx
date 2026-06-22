@@ -897,7 +897,89 @@ const Index = () => {
     }
   }, [results, brandName, userId]);
 
+  const brandLocked = !access.isAdmin && !!access.lockedBrand;
+  const showEntry = !results && !loading;
+
+  if (showEntry) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-success/5 pointer-events-none" />
+        <div className="absolute top-10 left-10 w-40 h-40 bg-primary/10 blur-3xl animate-pulse-glow pointer-events-none" />
+        <div className="absolute bottom-10 right-10 w-48 h-48 bg-success/10 blur-3xl animate-pulse-glow pointer-events-none" style={{ animationDelay: "1s" }} />
+
+        <Card className="w-full max-w-md border-4 border-border bg-card relative z-10">
+          <CardHeader className="space-y-3 border-b-4 border-border bg-secondary">
+            <div className="flex items-center justify-between">
+              <img src={greyguardsLogo} alt="Greyguards" className="h-12 w-auto object-contain" />
+              <div className="flex items-center gap-2">
+                <Link to="/redteam">
+                  <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10">
+                    <Target className="h-4 w-4 mr-1" /> Red Team
+                  </Button>
+                </Link>
+                <Button variant="outline" size="icon" onClick={handleLogout} className="h-8 w-8">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <CardTitle className="text-center text-2xl uppercase tracking-wider">GreyScan</CardTitle>
+            <CardDescription className="text-center text-xs uppercase tracking-widest">
+              Narrative Intelligence Platform
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 space-y-5">
+            <div className="space-y-2">
+              <label className="text-xs font-medium uppercase tracking-wider">Target Brand / Organisation</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Enter brand or organization..."
+                  value={brandName}
+                  onChange={(e) => !brandLocked && setBrandName(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                  disabled={brandLocked}
+                  className="pl-10 h-11"
+                />
+              </div>
+              {brandLocked && (
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <Lock className="h-3 w-3" /> Your account is locked to this brand.
+                </p>
+              )}
+            </div>
+
+            <Button onClick={handleSearch} disabled={loading || !brandName.trim()} className="w-full h-11 uppercase tracking-wider">
+              <Search className="mr-2 h-4 w-4" />
+              Analyze
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+
+            {access.isAdmin && (
+              <>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+                  <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or</span></div>
+                </div>
+                <div className="flex justify-center">
+                  <DemoModeSelector
+                    onSelectCompany={loadDemoData}
+                    isActive={demoMode}
+                    currentCompany={demoCompany}
+                  />
+                </div>
+                <p className="text-[10px] text-muted-foreground text-center uppercase tracking-widest">
+                  Admin · Demo case studies available
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
+
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card">
