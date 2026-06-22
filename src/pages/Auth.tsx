@@ -188,6 +188,11 @@ export default function Auth() {
                 <Input id="org" value={organisation} onChange={(e) => setOrganisation(e.target.value)} placeholder="Acme Defence Ltd" disabled={loading} required />
               </div>
               <div className="space-y-2">
+                <label htmlFor="brand" className="text-xs font-medium uppercase tracking-wider">Brand to Monitor</label>
+                <Input id="brand" value={brandName} onChange={(e) => setBrandName(e.target.value)} placeholder="The single brand your account will be locked to" disabled={loading} required />
+                <p className="text-[10px] text-muted-foreground">Your account will be limited to this one brand only.</p>
+              </div>
+              <div className="space-y-2">
                 <label htmlFor="email" className="text-xs font-medium uppercase tracking-wider">Work Email</label>
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@organisation.com" disabled={loading} required />
               </div>
