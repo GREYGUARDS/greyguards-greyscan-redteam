@@ -160,6 +160,7 @@ interface TeamSessionData {
 
 const RedTeam = () => {
   const [phase, setPhase] = useState<Phase>("landing");
+  const access = useAccessProfile();
   const [config, setConfig] = useState<ExerciseConfig>({
     brandName: "",
     mode: "self",
@@ -170,6 +171,19 @@ const RedTeam = () => {
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [exerciseResults, setExerciseResults] = useState<ExerciseResults | null>(null);
   const [teamSession, setTeamSession] = useState<TeamSessionData | null>(null);
+
+  // Lock non-admin users to their assigned brand and force self-navigated mode.
+  useEffect(() => {
+    if (access.loading) return;
+    if (!access.isAdmin) {
+      setConfig((prev) => ({
+        ...prev,
+        brandName: access.lockedBrand || prev.brandName,
+        mode: "self",
+      }));
+    }
+  }, [access.loading, access.isAdmin, access.lockedBrand]);
+
 
   const handleStartExercise = () => {
     if (config.mode === "consultant") {
