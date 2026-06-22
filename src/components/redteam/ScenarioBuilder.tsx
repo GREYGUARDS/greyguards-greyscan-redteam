@@ -59,6 +59,21 @@ interface ScenarioBuilderProps {
 
 type BuildMode = "generate" | "write";
 
+const SCENARIO_GENERATION_TIMEOUT_MS = 12000;
+
+const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error("Scenario generation timed out")), timeoutMs);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+};
+
 const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderProps) => {
   const [buildMode, setBuildMode] = useState<BuildMode | null>(null);
   const [userScenario, setUserScenario] = useState("");
@@ -69,14 +84,17 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderPro
   const generateScenario = async (baseScenario?: string) => {
     setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-redteam-scenario', {
-        body: {
-          brandName: config.brandName,
-          duration: config.duration,
-          userScenario: baseScenario || null,
-          scenarioCategory: config.scenarioCategory || "random"
-        }
-      });
+      const { data, error } = await withTimeout(
+        supabase.functions.invoke('generate-redteam-scenario', {
+          body: {
+            brandName: config.brandName,
+            duration: config.duration,
+            userScenario: baseScenario || null,
+            scenarioCategory: config.scenarioCategory || "random"
+          }
+        }),
+        SCENARIO_GENERATION_TIMEOUT_MS
+      );
 
       if (error) throw error;
 
@@ -94,7 +112,7 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderPro
       setPreviewScenario(scenario);
     } catch (error) {
       console.error("Error generating scenario:", error);
-      toast.error("Failed to generate scenario. Please try again.");
+      toast.warning("Using a fallback scenario while generation recovers.");
  
       // Fallback scenario for demo purposes (avoid repeating the exec-misconduct scenario)
       const category = (config.scenarioCategory || "random") as string;
@@ -121,7 +139,7 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderPro
           spreadPattern: "viral",
         },
         environmental: {
-          title: `${config.brandName} Environmental Violation Rumors`,
+          title: `${config.brandName} Environmental Violation Rumours`,
           narrative: `A disinformation narrative alleges ${config.brandName} is responsible for environmental harm. Doctored documents and misleading images are circulating, prompting calls for boycotts. Activist accounts amplify the claims while key details remain unverified.`,
           basedOnTruth: false,
           truthElement: undefined,
@@ -130,8 +148,8 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderPro
           spreadPattern: "organic",
         },
         labor_practices: {
-          title: `${config.brandName} Labor Practices Under Attack`,
-          narrative: `Coordinated posts accuse ${config.brandName} of abusive labor practices. Some content uses real workplace anecdotes, but key allegations are embellished with fabricated screenshots and anonymous "whistleblower" claims. The narrative is spreading via short-form video and repost networks.`,
+          title: `${config.brandName} Labour Practices Under Attack`,
+          narrative: `Coordinated posts accuse ${config.brandName} of abusive labour practices. Some content uses real workplace anecdotes, but key allegations are embellished with fabricated screenshots and anonymous "whistleblower" claims. The narrative is spreading via short-form video and repost networks.`,
           basedOnTruth: true,
           truthElement: "There have been minor workplace complaints in the past, but the current claims are amplified and distorted.",
           implicatedParties: ["[REDACTED - HR Lead]", "[REDACTED - Site Manager]"],
@@ -185,7 +203,7 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderPro
         },
         political_ties: {
           title: `${config.brandName} Political Entanglement Narrative`,
-          narrative: `Fabricated claims link ${config.brandName} to controversial political actors. Bot networks amplify contradictory takes to polarize audiences, driving reputational damage from multiple angles.`,
+          narrative: `Fabricated claims link ${config.brandName} to controversial political actors. Bot networks amplify contradictory takes to polarise audiences, driving reputational damage from multiple angles.`,
           basedOnTruth: false,
           truthElement: undefined,
           implicatedParties: ["[REDACTED - Comms Lead]", "[REDACTED - Government Affairs]"],
