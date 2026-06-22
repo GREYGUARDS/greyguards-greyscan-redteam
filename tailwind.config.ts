@@ -13,7 +13,17 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+        mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+        display: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+      },
       colors: {
+        bone: "hsl(var(--brand-bone))",
+        forest: "hsl(var(--brand-forest))",
+        graphite: "hsl(var(--brand-graphite))",
+        crimson: "hsl(var(--brand-crimson))",
+        warmgrey: "hsl(var(--brand-warmgrey))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
