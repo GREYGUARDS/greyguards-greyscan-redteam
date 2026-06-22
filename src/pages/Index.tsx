@@ -74,8 +74,18 @@ const Index = () => {
   const [trackedStories, setTrackedStories] = useState<any[]>([]);
   const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([]);
   const [liveTimestamp, setLiveTimestamp] = useState(new Date());
+  const access = useAccessProfile();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Lock non-admin users to their assigned brand
+  useEffect(() => {
+    if (access.loading) return;
+    if (!access.isAdmin && access.lockedBrand && !brandName) {
+      setBrandName(access.lockedBrand);
+    }
+  }, [access.loading, access.isAdmin, access.lockedBrand]);
+
 
   // Live timestamp refresh every 60 seconds
   useEffect(() => {
