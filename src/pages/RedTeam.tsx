@@ -38,6 +38,15 @@ import TeamJoin from "@/components/redteam/TeamJoin";
 import BlueTeamDashboard from "@/components/redteam/BlueTeamDashboard";
 import RedTeamDashboard from "@/components/redteam/RedTeamDashboard";
 import { useAccessProfile } from "@/hooks/useAccessProfile";
+import { DEMO_COMPANY_LIST, DEMO_COMPANIES } from "@/lib/demoData";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 
 // Icon mapping for scenario categories
 const scenarioIconMap: Record<string, LucideIcon> = {
@@ -356,15 +365,43 @@ const RedTeam = () => {
               <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                 <Lock className="h-3 w-3" /> Your account is locked to this brand.
               </p>
-            ) : access.isAdmin ? (
-              <button
-                type="button"
-                onClick={() => setConfig({ ...config, brandName: "Anon Business" })}
-                className="text-xs uppercase tracking-wider text-muted-foreground hover:text-destructive underline-offset-4 hover:underline"
-              >
-                Use "Anon Business" (generic demo)
-              </button>
-            ) : null}
+            ) : (
+              <div className="space-y-2">
+                <Select
+                  value={DEMO_COMPANY_LIST.includes(config.brandName) ? config.brandName : ""}
+                  onValueChange={(value) => setConfig({ ...config, brandName: value })}
+                >
+                  <SelectTrigger className="border-2 border-border bg-input h-10 text-xs uppercase tracking-wider">
+                    <SelectValue placeholder="Or pick a demo company…" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-2 border-border z-50 max-h-72">
+                    {DEMO_COMPANY_LIST.map((company) => {
+                      const data = DEMO_COMPANIES[company];
+                      return (
+                        <SelectItem key={company} value={company} className="cursor-pointer">
+                          <div className="flex flex-col">
+                            <span className="font-medium">{company}</span>
+                            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                              {data.industry} · {data.threatLevel} threat
+                            </span>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                {access.isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => setConfig({ ...config, brandName: "Anon Business" })}
+                    className="text-xs uppercase tracking-wider text-muted-foreground hover:text-destructive underline-offset-4 hover:underline"
+                  >
+                    Use "Anon Business" (generic demo)
+                  </button>
+                )}
+              </div>
+            )}
+
           </div>
 
           {/* Exercise Mode — Consultant Hosted hidden unless admin */}
