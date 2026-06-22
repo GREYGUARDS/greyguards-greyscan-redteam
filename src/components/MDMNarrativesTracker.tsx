@@ -91,7 +91,7 @@ export function MDMNarrativesTracker({ narratives, loading }: MDMNarrativesTrack
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
           <div className="text-center text-muted-foreground py-8 text-sm">
-            Analyzing narratives...
+            Analysing narratives...
           </div>
         </CardContent>
       </Card>

@@ -162,7 +162,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     {
       label: "Bot Amplification",
       type: "amplification" as const,
-      content: "Coordinated inauthentic behavior detected - 100+ accounts amplifying",
+      content: "Coordinated inauthentic behaviour detected - 100+ accounts amplifying",
       source: "Bot network",
       reach: 300000
     },

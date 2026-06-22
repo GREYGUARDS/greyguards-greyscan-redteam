@@ -142,7 +142,7 @@ const ExerciseDebrief = ({
       recommendations.push({
         priority: "medium",
         title: "Diversify Response Strategies",
-        description: "You used limited response types. Consider utilizing media outreach, internal actions, and statements together for comprehensive crisis management.",
+        description: "You used limited response types. Consider utilising media outreach, internal actions, and statements together for comprehensive crisis management.",
         icon: <Zap className="h-5 w-5" />
       });
     }
@@ -319,7 +319,7 @@ const ExerciseDebrief = ({
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Reputation Defense (30%)</span>
+                      <span className="text-sm">Reputation Defence (30%)</span>
                       <span className="font-bold">{Math.round((100 - score.reputationDamage) * 0.3)} pts</span>
                     </div>
                     <Progress value={100 - score.reputationDamage} className="h-2" />
