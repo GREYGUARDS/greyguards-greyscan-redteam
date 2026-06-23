@@ -1387,7 +1387,7 @@ const Index = () => {
                   Request a <strong className="text-foreground">Confidential Brief</strong> to develop your organisation's misinformation defence strategy.
                 </p>
                 <a
-                  href={`mailto:grant@thelondon.team?subject=Greyguards Confidential Brief for ${brandName}`}
+                  href={`mailto:info@greyguards.com?subject=Greyguards Confidential Brief for ${brandName}`}
                   className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-sm font-semibold uppercase tracking-wider transition-colors hover:bg-[hsl(0,0%,62%)] no-underline"
                 >
                   <Send className="h-5 w-5" />
