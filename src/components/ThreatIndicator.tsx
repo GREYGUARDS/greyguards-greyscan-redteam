@@ -105,7 +105,8 @@ export function ThreatIndicator({ threatLevel, threatScore }: ThreatIndicatorPro
           <div className="flex flex-row sm:flex-col items-center justify-between sm:justify-center sm:border-r border-border py-4 sm:py-0 border-y sm:border-y-0 border-border">
             <div className="sm:text-center">
               <p className="text-xs text-muted-foreground tracking-wide mb-1">Risk Score</p>
-              <p className={`metric-display ${getColorClass()} smooth-transition`}>{threatScore}</p>
+              <p className={`metric-display ${getColorClass()} smooth-transition`}>{threatScore}%</p>
+
             </div>
             <div className="w-24 sm:w-full sm:max-w-[160px] sm:mt-3">
               <div className="bg-muted h-2 rounded-sm overflow-hidden">
