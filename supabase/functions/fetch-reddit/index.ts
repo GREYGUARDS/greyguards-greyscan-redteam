@@ -88,14 +88,15 @@ serve(async (req) => {
     const accessToken = tokenData.access_token;
 
     // Use Reddit's OAuth API to search
-    const redditUrl = `https://oauth.reddit.com/search?q=${encodeURIComponent(brand)}&limit=10&sort=top&t=week`;
+    const redditUrl = `https://oauth.reddit.com/search?q=${encodeURIComponent(brand)}&limit=25&sort=top&t=week`;
     
     console.log("Fetching Reddit posts for:", brand);
     const response = await fetch(redditUrl, {
       headers: {
         "Authorization": `Bearer ${accessToken}`,
-        "User-Agent": "NarrativeTracker/1.0",
+        "User-Agent": "web:greyscan-narrative-tracker:1.0 (by /u/greyguards)",
       },
+      signal: AbortSignal.timeout(12000),
     });
     
     if (!response.ok) {
