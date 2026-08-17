@@ -1,12 +1,17 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Bot, TrendingUp, TrendingDown, Minus, Loader2, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EngineRow {
   engine: string;
-  narrative: string;
-  riskScore: number;
-  trend: "Stable" | "Escalating" | "De-escalating";
+  narrative?: string;
+  riskScore?: number;
+  trend?: "Stable" | "Escalating" | "De-escalating";
+  sourcesKnown?: string[];
+  unavailable?: boolean;
 }
 
 const getTrendIcon = (trend: string) => {
@@ -36,73 +41,119 @@ interface AIEngineExposureProps {
 }
 
 export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
-  const clientName = brandName || "[CLIENT NAME]";
+  const [engines, setEngines] = useState<EngineRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [checkedAt, setCheckedAt] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const engines: EngineRow[] = [
-    {
-      engine: "ChatGPT",
-      narrative: `${clientName} has been linked in multiple AI-generated summaries to concerns about regulatory compliance in European markets and ongoing investigations by oversight bodies.`,
-      riskScore: 7,
-      trend: "Escalating",
-    },
-    {
-      engine: "Gemini",
-      narrative: `${clientName} is frequently cited in AI responses regarding recent controversy over executive conduct and alleged governance failures, with increasing search-driven amplification.`,
-      riskScore: 6,
-      trend: "Stable",
-    },
-    {
-      engine: "Perplexity",
-      narrative: `${clientName} appears in synthesised answers linking the organisation to industry-wide criticism of lobbying practices and environmental commitments.`,
-      riskScore: 5,
-      trend: "De-escalating",
-    },
-  ];
+  const runCheck = async () => {
+    if (!brandName) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke("check-ai-engines", {
+        body: { brand: brandName },
+      });
+      if (fnError) throw fnError;
+      setEngines(data?.engines || []);
+      setCheckedAt(data?.checkedAt || new Date().toISOString());
+      if (!(data?.engines || []).some((e: EngineRow) => !e.unavailable)) {
+        setError("No AI engine responded — try again shortly.");
+      }
+    } catch (err) {
+      console.warn("AI engine check failed:", err);
+      setError("AI engine check unavailable right now.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setEngines([]);
+    setCheckedAt(null);
+    runCheck();
+  }, [brandName]);
 
   return (
     <Card className="border border-border bg-card">
-      <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6">
+      <CardHeader className="border-b border-border bg-secondary/50 py-3 px-4 sm:px-6 flex flex-row items-center justify-between gap-2">
         <CardTitle className="text-sm font-medium tracking-wide flex items-center gap-2 uppercase">
           <Bot className="h-4 w-4 flex-shrink-0" />
           AI Engine Exposure
         </CardTitle>
+        <div className="flex items-center gap-2">
+          {checkedAt && (
+            <span className="text-[10px] text-muted-foreground hidden sm:inline">
+              Live check {new Date(checkedAt).toLocaleTimeString("en-GB")}
+            </span>
+          )}
+          <Button size="sm" variant="outline" onClick={runCheck} disabled={loading} className="h-7 px-2 text-xs">
+            {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-secondary/30">
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-28">Engine</th>
-                <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Narrative Excerpt</th>
-                <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Risk Score</th>
-                <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Trend</th>
-              </tr>
-            </thead>
-            <tbody>
-              {engines.map((row) => (
-                <tr key={row.engine} className="border-b border-border/50 hover:bg-secondary/20 transition-colors">
-                  <td className="p-3">
-                    <span className="font-semibold text-foreground">{row.engine}</span>
-                  </td>
-                  <td className="p-3 max-w-lg">
-                    <span className="text-xs text-muted-foreground italic">"{row.narrative}"</span>
-                  </td>
-                  <td className="p-3 text-center">
-                    <span className={`font-mono font-bold text-lg ${getRiskColor(row.riskScore)}`}>
-                      {row.riskScore}/10
-                    </span>
-                  </td>
-                  <td className="p-3 text-center">
-                    <Badge variant="outline" className={`text-xs gap-1 ${getTrendColor(row.trend)}`}>
-                      {getTrendIcon(row.trend)}
-                      {row.trend}
-                    </Badge>
-                  </td>
+        {loading && engines.length === 0 ? (
+          <div className="p-6 text-xs text-muted-foreground flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Querying live AI models about {brandName || "this organisation"}…
+          </div>
+        ) : engines.length === 0 ? (
+          <div className="p-6 text-xs text-muted-foreground">{error || "No AI engine data yet."}</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-secondary/30">
+                  <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Engine</th>
+                  <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Narrative Excerpt</th>
+                  <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Risk Score</th>
+                  <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Trend</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {engines.map((row) => (
+                  <tr key={row.engine} className="border-b border-border/50 hover:bg-secondary/20 transition-colors">
+                    <td className="p-3 align-top">
+                      <span className="font-semibold text-foreground">{row.engine}</span>
+                    </td>
+                    {row.unavailable ? (
+                      <td className="p-3 text-xs text-muted-foreground" colSpan={3}>
+                        No response from this model on the last check.
+                      </td>
+                    ) : (
+                      <>
+                        <td className="p-3 max-w-lg align-top">
+                          <span className="text-xs text-muted-foreground italic">"{row.narrative}"</span>
+                          {row.sourcesKnown && row.sourcesKnown.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {row.sourcesKnown.map((s) => (
+                                <Badge key={s} variant="outline" className="text-[10px] font-normal">
+                                  {s}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </td>
+                        <td className="p-3 text-center align-top">
+                          <span className={`font-mono font-bold text-lg ${getRiskColor(row.riskScore ?? 0)}`}>
+                            {row.riskScore ?? 0}/10
+                          </span>
+                        </td>
+                        <td className="p-3 text-center align-top">
+                          <Badge variant="outline" className={`text-xs gap-1 ${getTrendColor(row.trend || "Stable")}`}>
+                            {getTrendIcon(row.trend || "Stable")}
+                            {row.trend || "Stable"}
+                          </Badge>
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

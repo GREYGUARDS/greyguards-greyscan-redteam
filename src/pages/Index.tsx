@@ -111,7 +111,10 @@ const Index = () => {
     { name: 'Lemmy', type: 'social', hasComments: true },
     { name: 'Stack Exchange', type: 'tech', hasComments: true },
     { name: 'Product Hunt', type: 'tech', hasComments: true },
+    { name: 'YouTube', type: 'social', hasComments: true },
+    { name: 'Podcasts', type: 'news', hasComments: false },
   ];
+
 
   const loadDemoData = (companyName: string) => {
     const data = DEMO_COMPANIES[companyName];
@@ -326,7 +329,10 @@ const Index = () => {
         createApiCall('Lemmy', 'fetch-lemmy', d => d?.posts),
         createApiCall('Stack Exchange', 'fetch-stackexchange', d => d?.questions),
         createApiCall('Product Hunt', 'fetch-producthunt', d => d?.products),
+        createApiCall('YouTube', 'fetch-youtube', d => d?.videos),
+        createApiCall('Podcasts', 'fetch-podcasts', d => d?.episodes),
       ];
+
 
       // Special handlers for Trends and GDELT GKG (different data structure)
       const trendsCall = (async () => {
@@ -391,6 +397,9 @@ const Index = () => {
       const lemmyPosts = getResult('Lemmy')?.data || [];
       const stackExchangeQuestions = getResult('Stack Exchange')?.data || [];
       const productHuntProducts = getResult('Product Hunt')?.data || [];
+      const youtubeVideos = getResult('YouTube')?.data || [];
+      const podcastEpisodes = getResult('Podcasts')?.data || [];
+
 
       // Combine and analyze data from ALL sources
       const mentions = [
@@ -483,7 +492,20 @@ const Index = () => {
           score: p.votes,
           comments: p.comments,
         })),
+        ...youtubeVideos.map((v: any) => ({
+          text: v.text || v.title,
+          source: "YouTube",
+          date: new Date(v.publishedAt),
+          author: v.channel,
+          score: v.views,
+        })),
+        ...podcastEpisodes.map((e: any) => ({
+          text: e.text || e.title,
+          source: `Podcast (${e.show})`,
+          date: new Date(e.publishedAt),
+        })),
       ];
+
 
       // Calculate source statistics
       const sourceStats = mentions.reduce((acc: any, mention: any) => {
