@@ -443,6 +443,71 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     }
   };
 
+  // Locally built reaction so the exercise ALWAYS acknowledges a written action
+  const buildLocalReaction = (
+    respondedTo: Inject,
+    actionText: string,
+    effectiveness: number
+  ): Inject => {
+    const quote = truncate(actionText, 110);
+    const worked = effectiveness >= 70;
+    const partial = effectiveness >= 50 && effectiveness < 70;
+
+    const content = worked
+      ? `Credit where it's due — ${config.brandName} came out and said: "${quote}". Some of us pushing this story are now asking for the receipts before we post again. Thread paused. #${config.brandName.replace(/\s+/g, '')}`
+      : partial
+        ? `So ${config.brandName} says: "${quote}". Notice what they DIDN'T address. Still no answer on the original documents. We'll keep asking. #${config.brandName.replace(/\s+/g, '')}`
+        : `${config.brandName} response: "${quote}". That's it? Screenshotted and going out to every group chat — this is exactly what a cover-up sounds like. #${config.brandName.replace(/\s+/g, '')}`;
+
+    const consequence = worked
+      ? "Your written action landed: hostile amplification slowed and the network is hedging."
+      : partial
+        ? "Your written action shifted the angle: attackers moved onto what you left unsaid."
+        : "Your written action backfired: hostile accounts are quoting it as fresh proof.";
+
+    return {
+      id: `reactive-local-${Date.now()}`,
+      timestamp: Math.max(0, totalDuration - timeRemaining),
+      type: worked ? "official_response" : "social_post",
+      content,
+      source: worked ? "@OpenSourceWatch (48K followers)" : "@WhistleThread (126K followers)",
+      reach: worked ? 32000 : 145000,
+      sentiment: worked ? "neutral" : "hostile",
+      requiresResponse: true,
+      isAggressive: !worked,
+      consequence,
+      responseOptions: [
+        {
+          id: `lr-a-${Date.now()}`,
+          label: "Publish Supporting Evidence",
+          description: `Back up "${truncate(actionText, 60)}" with documents, timestamps and named accountability.`,
+          type: "statement",
+          effectiveness: 80,
+          riskLevel: "low",
+          timeToExecute: 45,
+        },
+        {
+          id: `lr-b-${Date.now()}`,
+          label: "Independent Third-Party Verification",
+          description: "Invite a credible external body to confirm your claim so it isn't your word alone.",
+          type: "media_outreach",
+          effectiveness: 85,
+          riskLevel: "medium",
+          timeToExecute: 90,
+        },
+        {
+          id: `lr-c-${Date.now()}`,
+          label: "Hold Position, No Further Comment",
+          description: "Say nothing more and let the current statement stand on its own.",
+          type: "internal_action",
+          effectiveness: 32,
+          riskLevel: "high",
+          timeToExecute: 10,
+        },
+      ] as ResponseOption[],
+    };
+  };
+
   // Ask the adversary engine for a follow-up inject that directly reacts to what the team did
   const queueReactiveInject = async (
     respondedTo: Inject,
@@ -453,6 +518,14 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   ) => {
     setIsReacting(true);
     reactingRef.current = true;
+
+    const publish = (reactive: Inject) => {
+      setInjects((prev) => [...prev, reactive]);
+      reactingRef.current = false;
+      setIsReacting(false);
+      triggerInject(reactive);
+    };
+
     try {
       const { data } = await withTimeout(
         supabase.functions.invoke('generate-reactive-inject', {
@@ -479,7 +552,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
 
       const raw = data?.inject;
       if (raw && typeof raw.content === 'string' && raw.content.trim()) {
-        const reactive: Inject = {
+        publish({
           id: `reactive-${Date.now()}`,
           timestamp: Math.max(0, totalDuration - timeRemaining),
           type: (raw.type ?? 'social_post') as Inject["type"],
@@ -493,19 +566,17 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
           responseOptions: Array.isArray(raw.responseOptions) && raw.responseOptions.length > 0
             ? raw.responseOptions as ResponseOption[]
             : undefined,
-        };
-        setInjects((prev) => [...prev, reactive]);
-        reactingRef.current = false;
-        setIsReacting(false);
-        triggerInject(reactive);
+        });
         return;
       }
     } catch (error) {
       console.error('Error generating reactive inject:', error);
     }
-    reactingRef.current = false;
-    setIsReacting(false);
+
+    // Guaranteed local reaction referencing the team's own wording
+    publish(buildLocalReaction(respondedTo, actionText, effectiveness));
   };
+
 
   const applyOutcome = (effectiveness: number, riskLevel?: ResponseOption["riskLevel"]) => {
     const wasCorrect = effectiveness >= 65;
