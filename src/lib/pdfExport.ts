@@ -559,11 +559,11 @@ export const exportToPDF = async (data: ExportData) => {
 
   // ===== TIMELINE CHART =====
   if (timeline.length > 0) {
-    checkPageBreak(90);
+    checkPageBreak(72);
     drawSectionHeader('Mention Timeline');
 
     const chartWidth = innerWidth - 10;
-    const chartHeight = 50;
+    const chartHeight = 44;
     const chartX = margin + 10;
     const chartY = yPosition;
 
