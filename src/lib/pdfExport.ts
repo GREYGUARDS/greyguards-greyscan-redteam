@@ -321,6 +321,7 @@ export const exportToPDF = async (data: ExportData) => {
 
   // ===== COVER PAGE =====
   paintPageBackground();
+  chromedPages.add(currentPageNumber());
 
   doc.setTextColor(...INK);
   doc.setFontSize(36);
