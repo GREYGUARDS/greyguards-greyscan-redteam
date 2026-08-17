@@ -28,7 +28,7 @@ async function queryEngine(engine: typeof ENGINES[0], brand: string, apiKey: str
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: `Organisation: ${brand}. What do you say about it, and what negative narratives do you associate with it?` },
         ],
-        max_completion_tokens: 500,
+        max_completion_tokens: 1600,
       }),
       signal: AbortSignal.timeout(25000),
     });
@@ -46,6 +46,7 @@ async function queryEngine(engine: typeof ENGINES[0], brand: string, apiKey: str
     const parsed = jsonStart >= 0 ? JSON.parse(cleaned.slice(jsonStart, cleaned.lastIndexOf("}") + 1)) : null;
 
     if (!parsed?.narrative) {
+      console.warn(`${engine.label} returned unparsable content:`, raw.slice(0, 200));
       return { engine: engine.label, model: engine.model, unavailable: true };
     }
 
