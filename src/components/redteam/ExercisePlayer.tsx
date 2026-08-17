@@ -712,9 +712,11 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     setInjectStartTime(null);
     setShowCustomInput(false);
     setCustomCountermeasure("");
-    setLastFeedback(feedback ? { text: feedback, effectiveness: Math.round(effectiveness) } : null);
+    const resolvedFeedback = feedback ?? heuristicFeedback(actionText, effectiveness);
+    setLastFeedback({ text: resolvedFeedback, effectiveness: Math.round(effectiveness) });
 
-    void queueReactiveInject(respondedTo, actionText, effectiveness, feedback, controlAfter);
+    void queueReactiveInject(respondedTo, actionText, effectiveness, resolvedFeedback, controlAfter);
+
   };
 
   const handleExerciseComplete = () => {
