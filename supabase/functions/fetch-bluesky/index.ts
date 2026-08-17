@@ -5,15 +5,21 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Bluesky's public AppView blocks some datacenter ranges with a 403 HTML page.
+// Try the known public hosts in order and degrade gracefully instead of erroring.
+const HOSTS = [
+  'https://public.api.bsky.app',
+  'https://api.bsky.app',
+];
+
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { brand } = await req.json();
-    
+
     if (!brand || typeof brand !== 'string' || brand.trim().length === 0) {
       return new Response(
         JSON.stringify({ error: "Brand name required", posts: [] }),
@@ -24,26 +30,44 @@ serve(async (req) => {
     const cleanBrand = brand.trim().substring(0, 100);
     console.log("Fetching Bluesky posts for:", cleanBrand);
 
-    // Bluesky public API - search posts (no auth needed for public search)
-    const searchUrl = `https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?q=${encodeURIComponent(cleanBrand)}&limit=50`;
-    
-    const response = await fetch(searchUrl, {
-      headers: {
-        'Accept': 'application/json',
-      }
-    });
+    let data: any = null;
+    let lastStatus = 0;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Bluesky API error:", response.status, errorText);
+    for (const host of HOSTS) {
+      const searchUrl = `${host}/xrpc/app.bsky.feed.searchPosts?q=${encodeURIComponent(cleanBrand)}&limit=50`;
+      try {
+        const response = await fetch(searchUrl, {
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'GreyscanBot/1.0 (narrative monitoring)',
+          },
+          signal: AbortSignal.timeout(8000),
+        });
+
+        lastStatus = response.status;
+        const contentType = response.headers.get('content-type') || '';
+
+        if (!response.ok || !contentType.includes('json')) {
+          console.warn(`Bluesky host ${host} unavailable:`, response.status);
+          continue;
+        }
+
+        data = await response.json();
+        break;
+      } catch (hostError) {
+        console.warn(`Bluesky host ${host} error:`, hostError instanceof Error ? hostError.message : hostError);
+      }
+    }
+
+    if (!data) {
+      // Degrade gracefully: no posts, but don't fail or slow down the overall scan.
+      console.warn("Bluesky unavailable from this network, last status:", lastStatus);
       return new Response(
-        JSON.stringify({ error: "Failed to fetch Bluesky", posts: [] }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ posts: [], unavailable: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const data = await response.json();
-    
     const posts = (data.posts || []).map((post: any) => ({
       id: post.uri,
       text: post.record?.text || '',
