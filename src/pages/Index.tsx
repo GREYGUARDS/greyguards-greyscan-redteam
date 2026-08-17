@@ -74,6 +74,7 @@ const Index = () => {
   const [demoCompany, setDemoCompany] = useState<string>("");
   const [trackedStories, setTrackedStories] = useState<any[]>([]);
   const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([]);
+  const [scanPhase, setScanPhase] = useState<ScanPhase>("sources");
   const [liveTimestamp, setLiveTimestamp] = useState(new Date());
   const access = useAccessProfile();
   const { toast } = useToast();
