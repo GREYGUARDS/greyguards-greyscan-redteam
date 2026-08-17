@@ -329,7 +329,10 @@ const Index = () => {
         createApiCall('Lemmy', 'fetch-lemmy', d => d?.posts),
         createApiCall('Stack Exchange', 'fetch-stackexchange', d => d?.questions),
         createApiCall('Product Hunt', 'fetch-producthunt', d => d?.products),
+        createApiCall('YouTube', 'fetch-youtube', d => d?.videos),
+        createApiCall('Podcasts', 'fetch-podcasts', d => d?.episodes),
       ];
+
 
       // Special handlers for Trends and GDELT GKG (different data structure)
       const trendsCall = (async () => {
