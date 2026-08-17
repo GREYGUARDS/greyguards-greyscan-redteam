@@ -50,11 +50,34 @@ const NEWS_FEEDS = [
   // Canada
   { name: "Globe and Mail", url: "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/canada/", country: "Canada" },
 
+  // Africa
+  { name: "AllAfrica", url: "https://allafrica.com/tools/headlines/rdf/latest/headlines.rdf", country: "Africa" },
+  { name: "News24", url: "https://feeds.24.com/articles/news24/TopStories/rss", country: "South Africa" },
+  { name: "Daily Nation", url: "https://nation.africa/kenya/rss", country: "Kenya" },
+
+  // Latin America
+  { name: "Buenos Aires Times", url: "https://www.batimes.com.ar/feed", country: "Argentina" },
+  { name: "MercoPress", url: "https://en.mercopress.com/rss/", country: "South America" },
+
+  // Asia extra
+  { name: "The Korea Herald", url: "https://www.koreaherald.com/rss/newsAll", country: "South Korea" },
+  { name: "Nikkei Asia", url: "https://asia.nikkei.com/rss/feed/nar", country: "Japan" },
+  { name: "The Hindu", url: "https://www.thehindu.com/news/feeder/default.rss", country: "India" },
+  { name: "Channel NewsAsia", url: "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml", country: "Singapore" },
+
+  // Middle East extra
+  { name: "The Times of Israel", url: "https://www.timesofisrael.com/feed/", country: "Israel" },
+  { name: "Arab News", url: "https://www.arabnews.com/rss.xml", country: "Saudi Arabia" },
+
   // Tech & Business
   { name: "TechCrunch", url: "https://techcrunch.com/feed/", country: "US" },
   { name: "Wired", url: "https://www.wired.com/feed/rss", country: "US" },
   { name: "The Verge", url: "https://www.theverge.com/rss/index.xml", country: "US" },
+  { name: "Ars Technica", url: "https://feeds.arstechnica.com/arstechnica/index", country: "US" },
+  { name: "Business Insider", url: "https://markets.businessinsider.com/rss/news", country: "US" },
+  { name: "MarketWatch", url: "https://feeds.content.dowjones.io/public/rss/mw_topstories", country: "US" },
 ];
+
 
 // deno_dom cannot parse "text/xml" (throws "unimplemented"), which silently zeroed out
 // every feed. Parse RSS/Atom items with regex instead.
