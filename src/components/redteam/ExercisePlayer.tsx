@@ -31,7 +31,7 @@ import InjectVisual from "./InjectVisual";
 import { supabase } from "@/integrations/supabase/client";
 
 const INJECT_GENERATION_TIMEOUT_MS = 8000;
-const REACTION_TIMEOUT_MS = 15000;
+const REACTION_TIMEOUT_MS = 25000;
 
 // Local fallback score for a written countermeasure if AI evaluation is unavailable
 const heuristicScore = (text: string): number => {
@@ -42,6 +42,25 @@ const heuristicScore = (text: string): number => {
   const lengthBonus = Math.min(20, text.length / 10);
   return Math.min(85, 55 + (hasKeywords ? 15 : 0) + lengthBonus);
 };
+
+// Local feedback wording so a written action is ALWAYS acknowledged, even offline
+const heuristicFeedback = (text: string, score: number): string => {
+  const lower = text.toLowerCase();
+  if (lower.includes("no comment")) {
+    return "Staying silent reads as concealment — hostile accounts will fill the vacuum for you.";
+  }
+  if (score >= 70) {
+    return "Specific, evidence-led and on the front foot — this narrows the attacker's room to manoeuvre.";
+  }
+  if (score >= 55) {
+    return "Partially effective: the intent is right, but it leaves gaps hostile actors can quote selectively.";
+  }
+  return "Too thin or too defensive — this is likely to be used as fresh proof of the original claim.";
+};
+
+const truncate = (text: string, max: number) =>
+  text.length > max ? `${text.slice(0, max).trim()}...` : text;
+
 
 const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -424,6 +443,71 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     }
   };
 
+  // Locally built reaction so the exercise ALWAYS acknowledges a written action
+  const buildLocalReaction = (
+    respondedTo: Inject,
+    actionText: string,
+    effectiveness: number
+  ): Inject => {
+    const quote = truncate(actionText, 110);
+    const worked = effectiveness >= 70;
+    const partial = effectiveness >= 50 && effectiveness < 70;
+
+    const content = worked
+      ? `Credit where it's due — ${config.brandName} came out and said: "${quote}". Some of us pushing this story are now asking for the receipts before we post again. Thread paused. #${config.brandName.replace(/\s+/g, '')}`
+      : partial
+        ? `So ${config.brandName} says: "${quote}". Notice what they DIDN'T address. Still no answer on the original documents. We'll keep asking. #${config.brandName.replace(/\s+/g, '')}`
+        : `${config.brandName} response: "${quote}". That's it? Screenshotted and going out to every group chat — this is exactly what a cover-up sounds like. #${config.brandName.replace(/\s+/g, '')}`;
+
+    const consequence = worked
+      ? "Your written action landed: hostile amplification slowed and the network is hedging."
+      : partial
+        ? "Your written action shifted the angle: attackers moved onto what you left unsaid."
+        : "Your written action backfired: hostile accounts are quoting it as fresh proof.";
+
+    return {
+      id: `reactive-local-${Date.now()}`,
+      timestamp: Math.max(0, totalDuration - timeRemaining),
+      type: worked ? "official_response" : "social_post",
+      content,
+      source: worked ? "@OpenSourceWatch (48K followers)" : "@WhistleThread (126K followers)",
+      reach: worked ? 32000 : 145000,
+      sentiment: worked ? "neutral" : "hostile",
+      requiresResponse: true,
+      isAggressive: !worked,
+      consequence,
+      responseOptions: [
+        {
+          id: `lr-a-${Date.now()}`,
+          label: "Publish Supporting Evidence",
+          description: `Back up "${truncate(actionText, 60)}" with documents, timestamps and named accountability.`,
+          type: "statement",
+          effectiveness: 80,
+          riskLevel: "low",
+          timeToExecute: 45,
+        },
+        {
+          id: `lr-b-${Date.now()}`,
+          label: "Independent Third-Party Verification",
+          description: "Invite a credible external body to confirm your claim so it isn't your word alone.",
+          type: "media_outreach",
+          effectiveness: 85,
+          riskLevel: "medium",
+          timeToExecute: 90,
+        },
+        {
+          id: `lr-c-${Date.now()}`,
+          label: "Hold Position, No Further Comment",
+          description: "Say nothing more and let the current statement stand on its own.",
+          type: "internal_action",
+          effectiveness: 32,
+          riskLevel: "high",
+          timeToExecute: 10,
+        },
+      ] as ResponseOption[],
+    };
+  };
+
   // Ask the adversary engine for a follow-up inject that directly reacts to what the team did
   const queueReactiveInject = async (
     respondedTo: Inject,
@@ -434,6 +518,14 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   ) => {
     setIsReacting(true);
     reactingRef.current = true;
+
+    const publish = (reactive: Inject) => {
+      setInjects((prev) => [...prev, reactive]);
+      reactingRef.current = false;
+      setIsReacting(false);
+      triggerInject(reactive);
+    };
+
     try {
       const { data } = await withTimeout(
         supabase.functions.invoke('generate-reactive-inject', {
@@ -460,7 +552,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
 
       const raw = data?.inject;
       if (raw && typeof raw.content === 'string' && raw.content.trim()) {
-        const reactive: Inject = {
+        publish({
           id: `reactive-${Date.now()}`,
           timestamp: Math.max(0, totalDuration - timeRemaining),
           type: (raw.type ?? 'social_post') as Inject["type"],
@@ -474,19 +566,17 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
           responseOptions: Array.isArray(raw.responseOptions) && raw.responseOptions.length > 0
             ? raw.responseOptions as ResponseOption[]
             : undefined,
-        };
-        setInjects((prev) => [...prev, reactive]);
-        reactingRef.current = false;
-        setIsReacting(false);
-        triggerInject(reactive);
+        });
         return;
       }
     } catch (error) {
       console.error('Error generating reactive inject:', error);
     }
-    reactingRef.current = false;
-    setIsReacting(false);
+
+    // Guaranteed local reaction referencing the team's own wording
+    publish(buildLocalReaction(respondedTo, actionText, effectiveness));
   };
+
 
   const applyOutcome = (effectiveness: number, riskLevel?: ResponseOption["riskLevel"]) => {
     const wasCorrect = effectiveness >= 65;
@@ -622,9 +712,11 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     setInjectStartTime(null);
     setShowCustomInput(false);
     setCustomCountermeasure("");
-    setLastFeedback(feedback ? { text: feedback, effectiveness: Math.round(effectiveness) } : null);
+    const resolvedFeedback = feedback ?? heuristicFeedback(actionText, effectiveness);
+    setLastFeedback({ text: resolvedFeedback, effectiveness: Math.round(effectiveness) });
 
-    void queueReactiveInject(respondedTo, actionText, effectiveness, feedback, controlAfter);
+    void queueReactiveInject(respondedTo, actionText, effectiveness, resolvedFeedback, controlAfter);
+
   };
 
   const handleExerciseComplete = () => {
@@ -804,7 +896,21 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="mb-6">
+                    {lastFeedback && (
+                      <div className={`mb-4 border-2 p-3 ${
+                        lastFeedback.effectiveness >= 70 ? 'border-success bg-success/5' :
+                        lastFeedback.effectiveness >= 50 ? 'border-warning bg-warning/5' :
+                        'border-destructive bg-destructive/5'
+                      }`}>
+                        <span className="block text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1">
+                          Assessment of your written action — {lastFeedback.effectiveness}% effective
+                          {lastFeedback.effectiveness >= 70 ? " (situation improved)" : lastFeedback.effectiveness >= 50 ? " (mixed outcome)" : " (situation worsened)"}
+                        </span>
+                        <p className="text-sm">{lastFeedback.text}</p>
+                      </div>
+                    )}
                     {activeInject.consequence && (
+
                       <div className="mb-4 border-l-4 border-primary bg-primary/5 p-3">
                         <span className="block text-[10px] uppercase tracking-[0.2em] text-primary mb-1">
                           Consequence of your last action
