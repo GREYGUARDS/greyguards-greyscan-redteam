@@ -5,6 +5,29 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+
+// GDELT enforces roughly one request every 5 seconds per source IP and answers 429 otherwise.
+// Retry with backoff so a shared-IP collision doesn't silently kill the source.
+async function gdeltFetch(url: string, label: string): Promise<Response | null> {
+  const delays = [0, 5500, 6500];
+  for (let attempt = 0; attempt < delays.length; attempt++) {
+    if (delays[attempt] > 0) {
+      await new Promise((r) => setTimeout(r, delays[attempt]));
+    }
+    const response = await fetch(url, {
+      headers: { "User-Agent": "GreyscanBot/1.0 (narrative monitoring)" },
+      signal: AbortSignal.timeout(20000),
+    });
+    if (response.ok) return response;
+    if (response.status !== 429) {
+      console.error(`${label} error:`, response.status, (await response.text()).slice(0, 200));
+      return null;
+    }
+    console.warn(`${label} rate limited (429), retry ${attempt + 1}/${delays.length - 1}`);
+  }
+  return null;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -31,27 +54,31 @@ serve(async (req) => {
     // GDELT GKG API - Global Knowledge Graph
     const mode = "artgkg";
     const format = "json";
-    const maxrecords = "250";
+    const maxrecords = "150";
     const query = encodeURIComponent(brand);
     const timespan = "1d";
     
     const gdeltUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${query}&mode=${mode}&format=${format}&maxrecords=${maxrecords}&timespan=${timespan}`;
     
     console.log("GDELT GKG URL:", gdeltUrl);
-    const response = await fetch(gdeltUrl);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("GDELT GKG error:", response.status, errorText);
-      throw new Error(`GDELT GKG error: ${response.status}`);
+    // Stagger behind the DOC call, which fires at the same moment from the same IP
+    await new Promise((r) => setTimeout(r, 2500));
+    const response = await gdeltFetch(gdeltUrl, "GDELT GKG");
+
+    const emptyGkg = { articles: [], entities: [], themes: [], locations: [], unavailable: true };
+
+    if (!response) {
+      return new Response(JSON.stringify(emptyGkg), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    // Check if response is JSON before parsing
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      const text = await response.text();
-      console.error("GDELT GKG returned non-JSON response:", text.substring(0, 200));
-      throw new Error("GDELT API returned non-JSON response. The API may be rate limiting or experiencing issues.");
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("json")) {
+      console.warn("GDELT GKG returned non-JSON response");
+      return new Response(JSON.stringify(emptyGkg), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const data = await response.json();
