@@ -30,11 +30,27 @@ const getTrendColor = (trend: string) => {
   }
 };
 
-const getRiskColor = (score: number) => {
-  if (score >= 8) return "text-destructive";
-  if (score >= 5) return "text-warning";
+// Model risk is returned 0-10; expose it as a percentage so the scale is self-explanatory
+const toPercent = (score: number) => Math.max(0, Math.min(100, Math.round(score * 10)));
+
+const getRiskColor = (pct: number) => {
+  if (pct >= 80) return "text-destructive";
+  if (pct >= 50) return "text-warning";
   return "text-success";
 };
+
+const getRiskBar = (pct: number) => {
+  if (pct >= 80) return "bg-destructive";
+  if (pct >= 50) return "bg-warning";
+  return "bg-success";
+};
+
+const getRiskLabel = (pct: number) => {
+  if (pct >= 80) return "High exposure";
+  if (pct >= 50) return "Moderate";
+  return "Low";
+};
+
 
 interface AIEngineExposureProps {
   brandName: string;
