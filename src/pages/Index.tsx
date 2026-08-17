@@ -1325,15 +1325,15 @@ const Index = () => {
                   threatLevel={results.threatLevel}
                 />
 
-                {/* Synthetic Content Monitor (roadmap / in development) */}
-                <SyntheticContentMonitor brandName={brandName} />
-
-
                 {/* API Status Panel */}
                 <APIStatusPanel apiStatuses={apiStatuses} isLoading={loading} />
 
-                {/* Sources Table */}
+                {/* Sources Table (includes Upcoming Intelligence APIs) */}
                 <SourcesTable sources={sources} />
+
+                {/* Synthetic Content Monitor (roadmap / in development) */}
+                <SyntheticContentMonitor brandName={brandName} />
+
 
                 {/* Demo Mode: Key People Summary for Report */}
                 {demoMode && brandPeople.length > 0 && (
