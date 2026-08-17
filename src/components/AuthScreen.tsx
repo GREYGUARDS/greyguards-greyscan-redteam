@@ -58,13 +58,26 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
   const [consentGiven, setConsentGiven] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate(copy.landing, { replace: true });
+    let cancelled = false;
+
+    // Validate with the auth service instead of trusting a cached browser
+    // session, which may be expired and can otherwise cause a redirect loop.
+    void supabase.auth.getUser().then(({ data: { user }, error }) => {
+      if (cancelled) return;
+      if (!error && user && !user.is_anonymous) {
+        navigate(copy.landing, { replace: true });
+      }
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) navigate(copy.landing, { replace: true });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user && !session.user.is_anonymous) {
+        navigate(copy.landing, { replace: true });
+      }
     });
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
   }, [navigate, copy.landing]);
 
   const handleSignIn = async (e: React.FormEvent) => {
