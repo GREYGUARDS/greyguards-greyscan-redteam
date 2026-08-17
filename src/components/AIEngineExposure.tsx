@@ -152,10 +152,20 @@ export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
                           )}
                         </td>
                         <td className="p-3 text-center align-top">
-                          <span className={`font-mono font-bold text-lg ${getRiskColor(row.riskScore ?? 0)}`}>
-                            {row.riskScore ?? 0}/10
-                          </span>
+                          {(() => {
+                            const pct = toPercent(row.riskScore ?? 0);
+                            return (
+                              <div className="flex flex-col items-center gap-1">
+                                <span className={`font-mono font-bold text-lg ${getRiskColor(pct)}`}>{pct}%</span>
+                                <div className="w-20 h-1.5 bg-muted rounded-sm overflow-hidden">
+                                  <div className={`h-full ${getRiskBar(pct)}`} style={{ width: `${pct}%` }} />
+                                </div>
+                                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{getRiskLabel(pct)}</span>
+                              </div>
+                            );
+                          })()}
                         </td>
+
                         <td className="p-3 text-center align-top">
                           <Badge variant="outline" className={`text-xs gap-1 ${getTrendColor(row.trend || "Stable")}`}>
                             {getTrendIcon(row.trend || "Stable")}
