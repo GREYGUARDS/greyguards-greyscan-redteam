@@ -111,7 +111,10 @@ const Index = () => {
     { name: 'Lemmy', type: 'social', hasComments: true },
     { name: 'Stack Exchange', type: 'tech', hasComments: true },
     { name: 'Product Hunt', type: 'tech', hasComments: true },
+    { name: 'YouTube', type: 'social', hasComments: true },
+    { name: 'Podcasts', type: 'news', hasComments: false },
   ];
+
 
   const loadDemoData = (companyName: string) => {
     const data = DEMO_COMPANIES[companyName];
