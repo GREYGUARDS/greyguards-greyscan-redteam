@@ -80,3 +80,11 @@ verify_jwt = false
 
 [functions.evaluate-crisis-response]
 verify_jwt = false
+[functions.fetch-youtube]
+verify_jwt = false
+
+[functions.fetch-podcasts]
+verify_jwt = false
+
+[functions.check-ai-engines]
+verify_jwt = false
