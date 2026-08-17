@@ -354,7 +354,7 @@ export const exportToPDF = async (data: ExportData) => {
   doc.text(`Report Generated: ${dateStr}`, pageWidth / 2, 165, { align: 'center' });
 
   // ===== EXECUTIVE SUMMARY BOX (two safe columns, no overlap) =====
-  const summaryY = 182;
+  const summaryY = 176;
   const summaryHeight = 86;
   doc.setFillColor(...PANEL_BG);
   doc.roundedRect(margin, summaryY, innerWidth, summaryHeight, 3, 3, 'F');
