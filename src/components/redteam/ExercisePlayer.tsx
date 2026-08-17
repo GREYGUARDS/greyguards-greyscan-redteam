@@ -896,7 +896,21 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="mb-6">
+                    {lastFeedback && (
+                      <div className={`mb-4 border-2 p-3 ${
+                        lastFeedback.effectiveness >= 70 ? 'border-success bg-success/5' :
+                        lastFeedback.effectiveness >= 50 ? 'border-warning bg-warning/5' :
+                        'border-destructive bg-destructive/5'
+                      }`}>
+                        <span className="block text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1">
+                          Assessment of your written action — {lastFeedback.effectiveness}% effective
+                          {lastFeedback.effectiveness >= 70 ? " (situation improved)" : lastFeedback.effectiveness >= 50 ? " (mixed outcome)" : " (situation worsened)"}
+                        </span>
+                        <p className="text-sm">{lastFeedback.text}</p>
+                      </div>
+                    )}
                     {activeInject.consequence && (
+
                       <div className="mb-4 border-l-4 border-primary bg-primary/5 p-3">
                         <span className="block text-[10px] uppercase tracking-[0.2em] text-primary mb-1">
                           Consequence of your last action
