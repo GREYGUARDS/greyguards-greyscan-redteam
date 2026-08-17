@@ -142,9 +142,20 @@ export const exportToPDF = async (data: ExportData) => {
     doc.line(margin, 27, pageWidth - margin, 27);
   };
 
-  const startContentPage = () => {
+  // Background/header are painted once per page only — repainting would erase drawn content
+  const chromedPages = new Set<number>();
+  const currentPageNumber = () => (doc as any).internal.getCurrentPageInfo().pageNumber as number;
+
+  const initPageChrome = () => {
+    const page = currentPageNumber();
+    if (chromedPages.has(page)) return;
+    chromedPages.add(page);
     paintPageBackground();
     drawRunningHeader();
+  };
+
+  const startContentPage = () => {
+    initPageChrome();
     yPosition = contentTop;
   };
 
