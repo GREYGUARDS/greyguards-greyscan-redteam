@@ -1164,10 +1164,8 @@ const Index = () => {
                   threatScore={results.threatScore}
                 />
 
-                {/* Synthetic Content Monitor */}
-                <SyntheticContentMonitor brandName={brandName} />
-
                 {/* AI Engine Exposure */}
+
                 <AIEngineExposure brandName={brandName} />
 
                 {/* Sentiment Analysis & Trend */}
@@ -1326,6 +1324,10 @@ const Index = () => {
                   }}
                   threatLevel={results.threatLevel}
                 />
+
+                {/* Synthetic Content Monitor (roadmap / in development) */}
+                <SyntheticContentMonitor brandName={brandName} />
+
 
                 {/* API Status Panel */}
                 <APIStatusPanel apiStatuses={apiStatuses} isLoading={loading} />
