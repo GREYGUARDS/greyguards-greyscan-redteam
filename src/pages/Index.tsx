@@ -492,7 +492,20 @@ const Index = () => {
           score: p.votes,
           comments: p.comments,
         })),
+        ...youtubeVideos.map((v: any) => ({
+          text: v.text || v.title,
+          source: "YouTube",
+          date: new Date(v.publishedAt),
+          author: v.channel,
+          score: v.views,
+        })),
+        ...podcastEpisodes.map((e: any) => ({
+          text: e.text || e.title,
+          source: `Podcast (${e.show})`,
+          date: new Date(e.publishedAt),
+        })),
       ];
+
 
       // Calculate source statistics
       const sourceStats = mentions.reduce((acc: any, mention: any) => {
