@@ -50,7 +50,9 @@ serve(async (req) => {
       );
     }
 
-    // Get OAuth token
+    // Get OAuth token.
+    // Note: "scope" is not a valid parameter for the client_credentials grant and
+    // caused Reddit to reject the request; the app type determines available scopes.
     console.log("Getting Reddit OAuth token");
     const authString = btoa(`${clientId}:${clientSecret}`);
     const tokenResponse = await fetch('https://www.reddit.com/api/v1/access_token', {
@@ -58,16 +60,26 @@ serve(async (req) => {
       headers: {
         'Authorization': `Basic ${authString}`,
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'NarrativeTracker/1.0',
+        'User-Agent': 'web:greyscan-narrative-tracker:1.0 (by /u/greyguards)',
+        'Accept': 'application/json',
       },
-      body: 'grant_type=client_credentials&scope=read',
+      body: 'grant_type=client_credentials',
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!tokenResponse.ok) {
       const errorId = crypto.randomUUID();
-      console.error("Reddit OAuth error:", { errorId, status: tokenResponse.status, timestamp: new Date().toISOString() });
+      const detail = (await tokenResponse.text()).slice(0, 200);
+      console.error("Reddit OAuth error:", { errorId, status: tokenResponse.status, detail, timestamp: new Date().toISOString() });
       return new Response(
-        JSON.stringify({ posts: [], error: "Service temporarily unavailable", errorId }),
+        JSON.stringify({
+          posts: [],
+          unavailable: true,
+          error: tokenResponse.status === 401
+            ? "Reddit rejected the app credentials (401). REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET need to be re-issued."
+            : "Reddit temporarily unavailable",
+          errorId,
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
