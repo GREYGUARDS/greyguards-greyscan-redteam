@@ -382,6 +382,8 @@ const Index = () => {
 
       // Wait for all to complete
       const allResults = await Promise.all([...apiCalls, trendsCall, gdeltGkgCall]);
+      setScanPhase("aggregating");
+
 
       // Extract data from results
       const getResult = (name: string) => allResults.find(r => r.name === name);
