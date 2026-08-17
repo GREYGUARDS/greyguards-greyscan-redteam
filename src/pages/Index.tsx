@@ -265,6 +265,7 @@ const Index = () => {
     }
 
     setLoading(true);
+    setScanPhase("sources");
     // Initialize API statuses to loading
     setApiStatuses(API_SOURCES.map(api => ({ ...api, status: 'loading', count: 0 })));
     
