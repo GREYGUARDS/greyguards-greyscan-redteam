@@ -232,8 +232,7 @@ export const exportToPDF = async (data: ExportData) => {
     alternateRowStyles: { fillColor: [12, 12, 12] as [number, number, number] },
     // Keeps autoTable-created pages on the same dark template
     willDrawPage: () => {
-      paintPageBackground();
-      drawRunningHeader();
+      initPageChrome();
     },
   };
 
