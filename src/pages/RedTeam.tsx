@@ -118,6 +118,8 @@ export interface Inject {
   requiresResponse: boolean;
   responseOptions?: ResponseOption[];
   isAggressive?: boolean;
+  /** Set on AI-generated follow-ups: how the team's last action caused this inject */
+  consequence?: string;
 }
 
 export interface ResponseOption {
