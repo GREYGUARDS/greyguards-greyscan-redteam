@@ -31,7 +31,7 @@ import InjectVisual from "./InjectVisual";
 import { supabase } from "@/integrations/supabase/client";
 
 const INJECT_GENERATION_TIMEOUT_MS = 8000;
-const REACTION_TIMEOUT_MS = 15000;
+const REACTION_TIMEOUT_MS = 25000;
 
 // Local fallback score for a written countermeasure if AI evaluation is unavailable
 const heuristicScore = (text: string): number => {
@@ -42,6 +42,25 @@ const heuristicScore = (text: string): number => {
   const lengthBonus = Math.min(20, text.length / 10);
   return Math.min(85, 55 + (hasKeywords ? 15 : 0) + lengthBonus);
 };
+
+// Local feedback wording so a written action is ALWAYS acknowledged, even offline
+const heuristicFeedback = (text: string, score: number): string => {
+  const lower = text.toLowerCase();
+  if (lower.includes("no comment")) {
+    return "Staying silent reads as concealment — hostile accounts will fill the vacuum for you.";
+  }
+  if (score >= 70) {
+    return "Specific, evidence-led and on the front foot — this narrows the attacker's room to manoeuvre.";
+  }
+  if (score >= 55) {
+    return "Partially effective: the intent is right, but it leaves gaps hostile actors can quote selectively.";
+  }
+  return "Too thin or too defensive — this is likely to be used as fresh proof of the original claim.";
+};
+
+const truncate = (text: string, max: number) =>
+  text.length > max ? `${text.slice(0, max).trim()}...` : text;
+
 
 const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
