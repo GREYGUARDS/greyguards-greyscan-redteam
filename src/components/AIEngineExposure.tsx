@@ -123,7 +123,7 @@ export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
                 <tr className="border-b border-border bg-secondary/30">
                   <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Engine</th>
                   <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Narrative Excerpt</th>
-                  <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Risk Score</th>
+                  <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Narrative Risk</th>
                   <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Trend</th>
                 </tr>
               </thead>
