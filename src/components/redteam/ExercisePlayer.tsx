@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { ExerciseConfig, Scenario, Inject, ResponseOption, TeamScore, ResponseRecord } from "@/pages/RedTeam";
 import CountdownTimer from "./CountdownTimer";
+import InjectVisual from "./InjectVisual";
 import { supabase } from "@/integrations/supabase/client";
 
 const INJECT_GENERATION_TIMEOUT_MS = 8000;
@@ -392,7 +393,8 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
           return inject.timestamp <= elapsedTime && inject.timestamp > elapsedTime - 2;
         });
 
-        if (nextInject && !activeInject) {
+        // Hold scheduled injects while the adversary engine builds a reaction to the last action
+        if (nextInject && !activeInject && !reactingRef.current) {
           triggerInject(nextInject);
         }
 
@@ -802,7 +804,15 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="mb-6">
-                    <p className="text-lg leading-relaxed">{activeInject.content}</p>
+                    {activeInject.consequence && (
+                      <div className="mb-4 border-l-4 border-primary bg-primary/5 p-3">
+                        <span className="block text-[10px] uppercase tracking-[0.2em] text-primary mb-1">
+                          Consequence of your last action
+                        </span>
+                        <p className="text-sm text-muted-foreground">{activeInject.consequence}</p>
+                      </div>
+                    )}
+                    <InjectVisual inject={activeInject} />
                     <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
@@ -905,11 +915,23 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
             ) : (
               <Card className="border-4 border-border bg-card h-full flex items-center justify-center">
                 <CardContent className="text-center p-12">
-                  <Clock className="h-16 w-16 mx-auto mb-6 text-muted-foreground animate-pulse" />
-                  <h3 className="text-xl font-bold uppercase tracking-wider mb-2">Monitoring...</h3>
+                  <Clock className={`h-16 w-16 mx-auto mb-6 text-muted-foreground ${isReacting ? 'animate-spin' : 'animate-pulse'}`} />
+                  <h3 className="text-xl font-bold uppercase tracking-wider mb-2">
+                    {isReacting ? "Network Reacting..." : "Monitoring..."}
+                  </h3>
                   <p className="text-muted-foreground">
-                    Watching for developments. The next event will appear when the narrative evolves.
+                    {isReacting
+                      ? "Hostile actors are responding to your countermeasure. Next development incoming."
+                      : "Watching for developments. The next event will appear when the narrative evolves."}
                   </p>
+                  {lastFeedback && (
+                    <div className="mt-6 mx-auto max-w-md border-2 border-border bg-muted/30 p-4 text-left">
+                      <span className="block text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1">
+                        Assessment of your written action — {lastFeedback.effectiveness}% effective
+                      </span>
+                      <p className="text-sm">{lastFeedback.text}</p>
+                    </div>
+                  )}
                   <div className="mt-6 text-sm text-muted-foreground">
                     <span className="font-mono">{Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}</span> remaining
                   </div>
