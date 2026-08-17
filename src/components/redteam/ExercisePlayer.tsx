@@ -408,20 +408,106 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     }
   };
 
+  // Ask the adversary engine for a follow-up inject that directly reacts to what the team did
+  const queueReactiveInject = async (
+    respondedTo: Inject,
+    actionText: string,
+    effectiveness: number,
+    feedback: string | undefined,
+    controlAfter: number
+  ) => {
+    setIsReacting(true);
+    reactingRef.current = true;
+    try {
+      const { data } = await withTimeout(
+        supabase.functions.invoke('generate-reactive-inject', {
+          body: {
+            brandName: config.brandName,
+            scenarioTitle: scenario.title,
+            scenarioNarrative: scenario.narrative,
+            previousInject: {
+              type: respondedTo.type,
+              content: respondedTo.content,
+              source: respondedTo.source,
+              sentiment: respondedTo.sentiment,
+            },
+            playerAction: actionText,
+            actionEffectiveness: Math.round(effectiveness),
+            actionFeedback: feedback,
+            narrativeControl: Math.round(controlAfter),
+            elapsedSeconds: Math.max(0, totalDuration - timeRemaining),
+            remainingSeconds: Math.max(0, timeRemaining),
+          }
+        }),
+        REACTION_TIMEOUT_MS
+      );
+
+      const raw = data?.inject;
+      if (raw && typeof raw.content === 'string' && raw.content.trim()) {
+        const reactive: Inject = {
+          id: `reactive-${Date.now()}`,
+          timestamp: Math.max(0, totalDuration - timeRemaining),
+          type: (raw.type ?? 'social_post') as Inject["type"],
+          content: raw.content,
+          source: raw.source || 'Monitored network',
+          reach: typeof raw.reach === 'number' ? raw.reach : 50000,
+          sentiment: (raw.sentiment ?? 'hostile') as Inject["sentiment"],
+          requiresResponse: true,
+          isAggressive: Boolean(raw.isAggressive),
+          consequence: typeof raw.consequence === 'string' ? raw.consequence : undefined,
+          responseOptions: Array.isArray(raw.responseOptions) && raw.responseOptions.length > 0
+            ? raw.responseOptions as ResponseOption[]
+            : undefined,
+        };
+        setInjects((prev) => [...prev, reactive]);
+        reactingRef.current = false;
+        setIsReacting(false);
+        triggerInject(reactive);
+        return;
+      }
+    } catch (error) {
+      console.error('Error generating reactive inject:', error);
+    }
+    reactingRef.current = false;
+    setIsReacting(false);
+  };
+
+  const applyOutcome = (effectiveness: number, riskLevel?: ResponseOption["riskLevel"]) => {
+    const wasCorrect = effectiveness >= 65;
+    let controlAfter = narrativeControl;
+
+    if (wasCorrect) {
+      setDecisionsCorrect((prev) => prev + 1);
+      controlAfter = Math.min(100, narrativeControl + (effectiveness / 10));
+      setNarrativeControl(controlAfter);
+      setReputationDamage((prev) => Math.max(0, prev - (effectiveness / 15)));
+    } else {
+      controlAfter = Math.max(0, narrativeControl - 5);
+      setNarrativeControl(controlAfter);
+      if (riskLevel === "high") {
+        setReputationDamage((prev) => Math.min(100, prev + 10));
+      }
+    }
+
+    return { wasCorrect, controlAfter };
+  };
+
   const handleResponse = (option: ResponseOption) => {
     if (!activeInject || !injectStartTime) return;
 
+    const respondedTo = activeInject;
     const responseTime = (Date.now() - injectStartTime) / 1000;
-    const wasCorrect = option.effectiveness >= 65;
-    
+
     setResponseTimes((prev) => [...prev, responseTime]);
     setDecisionsTotal((prev) => prev + 1);
 
+    const { wasCorrect, controlAfter } = applyOutcome(option.effectiveness, option.riskLevel);
+
     // Record response for debrief
     const record: ResponseRecord = {
-      injectId: activeInject.id,
-      injectType: activeInject.type,
-      injectContent: activeInject.content,
+      injectId: respondedTo.id,
+      injectType: respondedTo.type,
+      injectContent: respondedTo.content,
       responseLabel: option.label,
       responseType: option.type,
       effectiveness: option.effectiveness,
@@ -430,18 +516,6 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       timestamp: totalDuration - timeRemaining
     };
     setResponseHistory((prev) => [...prev, record]);
-
-    // Calculate if decision was correct (effectiveness > 65 = correct)
-    if (wasCorrect) {
-      setDecisionsCorrect((prev) => prev + 1);
-      setNarrativeControl((prev) => Math.min(100, prev + (option.effectiveness / 10)));
-      setReputationDamage((prev) => Math.max(0, prev - (option.effectiveness / 15)));
-    } else {
-      setNarrativeControl((prev) => Math.max(0, prev - 5));
-      if (option.riskLevel === "high") {
-        setReputationDamage((prev) => Math.min(100, prev + 10));
-      }
-    }
 
     setEventLog((prev) => [
       {
@@ -452,36 +526,63 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       ...prev
     ]);
 
-    // Track when we responded for accelerated next inject
     lastResponseTimeRef.current = totalDuration - timeRemaining;
-    
+
     setActiveInject(null);
     setInjectStartTime(null);
     setShowCustomInput(false);
     setCustomCountermeasure("");
+    setLastFeedback(null);
+
+    void queueReactiveInject(
+      respondedTo,
+      `${option.label} — ${option.description}`,
+      option.effectiveness,
+      undefined,
+      controlAfter
+    );
   };
 
-  const handleCustomResponse = () => {
+  const handleCustomResponse = async () => {
     if (!activeInject || !injectStartTime || !customCountermeasure.trim()) return;
 
+    const respondedTo = activeInject;
+    const actionText = customCountermeasure.trim();
     const responseTime = (Date.now() - injectStartTime) / 1000;
+
     setResponseTimes((prev) => [...prev, responseTime]);
     setDecisionsTotal((prev) => prev + 1);
 
-    // Custom responses get moderate effectiveness (55-75 based on length and keywords)
-    const hasKeywords = ['statement', 'media', 'respond', 'clarify', 'deny', 'evidence', 'fact', 'truth', 'report'].some(
-      keyword => customCountermeasure.toLowerCase().includes(keyword)
-    );
-    const lengthBonus = Math.min(20, customCountermeasure.length / 10);
-    const effectiveness = Math.min(85, 55 + (hasKeywords ? 15 : 0) + lengthBonus);
-    const wasCorrect = effectiveness >= 65;
+    // Have the AI judge the written action; fall back to a local heuristic
+    let effectiveness = heuristicScore(actionText);
+    let feedback: string | undefined;
 
-    // Record response for debrief
+    try {
+      const { data } = await withTimeout(
+        supabase.functions.invoke('evaluate-crisis-response', {
+          body: {
+            injectContent: respondedTo.content,
+            injectType: respondedTo.type,
+            customResponse: actionText,
+            brandName: config.brandName,
+            scenarioTitle: scenario.title,
+          }
+        }),
+        REACTION_TIMEOUT_MS
+      );
+      if (typeof data?.effectiveness === 'number') effectiveness = data.effectiveness;
+      if (typeof data?.feedback === 'string') feedback = data.feedback;
+    } catch (error) {
+      console.error('Error evaluating custom response:', error);
+    }
+
+    const { wasCorrect, controlAfter } = applyOutcome(effectiveness);
+
     const record: ResponseRecord = {
-      injectId: activeInject.id,
-      injectType: activeInject.type,
-      injectContent: activeInject.content,
-      responseLabel: customCountermeasure.substring(0, 50) + (customCountermeasure.length > 50 ? '...' : ''),
+      injectId: respondedTo.id,
+      injectType: respondedTo.type,
+      injectContent: respondedTo.content,
+      responseLabel: actionText.substring(0, 50) + (actionText.length > 50 ? '...' : ''),
       responseType: 'custom',
       effectiveness: Math.round(effectiveness),
       responseTime,
@@ -489,31 +590,25 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       timestamp: totalDuration - timeRemaining
     };
     setResponseHistory((prev) => [...prev, record]);
-    
-    if (wasCorrect) {
-      setDecisionsCorrect((prev) => prev + 1);
-      setNarrativeControl((prev) => Math.min(100, prev + (effectiveness / 10)));
-      setReputationDamage((prev) => Math.max(0, prev - (effectiveness / 15)));
-    } else {
-      setNarrativeControl((prev) => Math.max(0, prev - 3));
-    }
 
     setEventLog((prev) => [
       {
         time: totalDuration - timeRemaining,
-        message: `Custom Response: "${customCountermeasure.substring(0, 40)}..." (${Math.round(effectiveness)}% effective)`,
+        message: `Custom Response: "${actionText.substring(0, 40)}..." (${Math.round(effectiveness)}% effective)`,
         type: "response"
       },
       ...prev
     ]);
 
-    // Track when we responded for accelerated next inject
     lastResponseTimeRef.current = totalDuration - timeRemaining;
 
     setActiveInject(null);
     setInjectStartTime(null);
     setShowCustomInput(false);
     setCustomCountermeasure("");
+    setLastFeedback(feedback ? { text: feedback, effectiveness: Math.round(effectiveness) } : null);
+
+    void queueReactiveInject(respondedTo, actionText, effectiveness, feedback, controlAfter);
   };
 
   const handleExerciseComplete = () => {
