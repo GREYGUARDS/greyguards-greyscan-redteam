@@ -25,6 +25,7 @@ import SentimentTrendComparison from "@/components/SentimentTrendComparison";
 import StrategicRecommendations from "@/components/StrategicRecommendations";
 import SourcesTable from "@/components/SourcesTable";
 import { APIStatusPanel, type APIStatus } from "@/components/APIStatusPanel";
+import { ScanProgress, type ScanPhase } from "@/components/ScanProgress";
 import { GDELTEntitiesChart } from "@/components/GDELTEntitiesChart";
 import { GDELTLocationsMap } from "@/components/GDELTLocationsMap";
 import { GDELTThemesChart } from "@/components/GDELTThemesChart";
