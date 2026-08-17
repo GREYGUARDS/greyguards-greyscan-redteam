@@ -57,6 +57,39 @@ const NEWS_FEEDS = [
   { name: "The Verge", url: "https://www.theverge.com/rss/index.xml", country: "US" },
 ];
 
+// deno_dom cannot parse "text/xml" (throws "unimplemented"), which silently zeroed out
+// every feed. Parse RSS/Atom items with regex instead.
+function decodeEntities(input: string): string {
+  return input
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function tagValue(block: string, tag: string): string {
+  const match = block.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, 'i'));
+  if (match) return decodeEntities(match[1]);
+  // Atom links use an attribute
+  if (tag === 'link') {
+    const href = block.match(/<link[^>]*href=["']([^"']+)["']/i);
+    if (href) return href[1];
+  }
+  return '';
+}
+
+function parseItems(xmlText: string): string[] {
+  const rssItems = xmlText.match(/<item[\s>][\s\S]*?<\/item>/gi) || [];
+  if (rssItems.length > 0) return rssItems;
+  return xmlText.match(/<entry[\s>][\s\S]*?<\/entry>/gi) || [];
+}
+
 async function fetchRSS(feed: typeof NEWS_FEEDS[0], brand: string): Promise<any[]> {
   try {
     // Feeds are static endpoints - never append query params (breaks feeds like FT/CNBC)
@@ -66,57 +99,52 @@ async function fetchRSS(feed: typeof NEWS_FEEDS[0], brand: string): Promise<any[
         'Accept': 'application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.8',
       },
       redirect: 'follow',
-      signal: AbortSignal.timeout(6000), // 6 second timeout
+      signal: AbortSignal.timeout(8000),
     });
-    
+
     if (!response.ok) {
       console.warn(`${feed.name} RSS failed:`, response.status);
       return [];
     }
 
     const xmlText = await response.text();
-    
-    // Check if brand is mentioned in the feed
-    if (!xmlText.toLowerCase().includes(brand.toLowerCase())) {
+    const needle = brand.toLowerCase();
+
+    if (!xmlText.toLowerCase().includes(needle)) {
       return [];
     }
-    
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(xmlText, "text/xml");
-    
-    if (!doc) return [];
 
-    const items = doc.querySelectorAll("item");
-    
-    return Array.from(items).slice(0, 5).map((item) => {
-      const element = item as any;
-      const titleEl = element.querySelector("title");
-      const linkEl = element.querySelector("link");
-      const descEl = element.querySelector("description");
-      const pubDateEl = element.querySelector("pubDate");
-      
-      const title = titleEl?.textContent || "";
-      const description = descEl?.textContent || "";
-      
-      // Only include if brand is mentioned
-      if (!title.toLowerCase().includes(brand.toLowerCase()) && 
-          !description.toLowerCase().includes(brand.toLowerCase())) {
-        return null;
-      }
-      
-      return {
-        title,
-        text: description.replace(/<[^>]*>/g, ''),
-        url: linkEl?.textContent || "",
-        publishedAt: pubDateEl?.textContent || new Date().toISOString(),
-        source: feed.name,
-        country: feed.country,
-      };
-    }).filter((article): article is NonNullable<typeof article> => 
-      article !== null && article.title && article.url
-    );
+    const articles = parseItems(xmlText)
+      .map((block) => {
+        const title = tagValue(block, 'title');
+        const description = tagValue(block, 'description') || tagValue(block, 'summary') || tagValue(block, 'content');
+        const url = tagValue(block, 'link') || tagValue(block, 'guid');
+        const publishedAt = tagValue(block, 'pubDate') || tagValue(block, 'updated') || tagValue(block, 'published') || new Date().toISOString();
+
+        if (!title || !url) return null;
+        if (!title.toLowerCase().includes(needle) && !description.toLowerCase().includes(needle)) {
+          return null;
+        }
+
+        return {
+          title,
+          text: description,
+          url,
+          publishedAt,
+          source: feed.name,
+          country: feed.country,
+        };
+      })
+      .filter((a): a is NonNullable<typeof a> => a !== null)
+      .slice(0, 8);
+
+    if (articles.length > 0) {
+      console.log(`${feed.name}: ${articles.length} matching articles`);
+    }
+
+    return articles;
   } catch (error) {
-    console.warn(`Error fetching ${feed.name}:`, error);
+    console.warn(`Error fetching ${feed.name}:`, error instanceof Error ? error.message : error);
     return [];
   }
 }
