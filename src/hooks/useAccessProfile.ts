@@ -39,7 +39,13 @@ export function useAccessProfile(): AccessProfile {
       if (!isAdmin) {
         const { data: brandRow } = await supabase.rpc("get_my_locked_brand");
         if (typeof brandRow === "string") lockedBrand = brandRow;
+        // Approved-but-unprovisioned accounts self-claim their brand on first load.
+        if (!lockedBrand) {
+          const { data: claimed } = await supabase.rpc("claim_brand_access");
+          if (typeof claimed === "string") lockedBrand = claimed;
+        }
       }
+
 
       if (!cancelled) {
         setState({ loading: false, userId: user.id, email, isAdmin, lockedBrand });
