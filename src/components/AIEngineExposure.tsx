@@ -30,11 +30,27 @@ const getTrendColor = (trend: string) => {
   }
 };
 
-const getRiskColor = (score: number) => {
-  if (score >= 8) return "text-destructive";
-  if (score >= 5) return "text-warning";
+// Model risk is returned 0-10; expose it as a percentage so the scale is self-explanatory
+const toPercent = (score: number) => Math.max(0, Math.min(100, Math.round(score * 10)));
+
+const getRiskColor = (pct: number) => {
+  if (pct >= 80) return "text-destructive";
+  if (pct >= 50) return "text-warning";
   return "text-success";
 };
+
+const getRiskBar = (pct: number) => {
+  if (pct >= 80) return "bg-destructive";
+  if (pct >= 50) return "bg-warning";
+  return "bg-success";
+};
+
+const getRiskLabel = (pct: number) => {
+  if (pct >= 80) return "High exposure";
+  if (pct >= 50) return "Moderate";
+  return "Low";
+};
+
 
 interface AIEngineExposureProps {
   brandName: string;
@@ -107,7 +123,7 @@ export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
                 <tr className="border-b border-border bg-secondary/30">
                   <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Engine</th>
                   <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Narrative Excerpt</th>
-                  <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Risk Score</th>
+                  <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Narrative Risk</th>
                   <th className="text-center p-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Trend</th>
                 </tr>
               </thead>
@@ -136,10 +152,20 @@ export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
                           )}
                         </td>
                         <td className="p-3 text-center align-top">
-                          <span className={`font-mono font-bold text-lg ${getRiskColor(row.riskScore ?? 0)}`}>
-                            {row.riskScore ?? 0}/10
-                          </span>
+                          {(() => {
+                            const pct = toPercent(row.riskScore ?? 0);
+                            return (
+                              <div className="flex flex-col items-center gap-1">
+                                <span className={`font-mono font-bold text-lg ${getRiskColor(pct)}`}>{pct}%</span>
+                                <div className="w-20 h-1.5 bg-muted rounded-sm overflow-hidden">
+                                  <div className={`h-full ${getRiskBar(pct)}`} style={{ width: `${pct}%` }} />
+                                </div>
+                                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{getRiskLabel(pct)}</span>
+                              </div>
+                            );
+                          })()}
                         </td>
+
                         <td className="p-3 text-center align-top">
                           <Badge variant="outline" className={`text-xs gap-1 ${getTrendColor(row.trend || "Stable")}`}>
                             {getTrendIcon(row.trend || "Stable")}
