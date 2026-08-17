@@ -397,6 +397,9 @@ const Index = () => {
       const lemmyPosts = getResult('Lemmy')?.data || [];
       const stackExchangeQuestions = getResult('Stack Exchange')?.data || [];
       const productHuntProducts = getResult('Product Hunt')?.data || [];
+      const youtubeVideos = getResult('YouTube')?.data || [];
+      const podcastEpisodes = getResult('Podcasts')?.data || [];
+
 
       // Combine and analyze data from ALL sources
       const mentions = [
