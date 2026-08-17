@@ -30,6 +30,17 @@ import CountdownTimer from "./CountdownTimer";
 import { supabase } from "@/integrations/supabase/client";
 
 const INJECT_GENERATION_TIMEOUT_MS = 8000;
+const REACTION_TIMEOUT_MS = 15000;
+
+// Local fallback score for a written countermeasure if AI evaluation is unavailable
+const heuristicScore = (text: string): number => {
+  const lower = text.toLowerCase();
+  if (lower.includes("no comment")) return 28;
+  const hasKeywords = ['statement', 'media', 'respond', 'clarify', 'deny', 'evidence', 'fact', 'truth', 'report']
+    .some((keyword) => lower.includes(keyword));
+  const lengthBonus = Math.min(20, text.length / 10);
+  return Math.min(85, 55 + (hasKeywords ? 15 : 0) + lengthBonus);
+};
 
 const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -71,6 +82,9 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   const [isLoading, setIsLoading] = useState(false);
   const [customCountermeasure, setCustomCountermeasure] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
+  const [isReacting, setIsReacting] = useState(false);
+  const [lastFeedback, setLastFeedback] = useState<{ text: string; effectiveness: number } | null>(null);
+  const reactingRef = useRef(false);
   const nextInjectTimeRef = useRef<number>(15); // First inject after 15 seconds
   const injectCountRef = useRef<number>(0);
   const lastResponseTimeRef = useRef<number | null>(null);
