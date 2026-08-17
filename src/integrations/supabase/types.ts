@@ -582,6 +582,7 @@ export type Database = {
         Args: { _notes?: string; _request_id: string }
         Returns: undefined
       }
+      claim_brand_access: { Args: never; Returns: string }
       get_my_locked_brand: { Args: never; Returns: string }
       is_admin: { Args: { _uid: string }; Returns: boolean }
       is_session_participant: {
