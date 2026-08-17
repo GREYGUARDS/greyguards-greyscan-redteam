@@ -573,12 +573,14 @@ const Index = () => {
       }, { onConflict: 'user_id,brand_name' });
 
       // Use fallback analysis or run real sentiment analysis
+      setScanPhase("sentiment");
       let analysis: AnalysisResult;
       if (useFallback && fallbackData) {
         analysis = fallbackData.analysis;
       } else {
         analysis = await analyzeSentiment(finalMentions, brandName, userId);
       }
+      setScanPhase("narratives");
       setResults(analysis);
 
       // Get fresh session for authorization (used by multiple edge function calls)
