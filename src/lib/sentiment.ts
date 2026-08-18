@@ -8,17 +8,26 @@ export interface Mention {
   score?: number;
 }
 
+export interface ThreatScoreBreakdown {
+  negativeShare: number;   // 0-100, share of mentions classed negative
+  amplification: number;   // 0-100, share of negative mentions with above-median engagement
+  momentum: number;        // 0-100, recent 24h negative share vs whole window
+  weights: { negativeShare: number; amplification: number; momentum: number };
+}
+
 export interface AnalysisResult {
   sentimentDistribution: { name: string; value: number; fill: string }[];
   timeline: { date: string; mentions: number }[];
   keywords: { word: string; count: number }[];
   threatLevel: "low" | "medium" | "high" | "critical";
   threatScore: number;
+  threatBreakdown: ThreatScoreBreakdown;
   shortTermSentiment: number;
   longTermSentiment: number;
   trendIcon: string;
   previousSentiment: number;
 }
+
 
 let sentimentPipeline: any = null;
 
