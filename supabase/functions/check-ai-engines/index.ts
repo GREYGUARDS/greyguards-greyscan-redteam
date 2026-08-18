@@ -201,13 +201,20 @@ serve(async (req) => {
   }
 
   try {
-    const { brand } = await req.json();
+    const body = await req.json();
+    const brand = body?.brand;
     if (!brand || typeof brand !== "string" || brand.length > 100) {
       return new Response(JSON.stringify({ error: "Invalid input", engines: [] }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const allowedWindows = [1, 6, 12, 24];
+    const requested = Number(body?.windowHours);
+    const windowHours = allowedWindows.includes(requested) ? requested : 6;
+    // "stories" = story feed only (fast window switching), "engines" = model audit only
+    const mode = body?.mode === "stories" || body?.mode === "engines" ? body.mode : "all";
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
@@ -218,12 +225,19 @@ serve(async (req) => {
       });
     }
 
-    console.log("Checking AI engine exposure for:", brand);
-    const engines = await Promise.all(ENGINES.map((e) => queryEngine(e, brand, apiKey)));
-    const usable = engines.filter((e: any) => !e.unavailable);
-    console.log(`AI engines answered: ${usable.length}/${ENGINES.length}`);
+    console.log(`Checking AI engine exposure for: ${brand} (mode=${mode}, window=${windowHours}h)`);
 
-    return new Response(JSON.stringify({ engines, checkedAt: new Date().toISOString() }), {
+    const [engines, feed] = await Promise.all([
+      mode === "stories" ? Promise.resolve([]) : Promise.all(ENGINES.map((e) => queryEngine(e, brand, apiKey))),
+      mode === "engines"
+        ? Promise.resolve({ stories: [], storySummary: "", windowHours, storyCount: 0 })
+        : buildStoryFeed(brand, windowHours, apiKey),
+    ]);
+
+    const usable = (engines as any[]).filter((e) => !e.unavailable);
+    console.log(`AI engines answered: ${usable.length}/${engines.length}; stories: ${feed.storyCount}`);
+
+    return new Response(JSON.stringify({ engines, ...feed, checkedAt: new Date().toISOString() }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
