@@ -74,37 +74,57 @@ interface AIEngineExposureProps {
 
 export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
   const [engines, setEngines] = useState<EngineRow[]>([]);
+  const [stories, setStories] = useState<StoryRow[]>([]);
+  const [storySummary, setStorySummary] = useState<string>("");
+  const [windowHours, setWindowHours] = useState<number>(6);
   const [loading, setLoading] = useState(false);
+  const [storiesLoading, setStoriesLoading] = useState(false);
   const [checkedAt, setCheckedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const runCheck = async () => {
+  const runCheck = useCallback(async (hours: number, mode: "all" | "stories" = "all") => {
     if (!brandName) return;
-    setLoading(true);
+    if (mode === "all") setLoading(true);
+    setStoriesLoading(true);
     setError(null);
     try {
       const { data, error: fnError } = await supabase.functions.invoke("check-ai-engines", {
-        body: { brand: brandName },
+        body: { brand: brandName, windowHours: hours, mode },
       });
       if (fnError) throw fnError;
-      setEngines(data?.engines || []);
-      setCheckedAt(data?.checkedAt || new Date().toISOString());
-      if (!(data?.engines || []).some((e: EngineRow) => !e.unavailable)) {
-        setError("No AI engine responded — try again shortly.");
+      if (mode === "all") {
+        setEngines(data?.engines || []);
+        if (!(data?.engines || []).some((e: EngineRow) => !e.unavailable)) {
+          setError("No AI engine responded — try again shortly.");
+        }
       }
+      setStories(data?.stories || []);
+      setStorySummary(data?.storySummary || "");
+      setCheckedAt(data?.checkedAt || new Date().toISOString());
     } catch (err) {
       console.warn("AI engine check failed:", err);
       setError("AI engine check unavailable right now.");
     } finally {
       setLoading(false);
+      setStoriesLoading(false);
     }
-  };
+  }, [brandName]);
 
   useEffect(() => {
     setEngines([]);
+    setStories([]);
+    setStorySummary("");
     setCheckedAt(null);
-    runCheck();
+    runCheck(windowHours, "all");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brandName]);
+
+  const selectWindow = (hours: number) => {
+    setWindowHours(hours);
+    runCheck(hours, "stories");
+  };
+
+  const flagged = stories.filter((s) => (s.mdmRisk ?? 0) >= 40);
 
   return (
     <Card className="border border-border bg-card">
@@ -119,11 +139,12 @@ export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
               Live check {new Date(checkedAt).toLocaleTimeString("en-GB")}
             </span>
           )}
-          <Button size="sm" variant="outline" onClick={runCheck} disabled={loading} className="h-7 px-2 text-xs">
+          <Button size="sm" variant="outline" onClick={() => runCheck(windowHours, "all")} disabled={loading} className="h-7 px-2 text-xs">
             {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
           </Button>
         </div>
       </CardHeader>
+
       <CardContent className="p-0">
         {loading && engines.length === 0 ? (
           <div className="p-6 text-xs text-muted-foreground flex items-center gap-2">
