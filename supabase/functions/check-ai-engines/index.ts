@@ -162,14 +162,57 @@ async function fetchGdelt(brand: string, windowHours: number): Promise<Story[]> 
   }
 }
 
+// Bing News RSS is a third route when both Google (503) and GDELT (429) throttle
+// the edge network. Bing has no hour filter, so we clamp by pubDate ourselves.
+async function fetchBingNews(brand: string, windowHours: number): Promise<Story[]> {
+  const url = `https://www.bing.com/news/search?q=${encodeURIComponent(brand)}&format=RSS&setmkt=en-GB&qft=interval%3d%224%22`;
+  try {
+    const res = await fetch(url, { headers: { "User-Agent": BROWSER_UA }, signal: AbortSignal.timeout(12000) });
+    if (!res.ok) {
+      console.warn("Bing News feed failed:", res.status);
+      return [];
+    }
+    const xml = await res.text();
+    const cutoff = Date.now() - windowHours * 3600 * 1000;
+    const stories: Story[] = [];
+    for (const block of xml.match(/<item[\s>][\s\S]*?<\/item>/gi) || []) {
+      const title = decode((block.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "");
+      const link = decode((block.match(/<link[^>]*>([\s\S]*?)<\/link>/i) || [])[1] || "");
+      const pub = decode((block.match(/<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i) || [])[1] || "");
+      if (!title || !link) continue;
+      const ts = pub ? new Date(pub).getTime() : NaN;
+      if (Number.isFinite(ts) && ts < cutoff) continue;
+      let host = "Bing News";
+      try { host = new URL(link).hostname.replace(/^www\./, ""); } catch { /* keep default */ }
+      stories.push({ title, url: link, source: host, publishedAt: new Date(Number.isFinite(ts) ? ts : Date.now()).toISOString() });
+      if (stories.length >= 25) break;
+    }
+    return stories;
+  } catch (error) {
+    console.warn("Bing News fetch error:", error instanceof Error ? error.message : error);
+    return [];
+  }
+}
+
+async function withRetry(fn: () => Promise<Story[]>, attempts = 2): Promise<Story[]> {
+  for (let i = 0; i < attempts; i++) {
+    const result = await fn();
+    if (result.length > 0) return result;
+    if (i < attempts - 1) await new Promise((r) => setTimeout(r, 1200 * (i + 1)));
+  }
+  return [];
+}
+
 async function fetchStories(brand: string, windowHours: number): Promise<Story[]> {
-  const [google, gdelt] = await Promise.all([
-    fetchGoogleNews(brand, windowHours),
-    fetchGdelt(brand, windowHours),
+  const [google, gdelt, bing] = await Promise.all([
+    withRetry(() => fetchGoogleNews(brand, windowHours)),
+    withRetry(() => fetchGdelt(brand, windowHours)),
+    withRetry(() => fetchBingNews(brand, windowHours), 1),
   ]);
+  console.log(`Story sources — google:${google.length} gdelt:${gdelt.length} bing:${bing.length}`);
   const seen = new Set<string>();
   const merged: Story[] = [];
-  for (const s of [...google, ...gdelt]) {
+  for (const s of [...google, ...gdelt, ...bing]) {
     const key = s.title.toLowerCase().slice(0, 90);
     if (seen.has(key)) continue;
     seen.add(key);
