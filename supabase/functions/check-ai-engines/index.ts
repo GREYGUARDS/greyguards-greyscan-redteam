@@ -90,16 +90,18 @@ function decode(input: string): string {
     .trim();
 }
 
-async function fetchStories(brand: string, windowHours: number): Promise<Story[]> {
-  const when = windowHours <= 1 ? "1h" : windowHours <= 6 ? "6h" : windowHours <= 12 ? "12h" : `${windowHours}h`;
-  const url = `https://news.google.com/rss/search?q=${encodeURIComponent(`${brand} when:${when}`)}&hl=en-GB&gl=GB&ceid=GB:en`;
+const BROWSER_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
+
+async function fetchGoogleNews(brand: string, windowHours: number): Promise<Story[]> {
+  const url = `https://news.google.com/rss/search?q=${encodeURIComponent(`${brand} when:${windowHours}h`)}&hl=en-GB&gl=GB&ceid=GB:en`;
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; GreyscanBot/1.0)" },
+      headers: { "User-Agent": BROWSER_UA, Accept: "application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.8" },
       signal: AbortSignal.timeout(12000),
     });
     if (!res.ok) {
-      console.warn("Story feed failed:", res.status);
+      console.warn("Google News feed failed:", res.status);
       return [];
     }
     const xml = await res.text();
@@ -118,10 +120,66 @@ async function fetchStories(brand: string, windowHours: number): Promise<Story[]
     }
     return stories;
   } catch (error) {
-    console.warn("Story fetch error:", error instanceof Error ? error.message : error);
+    console.warn("Google News fetch error:", error instanceof Error ? error.message : error);
     return [];
   }
 }
+
+// GDELT covers the same window with real publisher URLs and is reachable when
+// Google rate-limits the edge network (503).
+async function fetchGdelt(brand: string, windowHours: number): Promise<Story[]> {
+  const url =
+    `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(`"${brand}" sourcelang:english`)}` +
+    `&mode=ArtList&maxrecords=25&format=json&sort=DateDesc&timespan=${windowHours}h`;
+  try {
+    const res = await fetch(url, { headers: { "User-Agent": BROWSER_UA }, signal: AbortSignal.timeout(15000) });
+    if (!res.ok) {
+      console.warn("GDELT feed failed:", res.status);
+      return [];
+    }
+    const text = await res.text();
+    let data: any;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      console.warn("GDELT returned non-JSON:", text.slice(0, 120));
+      return [];
+    }
+    return (data.articles || [])
+      .filter((a: any) => a?.title && a?.url)
+      .map((a: any) => {
+        // seendate looks like 20260818T091500Z
+        const m = String(a.seendate || "").match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/);
+        const publishedAt = m
+          ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6])).toISOString()
+          : new Date().toISOString();
+        return { title: decode(String(a.title)), url: String(a.url), source: String(a.domain || "GDELT"), publishedAt };
+      })
+      .slice(0, 25);
+  } catch (error) {
+    console.warn("GDELT fetch error:", error instanceof Error ? error.message : error);
+    return [];
+  }
+}
+
+async function fetchStories(brand: string, windowHours: number): Promise<Story[]> {
+  const [google, gdelt] = await Promise.all([
+    fetchGoogleNews(brand, windowHours),
+    fetchGdelt(brand, windowHours),
+  ]);
+  const seen = new Set<string>();
+  const merged: Story[] = [];
+  for (const s of [...google, ...gdelt]) {
+    const key = s.title.toLowerCase().slice(0, 90);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push(s);
+  }
+  return merged
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    .slice(0, 25);
+}
+
 
 const ASSESS_PROMPT = `You are a narrative intelligence analyst assessing news items about an organisation for reputational and MDM (mis/dis/mal-information) risk.
 You are given a numbered list of REAL headlines. Never invent items or URLs — refer to items only by their number.
