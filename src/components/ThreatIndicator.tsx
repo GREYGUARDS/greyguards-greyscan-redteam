@@ -33,7 +33,7 @@ const getActorAttribution = (score: number) => {
   return "Unknown";
 };
 
-export function ThreatIndicator({ threatLevel, threatScore }: ThreatIndicatorProps) {
+export function ThreatIndicator({ threatLevel, threatScore, threatBreakdown }: ThreatIndicatorProps) {
   const getColorClass = () => {
     switch (threatLevel) {
       case "critical": return "text-[hsl(0,72%,51%)]";
