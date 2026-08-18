@@ -227,7 +227,8 @@ async function fetchStories(brand: string, windowHours: number): Promise<Story[]
 const ASSESS_PROMPT = `You are a narrative intelligence analyst assessing news items about an organisation for reputational and MDM (mis/dis/mal-information) risk.
 You are given a numbered list of REAL headlines. Never invent items or URLs — refer to items only by their number.
 Return ONLY JSON, no markdown fences:
-{"items":[{"i":<item number>,"angle":"one line on the narrative angle","mdmRisk":0-100,"mdmType":"Misinformation"|"Disinformation"|"Malinformation"|"None","verifiable":true|false,"note":"one short sentence on why this matters and what to verify"}],"summary":"2 sentences on the emerging narrative picture in this window"}
+{"items":[{"i":<item number>,"relevant":true|false,"angle":"one line on the narrative angle","mdmRisk":0-100,"mdmType":"Misinformation"|"Disinformation"|"Malinformation"|"None","verifiable":true|false,"note":"one short sentence on why this matters and what to verify"}],"summary":"2 sentences on the emerging narrative picture in this window"}
+relevant = the item is genuinely about the named organisation (reject coincidental word matches such as unrelated products, games or people).
 mdmRisk 0 = routine factual coverage, 100 = active coordinated falsehood. verifiable = the claim can be checked against a named primary source. Use UK English. Assess at most 12 items, prioritising the highest-risk ones.`;
 
 async function assessStories(brand: string, stories: Story[], apiKey: string) {
@@ -282,10 +283,15 @@ async function buildStoryFeed(brand: string, windowHours: number, apiKey: string
       verifiable: a?.verifiable === true,
       note: typeof a?.note === "string" ? a.note.slice(0, 300) : "",
       assessed: Boolean(a),
+      relevant: a ? a.relevant !== false : null,
     };
   });
-  enriched.sort((a, b) => (b.mdmRisk ?? -1) - (a.mdmRisk ?? -1));
-  return { stories: enriched, storySummary: summary, windowHours, storyCount: enriched.length };
+  // Drop coincidental keyword matches the model judged irrelevant; keep unassessed
+  // items so a failed assessment never empties the feed.
+  const relevant = enriched.filter((s) => s.relevant !== false);
+  const filtered = relevant.length > 0 ? relevant : enriched;
+  filtered.sort((a, b) => (b.mdmRisk ?? -1) - (a.mdmRisk ?? -1));
+  return { stories: filtered, storySummary: summary, windowHours, storyCount: filtered.length };
 }
 
 serve(async (req) => {
