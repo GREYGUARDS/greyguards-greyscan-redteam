@@ -152,6 +152,16 @@ const Index = () => {
       critical: "critical"
     };
 
+    // Demo companies ship an authored risk score; derive a breakdown that adds up
+    // to it using the same 50/30/20 weighting so the displayed maths is consistent.
+    const demoNegativeShare =
+      data.sentimentDistribution.find((s: { name: string }) => s.name === "Negative")?.value ?? 0;
+    const demoMomentum = data.trendIcon === "down" ? 20 : data.trendIcon === "up" ? 0 : 10;
+    const demoAmplification = Math.max(
+      0,
+      Math.min(100, Math.round((data.threatScore - demoNegativeShare * 0.5 - demoMomentum * 0.2) / 0.3))
+    );
+
     // Simulate loading delay for realism
     setTimeout(() => {
       try {
@@ -165,7 +175,14 @@ const Index = () => {
           timeline: data.timeline,
           threatLevel: threatLevelMap[data.threatLevel] || "medium",
           threatScore: data.threatScore,
+          threatBreakdown: {
+            negativeShare: Math.round(demoNegativeShare),
+            amplification: demoAmplification,
+            momentum: demoMomentum,
+            weights: { negativeShare: 50, amplification: 30, momentum: 20 },
+          },
         });
+
         setTrendsData(data.trendsData);
         setAllMentions(data.mentions || []);
         setSources(data.sources || []);
@@ -1174,7 +1191,9 @@ const Index = () => {
                 <ThreatIndicator
                   threatLevel={results.threatLevel}
                   threatScore={results.threatScore}
+                  threatBreakdown={results.threatBreakdown}
                 />
+
 
                 {/* AI Engine Exposure */}
 

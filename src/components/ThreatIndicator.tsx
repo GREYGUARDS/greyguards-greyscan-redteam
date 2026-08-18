@@ -1,11 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Shield, Activity } from "lucide-react";
+import type { ThreatScoreBreakdown } from "@/lib/sentiment";
 
 interface ThreatIndicatorProps {
   threatLevel: "low" | "medium" | "high" | "critical";
   threatScore: number;
+  threatBreakdown?: ThreatScoreBreakdown;
 }
+
 
 const getThreatStatusLabel = (level: string) => {
   switch (level) {
@@ -30,7 +33,7 @@ const getActorAttribution = (score: number) => {
   return "Unknown";
 };
 
-export function ThreatIndicator({ threatLevel, threatScore }: ThreatIndicatorProps) {
+export function ThreatIndicator({ threatLevel, threatScore, threatBreakdown }: ThreatIndicatorProps) {
   const getColorClass = () => {
     switch (threatLevel) {
       case "critical": return "text-[hsl(0,72%,51%)]";
@@ -134,6 +137,53 @@ export function ThreatIndicator({ threatLevel, threatScore }: ThreatIndicatorPro
             </div>
           </div>
         </div>
+
+        {threatBreakdown && (
+          <div className="mt-5 pt-4 border-t border-border">
+            <p className="text-xs text-muted-foreground tracking-wide mb-3 uppercase">
+              How this score is calculated (0-100)
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                {
+                  label: "Negative share",
+                  value: threatBreakdown.negativeShare,
+                  weight: threatBreakdown.weights.negativeShare,
+                  hint: "Mentions classed negative",
+                },
+                {
+                  label: "Amplification",
+                  value: threatBreakdown.amplification,
+                  weight: threatBreakdown.weights.amplification,
+                  hint: "Negative mentions above median engagement",
+                },
+                {
+                  label: "Momentum",
+                  value: threatBreakdown.momentum,
+                  weight: threatBreakdown.weights.momentum,
+                  hint: "Last 24h negative share vs window",
+                },
+              ].map((c) => (
+                <div key={c.label} className="border border-border rounded-sm p-3 bg-secondary/30">
+                  <div className="flex items-baseline justify-between gap-2 mb-1">
+                    <p className="text-xs font-medium tracking-wide">{c.label}</p>
+                    <span className="text-xs text-muted-foreground">{c.weight}% weight</span>
+                  </div>
+                  <p className="text-lg font-mono font-semibold">{c.value}%</p>
+                  <div className="bg-muted h-1.5 rounded-sm overflow-hidden my-2">
+                    <div className="h-full bg-primary smooth-transition" style={{ width: `${c.value}%` }} />
+                  </div>
+                  <p className="text-[11px] leading-snug text-muted-foreground">{c.hint}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-3 font-mono">
+              ({threatBreakdown.negativeShare} x 0.5) + ({threatBreakdown.amplification} x 0.3) + (
+              {threatBreakdown.momentum} x 0.2) = {threatScore}
+            </p>
+          </div>
+        )}
+
       </CardContent>
     </Card>
   );

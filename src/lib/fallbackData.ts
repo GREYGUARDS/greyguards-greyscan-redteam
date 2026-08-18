@@ -161,6 +161,12 @@ export function generateFallbackData(brandName: string): FallbackData {
     timeline,
     threatLevel: "low" as const,
     threatScore: 28,
+    threatBreakdown: {
+      negativeShare: 25,
+      amplification: 40,
+      momentum: 15,
+      weights: { negativeShare: 50, amplification: 30, momentum: 20 },
+    },
   };
 
   const mdmNarratives = [
