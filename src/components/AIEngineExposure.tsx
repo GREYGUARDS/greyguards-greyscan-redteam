@@ -177,7 +177,9 @@ export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
                     ) : (
                       <>
                         <td className="p-3 max-w-lg align-top">
-                          <span className="text-xs text-muted-foreground italic">"{row.narrative}"</span>
+                          <div className="relative max-h-[4.5rem] overflow-y-auto pr-1 rounded border border-border/40 bg-secondary/20 p-2">
+                            <span className="text-xs text-muted-foreground italic leading-relaxed block">"{row.narrative}"</span>
+                          </div>
                           {row.sourcesKnown && row.sourcesKnown.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-1">
                               {row.sourcesKnown.map((s) => (
