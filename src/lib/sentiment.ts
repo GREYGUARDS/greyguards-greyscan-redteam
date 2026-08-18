@@ -108,16 +108,53 @@ export async function analyzeSentiment(mentions: Mention[], brandName: string, u
     .slice(0, 10)
     .map(([word, count]) => ({ word, count }));
 
-  // Calculate threat score
-  const negativeRatio = negative / mentions.length;
-  const avgReach = mentions.reduce((sum, m) => sum + (m.score || 1), 0) / mentions.length;
-  const threatScore = Math.round(negativeRatio * avgReach * 100);
+  // ---------------------------------------------------------------------------
+  // Composite narrative risk score (0-100), explainable and bounded.
+  //   Negative share  50%  — % of mentions classed negative
+  //   Amplification   30%  — % of negative mentions with above-median engagement
+  //   Momentum        20%  — negative share in the last 24h vs the whole window
+  // ---------------------------------------------------------------------------
+  const total = Math.max(1, sentiments.length);
+  const negativeShare = (negative / total) * 100;
+
+  const engagements = sentiments.map((s) => s.score || 1).sort((a, b) => a - b);
+  const mid = Math.floor(engagements.length / 2);
+  const medianEngagement = engagements.length === 0
+    ? 0
+    : engagements.length % 2 === 1
+      ? engagements[mid]
+      : (engagements[mid - 1] + engagements[mid]) / 2;
+
+  const negativeMentions = sentiments.filter((s) => s.sentiment === "negative");
+  const amplified = negativeMentions.filter((s) => (s.score || 1) > medianEngagement).length;
+  const amplification = negativeMentions.length === 0 ? 0 : (amplified / negativeMentions.length) * 100;
+
+  const dayAgo = Date.now() - 24 * 3600 * 1000;
+  const recent = sentiments.filter((s) => new Date(s.date).getTime() >= dayAgo);
+  const recentNegativeShare = recent.length === 0
+    ? negativeShare
+    : (recent.filter((s) => s.sentiment === "negative").length / recent.length) * 100;
+  // Momentum is the worsening delta, scaled and capped so it can add but never dominate.
+  const momentum = Math.max(0, Math.min(100, (recentNegativeShare - negativeShare) * 2));
+
+  const threatBreakdown: ThreatScoreBreakdown = {
+    negativeShare: Math.round(negativeShare),
+    amplification: Math.round(amplification),
+    momentum: Math.round(momentum),
+    weights: { negativeShare: 50, amplification: 30, momentum: 20 },
+  };
+
+  const threatScore = Math.max(
+    0,
+    Math.min(100, Math.round(negativeShare * 0.5 + amplification * 0.3 + momentum * 0.2))
+  );
 
   let threatLevel: "low" | "medium" | "high" | "critical";
   if (threatScore < 25) threatLevel = "low";
   else if (threatScore < 50) threatLevel = "medium";
   else if (threatScore < 75) threatLevel = "high";
   else threatLevel = "critical";
+
 
   // Calculate short-term sentiment (current scan)
   const neutral = mentions.length - positive - negative;
