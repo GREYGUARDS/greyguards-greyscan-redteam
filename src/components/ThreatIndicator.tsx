@@ -1,11 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Shield, Activity } from "lucide-react";
+import type { ThreatScoreBreakdown } from "@/lib/sentiment";
 
 interface ThreatIndicatorProps {
   threatLevel: "low" | "medium" | "high" | "critical";
   threatScore: number;
+  threatBreakdown?: ThreatScoreBreakdown;
 }
+
 
 const getThreatStatusLabel = (level: string) => {
   switch (level) {
