@@ -197,6 +197,7 @@ export async function analyzeSentiment(mentions: Mention[], brandName: string, u
     keywords,
     threatLevel,
     threatScore,
+    threatBreakdown,
     shortTermSentiment: Number(shortTermSentiment.toFixed(1)),
     longTermSentiment: Number(longTermSentiment.toFixed(1)),
     trendIcon,
