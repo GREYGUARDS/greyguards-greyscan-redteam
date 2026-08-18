@@ -1191,7 +1191,9 @@ const Index = () => {
                 <ThreatIndicator
                   threatLevel={results.threatLevel}
                   threatScore={results.threatScore}
+                  threatBreakdown={results.threatBreakdown}
                 />
+
 
                 {/* AI Engine Exposure */}
 
