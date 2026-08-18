@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bot, TrendingUp, TrendingDown, Minus, Loader2, RefreshCw } from "lucide-react";
+import { Bot, TrendingUp, TrendingDown, Minus, Loader2, RefreshCw, ExternalLink, ShieldAlert, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,6 +13,22 @@ interface EngineRow {
   sourcesKnown?: string[];
   unavailable?: boolean;
 }
+
+interface StoryRow {
+  title: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  angle?: string;
+  mdmRisk?: number | null;
+  mdmType?: "Misinformation" | "Disinformation" | "Malinformation" | "None";
+  verifiable?: boolean;
+  note?: string;
+  assessed?: boolean;
+}
+
+const WINDOWS = [1, 6, 12, 24] as const;
+
 
 const getTrendIcon = (trend: string) => {
   switch (trend) {
