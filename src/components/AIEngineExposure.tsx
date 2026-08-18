@@ -243,9 +243,11 @@ export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
           </div>
 
           {storySummary && (
-            <p className="px-4 sm:px-6 py-3 text-xs text-muted-foreground border-b border-border/50">
-              {storySummary}
-            </p>
+            <div className="px-4 sm:px-6 py-3 border-b border-border/50">
+              <div className="relative max-h-[4.5rem] overflow-y-auto pr-1 rounded border border-border/40 bg-secondary/20 p-2">
+                <p className="text-xs text-muted-foreground leading-relaxed">{storySummary}</p>
+              </div>
+            </div>
           )}
 
           {storiesLoading ? (
