@@ -165,7 +165,7 @@ async function fetchGdelt(brand: string, windowHours: number): Promise<Story[]> 
 // Bing News RSS is a third route when both Google (503) and GDELT (429) throttle
 // the edge network. Bing has no hour filter, so we clamp by pubDate ourselves.
 async function fetchBingNews(brand: string, windowHours: number): Promise<Story[]> {
-  const url = `https://www.bing.com/news/search?q=${encodeURIComponent(brand)}&format=RSS&setmkt=en-GB&qft=interval%3d%224%22`;
+  const url = `https://www.bing.com/news/search?q=${encodeURIComponent(`"${brand}"`)}&format=RSS&setmkt=en-GB`;
   try {
     const res = await fetch(url, { headers: { "User-Agent": BROWSER_UA }, signal: AbortSignal.timeout(12000) });
     if (!res.ok) {
@@ -286,10 +286,9 @@ async function buildStoryFeed(brand: string, windowHours: number, apiKey: string
       relevant: a ? a.relevant !== false : null,
     };
   });
-  // Drop coincidental keyword matches the model judged irrelevant; keep unassessed
-  // items so a failed assessment never empties the feed.
-  const relevant = enriched.filter((s) => s.relevant !== false);
-  const filtered = relevant.length > 0 ? relevant : enriched;
+  // Drop coincidental keyword matches the model judged irrelevant (unassessed
+  // items keep relevant === null and stay in the feed).
+  const filtered = enriched.filter((s) => s.relevant !== false);
   filtered.sort((a, b) => (b.mdmRisk ?? -1) - (a.mdmRisk ?? -1));
   return { stories: filtered, storySummary: summary, windowHours, storyCount: filtered.length };
 }
