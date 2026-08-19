@@ -16,6 +16,7 @@ interface SourcesTableProps {
 const upcomingAPIs = [
   { name: "X · Real-time social monitoring", icon: Users, type: "Social", description: "Integration pending" },
   { name: "Dark Web · Forum & paste site monitoring", icon: Globe, type: "Dark Web", description: "Integration pending" },
+  { name: "Synthetic Media Detection · Image, audio & video", icon: AlertTriangle, type: "Deepfake", description: "In development" },
   { name: "Google News", icon: Newspaper, type: "News", description: "Global news aggregation" },
   { name: "Bing Search", icon: Globe, type: "Search", description: "Search engine mentions" },
   { name: "YouTube", icon: Radio, type: "Video", description: "Video content analysis" },
