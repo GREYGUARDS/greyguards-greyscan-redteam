@@ -14,7 +14,7 @@ interface SourcesTableProps {
 }
 
 const upcomingAPIs = [
-  { name: "Twitter/X", icon: Users, type: "Social", description: "Real-time social sentiment" },
+  { name: "X · Real-time social monitoring", icon: Users, type: "Social", description: "Integration pending" },
   { name: "Google News", icon: Newspaper, type: "News", description: "Global news aggregation" },
   { name: "Bing Search", icon: Globe, type: "Search", description: "Search engine mentions" },
   { name: "YouTube", icon: Radio, type: "Video", description: "Video content analysis" },
@@ -100,7 +100,7 @@ const SourcesTable = ({ sources }: SourcesTableProps) => {
                     <Clock className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm truncate text-muted-foreground">{api.name}</div>
+                    <div className="font-semibold text-sm leading-snug text-muted-foreground break-words">{api.name}</div>
                     <Badge variant="outline" className="text-xs uppercase tracking-wider mt-1">
                       {api.type}
                     </Badge>
