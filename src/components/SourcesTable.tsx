@@ -14,7 +14,7 @@ interface SourcesTableProps {
 }
 
 const upcomingAPIs = [
-  { name: "Twitter/X", icon: Users, type: "Social", description: "Real-time social sentiment" },
+  { name: "X · Real-time social monitoring", icon: Users, type: "Social", description: "Integration pending" },
   { name: "Google News", icon: Newspaper, type: "News", description: "Global news aggregation" },
   { name: "Bing Search", icon: Globe, type: "Search", description: "Search engine mentions" },
   { name: "YouTube", icon: Radio, type: "Video", description: "Video content analysis" },
