@@ -100,7 +100,7 @@ const SourcesTable = ({ sources }: SourcesTableProps) => {
                     <Clock className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm truncate text-muted-foreground">{api.name}</div>
+                    <div className="font-semibold text-sm leading-snug text-muted-foreground break-words">{api.name}</div>
                     <Badge variant="outline" className="text-xs uppercase tracking-wider mt-1">
                       {api.type}
                     </Badge>
