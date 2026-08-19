@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Database, CheckCircle2, Clock, Globe, Newspaper, Users, TrendingUp, FileText, Radio } from "lucide-react";
+import { Database, CheckCircle2, Clock, Globe, Newspaper, Users, TrendingUp, FileText, Radio, AlertTriangle } from "lucide-react";
 
 interface Source {
   name: string;
@@ -16,6 +16,7 @@ interface SourcesTableProps {
 const upcomingAPIs = [
   { name: "X · Real-time social monitoring", icon: Users, type: "Social", description: "Integration pending" },
   { name: "Dark Web · Forum & paste site monitoring", icon: Globe, type: "Dark Web", description: "Integration pending" },
+  { name: "Synthetic Media Detection · Image, audio & video", icon: AlertTriangle, type: "Deepfake", description: "In development" },
   { name: "Google News", icon: Newspaper, type: "News", description: "Global news aggregation" },
   { name: "Bing Search", icon: Globe, type: "Search", description: "Search engine mentions" },
   { name: "YouTube", icon: Radio, type: "Video", description: "Video content analysis" },
