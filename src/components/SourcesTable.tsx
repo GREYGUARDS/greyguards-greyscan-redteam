@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Database, CheckCircle2, Clock, Globe, Newspaper, Users, TrendingUp, FileText, Radio } from "lucide-react";
+import { Database, CheckCircle2, Clock, Globe, Newspaper, Users, TrendingUp, FileText, Radio, AlertTriangle } from "lucide-react";
 
 interface Source {
   name: string;
