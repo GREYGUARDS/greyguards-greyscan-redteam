@@ -79,6 +79,25 @@ function likelihoodTone(likelihood: string) {
   return "text-muted-foreground";
 }
 
+// Provenance tags — make the sourced vs AI-inferred distinction unmissable
+function VerifiedTag({ label = "Verified" }: { label?: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-wider font-medium text-emerald-500/90 border border-emerald-500/30 bg-emerald-500/10 rounded px-1.5 py-0.5">
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+      {label}
+    </span>
+  );
+}
+
+function AssessedTag({ label = "Assessed" }: { label?: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-wider font-medium text-amber-500/90 border border-amber-500/30 bg-amber-500/10 rounded px-1.5 py-0.5">
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500" />
+      {label}
+    </span>
+  );
+}
+
 export default function ProspectRadar() {
   const access = useAccessProfile();
   const navigate = useNavigate();
@@ -275,6 +294,12 @@ export default function ProspectRadar() {
         )}
 
         <div className="space-y-3">
+          {prospects && visible.length > 0 && (
+            <div className="flex flex-wrap items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <span className="flex items-center gap-1.5"><VerifiedTag /> Sourced from live fetch — real, clickable evidence</span>
+              <span className="flex items-center gap-1.5"><AssessedTag /> AI-inferred analysis — not verified, check before sharing</span>
+            </div>
+          )}
           {visible.map((p) => (
             <Card key={p.organisation}>
               <CardHeader className="pb-2">
@@ -285,18 +310,28 @@ export default function ProspectRadar() {
                       {[p.entityType, p.sector || "Sector unknown", p.region, p.threatType].filter(Boolean).join(" · ")}
                     </p>
                   </div>
-                  <Badge variant="outline" className={`text-xs shrink-0 ${severityTone(p.severity)}`}>
-                    {p.severity}/100
-                  </Badge>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <Badge variant="outline" className={`text-xs ${severityTone(p.severity)}`}>
+                      {p.severity}/100
+                    </Badge>
+                    <VerifiedTag label="Sourced" />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-foreground/90 max-h-[4.5rem] overflow-y-auto">{p.summary}</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Summary</span>
+                    <AssessedTag />
+                  </div>
+                  <p className="text-sm text-foreground/90 max-h-[4.5rem] overflow-y-auto">{p.summary}</p>
+                </div>
 
                 {p.evolution && p.evolution.length > 0 && (
                   <div className="border border-border rounded p-3 bg-muted/20 space-y-2">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3" /> Likely narrative evolution
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                      <span className="flex items-center gap-1"><TrendingUp className="h-3 w-3" /> Likely narrative evolution</span>
+                      <AssessedTag />
                     </p>
                     {p.evolution.map((e, i) => (
                       <div key={i} className="text-sm flex gap-2">
@@ -316,8 +351,9 @@ export default function ProspectRadar() {
 
                 {p.precedent && (
                   <div className="border border-border rounded p-3 bg-muted/10">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
-                      <History className="h-3 w-3" /> Precedent
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-2">
+                      <span className="flex items-center gap-1"><History className="h-3 w-3" /> Precedent</span>
+                      <AssessedTag />
                     </p>
                     <p className="text-sm max-h-[4.5rem] overflow-y-auto">{p.precedent}</p>
                   </div>
@@ -325,8 +361,9 @@ export default function ProspectRadar() {
 
                 {p.wideSignals && p.wideSignals.length > 0 && (
                   <div className="border border-border rounded p-3 bg-muted/10">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
-                      <Globe className="h-3 w-3" /> Wider spread — assessed, beyond our APIs
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-2">
+                      <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> Wider spread — beyond our APIs</span>
+                      <AssessedTag />
                     </p>
                     <ul className="text-sm space-y-1 max-h-[6rem] overflow-y-auto">
                       {p.wideSignals.map((s, i) => (
@@ -338,13 +375,19 @@ export default function ProspectRadar() {
 
                 {p.approachAngle && (
                   <div className="border border-border rounded p-3 bg-muted/20">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Approach angle</p>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-2">
+                      <span>Approach angle</span>
+                      <AssessedTag />
+                    </p>
                     <p className="text-sm">{p.approachAngle}</p>
                   </div>
                 )}
 
                 <div className="space-y-1">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Verifiable sources</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                    <span>Verifiable sources</span>
+                    <VerifiedTag />
+                  </p>
                   {p.sources.map((s) => (
                     <a
                       key={s.url}
