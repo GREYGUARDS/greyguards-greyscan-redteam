@@ -6,38 +6,77 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Radar, ExternalLink, Loader2, Search } from "lucide-react";
+import { ArrowLeft, Radar, ExternalLink, Loader2, Search, TrendingUp, History, Globe } from "lucide-react";
 
 interface ProspectSource {
   title: string;
   url: string;
   source: string;
   publishedAt: string;
+  channel?: string;
+}
+
+interface EvolutionStage {
+  horizon: string;
+  likelihood: "low" | "medium" | "high";
+  development: string;
 }
 
 interface Prospect {
   organisation: string;
+  entityType?: string;
   sector: string;
+  region?: string;
   threatType: string;
   severity: number;
   summary: string;
   approachAngle: string;
+  wideSignals?: string[];
+  precedent?: string;
+  evolution?: EvolutionStage[];
   sources: ProspectSource[];
 }
 
-const WINDOWS = [6, 12, 24, 48, 72];
+const WINDOWS = [
+  { hours: 6, label: "6h" },
+  { hours: 12, label: "12h" },
+  { hours: 24, label: "24h" },
+  { hours: 48, label: "48h" },
+  { hours: 72, label: "72h" },
+  { hours: 168, label: "7 days" },
+];
+
+const REGIONS = [
+  { key: "uk", label: "UK & Ireland" },
+  { key: "europe", label: "Europe" },
+  { key: "middle_east", label: "Middle East" },
+  { key: "north_america", label: "North America" },
+];
+
+const SCOPES = [
+  { key: "brands", label: "Brands & companies" },
+  { key: "institutions", label: "Institutions" },
+  { key: "governments", label: "Governments & agencies" },
+  { key: "international", label: "International bodies (ICRC, UN, NATO)" },
+];
 
 const PATTERNS = [
   { key: "disinformation", label: "Disinformation campaigns" },
   { key: "deepfake", label: "Deepfake & synthetic media" },
   { key: "boycott", label: "Coordinated boycott / pile-on" },
-  { key: "fraud", label: "Brand impersonation & scams" },
+  { key: "fraud", label: "Impersonation & scams" },
 ];
 
 function severityTone(severity: number) {
   if (severity >= 70) return "text-destructive border-destructive/40 bg-destructive/10";
   if (severity >= 40) return "text-primary border-primary/40 bg-primary/10";
   return "text-muted-foreground border-border bg-muted/30";
+}
+
+function likelihoodTone(likelihood: string) {
+  if (likelihood === "high") return "text-destructive";
+  if (likelihood === "medium") return "text-primary";
+  return "text-muted-foreground";
 }
 
 export default function ProspectRadar() {
@@ -47,10 +86,16 @@ export default function ProspectRadar() {
 
   const [windowHours, setWindowHours] = useState(24);
   const [selected, setSelected] = useState<string[]>(PATTERNS.map((p) => p.key));
+  const [regions, setRegions] = useState<string[]>(["uk"]);
+  const [scopes, setScopes] = useState<string[]>(SCOPES.map((s) => s.key));
   const [scanning, setScanning] = useState(false);
   const [prospects, setProspects] = useState<Prospect[] | null>(null);
   const [sweepSummary, setSweepSummary] = useState("");
-  const [meta, setMeta] = useState<{ articleCount: number; sweptAt: string } | null>(null);
+  const [meta, setMeta] = useState<{
+    articleCount: number;
+    sweptAt: string;
+    channelCounts?: { press: number; global: number; social: number };
+  } | null>(null);
   const [dismissed, setDismissed] = useState<string[]>([]);
 
   useEffect(() => {
@@ -58,17 +103,28 @@ export default function ProspectRadar() {
     if (!access.isAdmin) navigate("/", { replace: true });
   }, [access.loading, access.isAdmin, navigate]);
 
-  const togglePattern = (key: string) =>
-    setSelected((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+  const toggle = (
+    key: string,
+    list: string[],
+    setList: (v: string[]) => void,
+  ) => setList(list.includes(key) ? list.filter((k) => k !== key) : [...list, key]);
 
   const runSweep = async () => {
     if (selected.length === 0) {
       toast({ title: "Select at least one threat pattern", variant: "destructive" });
       return;
     }
+    if (regions.length === 0) {
+      toast({ title: "Select at least one region", variant: "destructive" });
+      return;
+    }
+    if (scopes.length === 0) {
+      toast({ title: "Select at least one entity type", variant: "destructive" });
+      return;
+    }
     setScanning(true);
     const { data, error } = await supabase.functions.invoke("prospect-radar-sweep", {
-      body: { windowHours, patterns: selected },
+      body: { windowHours, patterns: selected, regions, scopes },
     });
     setScanning(false);
     if (error) {
@@ -77,7 +133,11 @@ export default function ProspectRadar() {
     }
     setProspects((data?.prospects || []) as Prospect[]);
     setSweepSummary(data?.sweepSummary || "");
-    setMeta({ articleCount: data?.articleCount || 0, sweptAt: data?.sweptAt || new Date().toISOString() });
+    setMeta({
+      articleCount: data?.articleCount || 0,
+      sweptAt: data?.sweptAt || new Date().toISOString(),
+      channelCounts: data?.channelCounts,
+    });
     setDismissed([]);
   };
 
@@ -98,7 +158,8 @@ export default function ProspectRadar() {
             <Radar className="h-6 w-6 text-primary" /> Prospect Radar
           </h1>
           <p className="text-sm text-muted-foreground">
-            Private sweep — finds emerging narrative threats first, then names the organisations caught in them. Runs only when you scan.
+            Private sweep — press, global media and social signals across your chosen regions, assessed for emerging narrative
+            threats against brands, institutions, governments and international bodies. Runs only when you scan.
           </p>
         </div>
 
@@ -112,12 +173,44 @@ export default function ProspectRadar() {
               <div className="flex flex-wrap gap-2">
                 {WINDOWS.map((w) => (
                   <Button
-                    key={w}
+                    key={w.hours}
                     size="sm"
-                    variant={windowHours === w ? "default" : "outline"}
-                    onClick={() => setWindowHours(w)}
+                    variant={windowHours === w.hours ? "default" : "outline"}
+                    onClick={() => setWindowHours(w.hours)}
                   >
-                    {w}h
+                    {w.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Regions</p>
+              <div className="flex flex-wrap gap-2">
+                {REGIONS.map((r) => (
+                  <Button
+                    key={r.key}
+                    size="sm"
+                    variant={regions.includes(r.key) ? "default" : "outline"}
+                    onClick={() => toggle(r.key, regions, setRegions)}
+                  >
+                    {r.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Entity types</p>
+              <div className="flex flex-wrap gap-2">
+                {SCOPES.map((s) => (
+                  <Button
+                    key={s.key}
+                    size="sm"
+                    variant={scopes.includes(s.key) ? "default" : "outline"}
+                    onClick={() => toggle(s.key, scopes, setScopes)}
+                  >
+                    {s.label}
                   </Button>
                 ))}
               </div>
@@ -131,7 +224,7 @@ export default function ProspectRadar() {
                     key={p.key}
                     size="sm"
                     variant={selected.includes(p.key) ? "default" : "outline"}
-                    onClick={() => togglePattern(p.key)}
+                    onClick={() => toggle(p.key, selected, setSelected)}
                   >
                     {p.label}
                   </Button>
@@ -141,21 +234,33 @@ export default function ProspectRadar() {
 
             <Button onClick={runSweep} disabled={scanning} className="w-full">
               {scanning ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sweeping sources…</>
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sweeping press, global media & social…</>
               ) : (
                 <><Search className="h-4 w-4 mr-2" /> Run sweep</>
               )}
             </Button>
+            {scanning && (
+              <p className="text-xs text-muted-foreground text-center">
+                A wide sweep across several regions can take up to a minute — roughly a week of manual OSINT.
+              </p>
+            )}
           </CardContent>
         </Card>
 
         {meta && (
           <Card>
             <CardContent className="py-4 space-y-2">
-              <div className="flex items-center justify-between text-xs uppercase tracking-wider text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs uppercase tracking-wider text-muted-foreground">
                 <span>Sweep result</span>
                 <span>{meta.articleCount} signals · {new Date(meta.sweptAt).toLocaleString("en-GB")}</span>
               </div>
+              {meta.channelCounts && (
+                <div className="flex flex-wrap gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                  <Badge variant="outline" className="text-[10px]">Press {meta.channelCounts.press}</Badge>
+                  <Badge variant="outline" className="text-[10px]">Global media {meta.channelCounts.global}</Badge>
+                  <Badge variant="outline" className="text-[10px]">Social {meta.channelCounts.social}</Badge>
+                </div>
+              )}
               {sweepSummary && <p className="text-sm text-foreground/90">{sweepSummary}</p>}
             </CardContent>
           </Card>
@@ -164,7 +269,7 @@ export default function ProspectRadar() {
         {prospects && visible.length === 0 && (
           <Card>
             <CardContent className="py-8 text-center text-sm text-muted-foreground">
-              No qualifying prospects in this window. Try a wider window or more patterns.
+              No qualifying prospects in this window. Try a wider window, more regions or more patterns.
             </CardContent>
           </Card>
         )}
@@ -177,7 +282,7 @@ export default function ProspectRadar() {
                   <div>
                     <CardTitle className="text-base font-semibold">{p.organisation}</CardTitle>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {p.sector || "Sector unknown"} · {p.threatType}
+                      {[p.entityType, p.sector || "Sector unknown", p.region, p.threatType].filter(Boolean).join(" · ")}
                     </p>
                   </div>
                   <Badge variant="outline" className={`text-xs shrink-0 ${severityTone(p.severity)}`}>
@@ -187,12 +292,57 @@ export default function ProspectRadar() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-foreground/90 max-h-[4.5rem] overflow-y-auto">{p.summary}</p>
+
+                {p.evolution && p.evolution.length > 0 && (
+                  <div className="border border-border rounded p-3 bg-muted/20 space-y-2">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                      <TrendingUp className="h-3 w-3" /> Likely narrative evolution
+                    </p>
+                    {p.evolution.map((e, i) => (
+                      <div key={i} className="text-sm flex gap-2">
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground w-20 shrink-0 pt-1">
+                          {e.horizon}
+                        </span>
+                        <span className="flex-1">
+                          <span className={`text-[10px] uppercase tracking-wider mr-2 ${likelihoodTone(e.likelihood)}`}>
+                            {e.likelihood}
+                          </span>
+                          {e.development}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {p.precedent && (
+                  <div className="border border-border rounded p-3 bg-muted/10">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
+                      <History className="h-3 w-3" /> Precedent
+                    </p>
+                    <p className="text-sm max-h-[4.5rem] overflow-y-auto">{p.precedent}</p>
+                  </div>
+                )}
+
+                {p.wideSignals && p.wideSignals.length > 0 && (
+                  <div className="border border-border rounded p-3 bg-muted/10">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
+                      <Globe className="h-3 w-3" /> Wider spread — assessed, beyond our APIs
+                    </p>
+                    <ul className="text-sm space-y-1 max-h-[6rem] overflow-y-auto">
+                      {p.wideSignals.map((s, i) => (
+                        <li key={i} className="text-foreground/90">· {s}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 {p.approachAngle && (
                   <div className="border border-border rounded p-3 bg-muted/20">
                     <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Approach angle</p>
                     <p className="text-sm">{p.approachAngle}</p>
                   </div>
                 )}
+
                 <div className="space-y-1">
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Verifiable sources</p>
                   {p.sources.map((s) => (
@@ -204,7 +354,10 @@ export default function ProspectRadar() {
                       className="flex items-start gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
                     >
                       <ExternalLink className="h-3 w-3 mt-0.5 shrink-0" />
-                      <span>{s.title} <span className="opacity-60">· {s.source}</span></span>
+                      <span>
+                        {s.title}{" "}
+                        <span className="opacity-60">· {s.source}{s.channel ? ` · ${s.channel}` : ""}</span>
+                      </span>
                     </a>
                   ))}
                 </div>
