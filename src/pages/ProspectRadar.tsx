@@ -79,6 +79,25 @@ function likelihoodTone(likelihood: string) {
   return "text-muted-foreground";
 }
 
+// Provenance tags — make the sourced vs AI-inferred distinction unmissable
+function VerifiedTag({ label = "Verified" }: { label?: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-wider font-medium text-emerald-500/90 border border-emerald-500/30 bg-emerald-500/10 rounded px-1.5 py-0.5">
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+      {label}
+    </span>
+  );
+}
+
+function AssessedTag({ label = "Assessed" }: { label?: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 text-[9px] uppercase tracking-wider font-medium text-amber-500/90 border border-amber-500/30 bg-amber-500/10 rounded px-1.5 py-0.5">
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500" />
+      {label}
+    </span>
+  );
+}
+
 export default function ProspectRadar() {
   const access = useAccessProfile();
   const navigate = useNavigate();
