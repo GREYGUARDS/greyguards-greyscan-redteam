@@ -378,7 +378,10 @@ export default function ProspectRadar() {
                 )}
 
                 <div className="space-y-1">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Verifiable sources</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                    <span>Verifiable sources</span>
+                    <VerifiedTag />
+                  </p>
                   {p.sources.map((s) => (
                     <a
                       key={s.url}
