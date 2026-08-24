@@ -369,7 +369,10 @@ export default function ProspectRadar() {
 
                 {p.approachAngle && (
                   <div className="border border-border rounded p-3 bg-muted/20">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Approach angle</p>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-2">
+                      <span>Approach angle</span>
+                      <AssessedTag />
+                    </p>
                     <p className="text-sm">{p.approachAngle}</p>
                   </div>
                 )}
