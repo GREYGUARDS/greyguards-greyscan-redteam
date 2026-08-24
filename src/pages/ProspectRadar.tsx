@@ -294,6 +294,12 @@ export default function ProspectRadar() {
         )}
 
         <div className="space-y-3">
+          {prospects && visible.length > 0 && (
+            <div className="flex flex-wrap items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground">
+              <span className="flex items-center gap-1.5"><VerifiedTag /> Sourced from live fetch — real, clickable evidence</span>
+              <span className="flex items-center gap-1.5"><AssessedTag /> AI-inferred analysis — not verified, check before sharing</span>
+            </div>
+          )}
           {visible.map((p) => (
             <Card key={p.organisation}>
               <CardHeader className="pb-2">
