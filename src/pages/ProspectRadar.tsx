@@ -304,9 +304,12 @@ export default function ProspectRadar() {
                       {[p.entityType, p.sector || "Sector unknown", p.region, p.threatType].filter(Boolean).join(" · ")}
                     </p>
                   </div>
-                  <Badge variant="outline" className={`text-xs shrink-0 ${severityTone(p.severity)}`}>
-                    {p.severity}/100
-                  </Badge>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <Badge variant="outline" className={`text-xs ${severityTone(p.severity)}`}>
+                      {p.severity}/100
+                    </Badge>
+                    <VerifiedTag label="Sourced" />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
