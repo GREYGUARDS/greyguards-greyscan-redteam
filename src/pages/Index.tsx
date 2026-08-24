@@ -46,7 +46,7 @@ import { generateFallbackData } from "@/lib/fallbackData";
 import html2canvas from "html2canvas";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAccessProfile } from "@/hooks/useAccessProfile";
-import { Lock, ArrowRight, ShieldCheck } from "lucide-react";
+import { Lock, ArrowRight, ShieldCheck, Radar } from "lucide-react";
 
 
 const Index = () => {
@@ -79,6 +79,12 @@ const Index = () => {
   const access = useAccessProfile();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Prefill from Prospect Radar hand-off (?brand=...)
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get("brand");
+    if (fromUrl) setBrandName(fromUrl);
+  }, []);
 
   // Lock non-admin users to their assigned brand
   useEffect(() => {
@@ -964,11 +970,18 @@ const Index = () => {
               <img src={greyguardsLogo} alt="Greyguards" className="h-12 w-auto object-contain" />
               <div className="flex items-center gap-2">
                 {access.isAdmin && (
-                  <Link to="/admin/requests">
-                    <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
-                      <ShieldCheck className="h-4 w-4 mr-1" /> Requests
-                    </Button>
-                  </Link>
+                  <>
+                    <Link to="/admin/radar">
+                      <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
+                        <Radar className="h-4 w-4 mr-1" /> Radar
+                      </Button>
+                    </Link>
+                    <Link to="/admin/requests">
+                      <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
+                        <ShieldCheck className="h-4 w-4 mr-1" /> Requests
+                      </Button>
+                    </Link>
+                  </>
                 )}
                 <Link to="/redteam">
                   <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10">
