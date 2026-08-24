@@ -323,8 +323,9 @@ export default function ProspectRadar() {
 
                 {p.evolution && p.evolution.length > 0 && (
                   <div className="border border-border rounded p-3 bg-muted/20 space-y-2">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3" /> Likely narrative evolution
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                      <span className="flex items-center gap-1"><TrendingUp className="h-3 w-3" /> Likely narrative evolution</span>
+                      <AssessedTag />
                     </p>
                     {p.evolution.map((e, i) => (
                       <div key={i} className="text-sm flex gap-2">
