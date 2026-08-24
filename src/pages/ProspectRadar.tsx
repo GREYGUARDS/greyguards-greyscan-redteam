@@ -313,7 +313,13 @@ export default function ProspectRadar() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-foreground/90 max-h-[4.5rem] overflow-y-auto">{p.summary}</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Summary</span>
+                    <AssessedTag />
+                  </div>
+                  <p className="text-sm text-foreground/90 max-h-[4.5rem] overflow-y-auto">{p.summary}</p>
+                </div>
 
                 {p.evolution && p.evolution.length > 0 && (
                   <div className="border border-border rounded p-3 bg-muted/20 space-y-2">
