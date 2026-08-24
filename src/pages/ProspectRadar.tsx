@@ -345,8 +345,9 @@ export default function ProspectRadar() {
 
                 {p.precedent && (
                   <div className="border border-border rounded p-3 bg-muted/10">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
-                      <History className="h-3 w-3" /> Precedent
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-2">
+                      <span className="flex items-center gap-1"><History className="h-3 w-3" /> Precedent</span>
+                      <AssessedTag />
                     </p>
                     <p className="text-sm max-h-[4.5rem] overflow-y-auto">{p.precedent}</p>
                   </div>
