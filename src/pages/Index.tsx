@@ -80,6 +80,12 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Prefill from Prospect Radar hand-off (?brand=...)
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get("brand");
+    if (fromUrl) setBrandName(fromUrl);
+  }, []);
+
   // Lock non-admin users to their assigned brand
   useEffect(() => {
     if (access.loading) return;
