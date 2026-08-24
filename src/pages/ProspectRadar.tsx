@@ -355,8 +355,9 @@ export default function ProspectRadar() {
 
                 {p.wideSignals && p.wideSignals.length > 0 && (
                   <div className="border border-border rounded p-3 bg-muted/10">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1">
-                      <Globe className="h-3 w-3" /> Wider spread — assessed, beyond our APIs
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-2">
+                      <span className="flex items-center gap-1"><Globe className="h-3 w-3" /> Wider spread — beyond our APIs</span>
+                      <AssessedTag />
                     </p>
                     <ul className="text-sm space-y-1 max-h-[6rem] overflow-y-auto">
                       {p.wideSignals.map((s, i) => (
