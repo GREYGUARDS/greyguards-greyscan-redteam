@@ -9,6 +9,7 @@ import RedTeamLogin from "./pages/RedTeamLogin";
 import ResetPassword from "./pages/ResetPassword";
 import RedTeam from "./pages/RedTeam";
 import AdminRequests from "./pages/AdminRequests";
+import ProspectRadar from "./pages/ProspectRadar";
 import NotFound from "./pages/NotFound";
 import RequireAuth from "./components/RequireAuth";
 
