@@ -34,7 +34,6 @@ import { EmergingNarrativesPrediction } from "@/components/EmergingNarrativesPre
 import MDMAlerts from "@/components/MDMAlerts";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { BrandPeopleList } from "@/components/BrandPeopleList";
-import { DemoModeSelector } from "@/components/DemoModeSelector";
 import { TrackedStories } from "@/components/TrackedStories";
 import { DemoSocialMentions } from "@/components/DemoSocialMentions";
 import { KeyPeopleSummary } from "@/components/KeyPeopleSummary";
