@@ -211,15 +211,31 @@ const RedTeam = () => {
   useEffect(() => {
     if (access.loading) return;
     if (!access.isAdmin) {
+      const locked = access.lockedBrand || "";
+      const company = locked ? getSimulationCompany(locked) : undefined;
       setConfig((prev) => ({
         ...prev,
-        brandName: access.lockedBrand || "",
+        brandName: locked,
+        simulationCompanyId: company?.id,
+        brandContext: company ? buildBrandContext(company) : undefined,
       }));
       setConsultantAction("join");
     } else {
       setConsultantAction("host");
     }
   }, [access.loading, access.isAdmin, access.lockedBrand]);
+
+  const selectSimulationCompany = (id: string) => {
+    const company = SIMULATION_COMPANIES.find((c) => c.id === id);
+    if (!company) return;
+    setConfig((prev) => ({
+      ...prev,
+      brandName: company.name,
+      simulationCompanyId: company.id,
+      brandContext: buildBrandContext(company),
+    }));
+  };
+
 
 
   const handleStartExercise = () => {
