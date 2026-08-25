@@ -45,6 +45,7 @@ const InjectsInputSchema = z.object({
   scenario: ScenarioSchema,
   brandName: z.string().min(1).max(100),
   duration: z.number().min(1).max(60),
+  brandContext: z.string().max(12000).optional(),
 });
 
 serve(async (req) => {
