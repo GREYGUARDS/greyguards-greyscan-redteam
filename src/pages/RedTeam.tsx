@@ -378,16 +378,16 @@ const RedTeam = () => {
           </div>
 
 
-          {/* Exercise Mode — Consultant Hosted hidden unless admin */}
+          {/* Exercise Mode */}
           <div className="space-y-2">
             <Label className="text-xs uppercase tracking-wider font-medium">Exercise Mode</Label>
             <RadioGroup
               value={config.mode}
               onValueChange={(value: ExerciseMode) => {
-                if (value === "consultant" && !access.isAdmin) return;
                 setConfig({ ...config, mode: value });
+                if (value === "consultant" && !access.isAdmin) setConsultantAction("join");
               }}
-              className={`grid gap-3 ${access.isAdmin ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}
+              className="grid gap-3 grid-cols-1 sm:grid-cols-2"
             >
               <div className={`relative border-2 p-3 cursor-pointer transition-all ${config.mode === 'self' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
                 <RadioGroupItem value="self" id="self" className="absolute top-3 right-3" />
@@ -400,25 +400,54 @@ const RedTeam = () => {
                 </Label>
               </div>
 
-              {access.isAdmin && (
-                <div className={`relative border-2 p-3 cursor-pointer transition-all ${config.mode === 'consultant' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
-                  <RadioGroupItem value="consultant" id="consultant" className="absolute top-3 right-3" />
-                  <Label htmlFor="consultant" className="cursor-pointer">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Users className="h-4 w-4 text-warning" />
-                      <span className="font-bold uppercase tracking-wider text-sm">Consultant Hosted</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">Greyguards consultant controls live injects</p>
-                  </Label>
-                </div>
-              )}
+              <div className={`relative border-2 p-3 cursor-pointer transition-all ${config.mode === 'consultant' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
+                <RadioGroupItem value="consultant" id="consultant" className="absolute top-3 right-3" />
+                <Label htmlFor="consultant" className="cursor-pointer">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Users className="h-4 w-4 text-warning" />
+                    <span className="font-bold uppercase tracking-wider text-sm">Consultant Hosted</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Host a live session or join one by code</p>
+                </Label>
+              </div>
             </RadioGroup>
-            {!access.isAdmin && (
-              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <Lock className="h-3 w-3" /> Consultant-Hosted is available to Greyguards staff only.
-              </p>
+
+            {config.mode === "consultant" && (
+              <div className="space-y-2 pt-2">
+                <RadioGroup
+                  value={consultantAction}
+                  onValueChange={(value: "host" | "join") => {
+                    if (value === "host" && !access.isAdmin) return;
+                    setConsultantAction(value);
+                  }}
+                  className="grid grid-cols-2 gap-2"
+                >
+                  {access.isAdmin && (
+                    <div className={`relative border-2 p-3 cursor-pointer transition-all ${consultantAction === 'host' ? 'border-warning bg-warning/5' : 'border-border hover:border-muted-foreground'}`}>
+                      <RadioGroupItem value="host" id="ch-host" className="absolute top-2 right-2 h-3 w-3" />
+                      <Label htmlFor="ch-host" className="cursor-pointer text-xs">
+                        <div className="font-bold uppercase tracking-wider">Host Session</div>
+                        <span className="text-[10px] text-muted-foreground">Consultant controls injects</span>
+                      </Label>
+                    </div>
+                  )}
+                  <div className={`relative border-2 p-3 cursor-pointer transition-all ${consultantAction === 'join' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
+                    <RadioGroupItem value="join" id="ch-join" className="absolute top-2 right-2 h-3 w-3" />
+                    <Label htmlFor="ch-join" className="cursor-pointer text-xs">
+                      <div className="font-bold uppercase tracking-wider">Join Existing Session</div>
+                      <span className="text-[10px] text-muted-foreground">Enter a session code</span>
+                    </Label>
+                  </div>
+                </RadioGroup>
+                {!access.isAdmin && (
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                    <Lock className="h-3 w-3" /> Hosting is available to Greyguards staff only — you can join a session by code.
+                  </p>
+                )}
+              </div>
             )}
           </div>
+
 
           {/* Duration */}
           <div className="space-y-2">
