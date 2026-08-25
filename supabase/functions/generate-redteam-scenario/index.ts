@@ -102,14 +102,6 @@ function generateFallbackScenario(brandName: string): any {
       severity: "critical",
       spreadPattern: "coordinated"
     },
-    astroturfing: {
-      title: `${brandName} Accused of Fake Reviews Campaign`,
-      narrative: `Investigative accounts claim to have evidence that ${brandName} operates a network of fake review accounts and paid influencers who don't disclose sponsorship. The allegations include screenshots of supposed internal communications about "reputation management" tactics.`,
-      basedOnTruth: false,
-      implicatedParties: ["[REDACTED - Marketing Director]", "[REDACTED - Agency Partner]"],
-      severity: "moderate",
-      spreadPattern: "viral"
-    },
     supply_chain: {
       title: `${brandName} Supply Chain Ethics Under Fire`,
       narrative: `A campaign is spreading claims that ${brandName}'s supply chain involves unethical labour practices or sourcing from sanctioned regions. Fake shipping manifests and supplier documents are being shared. Activist groups are amplifying the narrative without verification.`,

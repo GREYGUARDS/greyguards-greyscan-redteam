@@ -165,15 +165,6 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderPro
           severity: "critical",
           spreadPattern: "coordinated",
         },
-        astroturfing: {
-          title: `${config.brandName} Accused of Astroturfing`,
-          narrative: `A narrative claims ${config.brandName} runs a fake grassroots campaign using coordinated accounts and paid influencers. Cherry-picked evidence is presented as definitive proof, pushing a boycott movement across multiple platforms.`,
-          basedOnTruth: false,
-          truthElement: undefined,
-          implicatedParties: ["[REDACTED - Marketing Lead]", "[REDACTED - Agency Partner]"],
-          severity: "moderate",
-          spreadPattern: "coordinated",
-        },
         supply_chain: {
           title: `${config.brandName} Supply Chain Controversy`,
           narrative: `Posts allege ${config.brandName} sources from unethical suppliers. Fake shipping manifests and supplier lists circulate alongside emotional stories designed to provoke outrage. Pressure builds for an immediate public response before facts are established.`,
