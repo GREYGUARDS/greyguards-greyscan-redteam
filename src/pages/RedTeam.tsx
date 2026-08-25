@@ -80,11 +80,24 @@ export type ScenarioCategory =
   | "environmental"
   | "labor_practices"
   | "financial_fraud"
-  | "astroturfing"
   | "supply_chain"
   | "ai_ethics"
   | "health_claims"
   | "political_ties";
+
+export const SCENARIO_CATEGORIES: { value: ScenarioCategory; label: string; icon: string }[] = [
+  { value: "random", label: "Random", icon: "shuffle" },
+  { value: "product_safety", label: "Product Safety", icon: "alert-triangle" },
+  { value: "data_breach", label: "Data Breach", icon: "lock-open" },
+  { value: "environmental", label: "Environmental", icon: "leaf" },
+  { value: "labor_practices", label: "Labour Practices", icon: "hard-hat" },
+  { value: "financial_fraud", label: "Financial Fraud", icon: "dollar-sign" },
+  { value: "supply_chain", label: "Supply Chain", icon: "package" },
+  { value: "ai_ethics", label: "AI Ethics", icon: "cpu" },
+  { value: "health_claims", label: "Health Claims", icon: "pill" },
+  { value: "political_ties", label: "Political Ties", icon: "landmark" },
+];
+
 
 export interface ExerciseConfig {
   brandName: string;
