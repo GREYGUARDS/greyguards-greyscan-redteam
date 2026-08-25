@@ -192,30 +192,38 @@ const RedTeam = () => {
     teamMode: "solo",
     scenarioCategory: "random"
   });
+  const [consultantAction, setConsultantAction] = useState<"host" | "join">("join");
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [exerciseResults, setExerciseResults] = useState<ExerciseResults | null>(null);
   const [teamSession, setTeamSession] = useState<TeamSessionData | null>(null);
 
-  // Lock non-admin users to their assigned brand and force self-navigated mode.
+  // Non-admins are locked to the brand assigned to their login.
   useEffect(() => {
     if (access.loading) return;
     if (!access.isAdmin) {
       setConfig((prev) => ({
         ...prev,
-        brandName: access.lockedBrand || prev.brandName,
-        mode: "self",
+        brandName: access.lockedBrand || "",
       }));
+      setConsultantAction("join");
+    } else {
+      setConsultantAction("host");
     }
   }, [access.loading, access.isAdmin, access.lockedBrand]);
 
 
   const handleStartExercise = () => {
     if (config.mode === "consultant") {
-      setPhase("consultant-dashboard");
+      if (consultantAction === "join" || !access.isAdmin) {
+        setPhase("team-join");
+      } else {
+        setPhase("consultant-dashboard");
+      }
     } else {
       setPhase("scenario-build");
     }
   };
+
 
   const handleScenarioReady = (generatedScenario: Scenario) => {
     setScenario(generatedScenario);
