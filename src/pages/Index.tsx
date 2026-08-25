@@ -1082,6 +1082,7 @@ const Index = () => {
                 isActive={demoMode}
                 currentCompany={demoCompany}
               />
+
               <NotificationCenter alerts={mdmAlerts} onAlertsUpdate={fetchMDMAlerts} />
               <Link to="/redteam">
                 <Button
