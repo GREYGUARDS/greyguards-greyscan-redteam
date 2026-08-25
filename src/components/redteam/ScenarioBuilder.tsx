@@ -89,6 +89,7 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderPro
           body: {
             brandName: config.brandName,
             duration: config.duration,
+            ...(config.brandContext ? { brandContext: config.brandContext } : {}),
             ...(baseScenario?.trim() ? { userScenario: baseScenario.trim() } : {}),
             scenarioCategory: config.scenarioCategory || "random"
           }

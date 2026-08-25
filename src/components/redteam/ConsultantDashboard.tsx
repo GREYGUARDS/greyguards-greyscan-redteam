@@ -543,7 +543,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
           body: {
             scenario: generatedScenario,
             brandName: config.brandName,
-            duration: config.duration
+            duration: config.duration,
+            ...(config.brandContext ? { brandContext: config.brandContext } : {})
           }
         }),
         CONSULTANT_GENERATION_TIMEOUT_MS
