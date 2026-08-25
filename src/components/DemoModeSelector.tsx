@@ -24,24 +24,26 @@ export const DemoModeSelector = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 min-w-0">
       {isActive && (
-        <Badge variant="outline" className="bg-warning/20 text-warning border-warning/50 uppercase tracking-wider animate-pulse">
-          <Sparkles className="h-3 w-3 mr-1" />
-          Demo Mode
+        <Badge variant="outline" className="bg-warning/20 text-warning border-warning/50 uppercase tracking-wider animate-pulse flex-shrink-0">
+          <Sparkles className="h-3 w-3 sm:mr-1" />
+          <span className="hidden sm:inline">Demo Mode</span>
         </Badge>
       )}
-      
+
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant={isActive ? "default" : "outline"} 
-            size="sm" 
-            className="uppercase tracking-wider gap-2"
+          <Button
+            variant={isActive ? "default" : "outline"}
+            size="sm"
+            className="uppercase tracking-wider gap-2 min-w-0"
           >
-            <Play className="h-4 w-4" />
-            {isActive ? currentCompany || "Demo" : "Demo Mode"}
-            <ChevronDown className="h-3 w-3" />
+            <Play className="h-4 w-4 flex-shrink-0" />
+            <span className="max-w-[80px] sm:max-w-none truncate">
+              {isActive ? currentCompany || "Demo" : "Demo Mode"}
+            </span>
+            <ChevronDown className="h-3 w-3 flex-shrink-0" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
