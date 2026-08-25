@@ -45,6 +45,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  SIMULATION_COMPANIES,
+  buildBrandContext,
+  getSimulationCompany,
+} from "@/lib/simulationCompanies";
+
+
 
 
 // Icon mapping for scenario categories
