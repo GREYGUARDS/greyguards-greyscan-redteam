@@ -104,7 +104,11 @@ export interface ExerciseConfig {
   duration: ExerciseDuration;
   teamMode: TeamMode;
   scenarioCategory: ScenarioCategory;
+  /** Canon briefing for a simulation-pack target company, if one is selected. */
+  brandContext?: string;
+  simulationCompanyId?: string;
 }
+
 
 export interface Scenario {
   id: string;
