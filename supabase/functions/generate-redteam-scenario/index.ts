@@ -49,7 +49,6 @@ const SCENARIO_CATEGORIES = [
   { type: "environmental", name: "Environmental Violation", description: "False claims about pollution or eco damage" },
   { type: "labor_practices", name: "Labour Practice Scandal", description: "Disinformation about worker treatment" },
   { type: "financial_fraud", name: "Financial Misconduct", description: "Rumours of accounting irregularities" },
-  { type: "astroturfing", name: "Astroturfing Accusations", description: "Claims the brand uses fake grassroots support" },
   { type: "supply_chain", name: "Supply Chain Controversy", description: "Allegations about unethical sourcing" },
   { type: "ai_ethics", name: "AI Ethics Scandal", description: "Claims about harmful AI use or bias" },
   { type: "health_claims", name: "Health Misinformation", description: "False claims about health impacts of products" },
@@ -102,14 +101,6 @@ function generateFallbackScenario(brandName: string): any {
       implicatedParties: ["[REDACTED - CFO]", "[REDACTED - Board Member]"],
       severity: "critical",
       spreadPattern: "coordinated"
-    },
-    astroturfing: {
-      title: `${brandName} Accused of Fake Reviews Campaign`,
-      narrative: `Investigative accounts claim to have evidence that ${brandName} operates a network of fake review accounts and paid influencers who don't disclose sponsorship. The allegations include screenshots of supposed internal communications about "reputation management" tactics.`,
-      basedOnTruth: false,
-      implicatedParties: ["[REDACTED - Marketing Director]", "[REDACTED - Agency Partner]"],
-      severity: "moderate",
-      spreadPattern: "viral"
     },
     supply_chain: {
       title: `${brandName} Supply Chain Ethics Under Fire`,
@@ -235,7 +226,7 @@ ADAPT THE CRISIS CATEGORY TO THE BRAND:
 The category "${selectedCategory.type}" should be interpreted through the lens of what "${brandName}" actually does:
 - For military orgs: "product_safety" → equipment/weapons reliability; "data_breach" → intelligence/personnel data leaks
 - For governments: "labor_practices" → civil servant treatment; "environmental" → policy failures
-- For charities: "financial_fraud" → donation misuse; "astroturfing" → fake grassroots campaigns
+- For charities: "financial_fraud" → donation misuse
 
 The scenario should be:
 - DEEPLY SPECIFIC to ${brandName}'s actual likely purpose and operations

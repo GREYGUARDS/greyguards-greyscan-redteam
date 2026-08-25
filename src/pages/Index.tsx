@@ -34,7 +34,6 @@ import { EmergingNarrativesPrediction } from "@/components/EmergingNarrativesPre
 import MDMAlerts from "@/components/MDMAlerts";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { BrandPeopleList } from "@/components/BrandPeopleList";
-import { DemoModeSelector } from "@/components/DemoModeSelector";
 import { TrackedStories } from "@/components/TrackedStories";
 import { DemoSocialMentions } from "@/components/DemoSocialMentions";
 import { KeyPeopleSummary } from "@/components/KeyPeopleSummary";
@@ -1029,20 +1028,6 @@ const Index = () => {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-              <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or explore</span></div>
-            </div>
-            <div className="flex justify-center">
-              <DemoModeSelector
-                onSelectCompany={loadDemoData}
-                isActive={demoMode}
-                currentCompany={demoCompany}
-              />
-            </div>
-            <p className="text-[10px] text-muted-foreground text-center uppercase tracking-widest">
-              Browse case studies — no brand name required
-            </p>
           </CardContent>
         </Card>
       </div>
@@ -1091,11 +1076,7 @@ const Index = () => {
                   Updated: {liveTimestamp.toLocaleTimeString()}
                 </span>
               )}
-              <DemoModeSelector
-                onSelectCompany={loadDemoData}
-                isActive={demoMode}
-                currentCompany={demoCompany}
-              />
+
               <NotificationCenter alerts={mdmAlerts} onAlertsUpdate={fetchMDMAlerts} />
               <Link to="/redteam">
                 <Button

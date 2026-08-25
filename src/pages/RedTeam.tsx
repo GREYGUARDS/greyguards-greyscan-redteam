@@ -38,7 +38,6 @@ import TeamJoin from "@/components/redteam/TeamJoin";
 import BlueTeamDashboard from "@/components/redteam/BlueTeamDashboard";
 import RedTeamDashboard from "@/components/redteam/RedTeamDashboard";
 import { useAccessProfile } from "@/hooks/useAccessProfile";
-import { DEMO_COMPANY_LIST, DEMO_COMPANIES } from "@/lib/demoData";
 import {
   Select,
   SelectContent,
@@ -80,11 +79,24 @@ export type ScenarioCategory =
   | "environmental"
   | "labor_practices"
   | "financial_fraud"
-  | "astroturfing"
   | "supply_chain"
   | "ai_ethics"
   | "health_claims"
   | "political_ties";
+
+export const SCENARIO_CATEGORIES: { value: ScenarioCategory; label: string; icon: string }[] = [
+  { value: "random", label: "Random", icon: "shuffle" },
+  { value: "product_safety", label: "Product Safety", icon: "alert-triangle" },
+  { value: "data_breach", label: "Data Breach", icon: "lock-open" },
+  { value: "environmental", label: "Environmental", icon: "leaf" },
+  { value: "labor_practices", label: "Labour Practices", icon: "hard-hat" },
+  { value: "financial_fraud", label: "Financial Fraud", icon: "dollar-sign" },
+  { value: "supply_chain", label: "Supply Chain", icon: "package" },
+  { value: "ai_ethics", label: "AI Ethics", icon: "cpu" },
+  { value: "health_claims", label: "Health Claims", icon: "pill" },
+  { value: "political_ties", label: "Political Ties", icon: "landmark" },
+];
+
 
 export interface ExerciseConfig {
   brandName: string;
@@ -179,30 +191,38 @@ const RedTeam = () => {
     teamMode: "solo",
     scenarioCategory: "random"
   });
+  const [consultantAction, setConsultantAction] = useState<"host" | "join">("join");
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [exerciseResults, setExerciseResults] = useState<ExerciseResults | null>(null);
   const [teamSession, setTeamSession] = useState<TeamSessionData | null>(null);
 
-  // Lock non-admin users to their assigned brand and force self-navigated mode.
+  // Non-admins are locked to the brand assigned to their login.
   useEffect(() => {
     if (access.loading) return;
     if (!access.isAdmin) {
       setConfig((prev) => ({
         ...prev,
-        brandName: access.lockedBrand || prev.brandName,
-        mode: "self",
+        brandName: access.lockedBrand || "",
       }));
+      setConsultantAction("join");
+    } else {
+      setConsultantAction("host");
     }
   }, [access.loading, access.isAdmin, access.lockedBrand]);
 
 
   const handleStartExercise = () => {
     if (config.mode === "consultant") {
-      setPhase("consultant-dashboard");
+      if (consultantAction === "join" || !access.isAdmin) {
+        setPhase("team-join");
+      } else {
+        setPhase("consultant-dashboard");
+      }
     } else {
       setPhase("scenario-build");
     }
   };
+
 
   const handleScenarioReady = (generatedScenario: Scenario) => {
     setScenario(generatedScenario);
@@ -353,69 +373,41 @@ const RedTeam = () => {
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
-          {/* Brand Name */}
+          {/* Brand — assigned at login */}
           <div className="space-y-2">
             <Label className="text-xs uppercase tracking-wider font-medium">Target Brand / Organisation</Label>
             <Input
               value={config.brandName}
-              onChange={(e) => !brandLocked && setConfig({ ...config, brandName: e.target.value })}
-              placeholder="Enter brand name..."
-              disabled={brandLocked}
+              onChange={(e) => access.isAdmin && setConfig({ ...config, brandName: e.target.value })}
+              placeholder={access.isAdmin ? "Enter brand name..." : "No brand assigned to this account"}
+              disabled={!access.isAdmin}
               className="border-2 border-border bg-input h-11 uppercase tracking-wide"
             />
-            {brandLocked ? (
-              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <Lock className="h-3 w-3" /> Your account is locked to this brand.
+            {access.isAdmin ? (
+              <p className="text-[11px] text-muted-foreground">
+                Staff account — you may set any target brand.
               </p>
             ) : (
-              <div className="space-y-2">
-                <Select
-                  value={DEMO_COMPANY_LIST.includes(config.brandName) ? config.brandName : ""}
-                  onValueChange={(value) => setConfig({ ...config, brandName: value })}
-                >
-                  <SelectTrigger className="border-2 border-border bg-input h-10 text-xs uppercase tracking-wider">
-                    <SelectValue placeholder="Or pick a demo company…" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-2 border-border z-50 max-h-72">
-                    {DEMO_COMPANY_LIST.map((company) => {
-                      const data = DEMO_COMPANIES[company];
-                      return (
-                        <SelectItem key={company} value={company} className="cursor-pointer">
-                          <div className="flex flex-col">
-                            <span className="font-medium">{company}</span>
-                            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                              {data.industry} · {data.threatLevel} threat
-                            </span>
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                {access.isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => setConfig({ ...config, brandName: "Anon Business" })}
-                    className="text-xs uppercase tracking-wider text-muted-foreground hover:text-destructive underline-offset-4 hover:underline"
-                  >
-                    Use "Anon Business" (generic demo)
-                  </button>
-                )}
-              </div>
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <Lock className="h-3 w-3" />
+                {config.brandName
+                  ? "Your brand is assigned at login and cannot be changed."
+                  : "No brand is assigned to your login. Contact Greyguards to be provisioned."}
+              </p>
             )}
-
           </div>
 
-          {/* Exercise Mode — Consultant Hosted hidden unless admin */}
+
+          {/* Exercise Mode */}
           <div className="space-y-2">
             <Label className="text-xs uppercase tracking-wider font-medium">Exercise Mode</Label>
             <RadioGroup
               value={config.mode}
               onValueChange={(value: ExerciseMode) => {
-                if (value === "consultant" && !access.isAdmin) return;
                 setConfig({ ...config, mode: value });
+                if (value === "consultant" && !access.isAdmin) setConsultantAction("join");
               }}
-              className={`grid gap-3 ${access.isAdmin ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}
+              className="grid gap-3 grid-cols-1 sm:grid-cols-2"
             >
               <div className={`relative border-2 p-3 cursor-pointer transition-all ${config.mode === 'self' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
                 <RadioGroupItem value="self" id="self" className="absolute top-3 right-3" />
@@ -428,25 +420,54 @@ const RedTeam = () => {
                 </Label>
               </div>
 
-              {access.isAdmin && (
-                <div className={`relative border-2 p-3 cursor-pointer transition-all ${config.mode === 'consultant' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
-                  <RadioGroupItem value="consultant" id="consultant" className="absolute top-3 right-3" />
-                  <Label htmlFor="consultant" className="cursor-pointer">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Users className="h-4 w-4 text-warning" />
-                      <span className="font-bold uppercase tracking-wider text-sm">Consultant Hosted</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">Greyguards consultant controls live injects</p>
-                  </Label>
-                </div>
-              )}
+              <div className={`relative border-2 p-3 cursor-pointer transition-all ${config.mode === 'consultant' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
+                <RadioGroupItem value="consultant" id="consultant" className="absolute top-3 right-3" />
+                <Label htmlFor="consultant" className="cursor-pointer">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Users className="h-4 w-4 text-warning" />
+                    <span className="font-bold uppercase tracking-wider text-sm">Consultant Hosted</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Host a live session or join one by code</p>
+                </Label>
+              </div>
             </RadioGroup>
-            {!access.isAdmin && (
-              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <Lock className="h-3 w-3" /> Consultant-Hosted is available to Greyguards staff only.
-              </p>
+
+            {config.mode === "consultant" && (
+              <div className="space-y-2 pt-2">
+                <RadioGroup
+                  value={consultantAction}
+                  onValueChange={(value: "host" | "join") => {
+                    if (value === "host" && !access.isAdmin) return;
+                    setConsultantAction(value);
+                  }}
+                  className="grid grid-cols-2 gap-2"
+                >
+                  {access.isAdmin && (
+                    <div className={`relative border-2 p-3 cursor-pointer transition-all ${consultantAction === 'host' ? 'border-warning bg-warning/5' : 'border-border hover:border-muted-foreground'}`}>
+                      <RadioGroupItem value="host" id="ch-host" className="absolute top-2 right-2 h-3 w-3" />
+                      <Label htmlFor="ch-host" className="cursor-pointer text-xs">
+                        <div className="font-bold uppercase tracking-wider">Host Session</div>
+                        <span className="text-[10px] text-muted-foreground">Consultant controls injects</span>
+                      </Label>
+                    </div>
+                  )}
+                  <div className={`relative border-2 p-3 cursor-pointer transition-all ${consultantAction === 'join' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
+                    <RadioGroupItem value="join" id="ch-join" className="absolute top-2 right-2 h-3 w-3" />
+                    <Label htmlFor="ch-join" className="cursor-pointer text-xs">
+                      <div className="font-bold uppercase tracking-wider">Join Existing Session</div>
+                      <span className="text-[10px] text-muted-foreground">Enter a session code</span>
+                    </Label>
+                  </div>
+                </RadioGroup>
+                {!access.isAdmin && (
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                    <Lock className="h-3 w-3" /> Hosting is available to Greyguards staff only — you can join a session by code.
+                  </p>
+                )}
+              </div>
             )}
           </div>
+
 
           {/* Duration */}
           <div className="space-y-2">
@@ -494,62 +515,48 @@ const RedTeam = () => {
             </div>
           )}
 
-          {/* Crisis Category */}
-          <div className="space-y-2">
-            <Label className="text-xs uppercase tracking-wider font-medium">Crisis Category</Label>
-            <RadioGroup
-              value={config.scenarioCategory}
-              onValueChange={(value: ScenarioCategory) => setConfig({ ...config, scenarioCategory: value })}
-              className="grid grid-cols-3 gap-2"
-            >
-              {[
-                { value: "random", label: "Random", icon: "shuffle" },
-                { value: "product_safety", label: "Product", icon: "alert-triangle" },
-                { value: "data_breach", label: "Data Breach", icon: "lock-open" },
-                { value: "environmental", label: "Environ.", icon: "leaf" },
-                { value: "labor_practices", label: "Labour", icon: "hard-hat" },
-                { value: "financial_fraud", label: "Financial", icon: "dollar-sign" },
-                { value: "astroturfing", label: "Astroturf", icon: "bot" },
-                { value: "supply_chain", label: "Supply", icon: "package" },
-                { value: "ai_ethics", label: "AI Ethics", icon: "cpu" },
-                { value: "health_claims", label: "Health", icon: "pill" },
-                { value: "political_ties", label: "Political", icon: "landmark" },
-              ].map((cat) => (
-                <div key={cat.value} className={`relative border-2 p-2 cursor-pointer transition-all text-center ${config.scenarioCategory === cat.value ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
-                  <RadioGroupItem value={cat.value} id={`cat-${cat.value}`} className="absolute top-1 right-1 h-3 w-3" />
-                  <Label htmlFor={`cat-${cat.value}`} className="cursor-pointer">
-                    <ScenarioIcon name={cat.icon} className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
-                    <span className="text-[10px] font-medium uppercase tracking-wider">{cat.label}</span>
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
+          {/* Crisis Category — compact dropdown */}
+          {!(config.mode === "consultant" && consultantAction === "join") && (
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider font-medium">Crisis Category</Label>
+              <Select
+                value={config.scenarioCategory}
+                onValueChange={(value: ScenarioCategory) => setConfig({ ...config, scenarioCategory: value })}
+              >
+                <SelectTrigger className="border-2 border-border bg-input h-11 text-xs uppercase tracking-wider">
+                  <SelectValue placeholder="Select a crisis category…" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-2 border-border z-50 max-h-72">
+                  {SCENARIO_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value} className="cursor-pointer">
+                      <span className="flex items-center gap-2">
+                        <ScenarioIcon name={cat.icon} className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs uppercase tracking-wider">{cat.label}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Start */}
           <Button
             onClick={handleStartExercise}
-            disabled={!config.brandName.trim()}
+            disabled={
+              config.mode === "consultant" && consultantAction === "join"
+                ? false
+                : !config.brandName.trim()
+            }
             className="w-full h-12 text-base uppercase tracking-widest font-bold bg-destructive hover:bg-destructive/90 text-destructive-foreground"
           >
             <Target className="h-4 w-4 mr-2" />
-            Start Red Teaming
+            {config.mode === "consultant" && consultantAction === "join"
+              ? "Join Session"
+              : "Start Red Teaming"}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or</span></div>
-          </div>
-
-          <Button
-            variant="outline"
-            onClick={() => setPhase("team-join")}
-            className="w-full h-11 border-2 border-primary text-primary hover:bg-primary/10 uppercase tracking-wider text-sm"
-          >
-            <Users className="h-4 w-4 mr-2" />
-            Join Existing Session
-          </Button>
         </CardContent>
       </Card>
     </div>
