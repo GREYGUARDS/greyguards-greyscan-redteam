@@ -40,6 +40,7 @@ const ScenarioInputSchema = z.object({
   duration: z.number().min(1).max(60),
   userScenario: z.string().max(5000).optional(),
   scenarioCategory: z.string().max(50).optional(),
+  brandContext: z.string().max(12000).optional(),
 });
 
 // Brand-specific scenario categories for more variety
@@ -185,7 +186,7 @@ serve(async (req) => {
       );
     }
     
-    const { brandName, duration, userScenario, scenarioCategory } = parseResult.data;
+    const { brandName, duration, userScenario, scenarioCategory, brandContext } = parseResult.data;
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -204,6 +205,10 @@ serve(async (req) => {
     } else {
       selectedCategory = SCENARIO_CATEGORIES[Math.floor(Math.random() * SCENARIO_CATEGORIES.length)];
     }
+
+    const canonBlock = brandContext
+      ? `\n\nCANON BRIEFING — you MUST build the scenario inside these facts. Use the named (fictional) executives verbatim rather than "[REDACTED]" placeholders, and reference the listed trade publications and prior incidents where useful. Do not contradict the briefing.\n${brandContext}\n`
+      : "";
 
     const systemPrompt = `You are an expert in crisis communications, disinformation campaigns, and brand reputation management. Your role is to create realistic but fictional crisis scenarios for training exercises.
 
@@ -242,7 +247,7 @@ Return a JSON object with these exact fields:
 - truthElement: If basedOnTruth is true, explain what the kernel of truth is
 - implicatedParties: Array of 2-3 roles appropriate to ${brandName}'s organization type (use generic titles like "[REDACTED - Senior Officer]" or "[REDACTED - Department Head]" instead of real names)
 - severity: "moderate", "severe", or "critical"
-- spreadPattern: "viral" (organic fast spread), "coordinated" (bot/troll farm), or "organic" (slow natural spread)`;
+- spreadPattern: "viral" (organic fast spread), "coordinated" (bot/troll farm), or "organic" (slow natural spread)${canonBlock}`;
 
     const userPrompt = userScenario 
       ? `The user has provided this scenario outline. Enhance and professionalize it while keeping the core concept:\n\n"${userScenario}"\n\nMake it more realistic with specific details, spreading patterns, and implicated parties. Ensure it's deeply specific to what ${brandName} actually does as an organization.`

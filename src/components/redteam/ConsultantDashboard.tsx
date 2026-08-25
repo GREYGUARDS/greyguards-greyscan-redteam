@@ -524,7 +524,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
           body: {
             brandName: config.brandName,
             duration: config.duration,
-            scenarioCategory: config.scenarioCategory || "random"
+            scenarioCategory: config.scenarioCategory || "random",
+            ...(config.brandContext ? { brandContext: config.brandContext } : {})
           }
         }),
         CONSULTANT_GENERATION_TIMEOUT_MS
@@ -543,7 +544,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
           body: {
             scenario: generatedScenario,
             brandName: config.brandName,
-            duration: config.duration
+            duration: config.duration,
+            ...(config.brandContext ? { brandContext: config.brandContext } : {})
           }
         }),
         CONSULTANT_GENERATION_TIMEOUT_MS

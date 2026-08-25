@@ -45,6 +45,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  SIMULATION_COMPANIES,
+  buildBrandContext,
+  getSimulationCompany,
+} from "@/lib/simulationCompanies";
+
+
 
 
 // Icon mapping for scenario categories
@@ -104,7 +111,11 @@ export interface ExerciseConfig {
   duration: ExerciseDuration;
   teamMode: TeamMode;
   scenarioCategory: ScenarioCategory;
+  /** Canon briefing for a simulation-pack target company, if one is selected. */
+  brandContext?: string;
+  simulationCompanyId?: string;
 }
+
 
 export interface Scenario {
   id: string;
@@ -200,15 +211,31 @@ const RedTeam = () => {
   useEffect(() => {
     if (access.loading) return;
     if (!access.isAdmin) {
+      const locked = access.lockedBrand || "";
+      const company = locked ? getSimulationCompany(locked) : undefined;
       setConfig((prev) => ({
         ...prev,
-        brandName: access.lockedBrand || "",
+        brandName: locked,
+        simulationCompanyId: company?.id,
+        brandContext: company ? buildBrandContext(company) : undefined,
       }));
       setConsultantAction("join");
     } else {
       setConsultantAction("host");
     }
   }, [access.loading, access.isAdmin, access.lockedBrand]);
+
+  const selectSimulationCompany = (id: string) => {
+    const company = SIMULATION_COMPANIES.find((c) => c.id === id);
+    if (!company) return;
+    setConfig((prev) => ({
+      ...prev,
+      brandName: company.name,
+      simulationCompanyId: company.id,
+      brandContext: buildBrandContext(company),
+    }));
+  };
+
 
 
   const handleStartExercise = () => {
@@ -345,6 +372,10 @@ const RedTeam = () => {
   }
 
   const brandLocked = !access.isAdmin && !!access.lockedBrand;
+  const activeCompany = config.simulationCompanyId
+    ? SIMULATION_COMPANIES.find((c) => c.id === config.simulationCompanyId)
+    : undefined;
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
@@ -373,19 +404,70 @@ const RedTeam = () => {
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
+          {/* Simulation target companies — full canon briefings */}
+          {access.isAdmin && (
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider font-medium">
+                Simulation Target Company
+              </Label>
+              <Select
+                value={config.simulationCompanyId || ""}
+                onValueChange={selectSimulationCompany}
+              >
+                <SelectTrigger className="border-2 border-border bg-input h-11 text-xs uppercase tracking-wider">
+                  <SelectValue placeholder="Select a simulation company…" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-2 border-border z-50 max-h-72">
+                  {SIMULATION_COMPANIES.map((company) => (
+                    <SelectItem key={company.id} value={company.id} className="cursor-pointer py-2">
+                      <span className="flex flex-col items-start gap-0.5">
+                        <span className="text-xs uppercase tracking-wider">{company.name}</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {company.sector} · {company.difficulty} · {company.tierRange}
+                        </span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {activeCompany && (
+                <div className="border-2 border-border bg-secondary/40 p-3 space-y-1">
+                  <p className="text-[11px] text-muted-foreground">
+                    {activeCompany.industry} · {activeCompany.headquarters}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Key people:{" "}
+                    {activeCompany.people.map((p) => `${p.name} (${p.role})`).join(", ")}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {activeCompany.difficultyNote}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Brand — assigned at login */}
           <div className="space-y-2">
             <Label className="text-xs uppercase tracking-wider font-medium">Target Brand / Organisation</Label>
             <Input
               value={config.brandName}
-              onChange={(e) => access.isAdmin && setConfig({ ...config, brandName: e.target.value })}
+              onChange={(e) =>
+                access.isAdmin &&
+                setConfig({
+                  ...config,
+                  brandName: e.target.value,
+                  simulationCompanyId: undefined,
+                  brandContext: undefined,
+                })
+              }
               placeholder={access.isAdmin ? "Enter brand name..." : "No brand assigned to this account"}
               disabled={!access.isAdmin}
               className="border-2 border-border bg-input h-11 uppercase tracking-wide"
             />
             {access.isAdmin ? (
               <p className="text-[11px] text-muted-foreground">
-                Staff account — you may set any target brand.
+                Staff account — pick a simulation company above, or type any other target brand.
               </p>
             ) : (
               <p className="text-[11px] text-muted-foreground flex items-center gap-1">
@@ -396,6 +478,7 @@ const RedTeam = () => {
               </p>
             )}
           </div>
+
 
 
           {/* Exercise Mode */}

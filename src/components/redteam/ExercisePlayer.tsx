@@ -118,7 +118,8 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
           body: {
             scenario,
             brandName: config.brandName,
-            duration: config.duration
+            duration: config.duration,
+            ...(config.brandContext ? { brandContext: config.brandContext } : {})
           }
         }),
         INJECT_GENERATION_TIMEOUT_MS
