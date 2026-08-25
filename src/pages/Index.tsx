@@ -966,29 +966,33 @@ const Index = () => {
 
         <Card className="w-full max-w-md border-4 border-border bg-card relative z-10">
           <CardHeader className="space-y-3 border-b-4 border-border bg-secondary">
-            <div className="flex items-center justify-between">
-              <img src={greyguardsLogo} alt="Greyguards" className="h-12 w-auto object-contain" />
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <img src={greyguardsLogo} alt="Greyguards" className="h-10 sm:h-12 w-auto object-contain flex-shrink-0" />
+              <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
                 {access.isAdmin && (
                   <>
                     <Link to="/admin/radar">
-                      <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
-                        <Radar className="h-4 w-4 mr-1" /> Radar
+                      <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10 px-2">
+                        <Radar className="h-4 w-4" />
+                        <span className="hidden sm:inline ml-1">Radar</span>
                       </Button>
                     </Link>
                     <Link to="/admin/requests">
-                      <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
-                        <ShieldCheck className="h-4 w-4 mr-1" /> Requests
+                      <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10 px-2">
+                        <ShieldCheck className="h-4 w-4" />
+                        <span className="hidden sm:inline ml-1">Requests</span>
                       </Button>
                     </Link>
                   </>
                 )}
                 <Link to="/redteam">
-                  <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10">
-                    <Target className="h-4 w-4 mr-1" /> Red Team
+                  <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10 px-2">
+                    <Target className="h-4 w-4" />
+                    <span className="hidden sm:inline ml-1">Red Team</span>
+                    <span className="sm:hidden ml-1">RT</span>
                   </Button>
                 </Link>
-                <Button variant="outline" size="icon" onClick={handleLogout} className="h-8 w-8">
+                <Button variant="outline" size="icon" onClick={handleLogout} className="h-8 w-8 flex-shrink-0">
                   <LogOut className="h-4 w-4" />
                 </Button>
               </div>
