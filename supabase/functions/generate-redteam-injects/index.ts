@@ -156,9 +156,9 @@ Return a JSON object with an "injects" array. Each inject should have:
 - isAggressive: boolean
 - responseOptions: array of 3 options, each with:
   - id: unique string
-  - label: short action name (e.g., "Issue Factual Rebuttal", "Request Correction", "Deploy Greyguards ELF Network")
-  - description: specific description of what this response involves and why it might work or fail
-  - type: "statement" | "social_response" | "internal_action" | "media_outreach" | "legal" | "greyguards_service"
+  - label: short action name drawn from the spectrum (e.g., "Truth-Sandwich Statement", "Request Correction", "Attribution & Public Exposure", "Platform Escalation")
+  - description: what this response involves, the spectrum measure it maps to, and why it might work or fail
+  - type: "statement" | "social_response" | "internal_action" | "media_outreach" | "legal"
   - effectiveness: 0-100 (be realistic - not everything is 70-80%)
   - riskLevel: "low" | "medium" | "high"
   - timeToExecute: seconds`;
