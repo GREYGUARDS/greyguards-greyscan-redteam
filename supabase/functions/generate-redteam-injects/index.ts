@@ -94,7 +94,7 @@ serve(async (req) => {
       );
     }
     
-    const { scenario, brandName, duration } = parseResult.data;
+    const { scenario, brandName, duration, brandContext } = parseResult.data;
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -111,6 +111,7 @@ serve(async (req) => {
 
     const systemPrompt = `You are creating crisis simulation injects for a ${duration}-minute exercise about ${brandName}. 
 
+${brandContext ? `TARGET CANON BRIEFING — use these fictional facts, people, publications and prior incidents. Name the executives and outlets from the briefing instead of generic placeholders, and never contradict it.\n${brandContext}\n` : ""}
 SCENARIO CONTEXT:
 Title: ${scenario.title}
 Narrative: ${scenario.narrative}
