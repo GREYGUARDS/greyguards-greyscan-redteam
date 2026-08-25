@@ -147,16 +147,24 @@ const ExerciseDebrief = ({
       });
     }
 
-    // Greyguards service usage
-    const usedGreyguards = responseHistory.some(r => r.responseType === "greyguards_service");
-    if (!usedGreyguards && score.reputationDamage > 30) {
+    // Escalation ladder awareness (DMMI response spectrum)
+    const usedStructural = responseHistory.some(r => ["legal", "internal_action"].includes(r.responseType));
+    if (!usedStructural && score.reputationDamage > 30) {
       recommendations.push({
-        priority: "low",
-        title: "Consider Professional Support",
-        description: "Complex crises often benefit from expert guidance. Greyguards services can provide rapid attribution and strategic countermeasures.",
+        priority: "medium",
+        title: "Work Further Up The Response Spectrum",
+        description: "Your responses stayed in the reactive band (rebuttal, statements). Where a coordinated network is driving the narrative, consider structural measures — attribution and public exposure, algorithmic friction, platform escalation, or regulatory routes — alongside the messaging response.",
         icon: <Users className="h-5 w-5" />
       });
     }
+
+    // Pre-emptive measures
+    recommendations.push({
+      priority: "low",
+      title: "Build Pre-Emptive Resilience",
+      description: "The cheapest interventions sit before the crisis: inoculation and prebunking of likely attack narratives, proactive transparency on known vulnerable truths, and narrative early warning so a campaign is detected before it scales.",
+      icon: <Shield className="h-5 w-5" />
+    });
 
     // Always add positive if doing well
     if (overallScore >= 80) {

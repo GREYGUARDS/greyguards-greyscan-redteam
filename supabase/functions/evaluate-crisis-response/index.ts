@@ -165,7 +165,7 @@ function evaluateHeuristically(response: string, inject: string, injectType: str
     { words: ['transparent', 'open', 'honest', 'directly'], bonus: 8, msg: "Transparency builds trust." },
     { words: ['statement', 'announce', 'confirm', 'clarify'], bonus: 5, msg: "Clear communication approach." },
     { words: ['monitor', 'track', 'assess'], bonus: 5, msg: "Measured approach to the situation." },
-    { words: ['greyguards', 'elf', 'counter-narrative', 'intelligence'], bonus: 10, msg: "Leveraging specialized crisis capabilities." }
+    { words: ['prebunk', 'inoculat', 'truth sandwich', 'attribution', 'coordinated', 'network', 'counter-narrative', 'label', 'fact-check', 'takedown', 'demonetis', 'regulator'], bonus: 10, msg: "Recognisable countermeasure from the response spectrum." }
   ];
   
   for (const group of positiveKeywords) {
