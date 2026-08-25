@@ -495,62 +495,48 @@ const RedTeam = () => {
             </div>
           )}
 
-          {/* Crisis Category */}
-          <div className="space-y-2">
-            <Label className="text-xs uppercase tracking-wider font-medium">Crisis Category</Label>
-            <RadioGroup
-              value={config.scenarioCategory}
-              onValueChange={(value: ScenarioCategory) => setConfig({ ...config, scenarioCategory: value })}
-              className="grid grid-cols-3 gap-2"
-            >
-              {[
-                { value: "random", label: "Random", icon: "shuffle" },
-                { value: "product_safety", label: "Product", icon: "alert-triangle" },
-                { value: "data_breach", label: "Data Breach", icon: "lock-open" },
-                { value: "environmental", label: "Environ.", icon: "leaf" },
-                { value: "labor_practices", label: "Labour", icon: "hard-hat" },
-                { value: "financial_fraud", label: "Financial", icon: "dollar-sign" },
-                { value: "astroturfing", label: "Astroturf", icon: "bot" },
-                { value: "supply_chain", label: "Supply", icon: "package" },
-                { value: "ai_ethics", label: "AI Ethics", icon: "cpu" },
-                { value: "health_claims", label: "Health", icon: "pill" },
-                { value: "political_ties", label: "Political", icon: "landmark" },
-              ].map((cat) => (
-                <div key={cat.value} className={`relative border-2 p-2 cursor-pointer transition-all text-center ${config.scenarioCategory === cat.value ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
-                  <RadioGroupItem value={cat.value} id={`cat-${cat.value}`} className="absolute top-1 right-1 h-3 w-3" />
-                  <Label htmlFor={`cat-${cat.value}`} className="cursor-pointer">
-                    <ScenarioIcon name={cat.icon} className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
-                    <span className="text-[10px] font-medium uppercase tracking-wider">{cat.label}</span>
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
+          {/* Crisis Category — compact dropdown */}
+          {!(config.mode === "consultant" && consultantAction === "join") && (
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-wider font-medium">Crisis Category</Label>
+              <Select
+                value={config.scenarioCategory}
+                onValueChange={(value: ScenarioCategory) => setConfig({ ...config, scenarioCategory: value })}
+              >
+                <SelectTrigger className="border-2 border-border bg-input h-11 text-xs uppercase tracking-wider">
+                  <SelectValue placeholder="Select a crisis category…" />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-2 border-border z-50 max-h-72">
+                  {SCENARIO_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value} className="cursor-pointer">
+                      <span className="flex items-center gap-2">
+                        <ScenarioIcon name={cat.icon} className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs uppercase tracking-wider">{cat.label}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Start */}
           <Button
             onClick={handleStartExercise}
-            disabled={!config.brandName.trim()}
+            disabled={
+              config.mode === "consultant" && consultantAction === "join"
+                ? false
+                : !config.brandName.trim()
+            }
             className="w-full h-12 text-base uppercase tracking-widest font-bold bg-destructive hover:bg-destructive/90 text-destructive-foreground"
           >
             <Target className="h-4 w-4 mr-2" />
-            Start Red Teaming
+            {config.mode === "consultant" && consultantAction === "join"
+              ? "Join Session"
+              : "Start Red Teaming"}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or</span></div>
-          </div>
-
-          <Button
-            variant="outline"
-            onClick={() => setPhase("team-join")}
-            className="w-full h-11 border-2 border-primary text-primary hover:bg-primary/10 uppercase tracking-wider text-sm"
-          >
-            <Users className="h-4 w-4 mr-2" />
-            Join Existing Session
-          </Button>
         </CardContent>
       </Card>
     </div>
