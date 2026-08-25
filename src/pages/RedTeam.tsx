@@ -353,58 +353,30 @@ const RedTeam = () => {
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
-          {/* Brand Name */}
+          {/* Brand — assigned at login */}
           <div className="space-y-2">
             <Label className="text-xs uppercase tracking-wider font-medium">Target Brand / Organisation</Label>
             <Input
               value={config.brandName}
-              onChange={(e) => !brandLocked && setConfig({ ...config, brandName: e.target.value })}
-              placeholder="Enter brand name..."
-              disabled={brandLocked}
+              onChange={(e) => access.isAdmin && setConfig({ ...config, brandName: e.target.value })}
+              placeholder={access.isAdmin ? "Enter brand name..." : "No brand assigned to this account"}
+              disabled={!access.isAdmin}
               className="border-2 border-border bg-input h-11 uppercase tracking-wide"
             />
-            {brandLocked ? (
-              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <Lock className="h-3 w-3" /> Your account is locked to this brand.
+            {access.isAdmin ? (
+              <p className="text-[11px] text-muted-foreground">
+                Staff account — you may set any target brand.
               </p>
             ) : (
-              <div className="space-y-2">
-                <Select
-                  value={DEMO_COMPANY_LIST.includes(config.brandName) ? config.brandName : ""}
-                  onValueChange={(value) => setConfig({ ...config, brandName: value })}
-                >
-                  <SelectTrigger className="border-2 border-border bg-input h-10 text-xs uppercase tracking-wider">
-                    <SelectValue placeholder="Or pick a demo company…" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-2 border-border z-50 max-h-72">
-                    {DEMO_COMPANY_LIST.map((company) => {
-                      const data = DEMO_COMPANIES[company];
-                      return (
-                        <SelectItem key={company} value={company} className="cursor-pointer">
-                          <div className="flex flex-col">
-                            <span className="font-medium">{company}</span>
-                            <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                              {data.industry} · {data.threatLevel} threat
-                            </span>
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                {access.isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => setConfig({ ...config, brandName: "Anon Business" })}
-                    className="text-xs uppercase tracking-wider text-muted-foreground hover:text-destructive underline-offset-4 hover:underline"
-                  >
-                    Use "Anon Business" (generic demo)
-                  </button>
-                )}
-              </div>
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <Lock className="h-3 w-3" />
+                {config.brandName
+                  ? "Your brand is assigned at login and cannot be changed."
+                  : "No brand is assigned to your login. Contact Greyguards to be provisioned."}
+              </p>
             )}
-
           </div>
+
 
           {/* Exercise Mode — Consultant Hosted hidden unless admin */}
           <div className="space-y-2">
