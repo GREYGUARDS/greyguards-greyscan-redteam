@@ -38,7 +38,6 @@ import TeamJoin from "@/components/redteam/TeamJoin";
 import BlueTeamDashboard from "@/components/redteam/BlueTeamDashboard";
 import RedTeamDashboard from "@/components/redteam/RedTeamDashboard";
 import { useAccessProfile } from "@/hooks/useAccessProfile";
-import { DEMO_COMPANY_LIST, DEMO_COMPANIES } from "@/lib/demoData";
 import {
   Select,
   SelectContent,
