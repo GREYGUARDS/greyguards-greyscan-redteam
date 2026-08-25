@@ -131,14 +131,18 @@ TIMING REQUIREMENTS:
 - MUST have injects in the final 2 minutes
 - LAST inject between ${lastInjectTime - 60} and ${lastInjectTime} seconds
 
-RESPONSE OPTIONS - Make them SPECIFIC and ACCURATE:
-Each inject needs 3 response options that are DIRECTLY relevant to that inject's content:
-- Options should have REALISTIC effectiveness scores based on crisis management best practices
-- A well-crafted public statement addressing specific allegations should score 70-85%
-- "No comment" or ignoring should score 20-40%
-- Aggressive legal threats should score 40-60% (can backfire)
-- Engaging credible third-party validators should score 75-90%
-- Greyguards services (monitoring, counter-narrative, elf network) should score 80-90%
+RESPONSE OPTIONS — draw them from the DMMI RESPONSE SPECTRUM below. Never mention Greyguards, consultants, vendors or any commercial service in an option. Options are countermeasures, not sales pitches.
+
+DMMI RESPONSE SPECTRUM (1-19, escalating):
+PRE-EMPTIVE: 1 Inoculation/prebunking · 2 Media & information literacy · 3 Narrative monitoring / early warning · 4 Truth-sandwich messaging (fact, name the manipulation, restate fact) · 5 Proactive transparency
+REACTIVE: 6 Counter-messaging / displacement · 7 Debunking / fact-checking · 8 Source discreditation · 9 Crowdsourced correction
+STRUCTURAL/COERCIVE: 10 Algorithmic friction · 11 Labelling / contextual warnings · 12 Attribution & public exposure · 13 Content takedown · 14 Deplatforming · 15 Network disruption (CIB takedown) · 16 Defunding / demonetisation · 17 Legal & regulatory action · 18 Sanctions & diplomatic measures · 19 Offensive / cyber countermeasures
+Items 17-19 are realistically only available to states or actors with legal/coercive authority — offer them rarely and score them for that friction.
+
+Each inject needs 3 response options that are DIRECTLY relevant to that inject's content, each mapped to a different band of the spectrum where possible:
+- Reference the spectrum measure in the description (e.g. "Spectrum 4: truth-sandwich messaging")
+- Effectiveness must be realistic: "no comment"/ignoring 20-40; aggressive legal threats 40-60 (can backfire); specific evidence-led rebuttal or truth-sandwich 70-85; credible third-party validation or crowdsourced correction 75-85; attribution/exposure of a coordinated network 70-85; platform takedown/friction 55-75 (slow, partial)
+- Higher-escalation measures should carry higher riskLevel and longer timeToExecute
 
 Return a JSON object with an "injects" array. Each inject should have:
 - id: unique string
@@ -152,9 +156,9 @@ Return a JSON object with an "injects" array. Each inject should have:
 - isAggressive: boolean
 - responseOptions: array of 3 options, each with:
   - id: unique string
-  - label: short action name (e.g., "Issue Factual Rebuttal", "Request Correction", "Deploy Greyguards ELF Network")
-  - description: specific description of what this response involves and why it might work or fail
-  - type: "statement" | "social_response" | "internal_action" | "media_outreach" | "legal" | "greyguards_service"
+  - label: short action name drawn from the spectrum (e.g., "Truth-Sandwich Statement", "Request Correction", "Attribution & Public Exposure", "Platform Escalation")
+  - description: what this response involves, the spectrum measure it maps to, and why it might work or fail
+  - type: "statement" | "social_response" | "internal_action" | "media_outreach" | "legal"
   - effectiveness: 0-100 (be realistic - not everything is 70-80%)
   - riskLevel: "low" | "medium" | "high"
   - timeToExecute: seconds`;

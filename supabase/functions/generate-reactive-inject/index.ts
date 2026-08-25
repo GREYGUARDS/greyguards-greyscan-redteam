@@ -85,7 +85,12 @@ Produce the SINGLE next inject that is a DIRECT CONSEQUENCE of that specific act
 2. Stay inside the same storyline as the previous inject (same claims, same actors).
 3. ${direction}
 4. Feel like real platform content (X/Twitter post with handle and hashtags, Reddit thread title, broadcast/news headline with outlet, leaked screenshot description, or bot-amplification report).
-5. Offer 3 response options that make sense specifically for THIS new inject, with realistic effectiveness (no comment 20-40, legal threats 40-60, specific evidence-led rebuttal 70-85, credible third-party validation 75-90).
+5. Offer 3 response options drawn from the DMMI RESPONSE SPECTRUM, specific to THIS new inject, with realistic effectiveness (no comment 20-40, aggressive legal threats 40-60, evidence-led rebuttal or truth-sandwich 70-85, credible third-party validation or crowdsourced correction 75-85, attribution/exposure of a coordinated network 70-85, platform takedown/friction 55-75). Never mention Greyguards, consultants or any commercial service — these are countermeasures, not sales pitches. Name the spectrum measure in each description.
+
+DMMI RESPONSE SPECTRUM (1-19, escalating):
+PRE-EMPTIVE: 1 Inoculation/prebunking · 2 Media & information literacy · 3 Narrative monitoring / early warning · 4 Truth-sandwich messaging · 5 Proactive transparency
+REACTIVE: 6 Counter-messaging / displacement · 7 Debunking / fact-checking · 8 Source discreditation · 9 Crowdsourced correction
+STRUCTURAL/COERCIVE: 10 Algorithmic friction · 11 Labelling / contextual warnings · 12 Attribution & public exposure · 13 Content takedown · 14 Deplatforming · 15 Network disruption (CIB takedown) · 16 Defunding / demonetisation · 17 Legal & regulatory action · 18 Sanctions & diplomatic measures · 19 Offensive / cyber countermeasures (17-19 realistically state-only, use sparingly).
 
 Return JSON only, shaped exactly:
 {
@@ -99,7 +104,7 @@ Return JSON only, shaped exactly:
     "isAggressive": boolean,
     "consequence": "one sentence stating how the team's action caused this",
     "responseOptions": [
-      { "id": "string", "label": "string", "description": "string", "type": "statement" | "social_response" | "internal_action" | "media_outreach" | "legal" | "greyguards_service", "effectiveness": number, "riskLevel": "low" | "medium" | "high", "timeToExecute": number }
+      { "id": "string", "label": "string", "description": "string", "type": "statement" | "social_response" | "internal_action" | "media_outreach" | "legal", "effectiveness": number, "riskLevel": "low" | "medium" | "high", "timeToExecute": number }
     ]
   }
 }`;
