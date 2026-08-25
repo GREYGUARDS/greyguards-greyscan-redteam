@@ -1077,11 +1077,6 @@ const Index = () => {
                   Updated: {liveTimestamp.toLocaleTimeString()}
                 </span>
               )}
-              <DemoModeSelector
-                onSelectCompany={loadDemoData}
-                isActive={demoMode}
-                currentCompany={demoCompany}
-              />
 
               <NotificationCenter alerts={mdmAlerts} onAlertsUpdate={fetchMDMAlerts} />
               <Link to="/redteam">
