@@ -99,16 +99,20 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
       );
 
       if (error) throw error;
+      const payload = Array.isArray(data) ? data[0] : data;
+      if (!payload?.title || !payload?.narrative) {
+        throw new Error("Incomplete scenario payload");
+      }
 
       const scenario: Scenario = {
         id: crypto.randomUUID(),
-        title: data.title,
-        narrative: data.narrative,
-        basedOnTruth: data.basedOnTruth,
-        truthElement: data.truthElement,
-        implicatedParties: data.implicatedParties || [],
-        severity: data.severity || "severe",
-        spreadPattern: data.spreadPattern || "viral"
+        title: payload.title,
+        narrative: payload.narrative,
+        basedOnTruth: payload.basedOnTruth,
+        truthElement: payload.truthElement,
+        implicatedParties: payload.implicatedParties || [],
+        severity: payload.severity || "severe",
+        spreadPattern: payload.spreadPattern || "viral"
       };
 
       setPreviewScenario(scenario);
