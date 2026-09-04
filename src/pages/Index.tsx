@@ -126,7 +126,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
 
 
   const loadDemoData = (companyName: string) => {
-    const data = DEMO_COMPANIES[companyName];
+    const data = DEMO_COMPANIES[companyName] || SIMULATION_DEMO_COMPANIES[companyName];
     if (!data) return;
 
     // Clear previous results first
