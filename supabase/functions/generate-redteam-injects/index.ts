@@ -140,7 +140,7 @@ STRUCTURAL/COERCIVE: 10 Algorithmic friction · 11 Labelling / contextual warnin
 Items 17-19 are realistically only available to states or actors with legal/coercive authority — offer them rarely and score them for that friction.
 
 Each inject needs 3 response options that are DIRECTLY relevant to that inject's content, each mapped to a different band of the spectrum where possible:
-- Reference the spectrum measure in the description (e.g. "Spectrum 4: truth-sandwich messaging")
+- Describe the measure in plain words in the description. Never include spectrum numbers, indices or labels like "Spectrum 4" or "DMMI 12" in any label or description.
 - Effectiveness must be realistic: "no comment"/ignoring 20-40; aggressive legal threats 40-60 (can backfire); specific evidence-led rebuttal or truth-sandwich 70-85; credible third-party validation or crowdsourced correction 75-85; attribution/exposure of a coordinated network 70-85; platform takedown/friction 55-75 (slow, partial)
 - Higher-escalation measures should carry higher riskLevel and longer timeToExecute
 
