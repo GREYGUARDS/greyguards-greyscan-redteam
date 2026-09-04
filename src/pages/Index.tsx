@@ -981,7 +981,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
             <div className="flex items-center justify-between gap-2">
               <img src={greyguardsLogo} alt="Greyguards" className="h-10 sm:h-12 w-auto object-contain flex-shrink-0" />
               <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
-                {access.isAdmin && (
+                {access.isAdmin && !publicDemo && (
                   <>
                     <Link to="/admin/radar">
                       <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10 px-2">
@@ -997,49 +997,81 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
                     </Link>
                   </>
                 )}
-                <Link to="/redteam">
+                <Link to={publicDemo ? "/redteam/demo" : "/redteam"}>
                   <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10 px-2">
                     <Target className="h-4 w-4" />
                     <span className="hidden sm:inline ml-1">Red Team</span>
                     <span className="sm:hidden ml-1">RT</span>
                   </Button>
                 </Link>
-                <Button variant="outline" size="icon" onClick={handleLogout} className="h-8 w-8 flex-shrink-0">
-                  <LogOut className="h-4 w-4" />
-                </Button>
+                {publicDemo ? (
+                  <Link to="/login">
+                    <Button variant="outline" size="sm" className="px-2">
+                      <Lock className="h-4 w-4" />
+                      <span className="hidden sm:inline ml-1">Sign in</span>
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button variant="outline" size="icon" onClick={handleLogout} className="h-8 w-8 flex-shrink-0">
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
             <CardTitle className="text-center text-2xl uppercase tracking-wider">GreyScan</CardTitle>
             <CardDescription className="text-center text-xs uppercase tracking-widest">
-              Narrative Intelligence Platform
+              {publicDemo ? "Demo — fictional case files" : "Narrative Intelligence Platform"}
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6 space-y-5">
-            <div className="space-y-2">
-              <label className="text-xs font-medium uppercase tracking-wider">Target Brand / Organisation</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Enter brand or org…"
-                  value={brandName}
-                  onChange={(e) => !brandLocked && setBrandName(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  disabled={brandLocked}
-                  className="pl-10 h-11"
-                />
-              </div>
-              {brandLocked && (
+            {publicDemo ? (
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase tracking-wider">Demo Company</label>
+                <Select value={brandName} onValueChange={setBrandName}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Choose a demo company…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SIMULATION_DEMO_NAMES.map((c) => (
+                      <SelectItem key={c.name} value={c.name}>
+                        {c.name} — {c.sector}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                  <Lock className="h-3 w-3" /> Your account is locked to this brand.
+                  <Lock className="h-3 w-3" />
+                  Demo runs on the fictional companies only. Live scanning of your own brand needs a full account.
                 </p>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase tracking-wider">Target Brand / Organisation</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Enter brand or org…"
+                    value={brandName}
+                    onChange={(e) => !brandLocked && setBrandName(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                    disabled={brandLocked}
+                    className="pl-10 h-11"
+                  />
+                </div>
+                {brandLocked && (
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                    <Lock className="h-3 w-3" /> Your account is locked to this brand.
+                  </p>
+                )}
+              </div>
+            )}
 
             <Button onClick={handleSearch} disabled={loading || !brandName.trim()} className="w-full h-11 uppercase tracking-wider">
               <Search className="mr-2 h-4 w-4" />
-              Analyze
+              {publicDemo ? "Open Demo Report" : "Analyze"}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
+
 
           </CardContent>
         </Card>
