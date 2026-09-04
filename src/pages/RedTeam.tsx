@@ -379,6 +379,8 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
   }
 
   const brandLocked = !access.isAdmin && !!access.lockedBrand;
+  const canPickCompany = demoMode || access.isAdmin;
+  const canTypeBrand = !demoMode && access.isAdmin;
   const activeCompany = config.simulationCompanyId
     ? SIMULATION_COMPANIES.find((c) => c.id === config.simulationCompanyId)
     : undefined;
