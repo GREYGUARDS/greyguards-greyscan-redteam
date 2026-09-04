@@ -28,6 +28,9 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/auth" element={<Navigate to="/login" replace />} />
 
+          {/* Open demo — Red Team, fictional companies only, no sign-in */}
+          <Route path="/redteam/demo" element={<RedTeam demoMode />} />
+
           {/* Gated app routes */}
           <Route path="/" element={<RequireAuth loginPath="/login"><Index /></RequireAuth>} />
           <Route path="/redteam" element={<RequireAuth loginPath="/redteam/login"><RedTeam /></RequireAuth>} />
