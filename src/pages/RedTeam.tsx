@@ -460,8 +460,17 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
             </div>
           )}
 
+          {demoMode && (
+            <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+              <Lock className="h-3 w-3" />
+              Demo runs on the fictional companies only. Your own brand needs a full account.
+            </p>
+          )}
+
           {/* Brand — assigned at login */}
+          {!demoMode && (
           <div className="space-y-2">
+
             <Label className="text-xs uppercase tracking-wider font-medium">Target Brand / Organisation</Label>
             <Input
               value={config.brandName}
