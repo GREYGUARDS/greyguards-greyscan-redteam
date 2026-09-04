@@ -289,6 +289,24 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
                 </form>
               )}
 
+              {variant === "greyscan" && (
+                <div className="space-y-2 border-2 border-primary/40 bg-primary/5 p-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-11 uppercase tracking-wider text-xs"
+                    onClick={() => navigate("/demo")}
+                  >
+                    <Shield className="mr-2 h-4 w-4" />
+                    Try the demo — no sign-in
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground text-center">
+                    Explore full narrative reports on our fictional companies. Live scanning of your
+                    own brand needs a full account.
+                  </p>
+                </div>
+              )}
+
               {variant === "redteam" && (
                 <div className="space-y-2 border-2 border-primary/40 bg-primary/5 p-3">
                   <Button

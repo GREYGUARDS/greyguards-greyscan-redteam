@@ -38,6 +38,8 @@ import { TrackedStories } from "@/components/TrackedStories";
 import { DemoSocialMentions } from "@/components/DemoSocialMentions";
 import { KeyPeopleSummary } from "@/components/KeyPeopleSummary";
 import { DEMO_COMPANIES } from "@/lib/demoData";
+import { SIMULATION_DEMO_COMPANIES, SIMULATION_DEMO_NAMES } from "@/lib/simulationDemoData";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { exportToPDF } from "@/lib/pdfExport";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,7 +50,7 @@ import { useAccessProfile } from "@/hooks/useAccessProfile";
 import { Lock, ArrowRight, ShieldCheck, Radar } from "lucide-react";
 
 
-const Index = () => {
+const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
   const [brandName, setBrandName] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<AnalysisResult | null>(null);
@@ -87,11 +89,11 @@ const Index = () => {
 
   // Lock non-admin users to their assigned brand
   useEffect(() => {
-    if (access.loading) return;
+    if (publicDemo || access.loading) return;
     if (!access.isAdmin && access.lockedBrand && !brandName) {
       setBrandName(access.lockedBrand);
     }
-  }, [access.loading, access.isAdmin, access.lockedBrand]);
+  }, [publicDemo, access.loading, access.isAdmin, access.lockedBrand]);
 
 
   // Live timestamp refresh every 60 seconds
@@ -124,7 +126,7 @@ const Index = () => {
 
 
   const loadDemoData = (companyName: string) => {
-    const data = DEMO_COMPANIES[companyName];
+    const data = DEMO_COMPANIES[companyName] || SIMULATION_DEMO_COMPANIES[companyName];
     if (!data) return;
 
     // Clear previous results first
@@ -220,6 +222,8 @@ const Index = () => {
   };
 
   useEffect(() => {
+    if (publicDemo) return;
+
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -247,7 +251,7 @@ const Index = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, publicDemo]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -277,6 +281,15 @@ const Index = () => {
   }, [userId]);
 
   const handleSearch = async () => {
+    // Public demo never runs a live scan — it replays the fictional case files.
+    if (publicDemo) {
+      if (!brandName.trim()) {
+        toast({ title: "Choose a demo company", description: "Select one of the fictional companies to continue.", variant: "destructive" });
+        return;
+      }
+      loadDemoData(brandName);
+      return;
+    }
     if (!brandName.trim()) {
       toast({
         title: "Error",
@@ -968,7 +981,7 @@ const Index = () => {
             <div className="flex items-center justify-between gap-2">
               <img src={greyguardsLogo} alt="Greyguards" className="h-10 sm:h-12 w-auto object-contain flex-shrink-0" />
               <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
-                {access.isAdmin && (
+                {access.isAdmin && !publicDemo && (
                   <>
                     <Link to="/admin/radar">
                       <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10 px-2">
@@ -984,49 +997,81 @@ const Index = () => {
                     </Link>
                   </>
                 )}
-                <Link to="/redteam">
+                <Link to={publicDemo ? "/redteam/demo" : "/redteam"}>
                   <Button variant="outline" size="sm" className="border-destructive/50 text-destructive hover:bg-destructive/10 px-2">
                     <Target className="h-4 w-4" />
                     <span className="hidden sm:inline ml-1">Red Team</span>
                     <span className="sm:hidden ml-1">RT</span>
                   </Button>
                 </Link>
-                <Button variant="outline" size="icon" onClick={handleLogout} className="h-8 w-8 flex-shrink-0">
-                  <LogOut className="h-4 w-4" />
-                </Button>
+                {publicDemo ? (
+                  <Link to="/login">
+                    <Button variant="outline" size="sm" className="px-2">
+                      <Lock className="h-4 w-4" />
+                      <span className="hidden sm:inline ml-1">Sign in</span>
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button variant="outline" size="icon" onClick={handleLogout} className="h-8 w-8 flex-shrink-0">
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
             <CardTitle className="text-center text-2xl uppercase tracking-wider">GreyScan</CardTitle>
             <CardDescription className="text-center text-xs uppercase tracking-widest">
-              Narrative Intelligence Platform
+              {publicDemo ? "Demo — fictional case files" : "Narrative Intelligence Platform"}
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6 space-y-5">
-            <div className="space-y-2">
-              <label className="text-xs font-medium uppercase tracking-wider">Target Brand / Organisation</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Enter brand or org…"
-                  value={brandName}
-                  onChange={(e) => !brandLocked && setBrandName(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  disabled={brandLocked}
-                  className="pl-10 h-11"
-                />
-              </div>
-              {brandLocked && (
+            {publicDemo ? (
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase tracking-wider">Demo Company</label>
+                <Select value={brandName} onValueChange={setBrandName}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Choose a demo company…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SIMULATION_DEMO_NAMES.map((c) => (
+                      <SelectItem key={c.name} value={c.name}>
+                        {c.name} — {c.sector}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                  <Lock className="h-3 w-3" /> Your account is locked to this brand.
+                  <Lock className="h-3 w-3" />
+                  Demo runs on the fictional companies only. Live scanning of your own brand needs a full account.
                 </p>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase tracking-wider">Target Brand / Organisation</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Enter brand or org…"
+                    value={brandName}
+                    onChange={(e) => !brandLocked && setBrandName(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                    disabled={brandLocked}
+                    className="pl-10 h-11"
+                  />
+                </div>
+                {brandLocked && (
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                    <Lock className="h-3 w-3" /> Your account is locked to this brand.
+                  </p>
+                )}
+              </div>
+            )}
 
             <Button onClick={handleSearch} disabled={loading || !brandName.trim()} className="w-full h-11 uppercase tracking-wider">
               <Search className="mr-2 h-4 w-4" />
-              Analyze
+              {publicDemo ? "Open Demo Report" : "Analyze"}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
+
 
           </CardContent>
         </Card>
@@ -1078,7 +1123,7 @@ const Index = () => {
               )}
 
               <NotificationCenter alerts={mdmAlerts} onAlertsUpdate={fetchMDMAlerts} />
-              <Link to="/redteam">
+              <Link to={publicDemo ? "/redteam/demo" : "/redteam"}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -1089,23 +1134,35 @@ const Index = () => {
                   <span className="sm:hidden">RT</span>
                 </Button>
               </Link>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                className="hidden sm:flex"
-              >
-                <LogOut className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Logout</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleLogout}
-                className="sm:hidden h-8 w-8"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
+              {publicDemo ? (
+                <Link to="/login">
+                  <Button variant="outline" size="sm">
+                    <Lock className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Sign in</span>
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="hidden sm:flex"
+                  >
+                    <LogOut className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Logout</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleLogout}
+                    className="sm:hidden h-8 w-8"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+
             </div>
           </div>
         </div>
@@ -1117,29 +1174,49 @@ const Index = () => {
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Enter brand or org…"
-                  value={brandName}
-                  onChange={(e) => setBrandName(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  className="pl-10 h-10 sm:h-11"
-                />
-              </div>
-              <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto h-10 sm:h-11">
-                {loading ? (
-                  <>
-                    <span className="animate-spin mr-2">⟳</span>
-                    Analyzing
-                  </>
+                {publicDemo ? (
+                  <Select value={brandName} onValueChange={(v) => loadDemoData(v)}>
+                    <SelectTrigger className="h-10 sm:h-11">
+                      <SelectValue placeholder="Choose a demo company…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SIMULATION_DEMO_NAMES.map((c) => (
+                        <SelectItem key={c.name} value={c.name}>
+                          {c.name} — {c.sector}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 ) : (
                   <>
-                    <Search className="mr-2 h-5 w-5" />
-                    Analyze
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Enter brand or org…"
+                      value={brandName}
+                      onChange={(e) => setBrandName(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                      className="pl-10 h-10 sm:h-11"
+                    />
                   </>
                 )}
-              </Button>
+              </div>
+              {!publicDemo && (
+                <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto h-10 sm:h-11">
+                  {loading ? (
+                    <>
+                      <span className="animate-spin mr-2">⟳</span>
+                      Analyzing
+                    </>
+                  ) : (
+                    <>
+                      <Search className="mr-2 h-5 w-5" />
+                      Analyze
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
+
             {results && (
               <div className="mt-4 flex justify-end gap-2">
                 <DailyBriefModal

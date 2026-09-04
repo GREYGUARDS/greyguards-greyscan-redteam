@@ -1,0 +1,2 @@
+- [x] Red Team demo mode: disable "Write Your Own" scenario option
+- [x] Remove DMMI spectrum numbering from response options

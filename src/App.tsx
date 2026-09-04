@@ -31,6 +31,9 @@ const App = () => (
           {/* Open demo — Red Team, fictional companies only, no sign-in */}
           <Route path="/redteam/demo" element={<RedTeam demoMode />} />
 
+          {/* Open demo — GreyScan, fictional case files only, no sign-in */}
+          <Route path="/demo" element={<Index publicDemo />} />
+
           {/* Gated app routes */}
           <Route path="/" element={<RequireAuth loginPath="/login"><Index /></RequireAuth>} />
           <Route path="/redteam" element={<RequireAuth loginPath="/redteam/login"><RedTeam /></RequireAuth>} />

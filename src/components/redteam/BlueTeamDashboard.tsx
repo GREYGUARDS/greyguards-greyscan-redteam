@@ -109,7 +109,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
     const options: ResponseOption[] = [
       { id: "1", label: "Issue denial statement", description: "Quickly deny the allegations publicly", type: "statement", effectiveness: 60, riskLevel: "medium" },
       { id: "2", label: "Monitor & gather intel", description: "Watch the situation develop before responding", type: "internal_action", effectiveness: 70, riskLevel: "low" },
-      { id: "3", label: "Truth-sandwich holding line", description: "Lead with the verified fact, name the manipulation, restate the fact (Spectrum 4)", type: "statement", effectiveness: 80, riskLevel: "low" },
+      { id: "3", label: "Truth-sandwich holding line", description: "Lead with the verified fact, name the manipulation, restate the fact", type: "statement", effectiveness: 80, riskLevel: "low" },
     ];
 
     if (inject.inject_type === "news_article") {

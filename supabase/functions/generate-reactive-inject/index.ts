@@ -85,7 +85,7 @@ Produce the SINGLE next inject that is a DIRECT CONSEQUENCE of that specific act
 2. Stay inside the same storyline as the previous inject (same claims, same actors).
 3. ${direction}
 4. Feel like real platform content (X/Twitter post with handle and hashtags, Reddit thread title, broadcast/news headline with outlet, leaked screenshot description, or bot-amplification report).
-5. Offer 3 response options drawn from the DMMI RESPONSE SPECTRUM, specific to THIS new inject, with realistic effectiveness (no comment 20-40, aggressive legal threats 40-60, evidence-led rebuttal or truth-sandwich 70-85, credible third-party validation or crowdsourced correction 75-85, attribution/exposure of a coordinated network 70-85, platform takedown/friction 55-75). Never mention Greyguards, consultants or any commercial service — these are countermeasures, not sales pitches. Name the spectrum measure in each description.
+5. Offer 3 response options drawn from the DMMI RESPONSE SPECTRUM, specific to THIS new inject, with realistic effectiveness (no comment 20-40, aggressive legal threats 40-60, evidence-led rebuttal or truth-sandwich 70-85, credible third-party validation or crowdsourced correction 75-85, attribution/exposure of a coordinated network 70-85, platform takedown/friction 55-75). Never mention Greyguards, consultants or any commercial service — these are countermeasures, not sales pitches. Name the countermeasure in plain words in each description — never include spectrum numbers or labels like "Spectrum 4" or "DMMI 12".
 
 DMMI RESPONSE SPECTRUM (1-19, escalating):
 PRE-EMPTIVE: 1 Inoculation/prebunking · 2 Media & information literacy · 3 Narrative monitoring / early warning · 4 Truth-sandwich messaging · 5 Proactive transparency

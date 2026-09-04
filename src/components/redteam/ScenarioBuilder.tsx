@@ -55,6 +55,7 @@ interface ScenarioBuilderProps {
   config: ExerciseConfig;
   onScenarioReady: (scenario: Scenario) => void;
   onBack: () => void;
+  demoMode?: boolean;
 }
 
 type BuildMode = "generate" | "write";
@@ -74,7 +75,7 @@ const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<
   }
 };
 
-const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderProps) => {
+const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: ScenarioBuilderProps) => {
   const [buildMode, setBuildMode] = useState<BuildMode | null>(null);
   const [userScenario, setUserScenario] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -279,22 +280,26 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderPro
             </Card>
 
             <Card 
-              className="border-4 border-border bg-card hover:border-warning transition-all cursor-pointer group"
-              onClick={() => handleModeSelect("write")}
+              className={`border-4 border-border bg-card transition-all group ${demoMode ? "opacity-50 pointer-events-none" : "hover:border-warning cursor-pointer"}`}
+              onClick={() => !demoMode && handleModeSelect("write")}
+              aria-disabled={demoMode}
             >
               <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 mx-auto bg-warning/10 flex items-center justify-center mb-4 group-hover:bg-warning/20 transition-colors">
+                <div className="w-20 h-20 mx-auto bg-warning/10 flex items-center justify-center mb-4">
                   <PenLine className="h-10 w-10 text-warning" />
                 </div>
                 <h3 className="text-xl font-bold uppercase tracking-wider mb-2">Write Your Own</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Describe your scenario and AI will enhance and bring it to life
+                  {demoMode
+                    ? "Full accounts only — the demo uses AI-generated scenarios on the fictional companies"
+                    : "Describe your scenario and AI will enhance and bring it to life"}
                 </p>
-                <Button variant="outline" className="uppercase tracking-wider border-warning text-warning hover:bg-warning/10">
-                  Write <ChevronRight className="h-4 w-4 ml-2" />
+                <Button variant="outline" disabled={demoMode} className="uppercase tracking-wider border-warning text-warning hover:bg-warning/10">
+                  {demoMode ? "Unavailable in demo" : <>Write <ChevronRight className="h-4 w-4 ml-2" /></>}
                 </Button>
               </CardContent>
             </Card>
+
           </div>
         </div>
       </div>

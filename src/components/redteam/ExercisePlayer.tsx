@@ -151,7 +151,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
         responseOptions: [
           { id: "1a", label: "Issue denial statement", description: "Quickly deny the allegations publicly", type: "statement", effectiveness: 60, riskLevel: "medium", timeToExecute: 30 },
           { id: "1b", label: "Monitor & gather intel", description: "Watch the situation develop before responding", type: "internal_action", effectiveness: 70, riskLevel: "low", timeToExecute: 60 },
-          { id: "1c", label: "Truth-sandwich holding line", description: "Lead with the verified fact, name the manipulation, restate the fact (Spectrum 4: truth-sandwich messaging)", type: "statement", effectiveness: 80, riskLevel: "low", timeToExecute: 45 }
+          { id: "1c", label: "Truth-sandwich holding line", description: "Lead with the verified fact, name the manipulation, restate the fact", type: "statement", effectiveness: 80, riskLevel: "low", timeToExecute: 45 }
         ]
       },
       {
@@ -198,7 +198,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
         responseOptions: [
           { id: "4a", label: "Report to platforms", description: "Mass report the coordinated accounts", type: "internal_action", effectiveness: 70, riskLevel: "low", timeToExecute: 45 },
           { id: "4b", label: "Public transparency", description: "Highlight the coordinated attack publicly", type: "statement", effectiveness: 75, riskLevel: "medium", timeToExecute: 60 },
-          { id: "4c", label: "Attribution & public exposure", description: "Commission an attribution investigation and name the coordinated network (Spectrum 12)", type: "internal_action", effectiveness: 85, riskLevel: "medium", timeToExecute: 30 }
+          { id: "4c", label: "Attribution & public exposure", description: "Commission an attribution investigation and name the coordinated network", type: "internal_action", effectiveness: 85, riskLevel: "medium", timeToExecute: 30 }
         ]
       },
       {
@@ -261,7 +261,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
         responseOptions: [
           { id: "8a", label: "Launch counter-hashtag", description: "Start a positive hashtag campaign with supporters", type: "social_response", effectiveness: 65, riskLevel: "medium", timeToExecute: 45 },
           { id: "8b", label: "Address trending topic", description: "Post official statement addressing the trend", type: "statement", effectiveness: 75, riskLevel: "medium", timeToExecute: 30 },
-          { id: "8c", label: "Narrative early warning", description: "Stand up real-time narrative monitoring to track spread and spot the next mutation (Spectrum 3)", type: "internal_action", effectiveness: 75, riskLevel: "low", timeToExecute: 15 }
+          { id: "8c", label: "Narrative early warning", description: "Stand up real-time narrative monitoring to track spread and spot the next mutation", type: "internal_action", effectiveness: 75, riskLevel: "low", timeToExecute: 15 }
         ]
       },
       {
