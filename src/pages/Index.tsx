@@ -89,11 +89,11 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
 
   // Lock non-admin users to their assigned brand
   useEffect(() => {
-    if (access.loading) return;
+    if (publicDemo || access.loading) return;
     if (!access.isAdmin && access.lockedBrand && !brandName) {
       setBrandName(access.lockedBrand);
     }
-  }, [access.loading, access.isAdmin, access.lockedBrand]);
+  }, [publicDemo, access.loading, access.isAdmin, access.lockedBrand]);
 
 
   // Live timestamp refresh every 60 seconds
