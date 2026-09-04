@@ -75,7 +75,7 @@ const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<
   }
 };
 
-const ScenarioBuilder = ({ config, onScenarioReady, onBack }: ScenarioBuilderProps) => {
+const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: ScenarioBuilderProps) => {
   const [buildMode, setBuildMode] = useState<BuildMode | null>(null);
   const [userScenario, setUserScenario] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
