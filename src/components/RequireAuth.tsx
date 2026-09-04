@@ -18,14 +18,29 @@ export default function RequireAuth({ loginPath, children }: RequireAuthProps) {
   useEffect(() => {
     let cancelled = false;
 
-    const check = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+    const bail = async () => {
       if (cancelled) return;
-      if (!user || user.is_anonymous) {
-        navigate(loginPath, { replace: true });
-        return;
+      // Clear any stale/expired local session so we don't loop on it.
+      try { await supabase.auth.signOut({ scope: "local" }); } catch { /* ignore */ }
+      if (!cancelled) navigate(loginPath, { replace: true });
+    };
+
+    const check = async () => {
+      try {
+        const result = await Promise.race([
+          supabase.auth.getUser(),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
+        ]);
+        if (cancelled) return;
+        const user = result?.data?.user;
+        if (!user || user.is_anonymous) {
+          await bail();
+          return;
+        }
+        setStatus("allowed");
+      } catch {
+        await bail();
       }
-      setStatus("allowed");
     };
 
     void check();
@@ -39,6 +54,7 @@ export default function RequireAuth({ loginPath, children }: RequireAuthProps) {
       sub.subscription.unsubscribe();
     };
   }, [loginPath, navigate]);
+
 
   if (status === "checking") {
     return (
