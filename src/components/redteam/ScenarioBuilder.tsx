@@ -55,6 +55,7 @@ interface ScenarioBuilderProps {
   config: ExerciseConfig;
   onScenarioReady: (scenario: Scenario) => void;
   onBack: () => void;
+  demoMode?: boolean;
 }
 
 type BuildMode = "generate" | "write";
