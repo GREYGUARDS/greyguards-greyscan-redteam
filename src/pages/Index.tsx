@@ -222,6 +222,8 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
   };
 
   useEffect(() => {
+    if (publicDemo) return;
+
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -249,7 +251,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, publicDemo]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
