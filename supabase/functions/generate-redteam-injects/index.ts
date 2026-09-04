@@ -157,7 +157,7 @@ Return a JSON object with an "injects" array. Each inject should have:
 - responseOptions: array of 3 options, each with:
   - id: unique string
   - label: short action name drawn from the spectrum (e.g., "Truth-Sandwich Statement", "Request Correction", "Attribution & Public Exposure", "Platform Escalation")
-  - description: what this response involves, the spectrum measure it maps to, and why it might work or fail
+  - description: what this response involves, the countermeasure approach it uses (named in words, never numbered), and why it might work or fail
   - type: "statement" | "social_response" | "internal_action" | "media_outreach" | "legal"
   - effectiveness: 0-100 (be realistic - not everything is 70-80%)
   - riskLevel: "low" | "medium" | "high"
