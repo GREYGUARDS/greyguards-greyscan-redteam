@@ -19,7 +19,9 @@ export function NegativityTrendIndicator({
   changeVelocity,
   peakNegativeDay
 }: NegativityTrendIndicatorProps) {
-  const negativePercentage = Math.round((currentNegative / totalMentions) * 100);
+  const negativePercentage = totalMentions > 0
+    ? Math.max(0, Math.min(100, Math.round((currentNegative / totalMentions) * 100)))
+    : 0;
   const change = currentNegative - previousNegative;
   const changePercentage = previousNegative > 0 
     ? Math.round(((currentNegative - previousNegative) / previousNegative) * 100) 
