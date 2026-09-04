@@ -351,7 +351,9 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
         config={config} 
         onScenarioReady={handleScenarioReady}
         onBack={() => setPhase("landing")}
+        demoMode={demoMode}
       />
+
     );
   }
 
