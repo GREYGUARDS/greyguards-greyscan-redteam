@@ -99,6 +99,10 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
       );
 
       if (error) throw error;
+      const payload = Array.isArray(data) ? data[0] : data;
+      if (!payload?.title || !payload?.narrative) {
+        throw new Error("Incomplete scenario payload");
+      }
 
       const scenario: Scenario = {
         id: crypto.randomUUID(),
