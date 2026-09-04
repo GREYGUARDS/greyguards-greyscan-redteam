@@ -594,10 +594,12 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
               </div>
             )}
           </div>
-
+          )}
 
           {/* Duration */}
+          {!demoMode && (
           <div className="space-y-2">
+
             <Label className="text-xs uppercase tracking-wider font-medium">Duration</Label>
             <RadioGroup
               value={config.duration.toString()}
