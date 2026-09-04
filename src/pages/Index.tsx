@@ -48,7 +48,7 @@ import { useAccessProfile } from "@/hooks/useAccessProfile";
 import { Lock, ArrowRight, ShieldCheck, Radar } from "lucide-react";
 
 
-const Index = () => {
+const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
   const [brandName, setBrandName] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<AnalysisResult | null>(null);
