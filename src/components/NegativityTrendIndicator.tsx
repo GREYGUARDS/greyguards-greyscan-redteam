@@ -19,7 +19,9 @@ export function NegativityTrendIndicator({
   changeVelocity,
   peakNegativeDay
 }: NegativityTrendIndicatorProps) {
-  const negativePercentage = Math.round((currentNegative / totalMentions) * 100);
+  const negativePercentage = totalMentions > 0
+    ? Math.max(0, Math.min(100, Math.round((currentNegative / totalMentions) * 100)))
+    : 0;
   const change = currentNegative - previousNegative;
   const changePercentage = previousNegative > 0 
     ? Math.round(((currentNegative - previousNegative) / previousNegative) * 100) 
@@ -167,14 +169,14 @@ export function NegativityTrendIndicator({
                   <div className="flex items-center gap-3">
                     <span className="text-sm text-muted-foreground font-semibold">{source.count} negative</span>
                     <Badge variant="destructive" className="text-xs font-bold min-w-[50px]">
-                      {source.percentage.toFixed(1)}%
+                      {Math.min(100, source.percentage).toFixed(1)}%
                     </Badge>
                   </div>
                 </div>
                 <div className="w-full bg-muted h-2 rounded-sm overflow-hidden">
                   <div 
                     className="h-full bg-destructive glow-danger smooth-transition"
-                    style={{ width: `${source.percentage}%` }}
+                    style={{ width: `${Math.min(100, source.percentage)}%` }}
                   />
                 </div>
               </div>
