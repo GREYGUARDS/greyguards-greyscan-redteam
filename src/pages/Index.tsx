@@ -1123,7 +1123,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
               )}
 
               <NotificationCenter alerts={mdmAlerts} onAlertsUpdate={fetchMDMAlerts} />
-              <Link to="/redteam">
+              <Link to={publicDemo ? "/redteam/demo" : "/redteam"}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -1134,23 +1134,35 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
                   <span className="sm:hidden">RT</span>
                 </Button>
               </Link>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                className="hidden sm:flex"
-              >
-                <LogOut className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Logout</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleLogout}
-                className="sm:hidden h-8 w-8"
-              >
-                <LogOut className="h-4 w-4" />
-              </Button>
+              {publicDemo ? (
+                <Link to="/login">
+                  <Button variant="outline" size="sm">
+                    <Lock className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Sign in</span>
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="hidden sm:flex"
+                  >
+                    <LogOut className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Logout</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleLogout}
+                    className="sm:hidden h-8 w-8"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+
             </div>
           </div>
         </div>
