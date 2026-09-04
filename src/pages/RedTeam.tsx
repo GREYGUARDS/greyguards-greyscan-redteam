@@ -460,8 +460,17 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
             </div>
           )}
 
+          {demoMode && (
+            <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+              <Lock className="h-3 w-3" />
+              Demo runs on the fictional companies only. Your own brand needs a full account.
+            </p>
+          )}
+
           {/* Brand — assigned at login */}
+          {!demoMode && (
           <div className="space-y-2">
+
             <Label className="text-xs uppercase tracking-wider font-medium">Target Brand / Organisation</Label>
             <Input
               value={config.brandName}
@@ -502,11 +511,12 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
               </p>
             )}
           </div>
-
-
+          )}
 
           {/* Exercise Mode */}
+          {!demoMode && (
           <div className="space-y-2">
+
             <Label className="text-xs uppercase tracking-wider font-medium">Exercise Mode</Label>
             <RadioGroup
               value={config.mode}
@@ -584,10 +594,12 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
               </div>
             )}
           </div>
-
+          )}
 
           {/* Duration */}
+          {!demoMode && (
           <div className="space-y-2">
+
             <Label className="text-xs uppercase tracking-wider font-medium">Duration</Label>
             <RadioGroup
               value={config.duration.toString()}
@@ -606,6 +618,8 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
               ))}
             </RadioGroup>
           </div>
+          )}
+
 
           {/* Team mode (consultant only, so admin only) */}
           {config.mode === "consultant" && access.isAdmin && (
@@ -633,7 +647,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
           )}
 
           {/* Crisis Category — compact dropdown */}
-          {!(config.mode === "consultant" && consultantAction === "join") && (
+          {!demoMode && !(config.mode === "consultant" && consultantAction === "join") && (
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-wider font-medium">Crisis Category</Label>
               <Select
