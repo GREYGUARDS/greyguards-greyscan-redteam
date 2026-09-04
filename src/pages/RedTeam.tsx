@@ -509,6 +509,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
             <RadioGroup
               value={config.mode}
               onValueChange={(value: ExerciseMode) => {
+                if (demoMode && value === "consultant") return;
                 setConfig({ ...config, mode: value });
                 if (value === "consultant" && !access.isAdmin) setConsultantAction("join");
               }}
@@ -525,14 +526,23 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                 </Label>
               </div>
 
-              <div className={`relative border-2 p-3 cursor-pointer transition-all ${config.mode === 'consultant' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
-                <RadioGroupItem value="consultant" id="consultant" className="absolute top-3 right-3" />
-                <Label htmlFor="consultant" className="cursor-pointer">
+              <div
+                className={`relative border-2 p-3 transition-all ${
+                  demoMode
+                    ? "border-border opacity-50 cursor-not-allowed pointer-events-none"
+                    : `cursor-pointer ${config.mode === 'consultant' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`
+                }`}
+                aria-disabled={demoMode}
+              >
+                <RadioGroupItem value="consultant" id="consultant" disabled={demoMode} className="absolute top-3 right-3" />
+                <Label htmlFor="consultant" className={demoMode ? "cursor-not-allowed" : "cursor-pointer"}>
                   <div className="flex items-center gap-2 mb-1">
-                    <Users className="h-4 w-4 text-warning" />
+                    {demoMode ? <Lock className="h-4 w-4 text-muted-foreground" /> : <Users className="h-4 w-4 text-warning" />}
                     <span className="font-bold uppercase tracking-wider text-sm">Consultant Hosted</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Host a live session or join one by code</p>
+                  <p className="text-xs text-muted-foreground">
+                    {demoMode ? "Full accounts only" : "Host a live session or join one by code"}
+                  </p>
                 </Label>
               </div>
             </RadioGroup>
