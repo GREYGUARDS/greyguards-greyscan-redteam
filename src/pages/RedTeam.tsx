@@ -192,7 +192,7 @@ interface TeamSessionData {
   sessionData: any;
 }
 
-const RedTeam = () => {
+const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
   const [phase, setPhase] = useState<Phase>("landing");
   const access = useAccessProfile();
   const [config, setConfig] = useState<ExerciseConfig>({
@@ -207,9 +207,16 @@ const RedTeam = () => {
   const [exerciseResults, setExerciseResults] = useState<ExerciseResults | null>(null);
   const [teamSession, setTeamSession] = useState<TeamSessionData | null>(null);
 
+  // Demo mode: no sign-in, self-navigated only, demo companies only.
+  useEffect(() => {
+    if (!demoMode) return;
+    setConfig((prev) => ({ ...prev, mode: "self", teamMode: "solo" }));
+    setConsultantAction("join");
+  }, [demoMode]);
+
   // Non-admins are locked to the brand assigned to their login.
   useEffect(() => {
-    if (access.loading) return;
+    if (demoMode || access.loading) return;
     if (!access.isAdmin) {
       const locked = access.lockedBrand || "";
       const company = locked ? getSimulationCompany(locked) : undefined;
@@ -223,7 +230,7 @@ const RedTeam = () => {
     } else {
       setConsultantAction("host");
     }
-  }, [access.loading, access.isAdmin, access.lockedBrand]);
+  }, [demoMode, access.loading, access.isAdmin, access.lockedBrand]);
 
   const selectSimulationCompany = (id: string) => {
     const company = SIMULATION_COMPANIES.find((c) => c.id === id);
@@ -372,6 +379,8 @@ const RedTeam = () => {
   }
 
   const brandLocked = !access.isAdmin && !!access.lockedBrand;
+  const canPickCompany = demoMode || access.isAdmin;
+  const canTypeBrand = !demoMode && access.isAdmin;
   const activeCompany = config.simulationCompanyId
     ? SIMULATION_COMPANIES.find((c) => c.id === config.simulationCompanyId)
     : undefined;
@@ -387,35 +396,37 @@ const RedTeam = () => {
       <Card className="w-full max-w-xl border-4 border-border bg-card relative z-10 max-h-[92vh] overflow-y-auto">
         <CardHeader className="space-y-3 border-b-4 border-border bg-secondary">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={demoMode ? "/redteam/login" : "/"} className="flex items-center gap-2">
               <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-auto object-contain" />
             </Link>
             <Badge variant="outline" className="border-destructive text-destructive uppercase tracking-wider animate-pulse-glow">
               <Crosshair className="h-3 w-3 mr-1" />
-              Crisis Simulation
+              {demoMode ? "Demo Mode" : "Crisis Simulation"}
             </Badge>
           </div>
           <CardTitle className="text-center text-2xl uppercase tracking-wider">
             Red Team Exercise
           </CardTitle>
           <CardDescription className="text-center">
-            Navigate evolving disinformation narratives in real-time
+            {demoMode
+              ? "Demo exercise — fictional companies only, no account needed"
+              : "Navigate evolving disinformation narratives in real-time"}
           </CardDescription>
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
           {/* Simulation target companies — full canon briefings */}
-          {access.isAdmin && (
+          {canPickCompany && (
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-wider font-medium">
-                Simulation Target Company
+                {demoMode ? "Demo Company" : "Simulation Target Company"}
               </Label>
               <Select
                 value={config.simulationCompanyId || ""}
                 onValueChange={selectSimulationCompany}
               >
                 <SelectTrigger className="border-2 border-border bg-input h-11 text-xs uppercase tracking-wider">
-                  <SelectValue placeholder="Select a simulation company…" />
+                  <SelectValue placeholder={demoMode ? "Choose a demo company…" : "Select a simulation company…"} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-2 border-border z-50 max-h-72">
                   {SIMULATION_COMPANIES.map((company) => (
@@ -453,7 +464,7 @@ const RedTeam = () => {
             <Input
               value={config.brandName}
               onChange={(e) =>
-                access.isAdmin &&
+                canTypeBrand &&
                 setConfig({
                   ...config,
                   brandName: e.target.value,
@@ -461,13 +472,24 @@ const RedTeam = () => {
                   brandContext: undefined,
                 })
               }
-              placeholder={access.isAdmin ? "Enter brand name..." : "No brand assigned to this account"}
-              disabled={!access.isAdmin}
-              className="border-2 border-border bg-input h-11 uppercase tracking-wide"
+              placeholder={
+                canTypeBrand
+                  ? "Enter brand name..."
+                  : demoMode
+                    ? "Choose a demo company above"
+                    : "No brand assigned to this account"
+              }
+              disabled={!canTypeBrand}
+              className="border-2 border-border bg-input h-11 uppercase tracking-wide disabled:opacity-60"
             />
-            {access.isAdmin ? (
+            {canTypeBrand ? (
               <p className="text-[11px] text-muted-foreground">
                 Staff account — pick a simulation company above, or type any other target brand.
+              </p>
+            ) : demoMode ? (
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <Lock className="h-3 w-3" />
+                Demo mode runs on the fictional companies only. Your own brand needs a full account.
               </p>
             ) : (
               <p className="text-[11px] text-muted-foreground flex items-center gap-1">
@@ -487,6 +509,7 @@ const RedTeam = () => {
             <RadioGroup
               value={config.mode}
               onValueChange={(value: ExerciseMode) => {
+                if (demoMode && value === "consultant") return;
                 setConfig({ ...config, mode: value });
                 if (value === "consultant" && !access.isAdmin) setConsultantAction("join");
               }}
@@ -503,14 +526,23 @@ const RedTeam = () => {
                 </Label>
               </div>
 
-              <div className={`relative border-2 p-3 cursor-pointer transition-all ${config.mode === 'consultant' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`}>
-                <RadioGroupItem value="consultant" id="consultant" className="absolute top-3 right-3" />
-                <Label htmlFor="consultant" className="cursor-pointer">
+              <div
+                className={`relative border-2 p-3 transition-all ${
+                  demoMode
+                    ? "border-border opacity-50 cursor-not-allowed pointer-events-none"
+                    : `cursor-pointer ${config.mode === 'consultant' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'}`
+                }`}
+                aria-disabled={demoMode}
+              >
+                <RadioGroupItem value="consultant" id="consultant" disabled={demoMode} className="absolute top-3 right-3" />
+                <Label htmlFor="consultant" className={demoMode ? "cursor-not-allowed" : "cursor-pointer"}>
                   <div className="flex items-center gap-2 mb-1">
-                    <Users className="h-4 w-4 text-warning" />
+                    {demoMode ? <Lock className="h-4 w-4 text-muted-foreground" /> : <Users className="h-4 w-4 text-warning" />}
                     <span className="font-bold uppercase tracking-wider text-sm">Consultant Hosted</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Host a live session or join one by code</p>
+                  <p className="text-xs text-muted-foreground">
+                    {demoMode ? "Full accounts only" : "Host a live session or join one by code"}
+                  </p>
                 </Label>
               </div>
             </RadioGroup>
