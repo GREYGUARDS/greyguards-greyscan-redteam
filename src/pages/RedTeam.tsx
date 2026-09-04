@@ -396,28 +396,30 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
       <Card className="w-full max-w-xl border-4 border-border bg-card relative z-10 max-h-[92vh] overflow-y-auto">
         <CardHeader className="space-y-3 border-b-4 border-border bg-secondary">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={demoMode ? "/redteam/login" : "/"} className="flex items-center gap-2">
               <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-auto object-contain" />
             </Link>
             <Badge variant="outline" className="border-destructive text-destructive uppercase tracking-wider animate-pulse-glow">
               <Crosshair className="h-3 w-3 mr-1" />
-              Crisis Simulation
+              {demoMode ? "Demo Mode" : "Crisis Simulation"}
             </Badge>
           </div>
           <CardTitle className="text-center text-2xl uppercase tracking-wider">
             Red Team Exercise
           </CardTitle>
           <CardDescription className="text-center">
-            Navigate evolving disinformation narratives in real-time
+            {demoMode
+              ? "Demo exercise — fictional companies only, no account needed"
+              : "Navigate evolving disinformation narratives in real-time"}
           </CardDescription>
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
           {/* Simulation target companies — full canon briefings */}
-          {access.isAdmin && (
+          {canPickCompany && (
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-wider font-medium">
-                Simulation Target Company
+                {demoMode ? "Demo Company" : "Simulation Target Company"}
               </Label>
               <Select
                 value={config.simulationCompanyId || ""}
