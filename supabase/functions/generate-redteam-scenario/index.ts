@@ -288,7 +288,23 @@ Return a JSON object with these exact fields:
       throw new Error("No content in AI response");
     }
 
-    const scenario = JSON.parse(content);
+    let parsed = JSON.parse(content);
+    // The model sometimes wraps the object in an array or a container key
+    if (Array.isArray(parsed)) parsed = parsed[0];
+    if (parsed && typeof parsed === "object" && !parsed.title) {
+      const nested = Object.values(parsed).find(
+        (v) => v && typeof v === "object" && !Array.isArray(v) && (v as any).title
+      );
+      const nestedArray = Object.values(parsed).find(
+        (v) => Array.isArray(v) && v[0] && typeof v[0] === "object" && (v[0] as any).title
+      ) as any[] | undefined;
+      if (nested) parsed = nested;
+      else if (nestedArray) parsed = nestedArray[0];
+    }
+    if (!parsed || !parsed.title || !parsed.narrative) {
+      throw new Error("Malformed AI scenario response");
+    }
+    const scenario = parsed;
 
     return new Response(JSON.stringify(scenario), {
       headers: { 
