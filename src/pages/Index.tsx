@@ -1174,29 +1174,49 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Enter brand or org…"
-                  value={brandName}
-                  onChange={(e) => setBrandName(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                  className="pl-10 h-10 sm:h-11"
-                />
-              </div>
-              <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto h-10 sm:h-11">
-                {loading ? (
-                  <>
-                    <span className="animate-spin mr-2">⟳</span>
-                    Analyzing
-                  </>
+                {publicDemo ? (
+                  <Select value={brandName} onValueChange={(v) => loadDemoData(v)}>
+                    <SelectTrigger className="h-10 sm:h-11">
+                      <SelectValue placeholder="Choose a demo company…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SIMULATION_DEMO_NAMES.map((c) => (
+                        <SelectItem key={c.name} value={c.name}>
+                          {c.name} — {c.sector}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 ) : (
                   <>
-                    <Search className="mr-2 h-5 w-5" />
-                    Analyze
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Enter brand or org…"
+                      value={brandName}
+                      onChange={(e) => setBrandName(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                      className="pl-10 h-10 sm:h-11"
+                    />
                   </>
                 )}
-              </Button>
+              </div>
+              {!publicDemo && (
+                <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto h-10 sm:h-11">
+                  {loading ? (
+                    <>
+                      <span className="animate-spin mr-2">⟳</span>
+                      Analyzing
+                    </>
+                  ) : (
+                    <>
+                      <Search className="mr-2 h-5 w-5" />
+                      Analyze
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
+
             {results && (
               <div className="mt-4 flex justify-end gap-2">
                 <DailyBriefModal
