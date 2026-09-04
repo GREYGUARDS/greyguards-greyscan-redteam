@@ -647,7 +647,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
           )}
 
           {/* Crisis Category — compact dropdown */}
-          {!(config.mode === "consultant" && consultantAction === "join") && (
+          {!demoMode && !(config.mode === "consultant" && consultantAction === "join") && (
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-wider font-medium">Crisis Category</Label>
               <Select
