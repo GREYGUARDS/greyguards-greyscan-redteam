@@ -511,11 +511,12 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
               </p>
             )}
           </div>
-
-
+          )}
 
           {/* Exercise Mode */}
+          {!demoMode && (
           <div className="space-y-2">
+
             <Label className="text-xs uppercase tracking-wider font-medium">Exercise Mode</Label>
             <RadioGroup
               value={config.mode}
