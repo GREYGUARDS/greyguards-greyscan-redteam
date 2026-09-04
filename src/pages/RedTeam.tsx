@@ -192,7 +192,7 @@ interface TeamSessionData {
   sessionData: any;
 }
 
-const RedTeam = () => {
+const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
   const [phase, setPhase] = useState<Phase>("landing");
   const access = useAccessProfile();
   const [config, setConfig] = useState<ExerciseConfig>({
