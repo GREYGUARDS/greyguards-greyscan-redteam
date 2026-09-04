@@ -281,6 +281,15 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
   }, [userId]);
 
   const handleSearch = async () => {
+    // Public demo never runs a live scan — it replays the fictional case files.
+    if (publicDemo) {
+      if (!brandName.trim()) {
+        toast({ title: "Choose a demo company", description: "Select one of the fictional companies to continue.", variant: "destructive" });
+        return;
+      }
+      loadDemoData(brandName);
+      return;
+    }
     if (!brandName.trim()) {
       toast({
         title: "Error",
