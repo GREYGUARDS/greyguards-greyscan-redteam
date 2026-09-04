@@ -426,7 +426,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                 onValueChange={selectSimulationCompany}
               >
                 <SelectTrigger className="border-2 border-border bg-input h-11 text-xs uppercase tracking-wider">
-                  <SelectValue placeholder="Select a simulation company…" />
+                  <SelectValue placeholder={demoMode ? "Choose a demo company…" : "Select a simulation company…"} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-2 border-border z-50 max-h-72">
                   {SIMULATION_COMPANIES.map((company) => (
