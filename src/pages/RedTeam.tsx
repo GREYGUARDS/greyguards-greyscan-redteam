@@ -464,7 +464,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
             <Input
               value={config.brandName}
               onChange={(e) =>
-                access.isAdmin &&
+                canTypeBrand &&
                 setConfig({
                   ...config,
                   brandName: e.target.value,
@@ -472,13 +472,24 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                   brandContext: undefined,
                 })
               }
-              placeholder={access.isAdmin ? "Enter brand name..." : "No brand assigned to this account"}
-              disabled={!access.isAdmin}
-              className="border-2 border-border bg-input h-11 uppercase tracking-wide"
+              placeholder={
+                canTypeBrand
+                  ? "Enter brand name..."
+                  : demoMode
+                    ? "Choose a demo company above"
+                    : "No brand assigned to this account"
+              }
+              disabled={!canTypeBrand}
+              className="border-2 border-border bg-input h-11 uppercase tracking-wide disabled:opacity-60"
             />
-            {access.isAdmin ? (
+            {canTypeBrand ? (
               <p className="text-[11px] text-muted-foreground">
                 Staff account — pick a simulation company above, or type any other target brand.
+              </p>
+            ) : demoMode ? (
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <Lock className="h-3 w-3" />
+                Demo mode runs on the fictional companies only. Your own brand needs a full account.
               </p>
             ) : (
               <p className="text-[11px] text-muted-foreground flex items-center gap-1">
