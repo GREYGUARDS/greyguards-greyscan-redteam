@@ -289,6 +289,24 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
                 </form>
               )}
 
+              {variant === "redteam" && (
+                <div className="space-y-2 border-2 border-primary/40 bg-primary/5 p-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-11 uppercase tracking-wider text-xs"
+                    onClick={() => navigate("/redteam/demo")}
+                  >
+                    <Crosshair className="mr-2 h-4 w-4" />
+                    Try the demo — no sign-in
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground text-center">
+                    Runs a self-navigated exercise on our fictional companies. Consultant-hosted
+                    sessions and your own brand need a full account.
+                  </p>
+                </div>
+              )}
+
               <div className="p-3 bg-warning/10 border border-warning/30 rounded-md flex items-start gap-2">
                 <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
                 <p className="text-sm text-muted-foreground">
