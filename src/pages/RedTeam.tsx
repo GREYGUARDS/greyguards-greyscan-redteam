@@ -207,9 +207,16 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
   const [exerciseResults, setExerciseResults] = useState<ExerciseResults | null>(null);
   const [teamSession, setTeamSession] = useState<TeamSessionData | null>(null);
 
+  // Demo mode: no sign-in, self-navigated only, demo companies only.
+  useEffect(() => {
+    if (!demoMode) return;
+    setConfig((prev) => ({ ...prev, mode: "self", teamMode: "solo" }));
+    setConsultantAction("join");
+  }, [demoMode]);
+
   // Non-admins are locked to the brand assigned to their login.
   useEffect(() => {
-    if (access.loading) return;
+    if (demoMode || access.loading) return;
     if (!access.isAdmin) {
       const locked = access.lockedBrand || "";
       const company = locked ? getSimulationCompany(locked) : undefined;
@@ -223,7 +230,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
     } else {
       setConsultantAction("host");
     }
-  }, [access.loading, access.isAdmin, access.lockedBrand]);
+  }, [demoMode, access.loading, access.isAdmin, access.lockedBrand]);
 
   const selectSimulationCompany = (id: string) => {
     const company = SIMULATION_COMPANIES.find((c) => c.id === id);
