@@ -38,6 +38,8 @@ import { TrackedStories } from "@/components/TrackedStories";
 import { DemoSocialMentions } from "@/components/DemoSocialMentions";
 import { KeyPeopleSummary } from "@/components/KeyPeopleSummary";
 import { DEMO_COMPANIES } from "@/lib/demoData";
+import { SIMULATION_DEMO_COMPANIES, SIMULATION_DEMO_NAMES } from "@/lib/simulationDemoData";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
 import { exportToPDF } from "@/lib/pdfExport";
 import { supabase } from "@/integrations/supabase/client";
