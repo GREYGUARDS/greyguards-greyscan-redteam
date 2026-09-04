@@ -618,6 +618,8 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
               ))}
             </RadioGroup>
           </div>
+          )}
+
 
           {/* Team mode (consultant only, so admin only) */}
           {config.mode === "consultant" && access.isAdmin && (
