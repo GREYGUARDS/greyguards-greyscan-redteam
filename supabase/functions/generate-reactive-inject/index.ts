@@ -135,7 +135,7 @@ Match the template to the inject type: social_post → social-dark/forum; influe
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: systemPrompt },
+          { role: "system", content: systemPrompt + visualSpec },
           { role: "user", content: "Generate the next inject that reacts to the team's action." },
         ],
         response_format: { type: "json_object" },
