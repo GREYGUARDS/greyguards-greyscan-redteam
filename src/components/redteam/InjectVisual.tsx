@@ -1,6 +1,7 @@
 import { Inject } from "@/pages/RedTeam";
 import pressReleaseImg from "@/assets/press_release.png";
 import waveformImg from "@/assets/waveform.png";
+import letterImg from "@/assets/letter.png";
 import {
   Heart,
   MessageCircle,
@@ -95,10 +96,16 @@ const InjectVisual = ({ inject }: InjectVisualProps) => {
           </span>
         </div>
         <div className="space-y-2 p-4 font-mono text-xs">
-          {isAudio && (
+          {isAudio ? (
             <img
               src={waveformImg}
               alt="Audio waveform of the purported recording"
+              className="mb-2 h-24 w-full border border-destructive/40 object-cover"
+            />
+          ) : (
+            <img
+              src={letterImg}
+              alt="Purported document"
               className="mb-2 h-24 w-full border border-destructive/40 object-cover"
             />
           )}
