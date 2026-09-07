@@ -75,6 +75,9 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
     revenue: "£1.4bn (FY2025)",
     employees: "c. 2,600",
     website: "ashworthreilly.co.uk",
+    logo: ashworthLogo.url,
+    icon: ashworthIcon.url,
+
     difficulty: "Foundation",
     difficultyNote:
       "Learn-the-mechanics scenario: clean fabrication with clear ground truth. Trains verification and provenance skills.",
@@ -93,7 +96,9 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
           "Birmingham University (Business Management, 2009), then a decade in operational roles across the family business; took the top job at 34. Operationally excellent on logistics, procurement and NHS contract relationships.",
         vulnerability:
           "Minimal media training, no personal social media presence — the company has always been 'boring by design'. A poor first responder: prone to over-explaining technical detail rather than delivering a clean reassurance line.",
+        photo: julianPhoto.url,
       },
+
       {
         name: "Priya Reilly",
         role: "Director of Regulatory & Quality Affairs",
@@ -101,7 +106,9 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
           "Great-granddaughter of co-founder Thomas Reilly and the family's most senior remaining presence in the merged business. Pharmacist by training (Nottingham, MPharm, 2007) with fifteen years in regulatory affairs; the firm's most credible public voice and its real line of defence in any MHRA-facing incident.",
         vulnerability:
           "Structurally under-used — appears in trade press only rarely, so has little pre-existing public credibility to draw on when suddenly required to counter a fast-moving rumour. A prime impersonation target.",
+        photo: priyaPhoto.url,
       },
+
       {
         name: "Frank Ashworth",
         role: "Chairman (Non-Executive)",
@@ -109,7 +116,9 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
           "Julian's father, 68. Retired from day-to-day operations in 2021 but remains Chairman and the family's largest individual shareholder. Well-regarded as an elder statesman of independent pharma distribution.",
         vulnerability:
           "Semi-retired and slow to re-engage with fast-moving digital narratives — a liability if a crisis runs faster than the board's quarterly cadence.",
+        photo: frankPhoto.url,
       },
+
     ],
     mediaHistory: [
       {
