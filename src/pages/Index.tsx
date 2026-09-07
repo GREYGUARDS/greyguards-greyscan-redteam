@@ -1542,7 +1542,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
           </div>
         )}
       </div>
-      {results && <ComplianceBadge />}
+      
     </div>
   );
 };
