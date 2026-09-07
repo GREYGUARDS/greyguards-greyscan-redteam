@@ -1,4 +1,6 @@
 import { Inject } from "@/pages/RedTeam";
+import pressReleaseImg from "@/assets/press_release.png";
+import waveformImg from "@/assets/waveform.png";
 import {
   Heart,
   MessageCircle,
@@ -42,6 +44,8 @@ const InjectVisual = ({ inject }: InjectVisualProps) => {
     replies: Math.max(1, Math.round(reach * 0.008)),
   };
 
+  const isAudio = /audio|voice|recording|clip|deepfake|call/i.test(inject.content);
+
   if (inject.type === "news_article" || inject.type === "official_response") {
     return (
       <div className="border-2 border-border bg-background">
@@ -52,10 +56,24 @@ const InjectVisual = ({ inject }: InjectVisualProps) => {
           </span>
         </div>
         <div className="p-4">
-          <div className="mb-3 flex h-24 items-center justify-center border border-dashed border-border bg-muted/40 text-muted-foreground">
-            <ImageOff className="mr-2 h-4 w-4" />
-            <span className="text-[10px] uppercase tracking-wider">Wire photo withheld</span>
-          </div>
+          {inject.type === "official_response" ? (
+            <img
+              src={pressReleaseImg}
+              alt="Press release document"
+              className="mb-3 h-28 w-full border border-border object-cover"
+            />
+          ) : isAudio ? (
+            <img
+              src={waveformImg}
+              alt="Audio waveform of the circulating clip"
+              className="mb-3 h-28 w-full border border-border object-cover"
+            />
+          ) : (
+            <div className="mb-3 flex h-24 items-center justify-center border border-dashed border-border bg-muted/40 text-muted-foreground">
+              <ImageOff className="mr-2 h-4 w-4" />
+              <span className="text-[10px] uppercase tracking-wider">Wire photo withheld</span>
+            </div>
+          )}
           <p className="text-base font-semibold leading-snug">{inject.content}</p>
           <div className="mt-3 flex items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground">
             <span>Audience {compact(reach)}</span>
@@ -77,6 +95,13 @@ const InjectVisual = ({ inject }: InjectVisualProps) => {
           </span>
         </div>
         <div className="space-y-2 p-4 font-mono text-xs">
+          {isAudio && (
+            <img
+              src={waveformImg}
+              alt="Audio waveform of the purported recording"
+              className="mb-2 h-24 w-full border border-destructive/40 object-cover"
+            />
+          )}
           <div className="flex justify-between text-muted-foreground">
             <span>CONFIDENTIAL — INTERNAL</span>
             <span>PAGE 1 / 3</span>
