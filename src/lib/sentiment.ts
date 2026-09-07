@@ -70,8 +70,8 @@ export async function analyzeSentiment(mentions: Mention[], brandName: string, u
   const negative = sentiments.filter((s) => s.sentiment === "negative").length;
 
   const sentimentDistribution = [
-    { name: "Positive", value: positive, fill: "hsl(var(--chart-1))" },
-    { name: "Negative", value: negative, fill: "hsl(var(--chart-2))" },
+    { name: "Positive", value: positive, fill: "hsl(var(--chart-4))" },
+    { name: "Negative", value: negative, fill: "hsl(var(--chart-1))" },
     { name: "Neutral", value: mentions.length - positive - negative, fill: "hsl(var(--chart-3))" },
   ];
 

@@ -596,9 +596,9 @@ const buildDemoCompany = (company: SimulationCompany, profile: DemoProfile): Dem
     threatLevel: profile.threatLevel,
     threatScore: profile.threatScore,
     sentimentDistribution: [
-      { name: "Positive", value: profile.sentiment.positive, color: "hsl(var(--chart-1))" },
+      { name: "Positive", value: profile.sentiment.positive, color: "hsl(var(--chart-4))" },
       { name: "Neutral", value: profile.sentiment.neutral, color: "hsl(var(--chart-3))" },
-      { name: "Negative", value: profile.sentiment.negative, color: "hsl(var(--chart-2))" },
+      { name: "Negative", value: profile.sentiment.negative, color: "hsl(var(--chart-1))" },
     ],
     shortTermSentiment: profile.shortTermSentiment,
     longTermSentiment: profile.longTermSentiment,
