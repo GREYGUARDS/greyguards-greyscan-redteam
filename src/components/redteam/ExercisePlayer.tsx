@@ -429,7 +429,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
         
         if (newTime <= 0) {
           clearInterval(interval);
-          handleExerciseComplete();
+          finishExercise();
           return 0;
         }
 
