@@ -766,23 +766,15 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
 
   };
 
-  const handleExerciseComplete = () => {
-    const avgResponseTime = responseTimes.length > 0 
-      ? responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length 
-      : 0;
-
-    const score: TeamScore = {
-      team: "blue",
-      points: Math.round((narrativeControl * 10) + ((100 - reputationDamage) * 5)),
-      reputationDamage,
-      narrativeControl,
-      responseTime: avgResponseTime,
-      decisionsCorrect,
-      decisionsTotal
-    };
-
-    onComplete(score, responseHistory, eventLog);
+  const handleExit = () => {
+    // Early exit still ends with a debrief once the team has taken at least one decision
+    if (metricsRef.current.decisionsTotal > 0 || metricsRef.current.eventLog.length > 0) {
+      finishExercise();
+    } else {
+      onBack();
+    }
   };
+
 
   const getInjectIcon = (type: Inject["type"]) => {
     switch (type) {
