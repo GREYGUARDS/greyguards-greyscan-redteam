@@ -205,7 +205,17 @@ export const exportToPDF = async (data: ExportData) => {
     }
     if (doc.getTextWidth(text) <= maxWidth) return { text, size };
 
-    let trimmed = text;
+    // Drop whole words (never part of one) until the label fits.
+    const words = text.split(/[\s_]+/).filter(Boolean);
+    while (words.length > 1) {
+      words.pop();
+      const candidate = words.join(' ');
+      if (doc.getTextWidth(`${candidate}...`) <= maxWidth) {
+        return { text: `${candidate}...`, size };
+      }
+    }
+    // A single word that still overflows: shorten it as a last resort.
+    let trimmed = words[0] || text;
     while (trimmed.length > 4 && doc.getTextWidth(`${trimmed}...`) > maxWidth) {
       trimmed = trimmed.slice(0, -1);
     }
