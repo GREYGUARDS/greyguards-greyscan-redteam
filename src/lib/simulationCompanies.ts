@@ -11,6 +11,11 @@ import ashworthIcon from "@/assets/ashworth_reilly_icon.svg";
 import julianPhoto from "@/assets/julian_ashworth.png";
 import priyaPhoto from "@/assets/Reilly.png";
 import frankPhoto from "@/assets/frank_ashworth.png";
+import bristowLogo from "@/assets/bristow_calder_logo.svg";
+import bristowIcon from "@/assets/bristow_calder_icon.svg";
+import brycePhoto from "@/assets/bryce.png";
+import calderPhoto from "@/assets/calder.png";
+import okaforPhoto from "@/assets/okafor.png";
 
 
 export interface SimulationPerson {
