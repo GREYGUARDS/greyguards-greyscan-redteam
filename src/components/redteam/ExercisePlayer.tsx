@@ -619,11 +619,19 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     reactingRef.current = true;
 
     const publish = (reactive: Inject) => {
-      setInjects((prev) => [...prev, reactive]);
+      // Slot the reaction into the running order at the current position so the
+      // timeline stays sequential and nothing is replayed later.
+      setInjects((prev) => {
+        const next = [...prev];
+        next.splice(firedCountRef.current, 0, reactive);
+        return next;
+      });
+      firedCountRef.current += 1;
       reactingRef.current = false;
       setIsReacting(false);
       triggerInject(reactive);
     };
+
 
     try {
       const { data } = await withTimeout(
