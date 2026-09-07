@@ -16,6 +16,11 @@ import bristowIcon from "@/assets/bristow_calder_icon.svg";
 import brycePhoto from "@/assets/bryce.png";
 import calderPhoto from "@/assets/calder.png";
 import okaforPhoto from "@/assets/okafor.png";
+import meridianLogo from "@/assets/meridian_vale_logo.svg";
+import meridianIcon from "@/assets/meridian_vale_icon.svg";
+import valePhoto from "@/assets/thomas_vale.png";
+import oseiPhoto from "@/assets/osei.png";
+import iyanuPhoto from "@/assets/iyanu.png";
 
 
 export interface SimulationPerson {
@@ -229,6 +234,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       {
         name: "Thomas Vale",
         role: "Group CEO",
+        photo: valePhoto,
         profile:
           "50, career insurance executive who built Vale General's growth through the 2010s on a low-cost, digital-first model. Confident and numbers-fluent in investor settings.",
         vulnerability:
@@ -237,6 +243,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       {
         name: "Sarah Meridian-Osei",
         role: "Chief Claims Officer",
+        photo: oseiPhoto,
         profile:
           "Great-niece of a Meridian Assurance founding actuary (name retained by family tradition, not executive lineage). Joined from a rival insurer in 2023 specifically to lead post-merger claims integration — inheriting a genuinely difficult operational problem she did not create.",
         vulnerability:
@@ -245,6 +252,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       {
         name: "Robert Iyanu",
         role: "Chair (Non-Executive)",
+        photo: iyanuPhoto,
         profile:
           "Former regulator (ex-PRA), appointed Chair to reassure the market on post-merger governance. Well respected.",
         vulnerability:
