@@ -806,9 +806,10 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b-4 border-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={onBack} className="uppercase tracking-wider">
+            <Button variant="ghost" size="sm" onClick={handleExit} className="uppercase tracking-wider">
               <ArrowLeft className="h-4 w-4 mr-1" />
-              Exit
+              End & Debrief
+
             </Button>
             <div>
               <span className="font-bold uppercase tracking-wider text-sm">{config.brandName}</span>
