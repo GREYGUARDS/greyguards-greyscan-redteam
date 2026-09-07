@@ -26,6 +26,8 @@ import {
   PenLine
 } from "lucide-react";
 import { ExerciseConfig, Scenario, Inject, ResponseOption, TeamScore, ResponseRecord } from "@/pages/RedTeam";
+import { getSimulationCompany } from "@/lib/simulationCompanies";
+
 import CountdownTimer from "./CountdownTimer";
 import InjectVisual from "./InjectVisual";
 import { supabase } from "@/integrations/supabase/client";
