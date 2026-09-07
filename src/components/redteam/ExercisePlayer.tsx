@@ -479,7 +479,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   // injects (impersonation, clips, harassment) read as real artefacts.
   const injectPeople = (() => {
     if (!simCompany || !activeInject) return [];
-    const haystack = `${activeInject.source} ${activeInject.content} ${activeInject.headline ?? ""}`.toLowerCase();
+    const haystack = `${activeInject.source} ${activeInject.content} `.toLowerCase();
     return simCompany.people.filter((p) => {
       const [first, ...rest] = p.name.split(" ");
       const last = rest.join(" ");
