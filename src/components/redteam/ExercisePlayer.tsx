@@ -1013,7 +1013,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                               <img
                                 src={p.photo}
                                 alt={`${p.name} (fictional character)`}
-                                className="h-11 w-11 shrink-0 border border-border object-cover"
+                                className="h-16 w-16 shrink-0 border border-border object-cover grayscale contrast-75 opacity-80"
                               />
                             )}
                             <div>
@@ -1026,7 +1026,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                         ))}
                       </div>
                     )}
-                    <InjectVisual inject={activeInject} />
+                    <InjectVisual inject={activeInject} company={simCompany} people={injectPeople} />
 
                     <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
