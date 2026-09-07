@@ -28,12 +28,51 @@ const getSourceConfidence = (score: number) => {
   return "LOW";
 };
 
-const getActorAttribution = (score: number) => {
-  if (score >= 80) return "Confirmed State-Adjacent";
-  if (score >= 70) return "Probable State-Adjacent";
-  if (score >= 50) return "Automated";
-  return "Unknown";
+// Confidence-graded actor attribution. Real attribution is graded and hedged,
+// never a flat "CONFIRMED" — an unhedged claim reads as overclaiming to a
+// sophisticated risk/legal/comms buyer. Each tier carries a one-line
+// methodology note shown on hover.
+interface ActorAttribution {
+  assessedType: string;
+  confidence: string;
+  note: string;
+}
+
+export const getActorAttribution = (score: number): ActorAttribution => {
+  if (score >= 80) {
+    return {
+      assessedType: "Coordinated / Possibly State-Adjacent",
+      confidence: "Moderate",
+      note:
+        "Coordination pattern consistent with state-adjacent involvement, but no declared source attribution. Commercial or ideological non-state drivers not excluded; false-flag seeding remains possible. Assessed, not confirmed.",
+    };
+  }
+  if (score >= 70) {
+    return {
+      assessedType: "Coordinated, Likely Non-State",
+      confidence: "Moderate–Low",
+      note:
+        "Coordination signals present; state-adjacency inferred from tempo and amplification only, not from provenance. Treat as assessed; alternative origin not excluded.",
+    };
+  }
+  if (score >= 50) {
+    return {
+      assessedType: "Automated / Amplified",
+      confidence: "Low",
+      note:
+        "Bot-like amplification detected; origin (organic, paid, or coordinated) undetermined. Assessed at the activity layer, not attributed to an actor.",
+    };
+  }
+  return {
+    assessedType: "Unattributed",
+    confidence: "Low",
+    note:
+      "Signal insufficient for actor-type assessment. No coordination pattern established; treat as unattributed pending further collection.",
+  };
 };
+
+const attributionLabel = (a: ActorAttribution) =>
+  `Assessed Actor Type: ${a.assessedType} — ${a.confidence} Confidence`;
 
 export function ThreatIndicator({
   threatLevel,
