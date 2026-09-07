@@ -473,14 +473,29 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     return () => clearInterval(interval);
   }, [isPaused, injects, activeInject, eventLog, totalDuration]);
 
+  const simCompany = getSimulationCompany(config.simulationCompanyId || config.brandName);
+
+  // People named in the current inject — shown as a face so person-targeted
+  // injects (impersonation, clips, harassment) read as real artefacts.
+  const injectPeople = (() => {
+    if (!simCompany || !activeInject) return [];
+    const haystack = `${activeInject.source} ${activeInject.content} ${activeInject.headline ?? ""}`.toLowerCase();
+    return simCompany.people.filter((p) => {
+      const [first, ...rest] = p.name.split(" ");
+      const last = rest.join(" ");
+      return haystack.includes(p.name.toLowerCase()) || (last && haystack.includes(last.toLowerCase()) && haystack.includes(first.toLowerCase()));
+    });
+  })();
+
   // Regulated financial targets get the disclosure-first move as a visible preset,
   // because for a listed bank or insurer it is the obvious opening step.
   const regulatedCompany = (() => {
-    const company = getSimulationCompany(config.simulationCompanyId || config.brandName);
+    const company = simCompany;
     if (!company) return null;
     const sector = company.sector.toLowerCase();
     return /bank|insur|financial|fintech/.test(sector) ? company : null;
   })();
+
 
   const regulatorOption: ResponseOption = {
     id: "regulator-underwriters-brief",
