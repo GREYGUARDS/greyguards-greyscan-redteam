@@ -58,6 +58,39 @@ const ExerciseDebrief = ({
   onRestart 
 }: ExerciseDebriefProps) => {
   const [selectedTab, setSelectedTab] = useState("overview");
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const { data } = await supabase.functions.invoke("summarise-exercise-debrief", {
+          body: {
+            brandName: config.brandName,
+            narrativeControl: score.narrativeControl,
+            avgResponseTime: score.responseTime,
+            decisions: responseHistory.map((r) => ({
+              injectType: r.injectType,
+              responseLabel: r.responseLabel,
+              effectiveness: r.effectiveness,
+              responseTime: r.responseTime,
+            })),
+          },
+        });
+        if (!cancelled && typeof data?.summary === "string") setAiSummary(data.summary);
+      } catch {
+        // keep the fallback message below
+      } finally {
+        if (!cancelled) setSummaryLoading(false);
+      }
+    };
+
+    void load();
+    return () => { cancelled = true; };
+  }, [config.brandName, score.narrativeControl, score.responseTime, responseHistory]);
+
 
   // Calculate overall score
   const overallScore = Math.round(
