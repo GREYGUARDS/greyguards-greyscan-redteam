@@ -6,12 +6,21 @@
  * is depicted.
  */
 
+import ashworthLogo from "@/assets/ashworth_reilly_logo.svg.asset.json";
+import ashworthIcon from "@/assets/ashworth_reilly_icon.svg.asset.json";
+import julianPhoto from "@/assets/julian_ashworth.png.asset.json";
+import priyaPhoto from "@/assets/Reilly.png.asset.json";
+import frankPhoto from "@/assets/frank_ashworth.png.asset.json";
+
 export interface SimulationPerson {
   name: string;
   role: string;
   profile: string;
   vulnerability: string;
+  /** Fictional headshot used in briefings and person-targeted injects. */
+  photo?: string;
 }
+
 
 export interface SimulationMediaItem {
   outlet: string;
@@ -47,7 +56,11 @@ export interface SimulationCompany {
   mediaHistory: SimulationMediaItem[];
   scenarios: SimulationScenarioSeed[];
   structuralVulnerability: string;
+  /** Fictional brand marks, where supplied. */
+  logo?: string;
+  icon?: string;
 }
+
 
 export const SIMULATION_COMPANIES: SimulationCompany[] = [
   {
