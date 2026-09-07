@@ -444,19 +444,53 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                 </SelectContent>
               </Select>
               {activeCompany && (
-                <div className="border-2 border-border bg-secondary/40 p-3 space-y-1">
-                  <p className="text-[11px] text-muted-foreground">
-                    {activeCompany.industry} · {activeCompany.headquarters}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    Key people:{" "}
-                    {activeCompany.people.map((p) => `${p.name} (${p.role})`).join(", ")}
-                  </p>
+                <div className="border-2 border-border bg-secondary/40 p-3 space-y-3">
+                  <div className="flex items-center gap-3">
+                    {activeCompany.logo && (
+                      <img
+                        src={activeCompany.logo}
+                        alt={`${activeCompany.name} logo (fictional)`}
+                        className="h-8 w-auto max-w-[160px] object-contain"
+                      />
+                    )}
+                    <p className="text-[11px] text-muted-foreground">
+                      {activeCompany.industry} · {activeCompany.headquarters}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      Key people
+                    </p>
+                    {activeCompany.people.map((p) => (
+                      <div key={p.name} className="flex items-start gap-2">
+                        {p.photo ? (
+                          <img
+                            src={p.photo}
+                            alt={`${p.name} (fictional character)`}
+                            className="h-10 w-10 shrink-0 border border-border object-cover grayscale-[15%]"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 shrink-0 border border-border bg-secondary" />
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-[11px] uppercase tracking-wider">{p.name}</p>
+                          <p className="text-[10px] text-muted-foreground">{p.role}</p>
+                          <p className="text-[10px] text-muted-foreground/80">{p.vulnerability}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
                   <p className="text-[11px] text-muted-foreground">
                     {activeCompany.difficultyNote}
                   </p>
+                  <p className="text-[10px] text-muted-foreground/70">
+                    Fictional company, people and imagery — simulation use only.
+                  </p>
                 </div>
               )}
+
             </div>
           )}
 
