@@ -5,6 +5,6 @@
 - [x] GreyScan report: reconcile all mention counts to one canonical dataset + label timeframes
 - [x] GreyScan report: clarify or hide "API Status" badge in demo view
 - [x] AI Engine Exposure: demo-mode explanatory note for empty live results
-- [ ] Red Team: generate X post screenshots + wire into inject renderer
-- [ ] Red Team: ordered inject timeline with dates and narrative beats
-- [ ] Red Team: realistic phone bezel mockup for hero alert injects
+- [x] Red Team: generate X post screenshots + wire into inject renderer
+- [x] Red Team: ordered inject timeline with dates and narrative beats
+- [x] Red Team: realistic phone bezel mockup for hero alert injects
