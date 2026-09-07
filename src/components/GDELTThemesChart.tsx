@@ -135,7 +135,7 @@ export function GDELTThemesChart({ data }: GDELTThemesChartProps) {
                 }}
                 formatter={(value: any, name: any, props: any) => [
                   `${value} mentions`,
-                  props.payload.name,
+                  String(props?.payload?.name ?? "").replace(/_/g, " "),
                 ]}
               />
             </Treemap>
