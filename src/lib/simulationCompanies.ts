@@ -365,6 +365,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       {
         name: "Alex Bryce",
         role: "Founder & CEO",
+        photo: brycePhoto,
         profile:
           "38, ex-Goldman Sachs technologist. Articulate, media-fluent, prolific on social media and podcasts. His personal credibility built the bank's early trust.",
         vulnerability:
@@ -373,6 +374,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       {
         name: "Naomi Calder",
         role: "Co-founder & COO",
+        photo: calderPhoto,
         profile:
           "40, deliberately quieter public profile. Handles day-to-day operations and the technical/regulatory relationship. Highly credible with industry and regulators.",
         vulnerability:
@@ -381,6 +383,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       {
         name: "David Okafor",
         role: "Chair (appointed pre-IPO)",
+        photo: okaforPhoto,
         profile:
           "Former FTSE-100 audit committee chair, appointed eight months before the planned listing to add independent governance weight ahead of public markets scrutiny. Well regarded.",
         vulnerability:
