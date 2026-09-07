@@ -47,6 +47,7 @@ function SocialDark({ data = {} }: TplProps) {
     handle = "@handle",
     verified = false,
     avatarInitials,
+    avatarUrl,
     avatarColor = "#546471",
     timestamp = "now",
     body = "",
@@ -60,7 +61,7 @@ function SocialDark({ data = {} }: TplProps) {
     <div className="tpl-social-dark">
       <div className="row">
         <div className="avatar" style={{ background: avatarColor }}>
-          {initials}
+          {avatarUrl ? <img src={avatarUrl} alt="" /> : initials}
         </div>
         <div style={{ flex: 1 }}>
           <div className="meta">
@@ -109,6 +110,7 @@ function Professional({ data = {} }: TplProps) {
     title = "Job title · Company",
     timestamp = "now",
     body = "",
+    avatarUrl,
     reactions = "0",
     comments = "0",
     reposts = "0",
@@ -116,7 +118,9 @@ function Professional({ data = {} }: TplProps) {
   return (
     <div className="tpl-professional">
       <div className="row">
-        <div className="avatar">{String(name).slice(0, 2).toUpperCase()}</div>
+        <div className="avatar">
+          {avatarUrl ? <img src={avatarUrl} alt="" /> : String(name).slice(0, 2).toUpperCase()}
+        </div>
         <div className="who">
           <div className="name">{name}</div>
           <div className="title">{title}</div>
@@ -237,7 +241,7 @@ function DocumentTpl({ data = {} }: TplProps) {
     <div className="tpl-document">
       <div className="hdrrow">
         <div className="crest">
-          {logoUrl ? <img src={logoUrl} alt="" /> : <>[LOGO<br />PLACEHOLDER]</>}
+          {logoUrl && <img src={logoUrl} alt="" />}
         </div>
         <div>
           <div className="doctitle">{docTitle}</div>
@@ -267,7 +271,7 @@ function PressRelease({ data = {} }: TplProps) {
     <div className="tpl-press">
       <div className="hdrrow">
         <div className="crest">
-          {logoUrl ? <img src={logoUrl} alt="" /> : <>[LOGO<br />PLACEHOLDER]</>}
+          {logoUrl && <img src={logoUrl} alt="" />}
         </div>
         <div className="fir">FOR IMMEDIATE RELEASE</div>
       </div>

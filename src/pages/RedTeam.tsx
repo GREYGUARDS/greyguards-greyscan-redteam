@@ -471,10 +471,10 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                           <img
                             src={p.photo}
                             alt={`${p.name} (fictional character)`}
-                            className="h-10 w-10 shrink-0 border border-border object-cover grayscale-[15%]"
+                            className="h-16 w-16 shrink-0 border border-border object-cover grayscale contrast-75 opacity-80"
                           />
                         ) : (
-                          <div className="h-10 w-10 shrink-0 border border-border bg-secondary" />
+                          <div className="h-16 w-16 shrink-0 border border-border bg-secondary" />
                         )}
                         <div className="min-w-0">
                           <p className="text-[11px] uppercase tracking-wider">{p.name}</p>

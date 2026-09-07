@@ -1,11 +1,9 @@
 import { useRef } from "react";
 import { Inject } from "@/pages/RedTeam";
 import { Inject as InjectTemplate, downloadInjectPNG, hasInjectTemplate } from "@/components/GreyguardsInject";
+import type { SimulationCompany, SimulationPerson } from "@/lib/simulationCompanies";
 import "@/components/greyguards-inject.css";
 import { Download } from "lucide-react";
-import pressReleaseImg from "@/assets/press_release.png";
-import waveformImg from "@/assets/waveform.png";
-import letterImg from "@/assets/letter.png";
 import {
   Heart,
   MessageCircle,
@@ -14,12 +12,13 @@ import {
   ArrowBigUp,
   FileWarning,
   Radio,
-  ImageOff,
   Bot,
 } from "lucide-react";
 
 interface InjectVisualProps {
   inject: Inject;
+  company?: SimulationCompany;
+  people?: SimulationPerson[];
 }
 
 const initials = (source: string) =>
@@ -41,7 +40,7 @@ const hashtags = (content: string) => content.match(/#[\w]+/g)?.slice(0, 3) ?? [
  * Renders each inject as a platform-styled mock so participants "see"
  * the artefact rather than only reading a description.
  */
-const InjectVisual = ({ inject }: InjectVisualProps) => {
+const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
   const reach = inject.reach ?? 0;
   const engagement = {
     likes: Math.max(3, Math.round(reach * 0.031)),
@@ -49,8 +48,19 @@ const InjectVisual = ({ inject }: InjectVisualProps) => {
     replies: Math.max(1, Math.round(reach * 0.008)),
   };
 
-  const isAudio = /audio|voice|recording|clip|deepfake|call/i.test(inject.content);
   const templateRef = useRef<HTMLDivElement>(null);
+  const featuredPerson = people[0];
+  const templateData = inject.visual
+    ? {
+        ...inject.visual.data,
+        ...(company?.logo && /document|press-release/.test(inject.visual.template)
+          ? { logoUrl: company.logo }
+          : {}),
+        ...((featuredPerson?.photo || company?.icon) && /social-dark|professional/.test(inject.visual.template)
+          ? { avatarUrl: featuredPerson?.photo || company?.icon }
+          : {}),
+      }
+    : undefined;
 
   // Preferred path: the scenario generator supplied a platform-accurate mock-up.
   if (inject.visual && hasInjectTemplate(inject.visual.template)) {
@@ -70,7 +80,7 @@ const InjectVisual = ({ inject }: InjectVisualProps) => {
             <Download className="h-3 w-3" /> Image
           </button>
         </div>
-        <InjectTemplate ref={templateRef} template={inject.visual.template} data={inject.visual.data} />
+        <InjectTemplate ref={templateRef} template={inject.visual.template} data={templateData} />
       </div>
     );
   }
@@ -86,24 +96,19 @@ const InjectVisual = ({ inject }: InjectVisualProps) => {
           </span>
         </div>
         <div className="p-4">
-          {inject.type === "official_response" ? (
+          {featuredPerson?.photo ? (
             <img
-              src={pressReleaseImg}
-              alt="Press release document"
-              className="mb-3 h-28 w-full border border-border object-cover"
+              src={featuredPerson.photo}
+              alt={`${featuredPerson.name} (fictional character)`}
+              className="mb-3 h-32 w-32 border border-border object-cover grayscale contrast-75 opacity-80"
             />
-          ) : isAudio ? (
+          ) : company?.logo ? (
             <img
-              src={waveformImg}
-              alt="Audio waveform of the circulating clip"
-              className="mb-3 h-28 w-full border border-border object-cover"
+              src={company.logo}
+              alt={`${company.name} logo (fictional)`}
+              className="mb-3 h-20 w-full object-contain grayscale opacity-80"
             />
-          ) : (
-            <div className="mb-3 flex h-24 items-center justify-center border border-dashed border-border bg-muted/40 text-muted-foreground">
-              <ImageOff className="mr-2 h-4 w-4" />
-              <span className="text-[10px] uppercase tracking-wider">Wire photo withheld</span>
-            </div>
-          )}
+          ) : null}
           <p className="text-base font-semibold leading-snug">{inject.content}</p>
           <div className="mt-3 flex items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground">
             <span>Audience {compact(reach)}</span>
@@ -125,19 +130,19 @@ const InjectVisual = ({ inject }: InjectVisualProps) => {
           </span>
         </div>
         <div className="space-y-2 p-4 font-mono text-xs">
-          {isAudio ? (
+          {featuredPerson?.photo ? (
             <img
-              src={waveformImg}
-              alt="Audio waveform of the purported recording"
-              className="mb-2 h-24 w-full border border-destructive/40 object-cover"
+              src={featuredPerson.photo}
+              alt={`${featuredPerson.name} (fictional character)`}
+              className="mb-2 h-32 w-32 border border-destructive/40 object-cover grayscale contrast-75 opacity-80"
             />
-          ) : (
+          ) : company?.logo ? (
             <img
-              src={letterImg}
-              alt="Purported document"
-              className="mb-2 h-24 w-full border border-destructive/40 object-cover"
+              src={company.logo}
+              alt={`${company.name} logo (fictional)`}
+              className="mb-2 h-20 w-full object-contain grayscale opacity-80"
             />
-          )}
+          ) : null}
           <div className="flex justify-between text-muted-foreground">
             <span>CONFIDENTIAL — INTERNAL</span>
             <span>PAGE 1 / 3</span>
