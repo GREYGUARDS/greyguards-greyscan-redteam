@@ -70,9 +70,10 @@ const getRiskLabel = (pct: number) => {
 
 interface AIEngineExposureProps {
   brandName: string;
+  demoMode?: boolean;
 }
 
-export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
+export function AIEngineExposure({ brandName, demoMode = false }: AIEngineExposureProps) {
   const [engines, setEngines] = useState<EngineRow[]>([]);
   const [stories, setStories] = useState<StoryRow[]>([]);
   const [storySummary, setStorySummary] = useState<string>("");
@@ -146,6 +147,14 @@ export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
       </CardHeader>
 
       <CardContent className="p-0">
+        {demoMode && (
+          <div className="border-b border-border bg-warning/10 px-4 sm:px-6 py-3 text-xs leading-relaxed text-muted-foreground">
+            <span className="font-semibold text-foreground">Live query shown for illustration.</span> This section really does ask the
+            AI models about the company named above, and this company is fictional — so they correctly report no information and the
+            risk reads 0%. That empty result is the point: GreyScan never invents AI findings. Real brands return populated results,
+            which is what the rest of this demo report illustrates.
+          </div>
+        )}
         {loading && engines.length === 0 ? (
           <div className="p-6 text-xs text-muted-foreground flex items-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin" />

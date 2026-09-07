@@ -2,3 +2,6 @@
 - [x] Remove DMMI spectrum numbering from response options
 - [x] Red Team: exercise debrief on timer end / early exit
 - [x] Red Team: regulator+underwriter preset response for regulated financial targets
+- [x] GreyScan report: reconcile all mention counts to one canonical dataset + label timeframes
+- [x] GreyScan report: clarify or hide "API Status" badge in demo view
+- [x] AI Engine Exposure: demo-mode explanatory note for empty live results

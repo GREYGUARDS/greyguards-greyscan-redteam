@@ -7,6 +7,8 @@ interface ThreatIndicatorProps {
   threatLevel: "low" | "medium" | "high" | "critical";
   threatScore: number;
   threatBreakdown?: ThreatScoreBreakdown;
+  totalMentions?: number;
+  windowLabel?: string;
 }
 
 
@@ -33,7 +35,13 @@ const getActorAttribution = (score: number) => {
   return "Unknown";
 };
 
-export function ThreatIndicator({ threatLevel, threatScore, threatBreakdown }: ThreatIndicatorProps) {
+export function ThreatIndicator({
+  threatLevel,
+  threatScore,
+  threatBreakdown,
+  totalMentions,
+  windowLabel = "analysis window",
+}: ThreatIndicatorProps) {
   const getColorClass = () => {
     switch (threatLevel) {
       case "critical": return "text-[hsl(0,72%,51%)]";
@@ -142,6 +150,9 @@ export function ThreatIndicator({ threatLevel, threatScore, threatBreakdown }: T
           <div className="mt-5 pt-4 border-t border-border">
             <p className="text-xs text-muted-foreground tracking-wide mb-3 uppercase">
               How this score is calculated (0-100)
+              {typeof totalMentions === "number" && (
+                <span className="normal-case"> — based on all {totalMentions} mentions analysed in the {windowLabel}</span>
+              )}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
@@ -149,19 +160,22 @@ export function ThreatIndicator({ threatLevel, threatScore, threatBreakdown }: T
                   label: "Negative share",
                   value: threatBreakdown.negativeShare,
                   weight: threatBreakdown.weights.negativeShare,
-                  hint: "Mentions classed negative",
+                  hint:
+                    typeof totalMentions === "number"
+                      ? `Share of all ${totalMentions} analysed mentions classed negative (${windowLabel})`
+                      : "Mentions classed negative",
                 },
                 {
                   label: "Amplification",
                   value: threatBreakdown.amplification,
                   weight: threatBreakdown.weights.amplification,
-                  hint: "Negative mentions above median engagement",
+                  hint: `Negative mentions above median engagement (${windowLabel})`,
                 },
                 {
                   label: "Momentum",
                   value: threatBreakdown.momentum,
                   weight: threatBreakdown.weights.momentum,
-                  hint: "Last 24h negative share vs window",
+                  hint: `Last 24h negative share vs the full ${windowLabel}`,
                 },
               ].map((c) => (
                 <div key={c.label} className="border border-border rounded-sm p-3 bg-secondary/30">

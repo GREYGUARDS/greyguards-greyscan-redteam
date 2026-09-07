@@ -95,8 +95,8 @@ export function MentionsTicker({ mentions, brandName }: MentionsTickerProps) {
           <Activity className="h-5 w-5" />
           Live Data Stream
         </CardTitle>
-        <p className="text-xs text-muted-foreground uppercase tracking-widest">
-          Real-time mention monitoring
+        <p className="text-xs text-muted-foreground normal-case">
+          Sample of {mentions.length} individual mentions — illustrative only, not the full analysed set
         </p>
       </CardHeader>
       <CardContent>
