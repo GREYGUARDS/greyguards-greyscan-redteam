@@ -110,6 +110,52 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   const lastResponseTimeRef = useRef<number | null>(null);
   const totalDuration = config.duration * 60;
 
+  // Live mirrors of exercise state so end-of-exercise scoring never reads stale values
+  const metricsRef = useRef({
+    narrativeControl: 50,
+    reputationDamage: 20,
+    decisionsCorrect: 0,
+    decisionsTotal: 0,
+    responseTimes: [] as number[],
+    responseHistory: [] as ResponseRecord[],
+    eventLog: [] as Array<{ time: number; message: string; type: string }>,
+  });
+  const completedRef = useRef(false);
+
+  useEffect(() => {
+    metricsRef.current = {
+      narrativeControl,
+      reputationDamage,
+      decisionsCorrect,
+      decisionsTotal,
+      responseTimes,
+      responseHistory,
+      eventLog,
+    };
+  }, [narrativeControl, reputationDamage, decisionsCorrect, decisionsTotal, responseTimes, responseHistory, eventLog]);
+
+  const finishExercise = useCallback(() => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    const m = metricsRef.current;
+    const avgResponseTime = m.responseTimes.length > 0
+      ? m.responseTimes.reduce((a, b) => a + b, 0) / m.responseTimes.length
+      : 0;
+
+    const score: TeamScore = {
+      team: "blue",
+      points: Math.round((m.narrativeControl * 10) + ((100 - m.reputationDamage) * 5)),
+      reputationDamage: m.reputationDamage,
+      narrativeControl: m.narrativeControl,
+      responseTime: avgResponseTime,
+      decisionsCorrect: m.decisionsCorrect,
+      decisionsTotal: m.decisionsTotal,
+    };
+
+    onComplete(score, m.responseHistory, m.eventLog as Array<{ time: number; message: string; type: string }>);
+  }, [onComplete]);
+
+
   // Generate pre-defined injects based on scenario
   const generateInjects = useCallback(async () => {
     try {
