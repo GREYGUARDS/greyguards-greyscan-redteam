@@ -658,9 +658,9 @@ const ExerciseDebrief = ({
               <Target className="h-4 w-4 mr-2" />
               New Exercise
             </Button>
-            <Link to="/" className="flex-1">
+            <Link to="/redteam/demo" className="flex-1">
               <Button variant="outline" className="w-full uppercase tracking-wider h-12">
-                Return to Greyscan
+                Return to Red Team Demo
               </Button>
             </Link>
 
