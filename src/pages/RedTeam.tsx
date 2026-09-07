@@ -30,6 +30,7 @@ import {
   type LucideIcon
 } from "lucide-react";
 import greyguardsLogo from "@/assets/greyguards-logo.png";
+import type { InjectVisualSpec } from "@/components/GreyguardsInject";
 import ScenarioBuilder from "@/components/redteam/ScenarioBuilder";
 import ExercisePlayer from "@/components/redteam/ExercisePlayer";
 import ConsultantDashboard from "@/components/redteam/ConsultantDashboard";

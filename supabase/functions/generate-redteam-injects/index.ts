@@ -161,7 +161,20 @@ Return a JSON object with an "injects" array. Each inject should have:
   - type: "statement" | "social_response" | "internal_action" | "media_outreach" | "legal"
   - effectiveness: 0-100 (be realistic - not everything is 70-80%)
   - riskLevel: "low" | "medium" | "high"
-  - timeToExecute: seconds`;
+  - timeToExecute: seconds
+
+VISUAL MOCK-UP (REQUIRED on every inject): also include a "visual" object so the artefact can be rendered as a realistic screenshot. Use ONLY these template keys — never invent new ones — and fill every field with specific fictional names, claims and realistic engagement numbers (no placeholder text):
+- "social-dark" (X/Twitter post): data { displayName, handle, verified (bool), avatarInitials, avatarColor (hex), timestamp e.g. "2h", body, comments, reposts, likes, bookmarks }
+- "messaging" (group chat leak): data { groupName, messages: [{ sender, color (hex), text, timestamp }] }
+- "professional" (LinkedIn-style post): data { name, title, timestamp, body, reactions, comments, reposts }
+- "forum" (Reddit-style thread): data { subreddit, title, author, flair, score, body, topComment: { author, text, score } }
+- "news-comments": data { headline, commentCount, comments: [{ username, timestamp, text }] }
+- "reviews": data { businessName, overallRating (1-5 number), totalReviews, reviews: [{ author, date, rating, text }] }
+- "document" (fake official letter/notice): data { docTitle, refNumber, bannerText, dateLine, recipientLine, body, signOff }
+- "press-release": data { headline, dateline, body, notesHeader, notesBody, contactLine }
+
+Map the template to the inject type: social_post → "social-dark" or "forum"; influencer → "social-dark" or "professional"; news_article → "news-comments"; official_response → "press-release"; leak → "document" or "messaging"; amplification → "social-dark".
+Each visual also needs a short "label" (e.g. "Viral X post — hour 2"). The visual body must match the inject's content, not restate it verbatim.`;
 
     console.log("Generating injects:", { brandName, duration, numInjects, scenario: scenario.title, clientIp, remaining: rateLimit.remaining });
 
