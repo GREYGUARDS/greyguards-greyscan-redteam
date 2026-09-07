@@ -73,7 +73,7 @@ interface AIEngineExposureProps {
   demoMode?: boolean;
 }
 
-export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
+export function AIEngineExposure({ brandName, demoMode = false }: AIEngineExposureProps) {
   const [engines, setEngines] = useState<EngineRow[]>([]);
   const [stories, setStories] = useState<StoryRow[]>([]);
   const [storySummary, setStorySummary] = useState<string>("");
