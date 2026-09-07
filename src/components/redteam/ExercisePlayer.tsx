@@ -26,6 +26,8 @@ import {
   PenLine
 } from "lucide-react";
 import { ExerciseConfig, Scenario, Inject, ResponseOption, TeamScore, ResponseRecord } from "@/pages/RedTeam";
+import { getSimulationCompany } from "@/lib/simulationCompanies";
+
 import CountdownTimer from "./CountdownTimer";
 import InjectVisual from "./InjectVisual";
 import { supabase } from "@/integrations/supabase/client";
@@ -109,6 +111,52 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   const injectCountRef = useRef<number>(0);
   const lastResponseTimeRef = useRef<number | null>(null);
   const totalDuration = config.duration * 60;
+
+  // Live mirrors of exercise state so end-of-exercise scoring never reads stale values
+  const metricsRef = useRef({
+    narrativeControl: 50,
+    reputationDamage: 20,
+    decisionsCorrect: 0,
+    decisionsTotal: 0,
+    responseTimes: [] as number[],
+    responseHistory: [] as ResponseRecord[],
+    eventLog: [] as Array<{ time: number; message: string; type: string }>,
+  });
+  const completedRef = useRef(false);
+
+  useEffect(() => {
+    metricsRef.current = {
+      narrativeControl,
+      reputationDamage,
+      decisionsCorrect,
+      decisionsTotal,
+      responseTimes,
+      responseHistory,
+      eventLog,
+    };
+  }, [narrativeControl, reputationDamage, decisionsCorrect, decisionsTotal, responseTimes, responseHistory, eventLog]);
+
+  const finishExercise = useCallback(() => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    const m = metricsRef.current;
+    const avgResponseTime = m.responseTimes.length > 0
+      ? m.responseTimes.reduce((a, b) => a + b, 0) / m.responseTimes.length
+      : 0;
+
+    const score: TeamScore = {
+      team: "blue",
+      points: Math.round((m.narrativeControl * 10) + ((100 - m.reputationDamage) * 5)),
+      reputationDamage: m.reputationDamage,
+      narrativeControl: m.narrativeControl,
+      responseTime: avgResponseTime,
+      decisionsCorrect: m.decisionsCorrect,
+      decisionsTotal: m.decisionsTotal,
+    };
+
+    onComplete(score, m.responseHistory, m.eventLog as Array<{ time: number; message: string; type: string }>);
+  }, [onComplete]);
+
 
   // Generate pre-defined injects based on scenario
   const generateInjects = useCallback(async () => {
@@ -383,7 +431,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
         
         if (newTime <= 0) {
           clearInterval(interval);
-          handleExerciseComplete();
+          finishExercise();
           return 0;
         }
 
@@ -425,9 +473,38 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     return () => clearInterval(interval);
   }, [isPaused, injects, activeInject, eventLog, totalDuration]);
 
-  const triggerInject = (inject: Inject) => {
+  // Regulated financial targets get the disclosure-first move as a visible preset,
+  // because for a listed bank or insurer it is the obvious opening step.
+  const regulatedCompany = (() => {
+    const company = getSimulationCompany(config.simulationCompanyId || config.brandName);
+    if (!company) return null;
+    const sector = company.sector.toLowerCase();
+    return /bank|insur|financial|fintech/.test(sector) ? company : null;
+  })();
+
+  const regulatorOption: ResponseOption = {
+    id: "regulator-underwriters-brief",
+    label: "Brief Regulator & Underwriters",
+    description:
+      "Before any public statement, make a parallel confidential disclosure to the FCA and to your IPO underwriters: what is claimed, what you know, what you are verifying and when you will say it publicly. Keeps you inside your listed-company obligations and stops the regulator learning of it from the media.",
+    type: "internal_action",
+    effectiveness: 78,
+    riskLevel: "low",
+    timeToExecute: 45,
+  };
+
+  const withRegulatorOption = (inject: Inject): Inject => {
+    if (!regulatedCompany) return inject;
+    const existing = inject.responseOptions ?? [];
+    if (existing.some((o) => o.id === regulatorOption.id)) return inject;
+    return { ...inject, responseOptions: [...existing, regulatorOption] };
+  };
+
+  const triggerInject = (rawInject: Inject) => {
+    const inject = withRegulatorOption(rawInject);
     setActiveInject(inject);
     setInjectStartTime(Date.now());
+
     setEventLog((prev) => [
       {
         time: totalDuration - timeRemaining,
@@ -720,23 +797,15 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
 
   };
 
-  const handleExerciseComplete = () => {
-    const avgResponseTime = responseTimes.length > 0 
-      ? responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length 
-      : 0;
-
-    const score: TeamScore = {
-      team: "blue",
-      points: Math.round((narrativeControl * 10) + ((100 - reputationDamage) * 5)),
-      reputationDamage,
-      narrativeControl,
-      responseTime: avgResponseTime,
-      decisionsCorrect,
-      decisionsTotal
-    };
-
-    onComplete(score, responseHistory, eventLog);
+  const handleExit = () => {
+    // Early exit still ends with a debrief once the team has taken at least one decision
+    if (metricsRef.current.decisionsTotal > 0 || metricsRef.current.eventLog.length > 0) {
+      finishExercise();
+    } else {
+      onBack();
+    }
   };
+
 
   const getInjectIcon = (type: Inject["type"]) => {
     switch (type) {
@@ -768,9 +837,11 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b-4 border-border">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={onBack} className="uppercase tracking-wider">
+            <Button variant="ghost" size="sm" onClick={handleExit} className="uppercase tracking-wider">
               <ArrowLeft className="h-4 w-4 mr-1" />
-              Exit
+              End &amp; Debrief
+
+
             </Button>
             <div>
               <span className="font-bold uppercase tracking-wider text-sm">{config.brandName}</span>

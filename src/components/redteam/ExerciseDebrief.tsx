@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,8 @@ import {
 } from "lucide-react";
 import { ExerciseConfig, TeamScore, Inject, ResponseOption } from "@/pages/RedTeam";
 import greyguardsLogo from "@/assets/greyguards-logo.png";
+import { supabase } from "@/integrations/supabase/client";
+
 
 interface ResponseRecord {
   injectId: string;
@@ -58,6 +60,39 @@ const ExerciseDebrief = ({
   onRestart 
 }: ExerciseDebriefProps) => {
   const [selectedTab, setSelectedTab] = useState("overview");
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const { data } = await supabase.functions.invoke("summarise-exercise-debrief", {
+          body: {
+            brandName: config.brandName,
+            narrativeControl: score.narrativeControl,
+            avgResponseTime: score.responseTime,
+            decisions: responseHistory.map((r) => ({
+              injectType: r.injectType,
+              responseLabel: r.responseLabel,
+              effectiveness: r.effectiveness,
+              responseTime: r.responseTime,
+            })),
+          },
+        });
+        if (!cancelled && typeof data?.summary === "string") setAiSummary(data.summary);
+      } catch {
+        // keep the fallback message below
+      } finally {
+        if (!cancelled) setSummaryLoading(false);
+      }
+    };
+
+    void load();
+    return () => { cancelled = true; };
+  }, [config.brandName, score.narrativeControl, score.responseTime, responseHistory]);
+
 
   // Calculate overall score
   const overallScore = Math.round(
@@ -309,7 +344,27 @@ const ExerciseDebrief = ({
                 </Card>
               </div>
 
+              {/* AI closing assessment */}
+              <Card className="border-4 border-border">
+                <CardHeader className="border-b border-border py-3">
+                  <CardTitle className="text-sm uppercase tracking-wider flex items-center gap-2">
+                    <Brain className="h-4 w-4 text-primary" />
+                    Assessment of Your Exercise
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  {summaryLoading ? (
+                    <p className="text-sm text-muted-foreground animate-pulse">Assessing your decisions...</p>
+                  ) : (
+                    <p className="text-sm leading-relaxed text-foreground/90">
+                      {aiSummary ?? "Assessment unavailable for this exercise — review the scored timeline below to see which actions held the narrative and which handed the attackers material."}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
               {/* Score Breakdown */}
+
               <Card className="border-4 border-border">
                 <CardHeader className="border-b border-border py-3">
                   <CardTitle className="text-sm uppercase tracking-wider flex items-center gap-2">
@@ -554,25 +609,50 @@ const ExerciseDebrief = ({
                 <CardContent className="p-6 text-center">
                   <Shield className="h-12 w-12 mx-auto text-primary mb-4" />
                   <h3 className="font-bold uppercase tracking-wider text-lg mb-2">
-                    Want Expert Guidance?
+                    Take This Further
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-                    Greyguards consultants can provide personalized crisis management training, 
-                    detailed playbooks, and real-time support during actual incidents.
+                    A live, facilitated exercise puts your real team under real pressure, with tailored
+                    scenarios and a written after-action report.
                   </p>
-                  <Button className="uppercase tracking-wider">
-                    Contact Greyguards
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
+                  <a href="mailto:info@greyguards.com?subject=Live%20Red%20Team%20session%20enquiry">
+                    <Button className="uppercase tracking-wider">
+                      Request a Live Red Team Session
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </a>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
 
+          {/* Closing next step */}
+          <Card className="border-4 border-primary bg-primary/5 mt-8">
+            <CardContent className="p-6 text-center space-y-4">
+              <h3 className="font-bold uppercase tracking-wider text-lg">
+                Exercise Complete
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+                Request a live Red Team session for your organisation and run this against your own
+                brand, your own people and your own escalation chain.
+              </p>
+              <a
+                href="mailto:info@greyguards.com?subject=Live%20Red%20Team%20session%20for%20our%20organisation"
+                className="inline-block"
+              >
+                <Button className="uppercase tracking-wider h-12 px-6">
+                  Request a Live Red Team Session
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </a>
+            </CardContent>
+          </Card>
+
           {/* Action Buttons */}
-          <div className="flex gap-4 mt-8">
+          <div className="flex gap-4 mt-6">
             <Button 
               onClick={onRestart}
+              variant="outline"
               className="flex-1 uppercase tracking-wider h-12"
             >
               <Target className="h-4 w-4 mr-2" />
@@ -583,6 +663,7 @@ const ExerciseDebrief = ({
                 Return to Greyscan
               </Button>
             </Link>
+
           </div>
         </div>
       </div>
