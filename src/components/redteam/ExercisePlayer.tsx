@@ -1005,7 +1005,29 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                         <p className="text-sm text-muted-foreground">{activeInject.consequence}</p>
                       </div>
                     )}
+                    {injectPeople.length > 0 && (
+                      <div className="mb-4 flex flex-wrap gap-3 border-2 border-border bg-secondary/40 p-3">
+                        {injectPeople.map((p) => (
+                          <div key={p.name} className="flex items-center gap-2">
+                            {p.photo && (
+                              <img
+                                src={p.photo}
+                                alt={`${p.name} (fictional character)`}
+                                className="h-11 w-11 shrink-0 border border-border object-cover"
+                              />
+                            )}
+                            <div>
+                              <p className="text-[11px] uppercase tracking-wider">{p.name}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {p.role} · named in this inject
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <InjectVisual inject={activeInject} />
+
                     <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
