@@ -808,7 +808,8 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={handleExit} className="uppercase tracking-wider">
               <ArrowLeft className="h-4 w-4 mr-1" />
-              End & Debrief
+              End &amp; Debrief
+
 
             </Button>
             <div>
