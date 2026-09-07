@@ -609,25 +609,50 @@ const ExerciseDebrief = ({
                 <CardContent className="p-6 text-center">
                   <Shield className="h-12 w-12 mx-auto text-primary mb-4" />
                   <h3 className="font-bold uppercase tracking-wider text-lg mb-2">
-                    Want Expert Guidance?
+                    Take This Further
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-                    Greyguards consultants can provide personalized crisis management training, 
-                    detailed playbooks, and real-time support during actual incidents.
+                    A live, facilitated exercise puts your real team under real pressure, with tailored
+                    scenarios and a written after-action report.
                   </p>
-                  <Button className="uppercase tracking-wider">
-                    Contact Greyguards
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
+                  <a href="mailto:info@greyguards.com?subject=Live%20Red%20Team%20session%20enquiry">
+                    <Button className="uppercase tracking-wider">
+                      Request a Live Red Team Session
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </a>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
 
+          {/* Closing next step */}
+          <Card className="border-4 border-primary bg-primary/5 mt-8">
+            <CardContent className="p-6 text-center space-y-4">
+              <h3 className="font-bold uppercase tracking-wider text-lg">
+                Exercise Complete
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+                Request a live Red Team session for your organisation and run this against your own
+                brand, your own people and your own escalation chain.
+              </p>
+              <a
+                href="mailto:info@greyguards.com?subject=Live%20Red%20Team%20session%20for%20our%20organisation"
+                className="inline-block"
+              >
+                <Button className="uppercase tracking-wider h-12 px-6">
+                  Request a Live Red Team Session
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </a>
+            </CardContent>
+          </Card>
+
           {/* Action Buttons */}
-          <div className="flex gap-4 mt-8">
+          <div className="flex gap-4 mt-6">
             <Button 
               onClick={onRestart}
+              variant="outline"
               className="flex-1 uppercase tracking-wider h-12"
             >
               <Target className="h-4 w-4 mr-2" />
@@ -638,6 +663,7 @@ const ExerciseDebrief = ({
                 Return to Greyscan
               </Button>
             </Link>
+
           </div>
         </div>
       </div>
