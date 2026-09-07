@@ -1,4 +1,8 @@
+import { useRef } from "react";
 import { Inject } from "@/pages/RedTeam";
+import { Inject as InjectTemplate, downloadInjectPNG, hasInjectTemplate } from "@/components/GreyguardsInject";
+import "@/components/greyguards-inject.css";
+import { Download } from "lucide-react";
 import pressReleaseImg from "@/assets/press_release.png";
 import waveformImg from "@/assets/waveform.png";
 import letterImg from "@/assets/letter.png";
