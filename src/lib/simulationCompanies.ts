@@ -211,6 +211,8 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
   {
     id: "meridian-vale",
     name: "Meridian Vale Insurance Group",
+    logo: meridianLogo,
+    icon: meridianIcon,
     type: "Public limited company (LSE-listed)",
     founded:
       "2024 via merger; constituent firms founded 1911 (Meridian Assurance) and 1967 (Vale General)",
