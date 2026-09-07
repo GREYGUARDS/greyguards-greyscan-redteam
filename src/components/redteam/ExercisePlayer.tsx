@@ -420,6 +420,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       setIsLoading(true);
       const generatedInjects = await generateInjects();
       const ordered = buildInjectTimeline(generatedInjects, config.duration * 60).map((b) => b.inject);
+      firedCountRef.current = 0;
       setInjects(ordered);
       setIsLoading(false);
     };
