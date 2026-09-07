@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 import { ExerciseConfig, Scenario, Inject, ResponseOption, TeamScore, ResponseRecord } from "@/pages/RedTeam";
 import { getSimulationCompany } from "@/lib/simulationCompanies";
+import { buildInjectTimeline, findBeat, type TimelineBeat } from "@/lib/injectTimeline";
+
 
 import CountdownTimer from "./CountdownTimer";
 import InjectVisual from "./InjectVisual";
@@ -109,7 +111,9 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   const reactingRef = useRef(false);
   const nextInjectTimeRef = useRef<number>(15); // First inject after 15 seconds
   const injectCountRef = useRef<number>(0);
+  const firedCountRef = useRef<number>(0);
   const lastResponseTimeRef = useRef<number | null>(null);
+
   const totalDuration = config.duration * 60;
 
   // Live mirrors of exercise state so end-of-exercise scoring never reads stale values
@@ -410,59 +414,57 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     return baseInjects.filter(inject => inject.timestamp <= totalSeconds - 30);
   };
 
-  // Initialize injects
+  // Initialize injects — ordered into a real dated timeline before play starts
   useEffect(() => {
     const loadInjects = async () => {
       setIsLoading(true);
       const generatedInjects = await generateInjects();
-      setInjects(generatedInjects);
+      const ordered = buildInjectTimeline(generatedInjects, config.duration * 60).map((b) => b.inject);
+      setInjects(ordered);
       setIsLoading(false);
     };
     loadInjects();
-  }, [generateInjects]);
+  }, [generateInjects, config.duration]);
 
-  // Timer effect with improved inject reactivity
+  // The dated, phased running order shown to participants
+  const timeline: TimelineBeat[] = useMemo(
+    () => buildInjectTimeline(injects, totalDuration),
+    [injects, totalDuration]
+  );
+
+  // Timer effect — injects are released strictly in timeline order
   useEffect(() => {
     if (isPaused || timeRemaining <= 0) return;
 
     const interval = setInterval(() => {
       setTimeRemaining((prev) => {
         const newTime = prev - 1;
-        
+
         if (newTime <= 0) {
           clearInterval(interval);
           finishExercise();
           return 0;
         }
 
-        // Check for timed injects - accelerated if we just responded
         const elapsedTime = totalDuration - newTime;
-        const timeSinceLastResponse = lastResponseTimeRef.current 
-          ? elapsedTime - lastResponseTimeRef.current 
+        const timeSinceLastResponse = lastResponseTimeRef.current
+          ? elapsedTime - lastResponseTimeRef.current
           : null;
-        
-        // If we responded recently (within 3-8 seconds), trigger next inject immediately
-        const shouldAccelerate = timeSinceLastResponse !== null && 
-                                  timeSinceLastResponse >= 3 && 
+
+        // If we responded recently, bring the next beat forward
+        const shouldAccelerate = timeSinceLastResponse !== null &&
+                                  timeSinceLastResponse >= 3 &&
                                   timeSinceLastResponse <= 8;
-        
-        // Find the next untriggered inject
-        const triggeredSources = eventLog.filter(e => e.type === "inject").map(e => e.message);
-        const nextInject = injects.find((inject) => {
-          const notYetTriggered = !triggeredSources.some(msg => msg.includes(inject.source));
-          if (!notYetTriggered) return false;
-          
-          if (shouldAccelerate) {
-            // Immediately trigger next available inject after a response
-            return true;
-          }
-          
-          // Normal timing check
-          return inject.timestamp <= elapsedTime && inject.timestamp > elapsedTime - 2;
-        });
+
+        // Strictly sequential: only ever the next unfired beat
+        const nextInject = injects[firedCountRef.current];
+        const isDue = nextInject
+          ? shouldAccelerate || nextInject.timestamp <= elapsedTime
+          : false;
 
         // Hold scheduled injects while the adversary engine builds a reaction to the last action
-        if (nextInject && !activeInject && !reactingRef.current) {
+        if (nextInject && isDue && !activeInject && !reactingRef.current) {
+          firedCountRef.current += 1;
           triggerInject(nextInject);
         }
 
@@ -471,7 +473,8 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isPaused, injects, activeInject, eventLog, totalDuration]);
+  }, [isPaused, injects, activeInject, totalDuration]);
+
 
   const simCompany = getSimulationCompany(config.simulationCompanyId || config.brandName);
 
