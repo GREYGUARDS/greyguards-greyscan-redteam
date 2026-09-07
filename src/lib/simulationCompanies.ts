@@ -6,11 +6,12 @@
  * is depicted.
  */
 
-import ashworthLogo from "@/assets/ashworth_reilly_logo.svg.asset.json";
-import ashworthIcon from "@/assets/ashworth_reilly_icon.svg.asset.json";
-import julianPhoto from "@/assets/julian_ashworth.png.asset.json";
-import priyaPhoto from "@/assets/Reilly.png.asset.json";
-import frankPhoto from "@/assets/frank_ashworth.png.asset.json";
+import ashworthLogo from "@/assets/ashworth_reilly_logo.svg";
+import ashworthIcon from "@/assets/ashworth_reilly_icon.svg";
+import julianPhoto from "@/assets/julian_ashworth.png";
+import priyaPhoto from "@/assets/Reilly.png";
+import frankPhoto from "@/assets/frank_ashworth.png";
+
 
 export interface SimulationPerson {
   name: string;
