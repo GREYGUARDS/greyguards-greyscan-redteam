@@ -70,6 +70,7 @@ const getRiskLabel = (pct: number) => {
 
 interface AIEngineExposureProps {
   brandName: string;
+  demoMode?: boolean;
 }
 
 export function AIEngineExposure({ brandName }: AIEngineExposureProps) {
