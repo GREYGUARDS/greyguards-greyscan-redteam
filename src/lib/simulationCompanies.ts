@@ -6,12 +6,22 @@
  * is depicted.
  */
 
+import ashworthLogo from "@/assets/ashworth_reilly_logo.svg";
+import ashworthIcon from "@/assets/ashworth_reilly_icon.svg";
+import julianPhoto from "@/assets/julian_ashworth.png";
+import priyaPhoto from "@/assets/Reilly.png";
+import frankPhoto from "@/assets/frank_ashworth.png";
+
+
 export interface SimulationPerson {
   name: string;
   role: string;
   profile: string;
   vulnerability: string;
+  /** Fictional headshot used in briefings and person-targeted injects. */
+  photo?: string;
 }
+
 
 export interface SimulationMediaItem {
   outlet: string;
@@ -47,7 +57,11 @@ export interface SimulationCompany {
   mediaHistory: SimulationMediaItem[];
   scenarios: SimulationScenarioSeed[];
   structuralVulnerability: string;
+  /** Fictional brand marks, where supplied. */
+  logo?: string;
+  icon?: string;
 }
+
 
 export const SIMULATION_COMPANIES: SimulationCompany[] = [
   {
@@ -62,6 +76,9 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
     revenue: "£1.4bn (FY2025)",
     employees: "c. 2,600",
     website: "ashworthreilly.co.uk",
+    logo: ashworthLogo,
+    icon: ashworthIcon,
+
     difficulty: "Foundation",
     difficultyNote:
       "Learn-the-mechanics scenario: clean fabrication with clear ground truth. Trains verification and provenance skills.",
@@ -80,7 +97,9 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
           "Birmingham University (Business Management, 2009), then a decade in operational roles across the family business; took the top job at 34. Operationally excellent on logistics, procurement and NHS contract relationships.",
         vulnerability:
           "Minimal media training, no personal social media presence — the company has always been 'boring by design'. A poor first responder: prone to over-explaining technical detail rather than delivering a clean reassurance line.",
+        photo: julianPhoto,
       },
+
       {
         name: "Priya Reilly",
         role: "Director of Regulatory & Quality Affairs",
@@ -88,7 +107,9 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
           "Great-granddaughter of co-founder Thomas Reilly and the family's most senior remaining presence in the merged business. Pharmacist by training (Nottingham, MPharm, 2007) with fifteen years in regulatory affairs; the firm's most credible public voice and its real line of defence in any MHRA-facing incident.",
         vulnerability:
           "Structurally under-used — appears in trade press only rarely, so has little pre-existing public credibility to draw on when suddenly required to counter a fast-moving rumour. A prime impersonation target.",
+        photo: priyaPhoto,
       },
+
       {
         name: "Frank Ashworth",
         role: "Chairman (Non-Executive)",
@@ -96,7 +117,9 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
           "Julian's father, 68. Retired from day-to-day operations in 2021 but remains Chairman and the family's largest individual shareholder. Well-regarded as an elder statesman of independent pharma distribution.",
         vulnerability:
           "Semi-retired and slow to re-engage with fast-moving digital narratives — a liability if a crisis runs faster than the board's quarterly cadence.",
+        photo: frankPhoto,
       },
+
     ],
     mediaHistory: [
       {

@@ -473,14 +473,29 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     return () => clearInterval(interval);
   }, [isPaused, injects, activeInject, eventLog, totalDuration]);
 
+  const simCompany = getSimulationCompany(config.simulationCompanyId || config.brandName);
+
+  // People named in the current inject — shown as a face so person-targeted
+  // injects (impersonation, clips, harassment) read as real artefacts.
+  const injectPeople = (() => {
+    if (!simCompany || !activeInject) return [];
+    const haystack = `${activeInject.source} ${activeInject.content} `.toLowerCase();
+    return simCompany.people.filter((p) => {
+      const [first, ...rest] = p.name.split(" ");
+      const last = rest.join(" ");
+      return haystack.includes(p.name.toLowerCase()) || (last && haystack.includes(last.toLowerCase()) && haystack.includes(first.toLowerCase()));
+    });
+  })();
+
   // Regulated financial targets get the disclosure-first move as a visible preset,
   // because for a listed bank or insurer it is the obvious opening step.
   const regulatedCompany = (() => {
-    const company = getSimulationCompany(config.simulationCompanyId || config.brandName);
+    const company = simCompany;
     if (!company) return null;
     const sector = company.sector.toLowerCase();
     return /bank|insur|financial|fintech/.test(sector) ? company : null;
   })();
+
 
   const regulatorOption: ResponseOption = {
     id: "regulator-underwriters-brief",
@@ -990,7 +1005,29 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                         <p className="text-sm text-muted-foreground">{activeInject.consequence}</p>
                       </div>
                     )}
+                    {injectPeople.length > 0 && (
+                      <div className="mb-4 flex flex-wrap gap-3 border-2 border-border bg-secondary/40 p-3">
+                        {injectPeople.map((p) => (
+                          <div key={p.name} className="flex items-center gap-2">
+                            {p.photo && (
+                              <img
+                                src={p.photo}
+                                alt={`${p.name} (fictional character)`}
+                                className="h-11 w-11 shrink-0 border border-border object-cover"
+                              />
+                            )}
+                            <div>
+                              <p className="text-[11px] uppercase tracking-wider">{p.name}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {p.role} · named in this inject
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <InjectVisual inject={activeInject} />
+
                     <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
