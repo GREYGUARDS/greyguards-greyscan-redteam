@@ -1,4 +1,6 @@
 import { Inject } from "@/pages/RedTeam";
+import pressReleaseImg from "@/assets/press_release.png";
+import waveformImg from "@/assets/waveform.png";
 import {
   Heart,
   MessageCircle,
