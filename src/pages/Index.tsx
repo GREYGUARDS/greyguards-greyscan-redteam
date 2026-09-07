@@ -1218,7 +1218,8 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
             </div>
 
             {results && (
-              <div className="mt-4 flex justify-end gap-2">
+              <div className="mt-4 flex flex-wrap justify-end items-center gap-2">
+                <ComplianceBadge />
                 <DailyBriefModal
                   brandName={brandName}
                   threatLevel={results.threatLevel}
