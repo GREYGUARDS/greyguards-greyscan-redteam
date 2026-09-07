@@ -471,9 +471,38 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     return () => clearInterval(interval);
   }, [isPaused, injects, activeInject, eventLog, totalDuration]);
 
-  const triggerInject = (inject: Inject) => {
+  // Regulated financial targets get the disclosure-first move as a visible preset,
+  // because for a listed bank or insurer it is the obvious opening step.
+  const regulatedCompany = (() => {
+    const company = getSimulationCompany(config.simulationCompanyId || config.brandName);
+    if (!company) return null;
+    const sector = company.sector.toLowerCase();
+    return /bank|insur|financial|fintech/.test(sector) ? company : null;
+  })();
+
+  const regulatorOption: ResponseOption = {
+    id: "regulator-underwriters-brief",
+    label: "Brief Regulator & Underwriters",
+    description:
+      "Before any public statement, make a parallel confidential disclosure to the FCA and to your IPO underwriters: what is claimed, what you know, what you are verifying and when you will say it publicly. Keeps you inside your listed-company obligations and stops the regulator learning of it from the media.",
+    type: "internal_action",
+    effectiveness: 78,
+    riskLevel: "low",
+    timeToExecute: 45,
+  };
+
+  const withRegulatorOption = (inject: Inject): Inject => {
+    if (!regulatedCompany) return inject;
+    const existing = inject.responseOptions ?? [];
+    if (existing.some((o) => o.id === regulatorOption.id)) return inject;
+    return { ...inject, responseOptions: [...existing, regulatorOption] };
+  };
+
+  const triggerInject = (rawInject: Inject) => {
+    const inject = withRegulatorOption(rawInject);
     setActiveInject(inject);
     setInjectStartTime(Date.now());
+
     setEventLog((prev) => [
       {
         time: totalDuration - timeRemaining,
