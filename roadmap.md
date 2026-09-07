@@ -1,2 +1,4 @@
 - [x] Red Team demo mode: disable "Write Your Own" scenario option
 - [x] Remove DMMI spectrum numbering from response options
+- [x] Red Team: exercise debrief on timer end / early exit
+- [x] Red Team: regulator+underwriter preset response for regulated financial targets
