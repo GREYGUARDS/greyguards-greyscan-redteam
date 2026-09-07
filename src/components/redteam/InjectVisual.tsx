@@ -54,10 +54,24 @@ const InjectVisual = ({ inject }: InjectVisualProps) => {
           </span>
         </div>
         <div className="p-4">
-          <div className="mb-3 flex h-24 items-center justify-center border border-dashed border-border bg-muted/40 text-muted-foreground">
-            <ImageOff className="mr-2 h-4 w-4" />
-            <span className="text-[10px] uppercase tracking-wider">Wire photo withheld</span>
-          </div>
+          {inject.type === "official_response" ? (
+            <img
+              src={pressReleaseImg}
+              alt="Press release document"
+              className="mb-3 h-28 w-full border border-border object-cover"
+            />
+          ) : isAudio ? (
+            <img
+              src={waveformImg}
+              alt="Audio waveform of the circulating clip"
+              className="mb-3 h-28 w-full border border-border object-cover"
+            />
+          ) : (
+            <div className="mb-3 flex h-24 items-center justify-center border border-dashed border-border bg-muted/40 text-muted-foreground">
+              <ImageOff className="mr-2 h-4 w-4" />
+              <span className="text-[10px] uppercase tracking-wider">Wire photo withheld</span>
+            </div>
+          )}
           <p className="text-base font-semibold leading-snug">{inject.content}</p>
           <div className="mt-3 flex items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground">
             <span>Audience {compact(reach)}</span>
