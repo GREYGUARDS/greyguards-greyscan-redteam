@@ -1,4 +1,8 @@
+import { useRef } from "react";
 import { Inject } from "@/pages/RedTeam";
+import { Inject as InjectTemplate, downloadInjectPNG, hasInjectTemplate } from "@/components/GreyguardsInject";
+import "@/components/greyguards-inject.css";
+import { Download } from "lucide-react";
 import pressReleaseImg from "@/assets/press_release.png";
 import waveformImg from "@/assets/waveform.png";
 import letterImg from "@/assets/letter.png";
@@ -46,6 +50,31 @@ const InjectVisual = ({ inject }: InjectVisualProps) => {
   };
 
   const isAudio = /audio|voice|recording|clip|deepfake|call/i.test(inject.content);
+  const templateRef = useRef<HTMLDivElement>(null);
+
+  // Preferred path: the scenario generator supplied a platform-accurate mock-up.
+  if (inject.visual && hasInjectTemplate(inject.visual.template)) {
+    return (
+      <div className="border-2 border-border bg-background">
+        <div className="flex items-center justify-between gap-2 border-b-2 border-border px-3 py-2">
+          <span className="truncate text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            {inject.visual.label || inject.source}
+          </span>
+          <button
+            type="button"
+            onClick={() =>
+              downloadInjectPNG(templateRef.current, `inject-${inject.id || "artefact"}.png`)
+            }
+            className="flex shrink-0 items-center gap-1 border border-border px-2 py-1 text-[10px] uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <Download className="h-3 w-3" /> Image
+          </button>
+        </div>
+        <InjectTemplate ref={templateRef} template={inject.visual.template} data={inject.visual.data} />
+      </div>
+    );
+  }
+
 
   if (inject.type === "news_article" || inject.type === "official_response") {
     return (
