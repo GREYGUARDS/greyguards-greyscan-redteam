@@ -3,6 +3,9 @@ import { Inject } from "@/pages/RedTeam";
 import { Inject as InjectTemplate, downloadInjectPNG, hasInjectTemplate } from "@/components/GreyguardsInject";
 import type { SimulationCompany, SimulationPerson } from "@/lib/simulationCompanies";
 import "@/components/greyguards-inject.css";
+import PhoneFrame from "./PhoneFrame";
+import { getXPostScreenshot } from "@/lib/injectArtefacts";
+
 import { Download } from "lucide-react";
 import {
   Heart,
@@ -42,6 +45,8 @@ const hashtags = (content: string) => content.match(/#[\w]+/g)?.slice(0, 3) ?? [
  */
 const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
   const reach = inject.reach ?? 0;
+  const xPostShot = getXPostScreenshot(company?.id);
+
   const engagement = {
     likes: Math.max(3, Math.round(reach * 0.031)),
     reposts: Math.max(1, Math.round(reach * 0.017)),
@@ -84,6 +89,50 @@ const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
       </div>
     );
   }
+
+  // Pre-rendered circulating X post for the fictional companies. The most
+  // aggressive social beat is shown as a hero alert inside a handset.
+  if ((inject.type === "social_post" || inject.type === "influencer") && xPostShot) {
+    const shot = (
+      <img
+        src={xPostShot}
+        alt={`Fictional X post about ${company?.name ?? "the target"}`}
+        loading="lazy"
+        width={1024}
+        height={640}
+        className="w-full object-contain"
+      />
+    );
+
+    return (
+      <div className="border-2 border-border bg-background">
+        <div className="flex items-center justify-between gap-2 border-b-2 border-border px-3 py-2">
+          <span className="truncate text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            X · circulating screenshot · unverified
+          </span>
+          <span className="shrink-0 text-[10px] uppercase tracking-wider text-destructive">
+            {compact(reach)} impressions
+          </span>
+        </div>
+        {inject.isAggressive ? (
+          <PhoneFrame
+            alert={{
+              app: "X",
+              title: inject.source,
+              body: inject.content,
+            }}
+          >
+            {shot}
+          </PhoneFrame>
+        ) : (
+          shot
+        )}
+        <p className="border-t-2 border-border px-4 py-3 text-sm leading-relaxed">{inject.content}</p>
+      </div>
+    );
+  }
+
+
 
 
   if (inject.type === "news_article" || inject.type === "official_response") {
