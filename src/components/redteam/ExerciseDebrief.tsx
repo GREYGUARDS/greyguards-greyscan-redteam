@@ -29,6 +29,8 @@ import {
 } from "lucide-react";
 import { ExerciseConfig, TeamScore, Inject, ResponseOption } from "@/pages/RedTeam";
 import greyguardsLogo from "@/assets/greyguards-logo.png";
+import { supabase } from "@/integrations/supabase/client";
+
 
 interface ResponseRecord {
   injectId: string;
