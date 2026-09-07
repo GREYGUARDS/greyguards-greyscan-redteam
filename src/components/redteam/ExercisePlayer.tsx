@@ -476,7 +476,9 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   }, [isPaused, injects, activeInject, totalDuration]);
 
 
+  const activeBeat = findBeat(timeline, activeInject);
   const simCompany = getSimulationCompany(config.simulationCompanyId || config.brandName);
+
 
   // People named in the current inject — shown as a face so person-targeted
   // injects (impersonation, clips, harassment) read as real artefacts.
