@@ -1294,7 +1294,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
 
                 {/* AI Engine Exposure */}
 
-                <AIEngineExposure brandName={brandName} />
+                <AIEngineExposure brandName={brandName} demoMode={demoMode} />
 
                 {/* Sentiment Analysis & Trend */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
