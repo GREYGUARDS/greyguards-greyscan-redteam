@@ -176,10 +176,10 @@ export function ThreatIndicator({
                 {getSourceConfidence(threatScore)}
               </Badge>
             </div>
-            <div className="sm:text-center">
+            <div className="sm:text-center" title={attributionLabel(getActorAttribution(threatScore)).note}>
               <p className="text-xs text-muted-foreground tracking-wide mb-1">Actor Attribution</p>
-              <Badge variant="outline" className="text-xs uppercase tracking-wider">
-                {getActorAttribution(threatScore)}
+              <Badge variant="outline" className="text-xs uppercase tracking-wider cursor-help" title={getActorAttribution(threatScore).note}>
+                {attributionLabel(getActorAttribution(threatScore))}
               </Badge>
             </div>
           </div>
