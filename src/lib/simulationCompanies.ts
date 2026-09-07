@@ -341,6 +341,8 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
   {
     id: "bristow-calder",
     name: "Bristow Calder Bank plc",
+    logo: bristowLogo,
+    icon: bristowIcon,
     type: "Public limited company, pre-IPO (targeting LSE listing)",
     founded: "2016, London",
     headquarters: "London (Shoreditch), with technology hub in Leeds",
