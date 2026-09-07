@@ -925,6 +925,57 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
             <Card className="border-4 border-border bg-card">
               <CardHeader className="border-b-4 border-border py-3">
                 <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wider">
+                  <Clock className="h-4 w-4 text-primary" />
+                  Attack Timeline
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <ScrollArea className="h-[260px]">
+                  <div className="p-4 space-y-2">
+                    {timeline.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        Building the attack sequence...
+                      </p>
+                    ) : (
+                      timeline.map((beat, i) => {
+                        const isActive = activeBeat?.order === beat.order;
+                        const isPast = i < firedCountRef.current && !isActive;
+                        return (
+                          <div
+                            key={`${beat.order}-${beat.inject.id}`}
+                            className={`border-l-2 p-2 text-xs ${
+                              isActive
+                                ? "border-destructive bg-destructive/10"
+                                : isPast
+                                ? "border-success/60 bg-success/5"
+                                : "border-muted bg-muted/30 opacity-60"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                              <span>
+                                {beat.dayLabel} · {beat.clock}
+                              </span>
+                              <span>{beat.phase}</span>
+                            </div>
+                            <p className="mt-1 leading-snug">
+                              {isPast || isActive
+                                ? `${beat.order}. ${beat.inject.source}`
+                                : `${beat.order}. Pending — ${beat.phaseNote}`}
+                            </p>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+
+
+
+            <Card className="border-4 border-border bg-card">
+              <CardHeader className="border-b-4 border-border py-3">
+                <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wider">
                   <Radio className="h-4 w-4 text-warning" />
                   Event Log
                 </CardTitle>
@@ -970,7 +1021,13 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                       <div>
                         <span className="block text-lg">{activeInject.type.replace("_", " ").toUpperCase()}</span>
                         <span className="block text-xs text-muted-foreground font-normal">{activeInject.source}</span>
+                        {activeBeat && (
+                          <span className="mt-1 block text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-normal">
+                            Beat {activeBeat.order}/{timeline.length} · {activeBeat.phase} · {activeBeat.clock}
+                          </span>
+                        )}
                       </div>
+
                     </CardTitle>
                     <Badge 
                       variant="outline" 
