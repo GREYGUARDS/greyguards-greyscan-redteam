@@ -96,7 +96,7 @@ export const APIStatusPanel = ({ apiStatuses, isLoading }: APIStatusPanelProps) 
             <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 uppercase tracking-wider text-base cursor-pointer hover:opacity-80 transition-opacity">
               <div className="flex items-center gap-2">
                 <Database className="h-5 w-5 flex-shrink-0" />
-                <span>API Status</span>
+                <span>Collection Diagnostics · This Scan</span>
                 {isLoading && <Loader2 className="h-4 w-4 animate-spin text-primary flex-shrink-0" />}
                 {isExpanded ? (
                   <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -121,7 +121,7 @@ export const APIStatusPanel = ({ apiStatuses, isLoading }: APIStatusPanelProps) 
                 )}
                 {!isExpanded && (
                   <Badge variant="outline" className="bg-muted/50 text-foreground border-border whitespace-nowrap">
-                    <span>{totalMentions.toLocaleString()} hits</span>
+                    <span>{totalMentions.toLocaleString()} items retrieved this scan</span>
                   </Badge>
                 )}
               </div>

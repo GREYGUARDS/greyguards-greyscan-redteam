@@ -41,6 +41,7 @@ import { DEMO_COMPANIES } from "@/lib/demoData";
 import { SIMULATION_DEMO_COMPANIES, SIMULATION_DEMO_NAMES } from "@/lib/simulationDemoData";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { analyzeSentiment, type AnalysisResult } from "@/lib/sentiment";
+import { buildCanonicalMentionStats } from "@/lib/reportMetrics";
 import { exportToPDF } from "@/lib/pdfExport";
 import { supabase } from "@/integrations/supabase/client";
 import { generateFallbackData } from "@/lib/fallbackData";
@@ -781,7 +782,11 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
         people: brandPeople,
         personMentions,
         personNarratives,
-        totalMentions: allMentions.length,
+        // Canonical corpus size (source totals), not the illustrative feed sample.
+        totalMentions: Math.max(
+          sources.reduce((sum, s) => sum + (Number(s.count) || 0), 0),
+          allMentions.length
+        ),
         shortTermSentiment: results.shortTermSentiment,
         longTermSentiment: results.longTermSentiment,
         timeline: results.timeline || [],
@@ -1079,6 +1084,20 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
     );
   }
 
+  // One canonical mention dataset for every count/percentage on the report page.
+  const mentionWindowLabel = demoMode ? "last 30 days" : "current scan window (last 7 days)";
+  const mentionWindowShortLabel = demoMode ? "30d" : "7d";
+  const canonicalStats = results
+    ? buildCanonicalMentionStats({
+        sources,
+        sampleMentions: allMentions,
+        sentimentDistribution: results.sentimentDistribution,
+        previousSentiment: results.previousSentiment,
+        windowLabel: mentionWindowLabel,
+        windowShortLabel: mentionWindowShortLabel,
+      })
+    : null;
+
   return (
 
     <div className="min-h-screen bg-background">
@@ -1268,6 +1287,8 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
                   threatLevel={results.threatLevel}
                   threatScore={results.threatScore}
                   threatBreakdown={results.threatBreakdown}
+                  totalMentions={canonicalStats?.totalMentions}
+                  windowLabel={mentionWindowLabel}
                 />
 
 
@@ -1350,51 +1371,20 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
                           value: item.values?.[0]?.value || 0
                         })) || []}
                       />
-                      {(() => {
-                        // The sentiment distribution can arrive either as raw counts or as
-                        // percentage shares, so normalise it against its own total first.
-                        const distTotal = results.sentimentDistribution.reduce(
-                          (sum, s) => sum + (Number(s.value) || 0),
-                          0
-                        );
-                        const negativeRaw = results.sentimentDistribution.find(s => s.name === "Negative")?.value || 0;
-                        const negativeShare = distTotal > 0 ? Math.min(1, negativeRaw / distTotal) : 0;
-                        const total = allMentions.length;
-                        const currentNegative = Math.min(total, Math.round(negativeShare * total));
-                        const previousNegative = Math.min(
-                          total,
-                          results.previousSentiment < 0
-                            ? Math.abs(Math.round((results.previousSentiment * total) / 100))
-                            : Math.round(currentNegative * 0.9)
-                        );
-                        const negativeMentions = allMentions.slice(0, currentNegative);
-                        const sourceCount = negativeMentions.reduce((acc: any, mention: any) => {
-                          const source = mention.source || 'unknown';
-                          acc[source] = (acc[source] || 0) + 1;
-                          return acc;
-                        }, {});
-                        const negativeBySource = Object.entries(sourceCount).map(([source, count]) => ({
-                          source,
-                          count: count as number,
-                          percentage: currentNegative > 0
-                            ? Math.min(100, ((count as number) / currentNegative) * 100)
-                            : 0
-                        }));
-
-                        return (
-                          <NegativityTrendIndicator
-                            currentNegative={currentNegative}
-                            previousNegative={previousNegative}
-                            totalMentions={total}
-                            negativeBySource={negativeBySource}
-                            changeVelocity={(currentNegative - previousNegative) / 7}
-                            peakNegativeDay={results.timeline.reduce((max, item) =>
-                              item.mentions > max.mentions ? item : max,
-                              results.timeline[0]
-                            )?.date}
-                          />
-                        );
-                      })()}
+                      {canonicalStats && (
+                        <NegativityTrendIndicator
+                          currentNegative={canonicalStats.currentNegative}
+                          previousNegative={canonicalStats.previousNegative}
+                          totalMentions={canonicalStats.totalMentions}
+                          negativeBySource={canonicalStats.negativeBySource}
+                          changeVelocity={(canonicalStats.currentNegative - canonicalStats.previousNegative) / 7}
+                          windowLabel={mentionWindowLabel}
+                          peakNegativeDay={results.timeline.reduce((max, item) =>
+                            item.mentions > max.mentions ? item : max,
+                            results.timeline[0]
+                          )?.date}
+                        />
+                      )}
 
                     </div>
                     <RelatedQueriesTable 
@@ -1443,10 +1433,14 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
                 />
 
                 {/* API Status Panel */}
-                <APIStatusPanel apiStatuses={apiStatuses} isLoading={loading} />
+                {/* Live collection diagnostics — only meaningful for a real scan,
+                    so hidden in demo reports where no APIs were called. */}
+                {!demoMode && apiStatuses.length > 0 && (
+                  <APIStatusPanel apiStatuses={apiStatuses} isLoading={loading} />
+                )}
 
                 {/* Sources Table (includes Upcoming Intelligence APIs) */}
-                <SourcesTable sources={sources} />
+                <SourcesTable sources={sources} windowLabel={mentionWindowLabel} />
 
                 {/* Synthetic Content Monitor (roadmap / in development) */}
                 <SyntheticContentMonitor brandName={brandName} />

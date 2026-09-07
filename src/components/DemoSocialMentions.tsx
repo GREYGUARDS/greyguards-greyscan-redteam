@@ -55,10 +55,11 @@ export const DemoSocialMentions = ({ mentions, brandName }: DemoSocialMentionsPr
       <CardHeader className="border-b-4 border-border">
         <CardTitle className="flex items-center gap-2 uppercase tracking-wider">
           <MessageSquare className="h-5 w-5" />
-          Live Social Intelligence Feed
+          Social Intelligence Feed · Sample
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Real-time monitoring of social media mentions and news coverage for {brandName}
+          A sample of {Math.min(10, mentions.length)} individual mentions for {brandName}, shown as examples. Percentages elsewhere
+          in this report are calculated from the full analysed mention set, not from this sample.
         </p>
       </CardHeader>
       <CardContent className="pt-6">
@@ -155,7 +156,7 @@ export const DemoSocialMentions = ({ mentions, brandName }: DemoSocialMentionsPr
               ).length / mentions.length * 100)}%
             </div>
             <div className="text-xs text-muted-foreground uppercase tracking-wider">
-              Negative Signal Density
+              Negative Signal Density · within this sample
             </div>
           </div>
           <div className="p-4 border-2 border-warning/30 bg-warning/5">
@@ -171,7 +172,7 @@ export const DemoSocialMentions = ({ mentions, brandName }: DemoSocialMentionsPr
               {mentions.length}
             </div>
             <div className="text-xs text-muted-foreground uppercase tracking-wider">
-              Active Threads Tracked
+              Sample Mentions Shown
             </div>
           </div>
         </div>

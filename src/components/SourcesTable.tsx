@@ -11,6 +11,7 @@ interface Source {
 
 interface SourcesTableProps {
   sources: Source[];
+  windowLabel?: string;
 }
 
 const upcomingAPIs = [
@@ -26,7 +27,7 @@ const upcomingAPIs = [
   { name: "Medium", icon: FileText, type: "Publishing", description: "Long-form content" },
 ];
 
-const SourcesTable = ({ sources }: SourcesTableProps) => {
+const SourcesTable = ({ sources, windowLabel = "analysis window" }: SourcesTableProps) => {
   const sortedSources = [...sources].sort((a, b) => b.count - a.count);
   const totalMentions = sources.reduce((sum, s) => sum + s.count, 0);
 
@@ -40,14 +41,18 @@ const SourcesTable = ({ sources }: SourcesTableProps) => {
           </span>
           <span className="text-sm text-success font-mono">{sources.length} / {sources.length + upcomingAPIs.length} Active</span>
         </CardTitle>
+        <p className="text-xs text-muted-foreground normal-case">
+          Free-tier sources currently collecting for this brand. Counts are mentions collected in the {windowLabel} — this is the
+          canonical dataset every percentage in this report is calculated from.
+        </p>
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
         {/* Active Sources */}
         <div>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Active Data Sources</h3>
             <Badge variant="outline" className="bg-success/10 text-success border-success/30">
-              {totalMentions} Total Mentions
+              {totalMentions} mentions analysed · {windowLabel}
             </Badge>
           </div>
           
@@ -123,7 +128,7 @@ const SourcesTable = ({ sources }: SourcesTableProps) => {
             </div>
             <div className="p-3 bg-primary/10 border-2 border-primary/30">
               <div className="text-2xl font-bold text-primary">{totalMentions}</div>
-              <div className="text-xs uppercase tracking-wider text-muted-foreground">Total Mentions</div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">Mentions Analysed · {windowLabel}</div>
             </div>
             <div className="p-3 bg-muted border-2 border-border">
               <div className="text-2xl font-bold text-muted-foreground">{upcomingAPIs.length}</div>

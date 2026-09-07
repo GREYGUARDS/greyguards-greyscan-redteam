@@ -9,6 +9,7 @@ interface NegativityTrendIndicatorProps {
   negativeBySource: Array<{source: string; count: number; percentage: number}>;
   changeVelocity: number;
   peakNegativeDay?: string;
+  windowLabel?: string;
 }
 
 export function NegativityTrendIndicator({ 
@@ -17,7 +18,8 @@ export function NegativityTrendIndicator({
   totalMentions,
   negativeBySource,
   changeVelocity,
-  peakNegativeDay
+  peakNegativeDay,
+  windowLabel = "analysis window"
 }: NegativityTrendIndicatorProps) {
   const negativePercentage = totalMentions > 0
     ? Math.max(0, Math.min(100, Math.round((currentNegative / totalMentions) * 100)))
@@ -51,15 +53,20 @@ export function NegativityTrendIndicator({
           {!isIncreasing && !isStable && <TrendingUp className="h-5 w-5 text-primary" />}
           {isStable && <Minus className="h-5 w-5 text-muted-foreground" />}
         </CardTitle>
+        <p className="text-xs text-muted-foreground normal-case">
+          {windowLabel} vs the preceding period of equal length, across all {totalMentions} analysed mentions.
+        </p>
       </CardHeader>
       <CardContent className="space-y-6 pt-6">
         {/* Main Metrics with Circular Gauge */}
         <div className="flex flex-col md:flex-row items-center justify-between p-6 border-2 border-border bg-secondary smooth-transition hover-glow-primary gap-6 md:gap-0">
           <div className="flex-1 w-full">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Current Negative Sentiment</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">
+              Current Negative Sentiment · {windowLabel}
+            </p>
             <p className={`metric-display ${threat.color} animate-scale-in`}>{negativePercentage}%</p>
             <p className="text-sm text-muted-foreground mt-3">
-              <span className="font-semibold">{currentNegative}</span> of <span className="font-semibold">{totalMentions}</span> mentions
+              <span className="font-semibold">{currentNegative}</span> of <span className="font-semibold">{totalMentions}</span> analysed mentions
             </p>
             <div className="mt-4 w-full bg-muted h-4 rounded-sm overflow-hidden">
               <div 
@@ -139,11 +146,11 @@ export function NegativityTrendIndicator({
         {/* Statistics Grid with Animations */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t-2 border-border">
           <div className="text-center p-4 border-2 border-border bg-muted/30 smooth-transition hover:scale-105 animate-fade-in">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Current</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Negative · this period</p>
             <p className="text-3xl font-bold text-destructive">{currentNegative}</p>
           </div>
           <div className="text-center p-4 border-2 border-border bg-muted/30 smooth-transition hover:scale-105 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Previous</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Negative · prior period</p>
             <p className="text-3xl font-bold">{previousNegative}</p>
           </div>
           <div className="text-center p-4 border-2 border-border bg-muted/30 smooth-transition hover:scale-105 animate-fade-in" style={{ animationDelay: '0.2s' }}>
@@ -153,14 +160,16 @@ export function NegativityTrendIndicator({
             </p>
           </div>
           <div className="text-center p-4 border-2 border-border bg-muted/30 smooth-transition hover:scale-105 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">Total</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">All mentions analysed</p>
             <p className="text-3xl font-bold text-primary">{totalMentions}</p>
           </div>
         </div>
 
         {/* Top Negative Sources Breakdown with Progress Bars */}
         <div className="pt-4 border-t-2 border-border">
-          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">Top Negative Sources</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4">
+            Top Negative Sources · sums to {currentNegative} negative mentions
+          </p>
           <div className="space-y-3">
             {topNegativeSources.map((source, idx) => (
               <div key={idx} className="p-3 border-2 border-border bg-muted/30 smooth-transition hover:border-primary animate-slide-in-left" style={{ animationDelay: `${idx * 0.1}s` }}>
