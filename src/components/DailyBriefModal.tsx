@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Download, Shield, AlertTriangle, Bot, Eye } from "lucide-react";
+import { getActorAttribution } from "@/components/ThreatIndicator";
 
 interface DailyBriefModalProps {
   brandName: string;
@@ -110,10 +111,13 @@ export function DailyBriefModal({ brandName, threatLevel, threatScore, mdmNarrat
                   {threatScore >= 70 ? "HIGH" : threatScore >= 40 ? "MEDIUM" : "LOW"}
                 </Badge>
               </div>
-              <div>
+              <div title={getActorAttribution(threatScore).note}>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Actor Attribution</p>
-                <Badge variant="outline" className="text-xs">
-                  {threatScore >= 80 ? "Probable State-Adjacent" : threatScore >= 60 ? "Automated" : "Unknown"}
+                <Badge variant="outline" className="text-xs cursor-help" title={getActorAttribution(threatScore).note}>
+                  {(() => {
+                    const a = getActorAttribution(threatScore);
+                    return `Assessed Actor Type: ${a.assessedType} — ${a.confidence} Confidence`;
+                  })()}
                 </Badge>
               </div>
             </div>
