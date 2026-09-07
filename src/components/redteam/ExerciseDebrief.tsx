@@ -344,7 +344,27 @@ const ExerciseDebrief = ({
                 </Card>
               </div>
 
+              {/* AI closing assessment */}
+              <Card className="border-4 border-border">
+                <CardHeader className="border-b border-border py-3">
+                  <CardTitle className="text-sm uppercase tracking-wider flex items-center gap-2">
+                    <Brain className="h-4 w-4 text-primary" />
+                    Assessment of Your Exercise
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  {summaryLoading ? (
+                    <p className="text-sm text-muted-foreground animate-pulse">Assessing your decisions...</p>
+                  ) : (
+                    <p className="text-sm leading-relaxed text-foreground/90">
+                      {aiSummary ?? "Assessment unavailable for this exercise — review the scored timeline below to see which actions held the narrative and which handed the attackers material."}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
               {/* Score Breakdown */}
+
               <Card className="border-4 border-border">
                 <CardHeader className="border-b border-border py-3">
                   <CardTitle className="text-sm uppercase tracking-wider flex items-center gap-2">
