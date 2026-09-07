@@ -1,25 +1,25 @@
 import { Shield, Check } from "lucide-react";
 
+/**
+ * Inline System Compliance indicator (EU AI Act Article 50 / NIS2).
+ * Rendered in-flow next to the export buttons — never fixed/overlay,
+ * so it can never obscure page content or the primary CTA.
+ */
 export function ComplianceBadge() {
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <div className="bg-card/95 backdrop-blur border border-border rounded-sm p-3 text-xs space-y-1.5 shadow-lg max-w-[220px]">
-        <div className="flex items-center gap-1.5 text-muted-foreground font-medium uppercase tracking-wider text-[10px] mb-2">
-          <Shield className="h-3 w-3" />
-          System Compliance
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Check className="h-3 w-3 text-success flex-shrink-0" />
-          <span className="text-muted-foreground">EU AI Act Article 50 — <span className="text-foreground font-medium">Monitoring Active</span></span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Check className="h-3 w-3 text-success flex-shrink-0" />
-          <span className="text-muted-foreground">NIS2 — <span className="text-foreground font-medium">Compliant</span></span>
-        </div>
-        <div className="border-t border-border mt-2 pt-1.5">
-          <span className="text-muted-foreground text-[10px]">Audit log: available on request</span>
-        </div>
-      </div>
+    <div className="inline-flex items-center gap-2 bg-card/95 backdrop-blur border border-border rounded-sm px-2.5 py-1.5 text-[10px] uppercase tracking-wider">
+      <span className="flex items-center gap-1.5 text-muted-foreground font-medium">
+        <Shield className="h-3 w-3" />
+        System Compliance
+      </span>
+      <span className="hidden sm:flex items-center gap-1 text-muted-foreground">
+        <Check className="h-3 w-3 text-success flex-shrink-0" />
+        EU AI Act Art. 50
+      </span>
+      <span className="hidden md:flex items-center gap-1 text-muted-foreground">
+        <Check className="h-3 w-3 text-success flex-shrink-0" />
+        NIS2
+      </span>
     </div>
   );
 }
