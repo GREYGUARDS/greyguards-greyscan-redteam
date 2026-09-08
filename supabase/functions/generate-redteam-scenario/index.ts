@@ -235,14 +235,17 @@ The category "${selectedCategory.type}" should be interpreted through the lens o
 
 The scenario should be:
 - DEEPLY SPECIFIC to ${brandName}'s actual likely purpose and operations
-- Reference realistic aspects of their work (not generic corporate scenarios)
 - Based on common disinformation tactics (mixing truth with lies, emotional manipulation, coordinated amplification)
-- Challenging but not impossible to counter
 - Appropriate for a ${duration}-minute crisis simulation exercise
 
+STYLE — this matters as much as content:
+- Write for busy executives, PR and risk leaders. They will skim, not study.
+- Plain English. Short sentences. No corporate jargon (avoid "leverage", "stakeholder ecosystem", "amplification dynamics", "reputational impact" etc.).
+- Say what is being claimed, where it's spreading, and who started it — in that order, as simply as possible.
+
 Return a JSON object with these exact fields:
-- title: A concise, impactful title mentioning ${brandName} by name
-- narrative: A 2-3 paragraph description of the disinformation campaign that is SPECIFIC to what ${brandName} does. Include how it started, what's being claimed, and how it's spreading. Be specific about platforms, tactics, and timeline.
+- title: A concise, impactful title mentioning ${brandName} by name (max 8 words)
+- narrative: ONE short paragraph, 3-4 sentences, 60 words maximum. Cover: what the false claim is, where it started, where it's spreading now. Plain English, no jargon.
 - basedOnTruth: Boolean - whether the narrative contains any real/true elements that are being twisted
 - truthElement: If basedOnTruth is true, explain what the kernel of truth is
 - implicatedParties: Array of 2-3 roles appropriate to ${brandName}'s organization type (use generic titles like "[REDACTED - Senior Officer]" or "[REDACTED - Department Head]" instead of real names)
@@ -250,8 +253,8 @@ Return a JSON object with these exact fields:
 - spreadPattern: "viral" (organic fast spread), "coordinated" (bot/troll farm), or "organic" (slow natural spread)${canonBlock}`;
 
     const userPrompt = userScenario 
-      ? `The user has provided this scenario outline. Enhance and professionalize it while keeping the core concept:\n\n"${userScenario}"\n\nMake it more realistic with specific details, spreading patterns, and implicated parties. Ensure it's deeply specific to what ${brandName} actually does as an organization.`
-      : `First, determine what "${brandName}" most likely is (their industry, purpose, and operations). Then create a completely original ${selectedCategory.name.toLowerCase()} disinformation scenario that is HIGHLY RELEVANT to that type of organization. Do NOT use generic corporate scenarios - make it specific to what this brand actually does. Include specific platform names (Twitter/X, Reddit, TikTok, Telegram, etc.), realistic account types that would target this brand, and a clear timeline of how the narrative is developing.`;
+      ? `The user has provided this scenario outline. Tighten it into a short, plain-English scenario while keeping the core concept:\n\n"${userScenario}"\n\nKeep the narrative under 60 words, one paragraph. Specific to what ${brandName} actually does.`
+      : `First, determine what "${brandName}" most likely is (their industry, purpose, and operations). Then create a short, original ${selectedCategory.name.toLowerCase()} disinformation scenario specific to that organisation. Name real platforms (X, Reddit, TikTok, Telegram). Keep the narrative under 60 words, one paragraph, plain English a busy executive can absorb in seconds.`;
 
     console.log("Generating scenario:", { brandName, duration, category: selectedCategory.type, clientIp, remaining: rateLimit.remaining });
 
