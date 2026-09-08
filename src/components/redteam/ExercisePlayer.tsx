@@ -34,7 +34,7 @@ import CountdownTimer from "./CountdownTimer";
 import InjectVisual from "./InjectVisual";
 import { supabase } from "@/integrations/supabase/client";
 
-const INJECT_GENERATION_TIMEOUT_MS = 90000;
+const INJECT_GENERATION_TIMEOUT_MS = 120000;
 const REACTION_TIMEOUT_MS = 60000;
 
 // Local fallback score for a written countermeasure if AI evaluation is unavailable
@@ -104,6 +104,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   const [eventLog, setEventLog] = useState<Array<{ time: number; message: string; type: "inject" | "response" | "system" }>>([]);
   const [responseHistory, setResponseHistory] = useState<ResponseRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadElapsed, setLoadElapsed] = useState(0);
   const [customCountermeasure, setCustomCountermeasure] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [isReacting, setIsReacting] = useState(false);
@@ -850,13 +851,78 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     }
   };
 
+  // Elapsed-time ticker for the clockface loading indicator (100ms resolution)
+  useEffect(() => {
+    if (!isLoading) {
+      setLoadElapsed(0);
+      return;
+    }
+    const startedAt = Date.now();
+    const tick = setInterval(() => {
+      setLoadElapsed(Math.min((Date.now() - startedAt) / 1000, INJECT_GENERATION_TIMEOUT_MS / 1000));
+    }, 100);
+    return () => clearInterval(tick);
+  }, [isLoading]);
+
   if (isLoading) {
+    const totalSec = INJECT_GENERATION_TIMEOUT_MS / 1000;
+    const fill = Math.min(loadElapsed / totalSec, 1);
+    const R = 46;
+    const CIRC = 2 * Math.PI * R;
+    const elapsedSec = Math.floor(loadElapsed);
+
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="relative w-20 h-20 mx-auto mb-6">
-            <div className="absolute inset-0 border-4 border-muted border-t-primary border-r-primary border-b-transparent border-l-transparent animate-spin rounded-full" />
-            <Target className="absolute inset-0 m-auto h-8 w-8 text-primary/70" />
+          {/* Clockface that fills as generation progresses */}
+          <div className="relative w-32 h-32 mx-auto mb-6">
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+              {/* Dial ring */}
+              <circle cx="50" cy="50" r={R} fill="none" stroke="hsl(var(--muted))" strokeWidth="2" />
+              {/* Hour ticks */}
+              {Array.from({ length: 12 }).map((_, i) => {
+                const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
+                const inner = i % 3 === 0 ? R - 7 : R - 4;
+                return (
+                  <line
+                    key={i}
+                    x1={50 + inner * Math.cos(a)}
+                    y1={50 + inner * Math.sin(a)}
+                    x2={50 + (R - 1) * Math.cos(a)}
+                    y2={50 + (R - 1) * Math.sin(a)}
+                    stroke="hsl(var(--muted-foreground))"
+                    strokeWidth={i % 3 === 0 ? 1.5 : 1}
+                    opacity={fill * 12 > i ? 1 : 0.35}
+                  />
+                );
+              })}
+              {/* Filling progress arc */}
+              <circle
+                cx="50" cy="50" r={R - 10}
+                fill="none"
+                stroke="hsl(var(--primary))"
+                strokeWidth="6"
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * (R - 10)}`}
+                strokeDashoffset={`${2 * Math.PI * (R - 10) * (1 - fill)}`}
+                transform="rotate(-90 50 50)"
+                style={{ transition: "stroke-dashoffset 100ms linear" }}
+              />
+              {/* Minute hand sweeping with elapsed time */}
+              <line
+                x1="50" y1="50"
+                x2={50 + (R - 16) * Math.cos(fill * Math.PI * 2 - Math.PI / 2)}
+                y2={50 + (R - 16) * Math.sin(fill * Math.PI * 2 - Math.PI / 2)}
+                stroke="hsl(var(--foreground))"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <circle cx="50" cy="50" r="2.5" fill="hsl(var(--primary))" />
+            </svg>
+            {/* Elapsed seconds in the centre-bottom */}
+            <div className="absolute inset-x-0 bottom-6 text-center">
+              <span className="text-[10px] font-mono text-muted-foreground">{elapsedSec}s</span>
+            </div>
           </div>
           <h2 className="text-xl font-bold uppercase tracking-wider mb-2">Building Your Exercise</h2>
           <p className="text-muted-foreground text-sm mb-4">
@@ -864,7 +930,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
           </p>
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground/70 uppercase tracking-wider">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            <span>This can take up to 90 seconds for a full scenario</span>
+            <span>Full dial ≈ 2 minutes — the clock shows real progress</span>
           </div>
         </div>
       </div>
