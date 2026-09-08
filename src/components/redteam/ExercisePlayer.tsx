@@ -852,11 +852,20 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 mx-auto border-4 border-t-primary border-r-primary border-b-transparent border-l-transparent animate-spin rounded-full mb-6" />
-          <h2 className="text-xl font-bold uppercase tracking-wider">Preparing Exercise</h2>
-          <p className="text-muted-foreground">Loading scenario elements...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="relative w-20 h-20 mx-auto mb-6">
+            <div className="absolute inset-0 border-4 border-muted border-t-primary border-r-primary border-b-transparent border-l-transparent animate-spin rounded-full" />
+            <Target className="absolute inset-0 m-auto h-8 w-8 text-primary/70" />
+          </div>
+          <h2 className="text-xl font-bold uppercase tracking-wider mb-2">Building Your Exercise</h2>
+          <p className="text-muted-foreground text-sm mb-4">
+            Generating a realistic crisis timeline with {config.brandName}…
+          </p>
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground/70 uppercase tracking-wider">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            <span>This can take up to 90 seconds for a full scenario</span>
+          </div>
         </div>
       </div>
     );
