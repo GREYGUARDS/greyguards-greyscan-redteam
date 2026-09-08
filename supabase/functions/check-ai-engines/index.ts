@@ -194,33 +194,93 @@ async function fetchBingNews(brand: string, windowHours: number): Promise<Story[
   }
 }
 
-async function withRetry(fn: () => Promise<Story[]>, attempts = 2): Promise<Story[]> {
+// NewsAPI is a keyed route, so it is not blocked by datacentre-IP throttling the
+// way the public Google News / GDELT / Bing feeds are. Used whenever the key is set.
+async function fetchNewsApi(brand: string, windowHours: number): Promise<Story[]> {
+  const key = Deno.env.get("NEWS_API_KEY");
+  if (!key) return [];
+  const from = new Date(Date.now() - windowHours * 3600 * 1000).toISOString();
+  const url =
+    `https://newsapi.org/v2/everything?q=${encodeURIComponent(`"${brand}"`)}` +
+    `&from=${encodeURIComponent(from)}&language=en&sortBy=publishedAt&pageSize=25`;
+  try {
+    const res = await fetch(url, {
+      headers: { "X-Api-Key": key, "User-Agent": BROWSER_UA },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!res.ok) {
+      console.warn("NewsAPI feed failed:", res.status);
+      return [];
+    }
+    const data = await res.json();
+    return (data.articles || [])
+      .filter((a: any) => a?.title && a?.url)
+      .map((a: any) => ({
+        title: decode(String(a.title)),
+        url: String(a.url),
+        source: String(a.source?.name || "NewsAPI"),
+        publishedAt: a.publishedAt ? new Date(a.publishedAt).toISOString() : new Date().toISOString(),
+      }))
+      .slice(0, 25);
+  } catch (error) {
+    console.warn("NewsAPI fetch error:", error instanceof Error ? error.message : error);
+    return [];
+  }
+}
+
+async function withRetry(fn: () => Promise<Story[]>, attempts = 3): Promise<Story[]> {
   for (let i = 0; i < attempts; i++) {
     const result = await fn();
     if (result.length > 0) return result;
-    if (i < attempts - 1) await new Promise((r) => setTimeout(r, 1200 * (i + 1)));
+    // Longer, growing backoff: the public feeds throttle per source IP (429/503)
+    // and recover within a few seconds.
+    if (i < attempts - 1) await new Promise((r) => setTimeout(r, 2000 * (i + 1)));
   }
   return [];
 }
 
-async function fetchStories(brand: string, windowHours: number): Promise<Story[]> {
-  const [google, gdelt, bing] = await Promise.all([
+interface StoryFetchResult {
+  stories: Story[];
+  sourcesTried: string[];
+  sourcesUnavailable: string[];
+}
+
+async function fetchStories(brand: string, windowHours: number): Promise<StoryFetchResult> {
+  const hasNewsApiKey = Boolean(Deno.env.get("NEWS_API_KEY"));
+  const [newsapi, google, gdelt, bing] = await Promise.all([
+    hasNewsApiKey ? withRetry(() => fetchNewsApi(brand, windowHours), 2) : Promise.resolve([] as Story[]),
     withRetry(() => fetchGoogleNews(brand, windowHours)),
     withRetry(() => fetchGdelt(brand, windowHours)),
-    withRetry(() => fetchBingNews(brand, windowHours), 1),
+    withRetry(() => fetchBingNews(brand, windowHours), 2),
   ]);
-  console.log(`Story sources — google:${google.length} gdelt:${gdelt.length} bing:${bing.length}`);
+  console.log(
+    `Story sources — newsapi:${newsapi.length} google:${google.length} gdelt:${gdelt.length} bing:${bing.length}`,
+  );
+
+  const attempts: { name: string; stories: Story[]; enabled: boolean }[] = [
+    { name: "NewsAPI", stories: newsapi, enabled: hasNewsApiKey },
+    { name: "Google News", stories: google, enabled: true },
+    { name: "GDELT", stories: gdelt, enabled: true },
+    { name: "Bing News", stories: bing, enabled: true },
+  ];
+  const sourcesTried = attempts.filter((a) => a.enabled).map((a) => a.name);
+  const sourcesUnavailable = attempts.filter((a) => a.enabled && a.stories.length === 0).map((a) => a.name);
+
   const seen = new Set<string>();
   const merged: Story[] = [];
-  for (const s of [...google, ...gdelt, ...bing]) {
+  for (const s of [...newsapi, ...google, ...gdelt, ...bing]) {
     const key = s.title.toLowerCase().slice(0, 90);
     if (seen.has(key)) continue;
     seen.add(key);
     merged.push(s);
   }
-  return merged
-    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-    .slice(0, 25);
+  return {
+    stories: merged
+      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+      .slice(0, 25),
+    sourcesTried,
+    sourcesUnavailable,
+  };
 }
 
 
