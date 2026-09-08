@@ -60,7 +60,7 @@ interface ScenarioBuilderProps {
 
 type BuildMode = "generate" | "write";
 
-const SCENARIO_GENERATION_TIMEOUT_MS = 12000;
+const SCENARIO_GENERATION_TIMEOUT_MS = 25000;
 
 const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
