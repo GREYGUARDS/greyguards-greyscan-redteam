@@ -82,6 +82,8 @@ export function AIEngineExposure({ brandName, demoMode = false }: AIEngineExposu
   const [storiesLoading, setStoriesLoading] = useState(false);
   const [checkedAt, setCheckedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sourcesUnavailable, setSourcesUnavailable] = useState<string[]>([]);
+  const [sourcesBlocked, setSourcesBlocked] = useState(false);
 
   const runCheck = useCallback(async (hours: number, mode: "all" | "stories" = "all") => {
     if (!brandName) return;
