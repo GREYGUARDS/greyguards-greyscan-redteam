@@ -53,7 +53,7 @@ export function GDELTThemesChart({ data }: GDELTThemesChartProps) {
     }
     if (current) lines.push(current);
 
-    const truncated = lines.length > maxLines;
+    const truncated = lines.length > maxLines && !clipped;
     return { lines: lines.slice(0, maxLines), truncated };
   };
 
