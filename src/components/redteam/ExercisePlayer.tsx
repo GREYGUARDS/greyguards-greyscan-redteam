@@ -34,7 +34,7 @@ import CountdownTimer from "./CountdownTimer";
 import InjectVisual from "./InjectVisual";
 import { supabase } from "@/integrations/supabase/client";
 
-const INJECT_GENERATION_TIMEOUT_MS = 90000;
+const INJECT_GENERATION_TIMEOUT_MS = 120000;
 const REACTION_TIMEOUT_MS = 60000;
 
 // Local fallback score for a written countermeasure if AI evaluation is unavailable
@@ -104,6 +104,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   const [eventLog, setEventLog] = useState<Array<{ time: number; message: string; type: "inject" | "response" | "system" }>>([]);
   const [responseHistory, setResponseHistory] = useState<ResponseRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadElapsed, setLoadElapsed] = useState(0);
   const [customCountermeasure, setCustomCountermeasure] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [isReacting, setIsReacting] = useState(false);
