@@ -406,7 +406,15 @@ serve(async (req) => {
     const [engines, feed] = await Promise.all([
       mode === "stories" ? Promise.resolve([]) : Promise.all(ENGINES.map((e) => queryEngine(e, brand, apiKey))),
       mode === "engines"
-        ? Promise.resolve({ stories: [], storySummary: "", windowHours, storyCount: 0 })
+        ? Promise.resolve({
+            stories: [],
+            storySummary: "",
+            windowHours,
+            storyCount: 0,
+            sourcesTried: [] as string[],
+            sourcesUnavailable: [] as string[],
+            sourcesBlocked: false,
+          })
         : buildStoryFeed(brand, windowHours, apiKey),
     ]);
 
