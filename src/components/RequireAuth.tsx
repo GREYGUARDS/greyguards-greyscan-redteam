@@ -17,29 +17,36 @@ export default function RequireAuth({ loginPath, children }: RequireAuthProps) {
 
   useEffect(() => {
     let cancelled = false;
+    let done = false;
 
-    const bail = async () => {
-      if (cancelled) return;
-      // Clear any stale/expired local session so we don't loop on it.
-      try { await supabase.auth.signOut({ scope: "local" }); } catch { /* ignore */ }
-      if (!cancelled) navigate(loginPath, { replace: true });
+    const bail = () => {
+      if (cancelled || done) return;
+      done = true;
+      // Navigate first so nobody is ever stranded on "Verifying access…";
+      // clearing the stale local session happens in the background.
+      navigate(loginPath, { replace: true });
+      void Promise.resolve(supabase.auth.signOut({ scope: "local" })).catch(() => { /* ignore */ });
     };
+
+    // Hard safety net: never sit on the verifying screen for more than 6s.
+    const safetyNet = setTimeout(bail, 6000);
 
     const check = async () => {
       try {
         const result = await Promise.race([
           supabase.auth.getUser(),
-          new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
         ]);
-        if (cancelled) return;
+        if (cancelled || done) return;
         const user = result?.data?.user;
         if (!user || user.is_anonymous) {
-          await bail();
+          bail();
           return;
         }
+        done = true;
         setStatus("allowed");
       } catch {
-        await bail();
+        bail();
       }
     };
 
@@ -51,6 +58,7 @@ export default function RequireAuth({ loginPath, children }: RequireAuthProps) {
 
     return () => {
       cancelled = true;
+      clearTimeout(safetyNet);
       sub.subscription.unsubscribe();
     };
   }, [loginPath, navigate]);
@@ -58,8 +66,15 @@ export default function RequireAuth({ loginPath, children }: RequireAuthProps) {
 
   if (status === "checking") {
     return (
-      <div className="min-h-screen flex items-center justify-center text-muted-foreground text-sm uppercase tracking-wider">
-        Verifying access…
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-muted-foreground text-sm uppercase tracking-wider">
+        <span>Verifying access…</span>
+        <button
+          type="button"
+          onClick={() => navigate(loginPath, { replace: true })}
+          className="text-xs underline underline-offset-4 hover:text-foreground"
+        >
+          Go to sign in
+        </button>
       </div>
     );
   }
