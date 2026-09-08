@@ -103,6 +103,8 @@ export function AIEngineExposure({ brandName, demoMode = false }: AIEngineExposu
       }
       setStories(data?.stories || []);
       setStorySummary(data?.storySummary || "");
+      setSourcesUnavailable(Array.isArray(data?.sourcesUnavailable) ? data.sourcesUnavailable : []);
+      setSourcesBlocked(Boolean(data?.sourcesBlocked));
       setCheckedAt(data?.checkedAt || new Date().toISOString());
     } catch (err) {
       console.warn("AI engine check failed:", err);
