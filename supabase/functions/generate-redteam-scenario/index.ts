@@ -245,7 +245,11 @@ Return a JSON object with these exact fields:
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        response_format: { type: "json_object" }
+        response_format: { type: "json_object" },
+        // Keep generation snappy: this is a short JSON payload and the preview
+        // must land well inside the client's wait window.
+        reasoning_effort: "low",
+        max_completion_tokens: 600
       }),
     });
 
