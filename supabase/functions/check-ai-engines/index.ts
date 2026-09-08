@@ -350,7 +350,17 @@ async function buildStoryFeed(brand: string, windowHours: number, apiKey: string
   // items keep relevant === null and stay in the feed).
   const filtered = enriched.filter((s) => s.relevant !== false);
   filtered.sort((a, b) => (b.mdmRisk ?? -1) - (a.mdmRisk ?? -1));
-  return { stories: filtered, storySummary: summary, windowHours, storyCount: filtered.length };
+  return {
+    stories: filtered,
+    storySummary: summary,
+    windowHours,
+    storyCount: filtered.length,
+    sourcesTried,
+    sourcesUnavailable,
+    // True only when every news route refused/timed out — an empty feed then means
+    // "sources unavailable", not "nothing published".
+    sourcesBlocked: sourcesTried.length > 0 && sourcesUnavailable.length === sourcesTried.length,
+  };
 }
 
 serve(async (req) => {
