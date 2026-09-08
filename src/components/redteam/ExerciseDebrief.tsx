@@ -133,7 +133,7 @@ const ExerciseDebrief = ({
       acc[r.responseType] = (acc[r.responseType] || 0) + 1;
       return acc;
     }, {} as Record<string, number>),
-    correctRate: score.decisionsTotal > 0 ? Math.round((score.decisionsCorrect / score.decisionsTotal) * 100) : 0,
+    effectiveRate: score.decisionsTotal > 0 ? Math.round((score.decisionsCorrect / score.decisionsTotal) * 100) : 0,
     avgEffectiveness: responseHistory.length > 0 
       ? Math.round(responseHistory.reduce((sum, r) => sum + r.effectiveness, 0) / responseHistory.length)
       : 0
@@ -174,7 +174,7 @@ const ExerciseDebrief = ({
     }
 
     // Decision accuracy
-    if (responsePatterns.correctRate < 70) {
+    if (responsePatterns.effectiveRate < 70) {
       recommendations.push({
         priority: "medium",
         title: "Improve Decision Quality",
@@ -336,7 +336,8 @@ const ExerciseDebrief = ({
                     <div className="text-3xl font-bold text-foreground">
                       {score.decisionsCorrect}/{score.decisionsTotal}
                     </div>
-                    <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">Correct Decisions</div>
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">Effective Actions</div>
+                    <div className="text-[10px] text-muted-foreground mt-1">High-impact responses taken quickly</div>
                     <Progress 
                       value={score.decisionsTotal > 0 ? (score.decisionsCorrect / score.decisionsTotal) * 100 : 0} 
                       className="mt-2 h-2" 
@@ -593,8 +594,8 @@ const ExerciseDebrief = ({
                         <div className="text-xs uppercase tracking-wider text-muted-foreground">Avg Effectiveness</div>
                       </div>
                       <div className="p-4 bg-muted">
-                        <div className="text-2xl font-bold text-success">{responsePatterns.correctRate}%</div>
-                        <div className="text-xs uppercase tracking-wider text-muted-foreground">Correct Rate</div>
+                        <div className="text-2xl font-bold text-success">{responsePatterns.effectiveRate}%</div>
+                        <div className="text-xs uppercase tracking-wider text-muted-foreground">Effective Rate</div>
                       </div>
                       <div className="p-4 bg-muted">
                         <div className="text-2xl font-bold text-warning">{responseHistory.length}</div>

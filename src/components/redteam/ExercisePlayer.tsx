@@ -718,12 +718,31 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   };
 
 
-  const applyOutcome = (effectiveness: number, riskLevel?: ResponseOption["riskLevel"]) => {
-    const wasCorrect = effectiveness >= 65;
+  // An action only counts as "effective" if it materially moved the narrative AND
+  // was taken quickly. Hesitation degrades an otherwise sound decision, and simply
+  // picking every low-risk option no longer banks a win.
+  const timePenalty = (responseTime?: number) => {
+    if (responseTime === undefined) return 0;
+    if (responseTime > 45) return 15;
+    if (responseTime > 30) return 10;
+    if (responseTime > 20) return 5;
+    return 0;
+  };
+
+  const applyOutcome = (
+    effectiveness: number,
+    riskLevel?: ResponseOption["riskLevel"],
+    responseTime?: number
+  ) => {
+    const helped = effectiveness >= 65;
+    const wasCorrect = effectiveness - timePenalty(responseTime) >= 78;
     let controlAfter = narrativeControl;
 
     if (wasCorrect) {
       setDecisionsCorrect((prev) => prev + 1);
+    }
+
+    if (helped) {
       controlAfter = Math.min(100, narrativeControl + (effectiveness / 10));
       setNarrativeControl(controlAfter);
       setReputationDamage((prev) => Math.max(0, prev - (effectiveness / 15)));
@@ -747,7 +766,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     setResponseTimes((prev) => [...prev, responseTime]);
     setDecisionsTotal((prev) => prev + 1);
 
-    const { wasCorrect, controlAfter } = applyOutcome(option.effectiveness, option.riskLevel);
+    const { wasCorrect, controlAfter } = applyOutcome(option.effectiveness, option.riskLevel, responseTime);
 
     // Record response for debrief
     const record: ResponseRecord = {
@@ -822,7 +841,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       console.error('Error evaluating custom response:', error);
     }
 
-    const { wasCorrect, controlAfter } = applyOutcome(effectiveness);
+    const { wasCorrect, controlAfter } = applyOutcome(effectiveness, undefined, responseTime);
 
     const record: ResponseRecord = {
       injectId: respondedTo.id,
