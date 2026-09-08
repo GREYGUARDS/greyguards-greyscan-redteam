@@ -34,8 +34,8 @@ import CountdownTimer from "./CountdownTimer";
 import InjectVisual from "./InjectVisual";
 import { supabase } from "@/integrations/supabase/client";
 
-const INJECT_GENERATION_TIMEOUT_MS = 8000;
-const REACTION_TIMEOUT_MS = 25000;
+const INJECT_GENERATION_TIMEOUT_MS = 90000;
+const REACTION_TIMEOUT_MS = 60000;
 
 // Local fallback score for a written countermeasure if AI evaluation is unavailable
 const heuristicScore = (text: string): number => {
