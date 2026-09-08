@@ -35,6 +35,7 @@ import ScenarioBuilder from "@/components/redteam/ScenarioBuilder";
 import ExercisePlayer from "@/components/redteam/ExercisePlayer";
 import ConsultantDashboard from "@/components/redteam/ConsultantDashboard";
 import ExerciseDebrief from "@/components/redteam/ExerciseDebrief";
+import type { AttackTimelineEntry } from "@/components/redteam/ExercisePlayer";
 import TeamJoin from "@/components/redteam/TeamJoin";
 import BlueTeamDashboard from "@/components/redteam/BlueTeamDashboard";
 import RedTeamDashboard from "@/components/redteam/RedTeamDashboard";
@@ -186,6 +187,7 @@ interface ExerciseResults {
   score: TeamScore;
   responseHistory: ResponseRecord[];
   eventLog: Array<{ time: number; message: string; type: string }>;
+  attackTimeline?: AttackTimelineEntry[];
 }
 
 interface TeamSessionData {
@@ -269,9 +271,10 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
   const handleExerciseComplete = (
     score: TeamScore, 
     responseHistory: ResponseRecord[], 
-    eventLog: Array<{ time: number; message: string; type: string }>
+    eventLog: Array<{ time: number; message: string; type: string }>,
+    attackTimeline?: AttackTimelineEntry[]
   ) => {
-    setExerciseResults({ score, responseHistory, eventLog });
+    setExerciseResults({ score, responseHistory, eventLog, attackTimeline });
     setPhase("results");
   };
 
@@ -378,6 +381,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
         config={config}
         responseHistory={exerciseResults.responseHistory}
         eventLog={exerciseResults.eventLog}
+        attackTimeline={exerciseResults.attackTimeline}
         onRestart={handleRestartExercise}
       />
     );
