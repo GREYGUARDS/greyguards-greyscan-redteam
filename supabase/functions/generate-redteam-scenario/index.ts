@@ -255,7 +255,7 @@ Return a JSON object with these exact fields:
         // Keep generation snappy: this is a short JSON payload and the preview
         // must land well inside the client's wait window.
         reasoning_effort: "low",
-        max_completion_tokens: 600
+        max_completion_tokens: 1500
       }),
     });
 
