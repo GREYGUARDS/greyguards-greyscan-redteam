@@ -57,9 +57,15 @@ const SCENARIO_CATEGORIES = [
 ];
 
 // Generate a varied fallback based on brand characteristics
-function generateFallbackScenario(brandName: string): any {
-  const seed = brandName.toLowerCase().split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const category = SCENARIO_CATEGORIES[seed % SCENARIO_CATEGORIES.length];
+function generateFallbackScenario(brandName: string, categoryType?: string): any {
+  // Honour the requested category when there is one; otherwise vary by brand and
+  // run so repeat sessions don't always land on the same crisis.
+  const requested = categoryType && categoryType !== "random"
+    ? SCENARIO_CATEGORIES.find((c) => c.type === categoryType)
+    : undefined;
+  const seed = brandName.toLowerCase().split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    + Math.floor(Math.random() * SCENARIO_CATEGORIES.length);
+  const category = requested || SCENARIO_CATEGORIES[seed % SCENARIO_CATEGORIES.length];
   
   const fallbacks: Record<string, any> = {
     product_safety: {
