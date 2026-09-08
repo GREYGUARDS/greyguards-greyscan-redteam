@@ -79,13 +79,24 @@ const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<
   }
 };
 
+export interface AttackTimelineEntry {
+  order: number;
+  dayLabel: string;
+  clock: string;
+  phase: string;
+  phaseNote: string;
+  source: string;
+  fired: boolean;
+}
+
 interface ExercisePlayerProps {
   config: ExerciseConfig;
   scenario: Scenario;
   onComplete: (
     score: TeamScore, 
     responseHistory: ResponseRecord[], 
-    eventLog: Array<{ time: number; message: string; type: string }>
+    eventLog: Array<{ time: number; message: string; type: string }>,
+    attackTimeline?: AttackTimelineEntry[]
   ) => void;
   onBack: () => void;
 }
@@ -128,6 +139,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     eventLog: [] as Array<{ time: number; message: string; type: string }>,
   });
   const completedRef = useRef(false);
+  const attackTimelineRef = useRef<AttackTimelineEntry[]>([]);
 
   useEffect(() => {
     metricsRef.current = {
@@ -159,7 +171,12 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       decisionsTotal: m.decisionsTotal,
     };
 
-    onComplete(score, m.responseHistory, m.eventLog as Array<{ time: number; message: string; type: string }>);
+    onComplete(
+      score,
+      m.responseHistory,
+      m.eventLog as Array<{ time: number; message: string; type: string }>,
+      attackTimelineRef.current
+    );
   }, [onComplete]);
 
 
@@ -428,11 +445,24 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     loadInjects();
   }, [generateInjects, config.duration]);
 
-  // The dated, phased running order shown to participants
+  // The dated, phased running order — shown only in the debrief
   const timeline: TimelineBeat[] = useMemo(
     () => buildInjectTimeline(injects, totalDuration),
     [injects, totalDuration]
   );
+
+  // Keep a serialisable snapshot for the debrief screen
+  useEffect(() => {
+    attackTimelineRef.current = timeline.map((beat, i) => ({
+      order: beat.order,
+      dayLabel: beat.dayLabel,
+      clock: beat.clock,
+      phase: beat.phase,
+      phaseNote: beat.phaseNote,
+      source: beat.inject.source,
+      fired: i < firedCountRef.current,
+    }));
+  }, [timeline, activeInject, timeRemaining]);
 
   // Timer effect — injects are released strictly in timeline order.
   // The clock does not start until injects have finished generating so the
@@ -1010,54 +1040,8 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
               </CardContent>
             </Card>
 
-            <Card className="border-4 border-border bg-card">
-              <CardHeader className="border-b-4 border-border py-3">
-                <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wider">
-                  <Clock className="h-4 w-4 text-primary" />
-                  Attack Timeline
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <ScrollArea className="h-[260px]">
-                  <div className="p-4 space-y-2">
-                    {timeline.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        Building the attack sequence...
-                      </p>
-                    ) : (
-                      timeline.map((beat, i) => {
-                        const isActive = activeBeat?.order === beat.order;
-                        const isPast = i < firedCountRef.current && !isActive;
-                        return (
-                          <div
-                            key={`${beat.order}-${beat.inject.id}`}
-                            className={`border-l-2 p-2 text-xs ${
-                              isActive
-                                ? "border-destructive bg-destructive/10"
-                                : isPast
-                                ? "border-success/60 bg-success/5"
-                                : "border-muted bg-muted/30 opacity-60"
-                            }`}
-                          >
-                            <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                              <span>
-                                {beat.dayLabel} · {beat.clock}
-                              </span>
-                              <span>{beat.phase}</span>
-                            </div>
-                            <p className="mt-1 leading-snug">
-                              {isPast || isActive
-                                ? `${beat.order}. ${beat.inject.source}`
-                                : `${beat.order}. Pending — ${beat.phaseNote}`}
-                            </p>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
+
+
 
 
 
