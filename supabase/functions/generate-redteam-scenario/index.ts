@@ -262,7 +262,7 @@ Return a JSON object with these exact fields:
     if (!response.ok) {
       const errorId = crypto.randomUUID();
       console.error("AI gateway error:", { errorId, status: response.status, timestamp: new Date().toISOString() });
-      const fallback = generateFallbackScenario(brandName);
+      const fallback = generateFallbackScenario(brandName, selectedCategory.type);
       return new Response(
         JSON.stringify({ error: "Service temporarily unavailable", errorId, ...fallback }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
