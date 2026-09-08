@@ -85,7 +85,8 @@ interface ExercisePlayerProps {
   onComplete: (
     score: TeamScore, 
     responseHistory: ResponseRecord[], 
-    eventLog: Array<{ time: number; message: string; type: string }>
+    eventLog: Array<{ time: number; message: string; type: string }>,
+    attackTimeline?: AttackTimelineEntry[]
   ) => void;
   onBack: () => void;
 }
