@@ -28,8 +28,18 @@ export function GDELTThemesChart({ data }: GDELTThemesChartProps) {
     const words = label.split(/[_\s]+/).filter(Boolean);
     const lines: string[] = [];
     let current = "";
+    let clipped = false;
 
-    for (const word of words) {
+    // A single word longer than the tile can hold is shortened with an ellipsis,
+    // so no label can ever paint outside its tile.
+    const fitWord = (word: string) => {
+      if (word.length <= maxChars) return word;
+      clipped = true;
+      return `${word.slice(0, Math.max(1, maxChars - 1))}…`;
+    };
+
+    for (const rawWord of words) {
+      const word = fitWord(rawWord);
       const candidate = current ? `${current} ${word}` : word;
       if (candidate.length <= maxChars) {
         current = candidate;
@@ -43,7 +53,7 @@ export function GDELTThemesChart({ data }: GDELTThemesChartProps) {
     }
     if (current) lines.push(current);
 
-    const truncated = lines.length > maxLines;
+    const truncated = lines.length > maxLines && !clipped;
     return { lines: lines.slice(0, maxLines), truncated };
   };
 

@@ -82,6 +82,8 @@ export function AIEngineExposure({ brandName, demoMode = false }: AIEngineExposu
   const [storiesLoading, setStoriesLoading] = useState(false);
   const [checkedAt, setCheckedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sourcesUnavailable, setSourcesUnavailable] = useState<string[]>([]);
+  const [sourcesBlocked, setSourcesBlocked] = useState(false);
 
   const runCheck = useCallback(async (hours: number, mode: "all" | "stories" = "all") => {
     if (!brandName) return;
@@ -101,6 +103,8 @@ export function AIEngineExposure({ brandName, demoMode = false }: AIEngineExposu
       }
       setStories(data?.stories || []);
       setStorySummary(data?.storySummary || "");
+      setSourcesUnavailable(Array.isArray(data?.sourcesUnavailable) ? data.sourcesUnavailable : []);
+      setSourcesBlocked(Boolean(data?.sourcesBlocked));
       setCheckedAt(data?.checkedAt || new Date().toISOString());
     } catch (err) {
       console.warn("AI engine check failed:", err);
@@ -265,8 +269,32 @@ export function AIEngineExposure({ brandName, demoMode = false }: AIEngineExposu
               Scraping and assessing stories from the last {windowHours}h…
             </div>
           ) : stories.length === 0 ? (
-            <div className="p-6 text-xs text-muted-foreground">
-              No published stories about {brandName || "this organisation"} in the last {windowHours}h. Try a wider window.
+            <div className="p-6 text-xs text-muted-foreground space-y-2">
+              {sourcesBlocked ? (
+                <>
+                  <p className="text-destructive">
+                    News sources unavailable — every feed refused or timed out{" "}
+                    {sourcesUnavailable.length > 0 ? `(${sourcesUnavailable.join(", ")})` : ""}.
+                  </p>
+                  <p>This is a source outage, not a clean result. Retry in a moment before drawing conclusions.</p>
+                  <button
+                    onClick={() => runCheck(windowHours, "stories")}
+                    className="text-xs underline text-foreground"
+                  >
+                    Retry news sources
+                  </button>
+                </>
+              ) : (
+                <p>
+                  No published stories about {brandName || "this organisation"} in the last {windowHours}h. Try a wider
+                  window.
+                  {sourcesUnavailable.length > 0 && (
+                    <span className="block mt-1 text-muted-foreground/70">
+                      Note: {sourcesUnavailable.join(", ")} returned nothing this run.
+                    </span>
+                  )}
+                </p>
+              )}
             </div>
           ) : (
             <>
