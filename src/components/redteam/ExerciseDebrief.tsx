@@ -44,11 +44,22 @@ interface ResponseRecord {
   timestamp: number;
 }
 
+export interface AttackTimelineEntry {
+  order: number;
+  dayLabel: string;
+  clock: string;
+  phase: string;
+  phaseNote: string;
+  source: string;
+  fired: boolean;
+}
+
 interface ExerciseDebriefProps {
   score: TeamScore;
   config: ExerciseConfig;
   responseHistory: ResponseRecord[];
   eventLog: Array<{ time: number; message: string; type: string }>;
+  attackTimeline?: AttackTimelineEntry[];
   onRestart: () => void;
 }
 
@@ -57,6 +68,7 @@ const ExerciseDebrief = ({
   config, 
   responseHistory,
   eventLog,
+  attackTimeline = [],
   onRestart 
 }: ExerciseDebriefProps) => {
   const [selectedTab, setSelectedTab] = useState("overview");
@@ -411,6 +423,39 @@ const ExerciseDebrief = ({
 
             {/* Timeline Tab */}
             <TabsContent value="timeline" className="space-y-6">
+              {attackTimeline.length > 0 && (
+                <Card className="border-4 border-border">
+                  <CardHeader className="border-b border-border py-3">
+                    <CardTitle className="text-sm uppercase tracking-wider flex items-center gap-2">
+                      <Target className="h-4 w-4 text-destructive" />
+                      Attack Timeline — How The Campaign Unfolded
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <ScrollArea className="h-[320px]">
+                      <div className="p-4 space-y-2">
+                        {attackTimeline.map((beat) => (
+                          <div
+                            key={beat.order}
+                            className={`border-l-2 p-2 text-xs ${
+                              beat.fired ? "border-destructive bg-destructive/5" : "border-muted bg-muted/30 opacity-60"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                              <span>{beat.dayLabel} · {beat.clock}</span>
+                              <span>{beat.phase}</span>
+                            </div>
+                            <p className="mt-1 leading-snug">
+                              {beat.order}. {beat.fired ? beat.source : `Not reached — ${beat.phaseNote}`}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+              )}
+
               <Card className="border-4 border-border">
                 <CardHeader className="border-b border-border py-3">
                   <CardTitle className="text-sm uppercase tracking-wider flex items-center gap-2">
