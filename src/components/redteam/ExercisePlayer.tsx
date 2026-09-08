@@ -1310,7 +1310,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
               <Card className="border-2 border-border bg-card">
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-success">{decisionsCorrect}</div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground">Correct Decisions</div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground">Effective Actions</div>
                 </CardContent>
               </Card>
               <Card className="border-2 border-border bg-card">
