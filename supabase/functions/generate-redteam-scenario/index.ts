@@ -63,32 +63,32 @@ function generateFallbackScenario(brandName: string): any {
   
   const fallbacks: Record<string, any> = {
     product_safety: {
-      title: `${brandName} Product Safety Concerns Go Viral`,
-      narrative: `A coordinated campaign has emerged claiming that ${brandName}'s products contain hazardous materials. The initial posts appeared on fringe forums before being amplified by bot networks. Key claims include unverified "whistleblower" testimony and manipulated product testing images. The narrative is spreading rapidly across mainstream social platforms.`,
+      title: `${brandName} Product Safety Claims Spread`,
+      narrative: `Posts on fringe forums claim ${brandName} products contain hazardous materials. Bot accounts pushed the claim onto X and TikTok overnight, using a fake "whistleblower" quote and doctored test photos. The hashtag is now trending.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - Product Manager]", "[REDACTED - Quality Assurance Lead]"],
       severity: "severe",
       spreadPattern: "coordinated"
     },
     data_breach: {
-      title: `Alleged ${brandName} Customer Data Exposed`,
-      narrative: `Anonymous accounts are circulating claims that ${brandName} suffered a massive data breach affecting millions of customers. Screenshots purporting to show leaked customer records are being shared widely. The campaign appears timed to coincide with an industry event. No official confirmation exists, but the narrative is gaining traction with mainstream media.`,
+      title: `Alleged ${brandName} Customer Data Leak`,
+      narrative: `Anonymous accounts claim ${brandName} suffered a data breach affecting millions of customers. Screenshots of supposed leaked records are spreading on X and Telegram. No breach has been confirmed, but journalists are starting to ask questions.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - CTO]", "[REDACTED - Security Director]"],
       severity: "critical",
       spreadPattern: "viral"
     },
     environmental: {
-      title: `${brandName} Environmental Scandal Emerges`,
-      narrative: `A disinformation campaign is targeting ${brandName} with fabricated claims about illegal waste dumping. Doctored satellite images and fake regulatory documents are being circulated. Environmental activist accounts (some identified as bot networks) are amplifying the narrative and calling for boycotts.`,
+      title: `${brandName} Hit by Dumping Claims`,
+      narrative: `Fake satellite images claim ${brandName} is illegally dumping waste. Activist accounts — some identified as bots — are sharing the images and calling for a boycott.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - Operations Director]", "[REDACTED - Sustainability Lead]"],
       severity: "severe",
       spreadPattern: "coordinated"
     },
     labor_practices: {
-      title: `${brandName} Worker Treatment Under Attack`,
-      narrative: `Coordinated accounts are spreading allegations about poor working conditions at ${brandName} facilities. The campaign uses out-of-context video clips and fabricated employee testimonials. A trending hashtag has emerged calling for consumer boycotts. Some claims mix genuine workplace complaints with exaggerated falsehoods.`,
+      title: `${brandName} Worker Treatment Claims`,
+      narrative: `Accounts on TikTok and Reddit allege poor conditions at ${brandName} sites, using out-of-context video and fabricated staff quotes. A boycott hashtag is gaining traction. A small number of the complaints echo real concerns raised internally.`,
       basedOnTruth: true,
       truthElement: "Some employees have previously raised minor workplace concerns through proper channels",
       implicatedParties: ["[REDACTED - HR Director]", "[REDACTED - Facility Manager]"],
@@ -96,40 +96,40 @@ function generateFallbackScenario(brandName: string): any {
       spreadPattern: "organic"
     },
     financial_fraud: {
-      title: `${brandName} Financial Irregularities Alleged`,
-      narrative: `Short-seller networks and anonymous financial accounts are spreading claims about accounting fraud at ${brandName}. Fake "leaked" financial documents are circulating on investor forums. The timing coincides with quarterly earnings, suggesting a coordinated manipulation attempt.`,
+      title: `${brandName} Accounting Rumours Circulate`,
+      narrative: `Anonymous finance accounts claim ${brandName} is hiding losses, sharing fake "leaked" accounts on investor forums. The timing, days before results, suggests a coordinated short-seller play.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - CFO]", "[REDACTED - Board Member]"],
       severity: "critical",
       spreadPattern: "coordinated"
     },
     supply_chain: {
-      title: `${brandName} Supply Chain Ethics Under Fire`,
-      narrative: `A campaign is spreading claims that ${brandName}'s supply chain involves unethical labour practices or sourcing from sanctioned regions. Fake shipping manifests and supplier documents are being shared. Activist groups are amplifying the narrative without verification.`,
+      title: `${brandName} Sourcing Under Attack`,
+      narrative: `Fake shipping documents claim ${brandName} sources from sanctioned regions. Activist groups are sharing the documents without checking them.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - Procurement Lead]", "[REDACTED - Compliance Officer]"],
       severity: "severe",
       spreadPattern: "organic"
     },
     ai_ethics: {
-      title: `${brandName} AI Systems Face Bias Allegations`,
-      narrative: `Claims are circulating that ${brandName}'s AI systems exhibit discriminatory behaviour. The campaign uses cherry-picked examples and misleading statistics. Tech commentators are weighing in before any independent verification, and the hashtag #${brandName.replace(/\s/g, '')}Bias is trending.`,
+      title: `${brandName} AI Bias Claims Trend`,
+      narrative: `Posts claim ${brandName}'s AI systems discriminate, using cherry-picked examples. #${brandName.replace(/\s/g, '')}Bias is trending and commentators are weighing in before any facts are checked.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - AI Lead]", "[REDACTED - Data Science Director]"],
       severity: "moderate",
       spreadPattern: "viral"
     },
     health_claims: {
-      title: `Health Concerns Over ${brandName} Products`,
-      narrative: `Wellness influencers and alternative health accounts are spreading unverified claims that ${brandName} products cause adverse health effects. The campaign uses pseudo-scientific language and fake expert testimonials. A petition calling for product recalls is gaining signatures.`,
+      title: `${brandName} Health Scare Spreads`,
+      narrative: `Wellness influencers claim ${brandName} products cause health problems, citing fake experts. A recall petition is gathering signatures.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - Product Development]", "[REDACTED - Regulatory Affairs]"],
       severity: "severe",
       spreadPattern: "organic"
     },
     political_ties: {
-      title: `${brandName} Political Donation Controversy`,
-      narrative: `Fabricated documents claiming ${brandName} made secret political donations to extremist groups are being circulated. The campaign is timed to exploit current political tensions. Bot networks are amplifying calls for boycotts from both sides of the political spectrum.`,
+      title: `${brandName} Donation Story Fabricated`,
+      narrative: `Forged documents claim ${brandName} secretly funded extremist groups. Bot networks on both sides of politics are pushing boycott calls.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - CEO]", "[REDACTED - Government Affairs]"],
       severity: "critical",
@@ -235,14 +235,17 @@ The category "${selectedCategory.type}" should be interpreted through the lens o
 
 The scenario should be:
 - DEEPLY SPECIFIC to ${brandName}'s actual likely purpose and operations
-- Reference realistic aspects of their work (not generic corporate scenarios)
 - Based on common disinformation tactics (mixing truth with lies, emotional manipulation, coordinated amplification)
-- Challenging but not impossible to counter
 - Appropriate for a ${duration}-minute crisis simulation exercise
 
+STYLE — this matters as much as content:
+- Write for busy executives, PR and risk leaders. They will skim, not study.
+- Plain English. Short sentences. No corporate jargon (avoid "leverage", "stakeholder ecosystem", "amplification dynamics", "reputational impact" etc.).
+- Say what is being claimed, where it's spreading, and who started it — in that order, as simply as possible.
+
 Return a JSON object with these exact fields:
-- title: A concise, impactful title mentioning ${brandName} by name
-- narrative: A 2-3 paragraph description of the disinformation campaign that is SPECIFIC to what ${brandName} does. Include how it started, what's being claimed, and how it's spreading. Be specific about platforms, tactics, and timeline.
+- title: A concise, impactful title mentioning ${brandName} by name (max 8 words)
+- narrative: ONE short paragraph, 3-4 sentences, 60 words maximum. Cover: what the false claim is, where it started, where it's spreading now. Plain English, no jargon.
 - basedOnTruth: Boolean - whether the narrative contains any real/true elements that are being twisted
 - truthElement: If basedOnTruth is true, explain what the kernel of truth is
 - implicatedParties: Array of 2-3 roles appropriate to ${brandName}'s organization type (use generic titles like "[REDACTED - Senior Officer]" or "[REDACTED - Department Head]" instead of real names)
@@ -250,8 +253,8 @@ Return a JSON object with these exact fields:
 - spreadPattern: "viral" (organic fast spread), "coordinated" (bot/troll farm), or "organic" (slow natural spread)${canonBlock}`;
 
     const userPrompt = userScenario 
-      ? `The user has provided this scenario outline. Enhance and professionalize it while keeping the core concept:\n\n"${userScenario}"\n\nMake it more realistic with specific details, spreading patterns, and implicated parties. Ensure it's deeply specific to what ${brandName} actually does as an organization.`
-      : `First, determine what "${brandName}" most likely is (their industry, purpose, and operations). Then create a completely original ${selectedCategory.name.toLowerCase()} disinformation scenario that is HIGHLY RELEVANT to that type of organization. Do NOT use generic corporate scenarios - make it specific to what this brand actually does. Include specific platform names (Twitter/X, Reddit, TikTok, Telegram, etc.), realistic account types that would target this brand, and a clear timeline of how the narrative is developing.`;
+      ? `The user has provided this scenario outline. Tighten it into a short, plain-English scenario while keeping the core concept:\n\n"${userScenario}"\n\nKeep the narrative under 60 words, one paragraph. Specific to what ${brandName} actually does.`
+      : `First, determine what "${brandName}" most likely is (their industry, purpose, and operations). Then create a short, original ${selectedCategory.name.toLowerCase()} disinformation scenario specific to that organisation. Name real platforms (X, Reddit, TikTok, Telegram). Keep the narrative under 60 words, one paragraph, plain English a busy executive can absorb in seconds.`;
 
     console.log("Generating scenario:", { brandName, duration, category: selectedCategory.type, clientIp, remaining: rateLimit.remaining });
 
