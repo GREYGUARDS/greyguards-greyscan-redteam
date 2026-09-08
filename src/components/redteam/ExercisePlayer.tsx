@@ -139,6 +139,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     eventLog: [] as Array<{ time: number; message: string; type: string }>,
   });
   const completedRef = useRef(false);
+  const attackTimelineRef = useRef<AttackTimelineEntry[]>([]);
 
   useEffect(() => {
     metricsRef.current = {
