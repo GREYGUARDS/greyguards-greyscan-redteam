@@ -285,7 +285,7 @@ export function AIEngineExposure({ brandName, demoMode = false }: AIEngineExposu
                   No published stories about {brandName || "this organisation"} in the last {windowHours}h. Try a wider
                   window.
                   {sourcesUnavailable.length > 0 && (
-                    <span className="block mt-1 text-warm-grey">
+                    <span className="block mt-1 text-muted-foreground/70">
                       Note: {sourcesUnavailable.join(", ")} returned nothing this run.
                     </span>
                   )}
