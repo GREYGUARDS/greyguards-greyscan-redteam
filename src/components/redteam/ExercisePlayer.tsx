@@ -170,7 +170,12 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       decisionsTotal: m.decisionsTotal,
     };
 
-    onComplete(score, m.responseHistory, m.eventLog as Array<{ time: number; message: string; type: string }>);
+    onComplete(
+      score,
+      m.responseHistory,
+      m.eventLog as Array<{ time: number; message: string; type: string }>,
+      attackTimelineRef.current
+    );
   }, [onComplete]);
 
 
