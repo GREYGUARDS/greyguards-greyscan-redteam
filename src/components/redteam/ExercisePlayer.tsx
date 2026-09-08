@@ -433,9 +433,11 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     [injects, totalDuration]
   );
 
-  // Timer effect — injects are released strictly in timeline order
+  // Timer effect — injects are released strictly in timeline order.
+  // The clock does not start until injects have finished generating so the
+  // participant never loses exercise time to AI latency.
   useEffect(() => {
-    if (isPaused || timeRemaining <= 0) return;
+    if (isLoading || isPaused || timeRemaining <= 0) return;
 
     const interval = setInterval(() => {
       setTimeRemaining((prev) => {
@@ -474,7 +476,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isPaused, injects, activeInject, totalDuration]);
+  }, [isLoading, isPaused, injects, activeInject, totalDuration]);
 
 
   const activeBeat = findBeat(timeline, activeInject);
