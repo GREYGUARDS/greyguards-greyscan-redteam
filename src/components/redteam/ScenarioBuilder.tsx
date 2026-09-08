@@ -60,7 +60,7 @@ interface ScenarioBuilderProps {
 
 type BuildMode = "generate" | "write";
 
-const SCENARIO_GENERATION_TIMEOUT_MS = 12000;
+const SCENARIO_GENERATION_TIMEOUT_MS = 25000;
 
 const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -122,8 +122,15 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
  
       // Fallback scenario for demo purposes (avoid repeating the exec-misconduct scenario)
       const category = (config.scenarioCategory || "random") as string;
-      const pick = (key: string) => key === "random" ? "product_safety" : key;
-      const type = pick(category);
+      const randomTypes = [
+        "data_breach", "environmental", "labor_practices", "financial_fraud",
+        "supply_chain", "ai_ethics", "health_claims", "political_ties", "product_safety",
+      ];
+      // "Random" must actually be random — it previously always fell back to the
+      // product safety story, so every fallback exercise looked identical.
+      const type = category === "random"
+        ? randomTypes[Math.floor(Math.random() * randomTypes.length)]
+        : category;
 
       const fallbacks: Record<string, Omit<Scenario, "id">> = {
         product_safety: {
@@ -209,7 +216,7 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
         },
       };
 
-      const chosen = fallbacks[type] || fallbacks.product_safety;
+      const chosen = fallbacks[type] || fallbacks.data_breach;
       const fallbackScenario: Scenario = { id: crypto.randomUUID(), ...chosen };
       setPreviewScenario(fallbackScenario);
     } finally {

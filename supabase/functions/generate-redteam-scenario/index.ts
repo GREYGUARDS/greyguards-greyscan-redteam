@@ -57,9 +57,15 @@ const SCENARIO_CATEGORIES = [
 ];
 
 // Generate a varied fallback based on brand characteristics
-function generateFallbackScenario(brandName: string): any {
-  const seed = brandName.toLowerCase().split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const category = SCENARIO_CATEGORIES[seed % SCENARIO_CATEGORIES.length];
+function generateFallbackScenario(brandName: string, categoryType?: string): any {
+  // Honour the requested category when there is one; otherwise vary by brand and
+  // run so repeat sessions don't always land on the same crisis.
+  const requested = categoryType && categoryType !== "random"
+    ? SCENARIO_CATEGORIES.find((c) => c.type === categoryType)
+    : undefined;
+  const seed = brandName.toLowerCase().split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    + Math.floor(Math.random() * SCENARIO_CATEGORIES.length);
+  const category = requested || SCENARIO_CATEGORIES[seed % SCENARIO_CATEGORIES.length];
   
   const fallbacks: Record<string, any> = {
     product_safety: {
@@ -210,38 +216,13 @@ serve(async (req) => {
       ? `\n\nCANON BRIEFING — you MUST build the scenario inside these facts. Use the named (fictional) executives verbatim rather than "[REDACTED]" placeholders, and reference the listed trade publications and prior incidents where useful. Do not contradict the briefing.\n${brandContext}\n`
       : "";
 
-    const systemPrompt = `You are an expert in crisis communications, disinformation campaigns, and brand reputation management. Your role is to create realistic but fictional crisis scenarios for training exercises.
+    const systemPrompt = `You write short, realistic but fictional disinformation crisis scenarios for executive training exercises.
 
-CRITICAL FIRST STEP - ANALYZE THE BRAND:
-Before creating any scenario, you MUST first analyze "${brandName}" to understand:
-1. What industry/sector is this brand in? (e.g., military, tech, healthcare, retail, government, NGO, etc.)
-2. What is their primary purpose/mission? (e.g., national defense, selling products, providing services, etc.)
-3. What are their likely operations, stakeholders, and public perception?
-4. What types of crises would be MOST RELEVANT to this specific organization?
+Task: a ${selectedCategory.name} scenario (${selectedCategory.description}) for "${brandName}", a ${duration}-minute exercise.
 
-BRAND CONTEXT EXAMPLES:
-- "British Army" → Military/Defense → Scenarios about recruitment practices, veterans treatment, operations transparency, equipment failures, leaked intelligence
-- "Apple" → Consumer Tech → Product safety, privacy, supply chain, labor practices
-- "NHS" → Healthcare → Patient data, treatment quality, resource allocation, staff conditions
-- "Greenpeace" → NGO/Activism → Funding sources, campaign effectiveness, internal practices
+Work out what ${brandName} actually does and fit the crisis to that sector (e.g. for a military body, "product safety" means equipment reliability; for a charity, "financial fraud" means donation misuse).
 
-Now generate a disinformation scenario for "${brandName}" in the category: ${selectedCategory.name} (${selectedCategory.description}).
-
-ADAPT THE CRISIS CATEGORY TO THE BRAND:
-The category "${selectedCategory.type}" should be interpreted through the lens of what "${brandName}" actually does:
-- For military orgs: "product_safety" → equipment/weapons reliability; "data_breach" → intelligence/personnel data leaks
-- For governments: "labor_practices" → civil servant treatment; "environmental" → policy failures
-- For charities: "financial_fraud" → donation misuse
-
-The scenario should be:
-- DEEPLY SPECIFIC to ${brandName}'s actual likely purpose and operations
-- Based on common disinformation tactics (mixing truth with lies, emotional manipulation, coordinated amplification)
-- Appropriate for a ${duration}-minute crisis simulation exercise
-
-STYLE — this matters as much as content:
-- Write for busy executives, PR and risk leaders. They will skim, not study.
-- Plain English. Short sentences. No corporate jargon (avoid "leverage", "stakeholder ecosystem", "amplification dynamics", "reputational impact" etc.).
-- Say what is being claimed, where it's spreading, and who started it — in that order, as simply as possible.
+Style: plain English for busy executives who skim. Short sentences, no corporate jargon. Say what is claimed, where it started, where it is spreading — in that order.
 
 Return a JSON object with these exact fields:
 - title: A concise, impactful title mentioning ${brandName} by name (max 8 words)
@@ -265,19 +246,23 @@ Return a JSON object with these exact fields:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        response_format: { type: "json_object" }
+        response_format: { type: "json_object" },
+        // Keep generation snappy: this is a short JSON payload and the preview
+        // must land well inside the client's wait window.
+        reasoning_effort: "low",
+        max_completion_tokens: 1500
       }),
     });
 
     if (!response.ok) {
       const errorId = crypto.randomUUID();
       console.error("AI gateway error:", { errorId, status: response.status, timestamp: new Date().toISOString() });
-      const fallback = generateFallbackScenario(brandName);
+      const fallback = generateFallbackScenario(brandName, selectedCategory.type);
       return new Response(
         JSON.stringify({ error: "Service temporarily unavailable", errorId, ...fallback }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
