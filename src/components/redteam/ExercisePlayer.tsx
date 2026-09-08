@@ -79,6 +79,16 @@ const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<
   }
 };
 
+export interface AttackTimelineEntry {
+  order: number;
+  dayLabel: string;
+  clock: string;
+  phase: string;
+  phaseNote: string;
+  source: string;
+  fired: boolean;
+}
+
 interface ExercisePlayerProps {
   config: ExerciseConfig;
   scenario: Scenario;
