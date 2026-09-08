@@ -63,32 +63,32 @@ function generateFallbackScenario(brandName: string): any {
   
   const fallbacks: Record<string, any> = {
     product_safety: {
-      title: `${brandName} Product Safety Concerns Go Viral`,
-      narrative: `A coordinated campaign has emerged claiming that ${brandName}'s products contain hazardous materials. The initial posts appeared on fringe forums before being amplified by bot networks. Key claims include unverified "whistleblower" testimony and manipulated product testing images. The narrative is spreading rapidly across mainstream social platforms.`,
+      title: `${brandName} Product Safety Claims Spread`,
+      narrative: `Posts on fringe forums claim ${brandName} products contain hazardous materials. Bot accounts pushed the claim onto X and TikTok overnight, using a fake "whistleblower" quote and doctored test photos. The hashtag is now trending.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - Product Manager]", "[REDACTED - Quality Assurance Lead]"],
       severity: "severe",
       spreadPattern: "coordinated"
     },
     data_breach: {
-      title: `Alleged ${brandName} Customer Data Exposed`,
-      narrative: `Anonymous accounts are circulating claims that ${brandName} suffered a massive data breach affecting millions of customers. Screenshots purporting to show leaked customer records are being shared widely. The campaign appears timed to coincide with an industry event. No official confirmation exists, but the narrative is gaining traction with mainstream media.`,
+      title: `Alleged ${brandName} Customer Data Leak`,
+      narrative: `Anonymous accounts claim ${brandName} suffered a data breach affecting millions of customers. Screenshots of supposed leaked records are spreading on X and Telegram. No breach has been confirmed, but journalists are starting to ask questions.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - CTO]", "[REDACTED - Security Director]"],
       severity: "critical",
       spreadPattern: "viral"
     },
     environmental: {
-      title: `${brandName} Environmental Scandal Emerges`,
-      narrative: `A disinformation campaign is targeting ${brandName} with fabricated claims about illegal waste dumping. Doctored satellite images and fake regulatory documents are being circulated. Environmental activist accounts (some identified as bot networks) are amplifying the narrative and calling for boycotts.`,
+      title: `${brandName} Hit by Dumping Claims`,
+      narrative: `Fake satellite images claim ${brandName} is illegally dumping waste. Activist accounts — some identified as bots — are sharing the images and calling for a boycott.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - Operations Director]", "[REDACTED - Sustainability Lead]"],
       severity: "severe",
       spreadPattern: "coordinated"
     },
     labor_practices: {
-      title: `${brandName} Worker Treatment Under Attack`,
-      narrative: `Coordinated accounts are spreading allegations about poor working conditions at ${brandName} facilities. The campaign uses out-of-context video clips and fabricated employee testimonials. A trending hashtag has emerged calling for consumer boycotts. Some claims mix genuine workplace complaints with exaggerated falsehoods.`,
+      title: `${brandName} Worker Treatment Claims`,
+      narrative: `Accounts on TikTok and Reddit allege poor conditions at ${brandName} sites, using out-of-context video and fabricated staff quotes. A boycott hashtag is gaining traction. A small number of the complaints echo real concerns raised internally.`,
       basedOnTruth: true,
       truthElement: "Some employees have previously raised minor workplace concerns through proper channels",
       implicatedParties: ["[REDACTED - HR Director]", "[REDACTED - Facility Manager]"],
@@ -96,40 +96,40 @@ function generateFallbackScenario(brandName: string): any {
       spreadPattern: "organic"
     },
     financial_fraud: {
-      title: `${brandName} Financial Irregularities Alleged`,
-      narrative: `Short-seller networks and anonymous financial accounts are spreading claims about accounting fraud at ${brandName}. Fake "leaked" financial documents are circulating on investor forums. The timing coincides with quarterly earnings, suggesting a coordinated manipulation attempt.`,
+      title: `${brandName} Accounting Rumours Circulate`,
+      narrative: `Anonymous finance accounts claim ${brandName} is hiding losses, sharing fake "leaked" accounts on investor forums. The timing, days before results, suggests a coordinated short-seller play.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - CFO]", "[REDACTED - Board Member]"],
       severity: "critical",
       spreadPattern: "coordinated"
     },
     supply_chain: {
-      title: `${brandName} Supply Chain Ethics Under Fire`,
-      narrative: `A campaign is spreading claims that ${brandName}'s supply chain involves unethical labour practices or sourcing from sanctioned regions. Fake shipping manifests and supplier documents are being shared. Activist groups are amplifying the narrative without verification.`,
+      title: `${brandName} Sourcing Under Attack`,
+      narrative: `Fake shipping documents claim ${brandName} sources from sanctioned regions. Activist groups are sharing the documents without checking them.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - Procurement Lead]", "[REDACTED - Compliance Officer]"],
       severity: "severe",
       spreadPattern: "organic"
     },
     ai_ethics: {
-      title: `${brandName} AI Systems Face Bias Allegations`,
-      narrative: `Claims are circulating that ${brandName}'s AI systems exhibit discriminatory behaviour. The campaign uses cherry-picked examples and misleading statistics. Tech commentators are weighing in before any independent verification, and the hashtag #${brandName.replace(/\s/g, '')}Bias is trending.`,
+      title: `${brandName} AI Bias Claims Trend`,
+      narrative: `Posts claim ${brandName}'s AI systems discriminate, using cherry-picked examples. #${brandName.replace(/\s/g, '')}Bias is trending and commentators are weighing in before any facts are checked.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - AI Lead]", "[REDACTED - Data Science Director]"],
       severity: "moderate",
       spreadPattern: "viral"
     },
     health_claims: {
-      title: `Health Concerns Over ${brandName} Products`,
-      narrative: `Wellness influencers and alternative health accounts are spreading unverified claims that ${brandName} products cause adverse health effects. The campaign uses pseudo-scientific language and fake expert testimonials. A petition calling for product recalls is gaining signatures.`,
+      title: `${brandName} Health Scare Spreads`,
+      narrative: `Wellness influencers claim ${brandName} products cause health problems, citing fake experts. A recall petition is gathering signatures.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - Product Development]", "[REDACTED - Regulatory Affairs]"],
       severity: "severe",
       spreadPattern: "organic"
     },
     political_ties: {
-      title: `${brandName} Political Donation Controversy`,
-      narrative: `Fabricated documents claiming ${brandName} made secret political donations to extremist groups are being circulated. The campaign is timed to exploit current political tensions. Bot networks are amplifying calls for boycotts from both sides of the political spectrum.`,
+      title: `${brandName} Donation Story Fabricated`,
+      narrative: `Forged documents claim ${brandName} secretly funded extremist groups. Bot networks on both sides of politics are pushing boycott calls.`,
       basedOnTruth: false,
       implicatedParties: ["[REDACTED - CEO]", "[REDACTED - Government Affairs]"],
       severity: "critical",
