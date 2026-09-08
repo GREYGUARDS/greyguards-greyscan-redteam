@@ -325,7 +325,7 @@ async function assessStories(brand: string, stories: Story[], apiKey: string) {
 }
 
 async function buildStoryFeed(brand: string, windowHours: number, apiKey: string) {
-  const stories = await fetchStories(brand, windowHours);
+  const { stories, sourcesTried, sourcesUnavailable } = await fetchStories(brand, windowHours);
   const { items, summary } = await assessStories(brand, stories, apiKey);
   const byIndex = new Map<number, any>();
   for (const item of items) {
