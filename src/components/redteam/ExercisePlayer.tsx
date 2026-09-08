@@ -445,11 +445,24 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     loadInjects();
   }, [generateInjects, config.duration]);
 
-  // The dated, phased running order shown to participants
+  // The dated, phased running order — shown only in the debrief
   const timeline: TimelineBeat[] = useMemo(
     () => buildInjectTimeline(injects, totalDuration),
     [injects, totalDuration]
   );
+
+  // Keep a serialisable snapshot for the debrief screen
+  useEffect(() => {
+    attackTimelineRef.current = timeline.map((beat, i) => ({
+      order: beat.order,
+      dayLabel: beat.dayLabel,
+      clock: beat.clock,
+      phase: beat.phase,
+      phaseNote: beat.phaseNote,
+      source: beat.inject.source,
+      fired: i < firedCountRef.current,
+    }));
+  }, [timeline, activeInject, timeRemaining]);
 
   // Timer effect — injects are released strictly in timeline order.
   // The clock does not start until injects have finished generating so the
