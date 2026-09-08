@@ -216,7 +216,7 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
         },
       };
 
-      const chosen = fallbacks[type] || fallbacks.product_safety;
+      const chosen = fallbacks[type] || fallbacks.data_breach;
       const fallbackScenario: Scenario = { id: crypto.randomUUID(), ...chosen };
       setPreviewScenario(fallbackScenario);
     } finally {
