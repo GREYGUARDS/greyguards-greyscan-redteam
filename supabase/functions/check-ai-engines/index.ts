@@ -288,7 +288,7 @@ async function fetchStories(brand: string, windowHours: number): Promise<StoryFe
 
   const seen = new Set<string>();
   const merged: Story[] = [];
-  for (const s of [...newsapi, ...google, ...gdelt, ...bing]) {
+  for (const s of [...newsapi.stories, ...google.stories, ...gdelt.stories, ...bing.stories]) {
     const key = s.title.toLowerCase().slice(0, 90);
     if (seen.has(key)) continue;
     seen.add(key);
