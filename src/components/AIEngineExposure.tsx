@@ -290,7 +290,9 @@ export function AIEngineExposure({ brandName, demoMode = false }: AIEngineExposu
                   window.
                   {sourcesUnavailable.length > 0 && (
                     <span className="block mt-1 text-muted-foreground/70">
-                      Note: {sourcesUnavailable.join(", ")} returned nothing this run.
+                      Note: {sourcesUnavailable.join(", ")}{" "}
+                      {sourcesUnavailable.length === 1 ? "was" : "were"} unreachable this run — a wider window may
+                      still return results from the remaining feeds.
                     </span>
                   )}
                 </p>
