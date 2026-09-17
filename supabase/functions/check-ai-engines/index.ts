@@ -102,7 +102,7 @@ async function fetchGoogleNews(brand: string, windowHours: number): Promise<Stor
     });
     if (!res.ok) {
       console.warn("Google News feed failed:", res.status);
-      return [];
+      throw new Error(`Google News HTTP ${res.status}`);
     }
     const xml = await res.text();
     const cutoff = Date.now() - windowHours * 3600 * 1000;
@@ -121,7 +121,7 @@ async function fetchGoogleNews(brand: string, windowHours: number): Promise<Stor
     return stories;
   } catch (error) {
     console.warn("Google News fetch error:", error instanceof Error ? error.message : error);
-    return [];
+    throw error instanceof Error ? error : new Error(String(error));
   }
 }
 
@@ -135,7 +135,7 @@ async function fetchGdelt(brand: string, windowHours: number): Promise<Story[]> 
     const res = await fetch(url, { headers: { "User-Agent": BROWSER_UA }, signal: AbortSignal.timeout(15000) });
     if (!res.ok) {
       console.warn("GDELT feed failed:", res.status);
-      return [];
+      throw new Error(`GDELT HTTP ${res.status}`);
     }
     const text = await res.text();
     let data: any;
@@ -143,7 +143,7 @@ async function fetchGdelt(brand: string, windowHours: number): Promise<Story[]> 
       data = JSON.parse(text);
     } catch {
       console.warn("GDELT returned non-JSON:", text.slice(0, 120));
-      return [];
+      throw new Error("GDELT returned non-JSON response");
     }
     return (data.articles || [])
       .filter((a: any) => a?.title && a?.url)
@@ -158,7 +158,7 @@ async function fetchGdelt(brand: string, windowHours: number): Promise<Story[]> 
       .slice(0, 25);
   } catch (error) {
     console.warn("GDELT fetch error:", error instanceof Error ? error.message : error);
-    return [];
+    throw error instanceof Error ? error : new Error(String(error));
   }
 }
 
@@ -170,7 +170,7 @@ async function fetchBingNews(brand: string, windowHours: number): Promise<Story[
     const res = await fetch(url, { headers: { "User-Agent": BROWSER_UA }, signal: AbortSignal.timeout(12000) });
     if (!res.ok) {
       console.warn("Bing News feed failed:", res.status);
-      return [];
+      throw new Error(`Bing News HTTP ${res.status}`);
     }
     const xml = await res.text();
     const cutoff = Date.now() - windowHours * 3600 * 1000;
@@ -190,7 +190,7 @@ async function fetchBingNews(brand: string, windowHours: number): Promise<Story[
     return stories;
   } catch (error) {
     console.warn("Bing News fetch error:", error instanceof Error ? error.message : error);
-    return [];
+    throw error instanceof Error ? error : new Error(String(error));
   }
 }
 
@@ -210,7 +210,7 @@ async function fetchNewsApi(brand: string, windowHours: number): Promise<Story[]
     });
     if (!res.ok) {
       console.warn("NewsAPI feed failed:", res.status);
-      return [];
+      throw new Error(`NewsAPI HTTP ${res.status}`);
     }
     const data = await res.json();
     return (data.articles || [])
@@ -224,7 +224,7 @@ async function fetchNewsApi(brand: string, windowHours: number): Promise<Story[]
       .slice(0, 25);
   } catch (error) {
     console.warn("NewsAPI fetch error:", error instanceof Error ? error.message : error);
-    return [];
+    throw error instanceof Error ? error : new Error(String(error));
   }
 }
 
