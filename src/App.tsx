@@ -12,6 +12,7 @@ import AdminRequests from "./pages/AdminRequests";
 import ProspectRadar from "./pages/ProspectRadar";
 import NotFound from "./pages/NotFound";
 import RequireAuth from "./components/RequireAuth";
+import ServicesBanner from "./components/ServicesBanner";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      <ServicesBanner />
     </TooltipProvider>
   </QueryClientProvider>
 );
