@@ -81,12 +81,14 @@ Return a JSON object with:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: "Evaluate this crisis response and provide a score with feedback." }
         ],
-        response_format: { type: "json_object" }
+        response_format: { type: "json_object" },
+        max_tokens: 400,
+        reasoning_effort: "low"
       }),
     });
 

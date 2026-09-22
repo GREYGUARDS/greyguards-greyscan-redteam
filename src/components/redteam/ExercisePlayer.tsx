@@ -35,7 +35,8 @@ import InjectVisual from "./InjectVisual";
 import { supabase } from "@/integrations/supabase/client";
 
 const INJECT_GENERATION_TIMEOUT_MS = 120000;
-const REACTION_TIMEOUT_MS = 60000;
+const RESPONSE_EVALUATION_TIMEOUT_MS = 8000;
+const REACTION_TIMEOUT_MS = 12000;
 
 // Local fallback score for a written countermeasure if AI evaluation is unavailable
 const heuristicScore = (text: string): number => {
@@ -687,7 +688,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
             remainingSeconds: Math.max(0, timeRemaining),
           }
         }),
-        REACTION_TIMEOUT_MS
+        RESPONSE_EVALUATION_TIMEOUT_MS
       );
 
       const raw = data?.inject;
