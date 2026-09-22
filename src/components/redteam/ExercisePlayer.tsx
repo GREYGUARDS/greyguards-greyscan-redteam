@@ -688,7 +688,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
             remainingSeconds: Math.max(0, timeRemaining),
           }
         }),
-        RESPONSE_EVALUATION_TIMEOUT_MS
+        REACTION_TIMEOUT_MS
       );
 
       const raw = data?.inject;
@@ -834,7 +834,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
             scenarioTitle: scenario.title,
           }
         }),
-        REACTION_TIMEOUT_MS
+        RESPONSE_EVALUATION_TIMEOUT_MS
       );
       if (typeof data?.effectiveness === 'number') effectiveness = data.effectiveness;
       if (typeof data?.feedback === 'string') feedback = data.feedback;
