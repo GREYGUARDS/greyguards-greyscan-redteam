@@ -114,18 +114,6 @@ Return JSON only, shaped exactly:
   }
 }`;
 
-    const visualSpec = `
-VISUAL MOCK-UP (REQUIRED): fill "visual" so the artefact renders as a realistic screenshot. Use ONLY the listed template keys and fill every field with specific fictional names, claims and realistic engagement numbers — never placeholder text.
-- "social-dark": { displayName, handle, verified, avatarInitials, avatarColor, timestamp, body, comments, reposts, likes, bookmarks }
-- "messaging": { groupName, messages: [{ sender, color, text, timestamp }] }
-- "professional": { name, title, timestamp, body, reactions, comments, reposts }
-- "forum": { subreddit, title, author, flair, score, body, topComment: { author, text, score } }
-- "news-comments": { headline, commentCount, comments: [{ username, timestamp, text }] }
-- "reviews": { businessName, overallRating, totalReviews, reviews: [{ author, date, rating, text }] }
-- "document": { docTitle, refNumber, bannerText, dateLine, recipientLine, body, signOff }
-- "press-release": { headline, dateline, body, notesHeader, notesBody, contactLine }
-Match the template to the inject type: social_post → social-dark/forum; influencer → social-dark/professional; news_article → news-comments; official_response → press-release; leak → document/messaging; amplification → social-dark.`;
-
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -133,12 +121,14 @@ Match the template to the inject type: social_post → social-dark/forum; influe
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: systemPrompt + visualSpec },
+          { role: "system", content: systemPrompt },
           { role: "user", content: "Generate the next inject that reacts to the team's action." },
         ],
         response_format: { type: "json_object" },
+        max_tokens: 900,
+        reasoning_effort: "low",
       }),
     });
 
