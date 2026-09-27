@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Search, Download, AlertTriangle, Send, LogOut, Users, ChevronDown, Target, FileText } from "lucide-react";
-import greyguardsLogo from "@/assets/greyguards-logo.png";
+import greyguardsLogo from "@/assets/greyguards-logo-light.png";
 import { SyntheticContentMonitor } from "@/components/SyntheticContentMonitor";
 import { AIEngineExposure } from "@/components/AIEngineExposure";
 import { ComplianceBadge } from "@/components/ComplianceBadge";

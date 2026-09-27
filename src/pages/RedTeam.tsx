@@ -29,7 +29,7 @@ import {
   Lock,
   type LucideIcon
 } from "lucide-react";
-import greyguardsLogo from "@/assets/greyguards-logo.png";
+import greyguardsLogo from "@/assets/greyguards-logo-light.png";
 import type { InjectVisualSpec } from "@/components/GreyguardsInject";
 import ScenarioBuilder from "@/components/redteam/ScenarioBuilder";
 import ExercisePlayer from "@/components/redteam/ExercisePlayer";

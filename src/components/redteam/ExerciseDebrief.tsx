@@ -28,7 +28,7 @@ import {
   Radio
 } from "lucide-react";
 import { ExerciseConfig, TeamScore, Inject, ResponseOption } from "@/pages/RedTeam";
-import greyguardsLogo from "@/assets/greyguards-logo.png";
+import greyguardsLogo from "@/assets/greyguards-logo-light.png";
 import { supabase } from "@/integrations/supabase/client";
 
 

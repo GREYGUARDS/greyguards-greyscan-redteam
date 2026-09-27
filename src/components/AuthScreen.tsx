@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { AlertTriangle, ArrowRight, Lock, MailCheck, Crosshair, Shield } from "lucide-react";
-import greyguardsLogo from "@/assets/greyguards-logo.png";
+import greyguardsLogo from "@/assets/greyguards-logo-light.png";
 
 export type AuthVariant = "greyscan" | "redteam";
 

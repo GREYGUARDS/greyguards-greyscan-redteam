@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import greyguardsLogo from "@/assets/greyguards-logo.png";
+import greyguardsLogo from "@/assets/greyguards-logo-light.png";
 import { Link } from "react-router-dom";
 
 interface RedTeamDashboardProps {
