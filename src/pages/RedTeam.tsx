@@ -402,7 +402,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
       <div className="absolute top-10 left-10 w-40 h-40 bg-destructive/10 blur-3xl animate-pulse-glow pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-48 h-48 bg-warning/10 blur-3xl animate-pulse-glow pointer-events-none" style={{ animationDelay: "1s" }} />
 
-      <Card className="w-full max-w-xl border-4 border-border bg-card relative z-10 max-h-[92vh] overflow-y-auto">
+      <Card className="w-full max-w-xl border-4 border-border bg-card relative z-10 max-h-[92vh] overflow-y-auto shadow-[12px_12px_0_hsl(var(--brand-oxblood))]">
         <CardHeader className="space-y-3 border-b-4 border-border bg-secondary">
           <div className="flex items-center justify-between">
             <Link to={demoMode ? "/redteam/login" : "/"} className="flex items-center gap-2">
@@ -413,8 +413,8 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
               {demoMode ? "Demo Mode" : "Crisis Simulation"}
             </Badge>
           </div>
-          <CardTitle className="text-center text-2xl uppercase tracking-wider">
-            Red Team Exercise
+          <CardTitle className="font-display text-center text-5xl">
+            Red Team <span className="text-primary">Exercise</span>
           </CardTitle>
           <CardDescription className="text-center">
             {demoMode

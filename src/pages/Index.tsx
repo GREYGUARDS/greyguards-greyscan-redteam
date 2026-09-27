@@ -981,7 +981,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
         <div className="absolute top-10 left-10 w-40 h-40 bg-primary/10 blur-3xl animate-pulse-glow pointer-events-none" />
         <div className="absolute bottom-10 right-10 w-48 h-48 bg-success/10 blur-3xl animate-pulse-glow pointer-events-none" style={{ animationDelay: "1s" }} />
 
-        <Card className="w-full max-w-md border-4 border-border bg-card relative z-10">
+        <Card className="w-full max-w-md border-4 border-border bg-card relative z-10 shadow-[12px_12px_0_hsl(var(--brand-oxblood))]">
           <CardHeader className="space-y-3 border-b-4 border-border bg-secondary">
             <div className="flex items-center justify-between gap-2">
               <img src={greyguardsLogo} alt="Greyguards" className="h-10 sm:h-12 w-auto object-contain flex-shrink-0" />
@@ -1023,7 +1023,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
                 )}
               </div>
             </div>
-            <CardTitle className="text-center text-2xl uppercase tracking-wider">GreyScan</CardTitle>
+            <CardTitle className="font-display text-center text-5xl">GreyScan</CardTitle>
             <CardDescription className="text-center text-xs uppercase tracking-widest">
               {publicDemo ? "Demo — fictional case files" : "Narrative Intelligence Platform"}
             </CardDescription>
