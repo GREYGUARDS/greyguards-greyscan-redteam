@@ -15,14 +15,14 @@
 @layer base {
   :root {
     /* Forest as canvas, Bone as ink */
-    --background: 150 18% 17%;
+    --background: 148 17% 15%;
     --foreground: 41 29% 87%;
 
     /* Graphite surfaces */
-    --card: 223 7% 19%;
+    --card: 140 13% 9%;
     --card-foreground: 41 29% 87%;
 
-    --popover: 223 7% 19%;
+    --popover: 140 13% 9%;
     --popover-foreground: 41 29% 87%;
 
     /* Crimson is the brand's only true accent */
@@ -30,11 +30,11 @@
     --primary-foreground: 41 29% 87%;
 
     /* A slightly lifted forest for secondary blocks */
-    --secondary: 150 16% 22%;
+    --secondary: 148 16% 19%;
     --secondary-foreground: 41 29% 87%;
 
     /* Warm grey for muted */
-    --muted: 150 12% 24%;
+    --muted: 148 12% 21%;
     --muted-foreground: 36 9% 58%;
 
     /* Bone as the calm accent */
@@ -45,8 +45,8 @@
     --destructive-foreground: 41 29% 87%;
 
     /* Borders: warm-grey tinted, low contrast */
-    --border: 150 10% 28%;
-    --input: 150 14% 22%;
+    --border: 148 10% 26%;
+    --input: 148 14% 20%;
     --ring: 7 74% 45%;
 
     /* Status colours kept restrained, in brand register */
@@ -65,42 +65,44 @@
 
     --radius: 0rem;
 
-    --sidebar-background: 150 18% 14%;
+    --sidebar-background: 140 13% 9%;
     --sidebar-foreground: 41 29% 87%;
     --sidebar-primary: 7 74% 45%;
     --sidebar-primary-foreground: 41 29% 87%;
-    --sidebar-accent: 223 7% 19%;
+    --sidebar-accent: 148 16% 19%;
     --sidebar-accent-foreground: 41 29% 87%;
-    --sidebar-border: 150 10% 28%;
+    --sidebar-border: 148 10% 26%;
     --sidebar-ring: 7 74% 45%;
 
     /* Raw brand tokens (utility access via arbitrary values if ever needed) */
     --brand-bone: 41 29% 87%;
-    --brand-forest: 150 18% 17%;
+    --brand-forest: 148 17% 15%;
+    --brand-ink: 140 13% 9%;
+    --brand-oxblood: 7 75% 32%;
     --brand-graphite: 223 7% 19%;
     --brand-crimson: 7 74% 45%;
     --brand-warmgrey: 36 9% 58%;
   }
 
   .dark {
-    --background: 150 18% 17%;
+    --background: 148 17% 15%;
     --foreground: 41 29% 87%;
-    --card: 223 7% 19%;
+    --card: 140 13% 9%;
     --card-foreground: 41 29% 87%;
-    --popover: 223 7% 19%;
+    --popover: 140 13% 9%;
     --popover-foreground: 41 29% 87%;
     --primary: 7 74% 45%;
     --primary-foreground: 41 29% 87%;
-    --secondary: 150 16% 22%;
+    --secondary: 148 16% 19%;
     --secondary-foreground: 41 29% 87%;
-    --muted: 150 12% 24%;
+    --muted: 148 12% 21%;
     --muted-foreground: 36 9% 58%;
     --accent: 41 18% 32%;
     --accent-foreground: 41 29% 87%;
     --destructive: 7 74% 45%;
     --destructive-foreground: 41 29% 87%;
-    --border: 150 10% 28%;
-    --input: 150 14% 22%;
+    --border: 148 10% 26%;
+    --input: 148 14% 20%;
     --ring: 7 74% 45%;
     --success: 145 22% 48%;
     --success-foreground: 41 29% 87%;
@@ -111,13 +113,13 @@
     --chart-3: 36 9% 58%;
     --chart-4: 145 22% 48%;
     --chart-5: 36 60% 56%;
-    --sidebar-background: 150 18% 14%;
+    --sidebar-background: 140 13% 9%;
     --sidebar-foreground: 41 29% 87%;
     --sidebar-primary: 7 74% 45%;
     --sidebar-primary-foreground: 41 29% 87%;
-    --sidebar-accent: 223 7% 19%;
+    --sidebar-accent: 148 16% 19%;
     --sidebar-accent-foreground: 41 29% 87%;
-    --sidebar-border: 150 10% 28%;
+    --sidebar-border: 148 10% 26%;
     --sidebar-ring: 7 74% 45%;
   }
 }
@@ -141,6 +143,14 @@
   h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
     letter-spacing: -0.01em;
+  }
+
+  h1, h2, .font-display {
+    font-family: 'Anton', 'IBM Plex Mono', Impact, sans-serif !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.02em !important;
+    text-transform: uppercase;
+    line-height: 1.05;
   }
 
   label, button, .uppercase {

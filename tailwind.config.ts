@@ -16,13 +16,15 @@ export default {
       fontFamily: {
         sans: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
         mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
-        display: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+        display: ['Anton', '"IBM Plex Mono"', 'Impact', 'sans-serif'],
       },
       colors: {
         bone: "hsl(var(--brand-bone))",
         forest: "hsl(var(--brand-forest))",
         graphite: "hsl(var(--brand-graphite))",
         crimson: "hsl(var(--brand-crimson))",
+        ink: "hsl(var(--brand-ink))",
+        oxblood: "hsl(var(--brand-oxblood))",
         warmgrey: "hsl(var(--brand-warmgrey))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

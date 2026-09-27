@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { AlertTriangle, ArrowRight, Lock, MailCheck, Crosshair, Shield } from "lucide-react";
-import greyguardsLogo from "@/assets/greyguards-logo.png";
+import greyguardsLogo from "@/assets/greyguards-logo-light.png";
 
 export type AuthVariant = "greyscan" | "redteam";
 
@@ -192,12 +192,12 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md border-4 border-border">
+      <Card className="w-full max-w-md border-4 border-border shadow-[12px_12px_0_hsl(var(--brand-oxblood))]">
         <CardHeader className="space-y-4 border-b-4 border-border bg-secondary">
           <div className="flex items-center justify-center">
             <img src={greyguardsLogo} alt="Greyguards Intelligence" className="h-20 w-auto object-contain" />
           </div>
-          <CardTitle className="text-center text-2xl uppercase tracking-wider flex items-center justify-center gap-2">
+          <CardTitle className="font-display text-center text-4xl flex items-center justify-center gap-2">
             <VariantIcon className="h-5 w-5" />
             {copy.title}
           </CardTitle>
