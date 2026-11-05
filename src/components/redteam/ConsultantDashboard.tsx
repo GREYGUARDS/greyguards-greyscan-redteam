@@ -37,6 +37,7 @@ import {
 import { ExerciseConfig, Inject, Scenario } from "@/pages/RedTeam";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import HostedInjectStudio from './HostedInjectStudio';
 
 interface ConsultantDashboardProps {
   config: ExerciseConfig;
@@ -202,9 +203,12 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       setSessionCode(code);
 
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Sign in to host a session.');
         const { data, error } = await supabase
           .from('exercise_sessions')
           .insert({
+            created_by_user_id: user.id,
             session_code: code,
             brand_name: config.brandName,
             duration: config.duration,
@@ -639,19 +643,19 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       {/* Header */}
       <header className="border-b-4 border-border bg-card sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex min-w-0 items-center gap-4">
               <Button variant="ghost" onClick={onBack} className="uppercase tracking-wider">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Exit
               </Button>
-              <div>
+              <div className="min-w-0 break-words">
                 <span className="font-bold uppercase tracking-wider">{config.brandName}</span>
                 <span className="block text-xs text-muted-foreground uppercase">Consultant Dashboard</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
               {/* Session Code */}
               <div className="flex items-center gap-2 px-4 py-2 bg-muted border-2 border-border">
                 <span className="text-xs uppercase tracking-wider text-muted-foreground">Session:</span>
@@ -979,11 +983,15 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
           {/* Center Panel - Inject Controls */}
           <div className="lg:col-span-6">
             <Tabs defaultValue="quick" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="quick" className="uppercase tracking-wider">Quick Injects</TabsTrigger>
                 <TabsTrigger value="custom" className="uppercase tracking-wider">Custom Inject</TabsTrigger>
+                <TabsTrigger value="studio" className="uppercase tracking-wider">AI Studio</TabsTrigger>
               </TabsList>
 
+              <TabsContent value="studio">
+                <HostedInjectStudio sessionId={sessionId} isActive={isExerciseActive} onSent={(id, content, type) => setInjectedEvents(previous => [{ id, content, type, time: new Date(), targetTeam: 'both' }, ...previous])} />
+              </TabsContent>
               <TabsContent value="quick">
                 <Card className="border-4 border-border bg-card">
                   <CardHeader className="border-b-4 border-border">

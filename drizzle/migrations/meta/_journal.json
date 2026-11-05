@@ -15,6 +15,27 @@
       "when": 1793900838246,
       "tag": "0001_video_job_ip_rate_limit",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793909889224,
+      "tag": "0002_hosted_artefact_generators",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793910192129,
+      "tag": "0003_atomic_hosted_generation_limits",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793910228662,
+      "tag": "0004_host_reads_new_session",
+      "breakpoints": true
     }
   ]
 }

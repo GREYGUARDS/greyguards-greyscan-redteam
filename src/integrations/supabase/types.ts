@@ -59,8 +59,69 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_artefact_jobs: {
+        Row: {
+          access_paused: boolean
+          artefact: Json | null
+          brief: string
+          created_at: string
+          error_message: string | null
+          id: string
+          inject_id: string | null
+          ip_hash: string
+          kind: string
+          session_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          access_paused?: boolean
+          artefact?: Json | null
+          brief: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          inject_id?: string | null
+          ip_hash: string
+          kind: string
+          session_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          access_paused?: boolean
+          artefact?: Json | null
+          brief?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          inject_id?: string | null
+          ip_hash?: string
+          kind?: string
+          session_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_artefact_jobs_inject_id_fkey"
+            columns: ["inject_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_injects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_artefact_jobs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exercise_injects: {
         Row: {
+          artefact: Json | null
           content: string
           created_at: string | null
           created_by: string
@@ -77,6 +138,7 @@ export type Database = {
           video_storage_path: string | null
         }
         Insert: {
+          artefact?: Json | null
           content: string
           created_at?: string | null
           created_by?: string
@@ -93,6 +155,7 @@ export type Database = {
           video_storage_path?: string | null
         }
         Update: {
+          artefact?: Json | null
           content?: string
           created_at?: string | null
           created_by?: string
@@ -300,6 +363,7 @@ export type Database = {
           status: string
           storage_path: string | null
           user_id: string
+          video_kind: string
         }
         Insert: {
           access_paused?: boolean
@@ -317,6 +381,7 @@ export type Database = {
           status?: string
           storage_path?: string | null
           user_id: string
+          video_kind?: string
         }
         Update: {
           access_paused?: boolean
@@ -334,6 +399,7 @@ export type Database = {
           status?: string
           storage_path?: string | null
           user_id?: string
+          video_kind?: string
         }
         Relationships: [
           {

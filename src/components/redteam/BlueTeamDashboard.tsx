@@ -38,6 +38,7 @@ import greyguardsLogo from "@/assets/greyguards-logo-light.png";
 import { Link } from "react-router-dom";
 import CountdownTimer from "./CountdownTimer";
 import { useSoundEffects } from "@/hooks/use-sound-effects";
+import HostedInjectMedia from './HostedInjectMedia';
 
 interface BlueTeamDashboardProps {
   sessionId: string;
@@ -48,6 +49,8 @@ interface BlueTeamDashboardProps {
 }
 
 interface Inject {
+  video_storage_path?: string | null;
+  artefact?: unknown;
   id: string;
   inject_type: string;
   content: string;
@@ -238,7 +241,13 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
       .eq("is_sent", true)
       .order("sent_at", { ascending: false });
 
-    if (data) setInjects(data);
+    if (data) {
+      setInjects(data);
+      if (!activeInject && decisionsTotal === 0 && data[0]) {
+        setActiveInject(data[0]);
+        injectStartTime.current = Date.now();
+      }
+    }
   };
 
   const handleResponse = async (option: ResponseOption) => {
@@ -568,6 +577,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
                   </CardHeader>
                   <CardContent className="p-6">
                     <p className="text-lg leading-relaxed mb-4">{activeInject.content}</p>
+                    <HostedInjectMedia storagePath={activeInject.video_storage_path} artefact={activeInject.artefact} />
                     <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
                       <span className="flex items-center gap-1">
                         <Users className="h-4 w-4" />

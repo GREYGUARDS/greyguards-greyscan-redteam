@@ -1,0 +1,1 @@
+ALTER POLICY "Participants can view their sessions" ON public.exercise_sessions USING (created_by_user_id = auth.uid() OR public.is_session_participant(id, auth.uid()));
