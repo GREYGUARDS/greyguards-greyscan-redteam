@@ -8,3 +8,6 @@
 - [x] Red Team: generate X post screenshots + wire into inject renderer
 - [x] Red Team: ordered inject timeline with dates and narrative beats
 - [x] Red Team: realistic phone bezel mockup for hero alert injects
+- [ ] Hosted Red Team: admin-only AI video generation and private storage
+- [ ] Hosted Red Team: preview, direct inject delivery and participant playback
+- [ ] Hosted Red Team: permission tests and live video flow verification
