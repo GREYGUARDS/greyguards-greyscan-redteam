@@ -74,6 +74,7 @@ export type Database = {
           session_id: string
           source: string
           timestamp_offset: number
+          video_storage_path: string | null
         }
         Insert: {
           content: string
@@ -89,6 +90,7 @@ export type Database = {
           session_id: string
           source: string
           timestamp_offset?: number
+          video_storage_path?: string | null
         }
         Update: {
           content?: string
@@ -104,6 +106,7 @@ export type Database = {
           session_id?: string
           source?: string
           timestamp_offset?: number
+          video_storage_path?: string | null
         }
         Relationships: [
           {
@@ -273,6 +276,72 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "exercise_teams_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercise_video_jobs: {
+        Row: {
+          access_paused: boolean
+          created_at: string
+          error_code: string | null
+          error_message: string | null
+          id: string
+          inject_id: string | null
+          progress: number
+          provider_job_id: string | null
+          script: string
+          session_id: string
+          speaker: string
+          status: string
+          storage_path: string | null
+          user_id: string
+        }
+        Insert: {
+          access_paused?: boolean
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          inject_id?: string | null
+          progress?: number
+          provider_job_id?: string | null
+          script: string
+          session_id: string
+          speaker: string
+          status?: string
+          storage_path?: string | null
+          user_id: string
+        }
+        Update: {
+          access_paused?: boolean
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          inject_id?: string | null
+          progress?: number
+          provider_job_id?: string | null
+          script?: string
+          session_id?: string
+          speaker?: string
+          status?: string
+          storage_path?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_video_jobs_inject_id_fkey"
+            columns: ["inject_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_injects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_video_jobs_session_id_fkey"
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "exercise_sessions"
