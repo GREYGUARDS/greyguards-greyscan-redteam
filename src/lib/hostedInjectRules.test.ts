@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { canHostVideo, canPublishVideo, VIDEO_DURATION_SECONDS, VIDEO_CREATE_LIMIT } from './rules';
+import { canHostVideo, canPublishVideo, VIDEO_DURATION_SECONDS, VIDEO_CREATE_LIMIT } from '../../supabase/functions/_shared/hosted-inject-rules';
 
 describe('hosted video rules', () => {
   test('only the admin who owns the session can generate video', () => {

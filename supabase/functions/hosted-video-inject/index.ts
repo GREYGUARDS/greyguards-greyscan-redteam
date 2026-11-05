@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { z } from 'npm:zod@3';
-import { canHostVideo, canPublishVideo, VIDEO_DURATION_SECONDS, VIDEO_CREATE_LIMIT } from './rules.ts';
+import { canHostVideo, canPublishVideo, VIDEO_DURATION_SECONDS, VIDEO_CREATE_LIMIT } from '../_shared/hosted-inject-rules.ts';
 
 const baseURL = 'https://ai.gateway.lovable.dev/v1';
 const bucket = 'exercise-videos';

@@ -4,7 +4,7 @@ import { z } from 'npm:zod@3';
 import { streamText, Output } from 'npm:ai@6';
 import { createOpenAI } from 'npm:@ai-sdk/openai@3';
 import { createLovableAiGatewayRunIdFetch } from '../_shared/run-id.ts';
-import { canHostVideo } from '../hosted-video-inject/rules.ts';
+import { canHostVideo } from '../_shared/hosted-inject-rules.ts';
 
 const kinds = z.enum(['website', 'x', 'whatsapp', 'telegram', 'facebook']);
 const schema = z.discriminatedUnion('action', [
