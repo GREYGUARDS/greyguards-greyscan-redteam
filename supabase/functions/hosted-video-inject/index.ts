@@ -111,6 +111,10 @@ Deno.serve(async (req) => {
       }
       throw error;
     }
+    if (!['queued', 'in_progress', 'completed', 'failed'].includes(provider.status)) {
+      await service.from('exercise_video_jobs').update({ status: 'failed', error_message: 'Video service returned an unexpected job status.' }).eq('id', job.id);
+      throw new RequestError(400, 'Video service returned an unexpected job status.');
+    }
     const updates: Record<string, unknown> = { status: provider.status, progress: Math.min(100, Math.max(0, Number(provider.progress) || 0)), error_message: provider.error?.message ?? null };
     if (provider.status === 'completed') {
       const path = `${session.id}/${job.id}.mp4`;

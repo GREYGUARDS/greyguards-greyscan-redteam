@@ -26,7 +26,7 @@ async function invoke(endpoint: string, body: Record<string, unknown>) {
   const { data, error } = await supabase.functions.invoke(endpoint, { body });
   if (error) {
     const details = await error.context?.json?.().catch(() => null);
-    throw Object.assign(new Error(details?.error ?? error.message), { accessPaused: details?.accessPaused });
+    throw Object.assign(new Error(details?.error ?? error.message), { accessPaused: details?.accessPaused, status: error.context?.status, retryAfter: details?.retryAfter });
   }
   return data;
 }
@@ -46,6 +46,7 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent }: { se
   const [elapsed, setElapsed] = useState(0);
   const started = useRef(0);
   const stopped = useRef(false);
+  const [pollStopped, setPollStopped] = useState(false);
   const video = kind === 'influencer' || kind === 'news';
   const job = video ? videoJob : artefactJob;
   const endpoint = video ? 'hosted-video-inject' : 'hosted-artefact-inject';
@@ -53,6 +54,8 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent }: { se
 
   useEffect(() => {
     if (!sessionId) return;
+    stopped.current = false;
+    setPollStopped(false);
     let cancelled = false;
     void Promise.all(['hosted-video-inject', 'hosted-artefact-inject'].map(name => invoke(name, { action: 'latest', sessionId }))).then(([v, a]) => {
       if (cancelled) return;
@@ -74,12 +77,14 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent }: { se
     if (!sessionId || !generatingVideo || stopped.current) return;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
+    let failures = 0;
     const poll = async () => {
       let delay = 7000;
       try {
         const data = await invoke('hosted-video-inject', { action: 'status', sessionId, jobId: videoJob?.id });
         if (cancelled) return;
         setVideoJob(data.job);
+        failures = 0;
         setError(null);
         if (!['creating', 'queued', 'in_progress'].includes(data.job.status)) return;
       } catch (failure: any) {
@@ -87,19 +92,21 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent }: { se
         setError(failure.message);
         setPaused(Boolean(failure.accessPaused));
         // Stop on terminal errors; transient polling errors wait with bounded backoff.
-        const status = failure.context?.status;
-        if (failure.accessPaused || (status && status < 500 && status !== 429)) { stopped.current = true; return; }
-        delay = 15000;
+        const status = failure.status;
+        failures += 1;
+        if (failure.accessPaused || !status || (status < 500 && status !== 429) || failures >= 3) { stopped.current = true; setPollStopped(true); return; }
+        const retrySeconds = Number(failure.retryAfter);
+        delay = Number.isFinite(retrySeconds) && retrySeconds > 0 ? retrySeconds * 1000 : 7000 * 2 ** failures;
       }
       timer = setTimeout(poll, delay);
     };
     timer = setTimeout(poll, 7000);
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [sessionId, generatingVideo, videoJob?.id]);
+  }, [sessionId, generatingVideo, videoJob?.id, pollStopped]);
 
   const generate = async () => {
     if (!sessionId || busy) return;
-    setBusy(true); setError(null); setElapsed(0); started.current = Date.now(); stopped.current = false;
+    setBusy(true); setError(null); setElapsed(0); started.current = Date.now(); stopped.current = false; setPollStopped(false);
     try {
       if (video) {
         const data = await invoke(endpoint, { action: 'create', sessionId, kind, script: brief, speaker, fictionalConfirmed: fictional, costConfirmed: cost });
@@ -154,6 +161,7 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent }: { se
     <Button onClick={() => void generate()} disabled={!sessionId || !fictional || !cost || brief.trim().length < 5 || (video && speaker.trim().length < 5) || busy || generatingVideo || paused} className="w-full">{busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Video className="mr-2 h-4 w-4" />}{video ? 'Generate Video' : 'Generate Inject'}</Button>
     {(generatingVideo || busy) && <div role="status" className="space-y-2"><div className="flex items-center justify-between text-xs"><span>{generatingVideo ? 'Rendering footage' : 'Creating inject'}</span><span>{elapsed}s elapsed</span></div>{generatingVideo && <Progress value={videoJob?.progress ?? 0} />}<p className="text-xs text-muted-foreground">The exercise continues while this generates.</p></div>}
     {(error || job?.error) && <p role="alert" className="text-sm text-destructive break-words">{error ?? job?.error}</p>}
+    {pollStopped && !paused && <Button variant="outline" size="sm" onClick={() => { stopped.current = false; setPollStopped(false); }}><RefreshCw className="mr-2 h-4 w-4" />Check existing video</Button>}
     {paused && <Button variant="outline" size="sm" onClick={async () => { try { await invoke(endpoint, { action: 'resume', sessionId }); setPaused(false); setError(null); } catch (failure: any) { setError(failure.message); } }}><RefreshCw className="mr-2 h-4 w-4" />Access restored — resume</Button>}
     {job?.status === 'completed' && <div className="space-y-3 border-t border-border pt-4">
       <p className="text-xs text-crimson">FICTIONAL EXERCISE · Preview</p>

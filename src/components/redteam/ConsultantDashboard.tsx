@@ -203,9 +203,12 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       setSessionCode(code);
 
       try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Sign in to host a session.');
         const { data, error } = await supabase
           .from('exercise_sessions')
           .insert({
+            created_by_user_id: user.id,
             session_code: code,
             brand_name: config.brandName,
             duration: config.duration,
