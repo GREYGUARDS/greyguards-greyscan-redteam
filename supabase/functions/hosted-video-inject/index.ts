@@ -79,6 +79,7 @@ Deno.serve(async (req) => {
       if ((userCount ?? 0) >= VIDEO_CREATE_LIMIT || (ipCount ?? 0) >= VIDEO_CREATE_LIMIT) return reply({ error: 'The hourly limit of 10 video requests has been reached.' }, 429);
       const { data: row, error: insertError } = await service.from('exercise_video_jobs').insert({ session_id: session.id, user_id: auth.user.id, script: input.script, speaker: input.speaker, video_kind: input.kind, ip_hash: ipHash }).select().single();
       if (insertError?.code === '23505') return reply({ error: 'A video is already generating. Wait for it to finish before starting another.' }, 429);
+      if (insertError?.code === 'P0001') return reply({ error: insertError.message }, 429);
       if (insertError || !row) throw insertError ?? new Error('Unable to create job');
       createdId = row.id;
       const scene = input.kind === 'news' ? 'invented adult news reporter at a fictional broadcast desk, landscape news footage, no real broadcaster logo' : 'invented adult social-media commentator, portrait selfie-style footage';

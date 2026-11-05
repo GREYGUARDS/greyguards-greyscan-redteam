@@ -69,6 +69,7 @@ Deno.serve(async req => {
     if (rateError || ipError) throw rateError ?? ipError;
     if ((count ?? 0) >= 10 || (ipCount ?? 0) >= 10) return reply({ error: 'The hourly limit of 10 inject generations has been reached.' }, 429);
     const { data: row, error: insertError } = await service.from('exercise_artefact_jobs').insert({ session_id: session.id, user_id: auth.user.id, ip_hash: ipHash, kind: input.kind, brief: input.brief }).select().single();
+    if (insertError?.code === 'P0001') return reply({ error: insertError.message }, 429);
     if (insertError || !row) throw insertError ?? new Error('Cannot create draft');
     const run = createLovableAiGatewayRunIdFetch();
     // Track safe upstream errors so denials never become an invented AI result.

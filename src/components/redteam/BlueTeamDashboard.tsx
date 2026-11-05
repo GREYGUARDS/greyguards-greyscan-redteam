@@ -241,7 +241,13 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
       .eq("is_sent", true)
       .order("sent_at", { ascending: false });
 
-    if (data) setInjects(data);
+    if (data) {
+      setInjects(data);
+      if (!activeInject && decisionsTotal === 0 && data[0]) {
+        setActiveInject(data[0]);
+        injectStartTime.current = Date.now();
+      }
+    }
   };
 
   const handleResponse = async (option: ResponseOption) => {
