@@ -291,6 +291,7 @@ export type Database = {
           error_message: string | null
           id: string
           inject_id: string | null
+          ip_hash: string | null
           progress: number
           provider_job_id: string | null
           script: string
@@ -307,6 +308,7 @@ export type Database = {
           error_message?: string | null
           id?: string
           inject_id?: string | null
+          ip_hash?: string | null
           progress?: number
           provider_job_id?: string | null
           script: string
@@ -323,6 +325,7 @@ export type Database = {
           error_message?: string | null
           id?: string
           inject_id?: string | null
+          ip_hash?: string | null
           progress?: number
           provider_job_id?: string | null
           script?: string

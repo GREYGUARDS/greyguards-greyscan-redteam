@@ -8,6 +8,13 @@
       "when": 1793900756855,
       "tag": "0000_hosted_video_injects",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793900838246,
+      "tag": "0001_video_job_ip_rate_limit",
+      "breakpoints": true
     }
   ]
 }

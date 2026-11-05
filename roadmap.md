@@ -11,3 +11,4 @@
 - [ ] Hosted Red Team: admin-only AI video generation and private storage
 - [ ] Hosted Red Team: preview, direct inject delivery and participant playback
 - [ ] Hosted Red Team: permission tests and live video flow verification
+- [ ] Hosted Red Team: news-footage, website, X, WhatsApp, Telegram and Facebook inject generators
