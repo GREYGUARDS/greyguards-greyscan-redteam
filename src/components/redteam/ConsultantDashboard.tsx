@@ -643,19 +643,19 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       {/* Header */}
       <header className="border-b-4 border-border bg-card sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex min-w-0 items-center gap-4">
               <Button variant="ghost" onClick={onBack} className="uppercase tracking-wider">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Exit
               </Button>
-              <div>
+              <div className="min-w-0 break-words">
                 <span className="font-bold uppercase tracking-wider">{config.brandName}</span>
                 <span className="block text-xs text-muted-foreground uppercase">Consultant Dashboard</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
               {/* Session Code */}
               <div className="flex items-center gap-2 px-4 py-2 bg-muted border-2 border-border">
                 <span className="text-xs uppercase tracking-wider text-muted-foreground">Session:</span>

@@ -103,7 +103,14 @@ Deno.serve(async (req) => {
       return reply({ job: await present({ ...job, inject_id: job.id }), injectId: job.id });
     }
     if (job.status === 'failed' || job.storage_path) return reply({ job: await present(job) });
-    if (!job.provider_job_id) return reply({ job: await present(job) });
+    if (!job.provider_job_id) {
+      if (Date.now() - new Date(job.created_at).getTime() > 300000) {
+        const message = 'The video request was interrupted before a job was confirmed. No automatic resubmission was made.';
+        await service.from('exercise_video_jobs').update({ status: 'failed', error_message: message }).eq('id', job.id);
+        return reply({ job: await present({ ...job, status: 'failed', error_message: message }) });
+      }
+      return reply({ job: await present(job) });
+    }
     let provider;
     try { provider = await (await gateway(`/videos/${encodeURIComponent(job.provider_job_id)}`)).json(); }
     catch (error) {
