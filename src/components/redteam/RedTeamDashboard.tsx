@@ -28,6 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import greyguardsLogo from "@/assets/greyguards-logo-light.png";
 import { Link } from "react-router-dom";
+import HostedInjectMedia from './HostedInjectMedia';
 
 interface RedTeamDashboardProps {
   sessionId: string;
@@ -37,6 +38,8 @@ interface RedTeamDashboardProps {
 }
 
 interface Inject {
+  video_storage_path?: string | null;
+  artefact?: unknown;
   id: string;
   inject_type: string;
   content: string;
@@ -438,6 +441,7 @@ const RedTeamDashboard = ({ sessionId, teamId, sessionData, onLeave }: RedTeamDa
                             )}
                           </div>
                           <p className="text-sm line-clamp-2">{inject.content}</p>
+                          <HostedInjectMedia storagePath={inject.video_storage_path} artefact={inject.artefact} />
                           <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                             <span>Reach: {inject.reach.toLocaleString()}</span>
                             <span className={inject.is_sent ? 'text-destructive' : ''}>

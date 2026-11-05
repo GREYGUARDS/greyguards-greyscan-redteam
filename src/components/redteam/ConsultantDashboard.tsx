@@ -37,6 +37,7 @@ import {
 import { ExerciseConfig, Inject, Scenario } from "@/pages/RedTeam";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import HostedInjectStudio from './HostedInjectStudio';
 
 interface ConsultantDashboardProps {
   config: ExerciseConfig;
@@ -979,11 +980,15 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
           {/* Center Panel - Inject Controls */}
           <div className="lg:col-span-6">
             <Tabs defaultValue="quick" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="quick" className="uppercase tracking-wider">Quick Injects</TabsTrigger>
                 <TabsTrigger value="custom" className="uppercase tracking-wider">Custom Inject</TabsTrigger>
+                <TabsTrigger value="studio" className="uppercase tracking-wider">AI Studio</TabsTrigger>
               </TabsList>
 
+              <TabsContent value="studio">
+                <HostedInjectStudio sessionId={sessionId} isActive={isExerciseActive} onSent={(id, content, type) => setInjectedEvents(previous => [{ id, content, type, time: new Date(), targetTeam: 'both' }, ...previous])} />
+              </TabsContent>
               <TabsContent value="quick">
                 <Card className="border-4 border-border bg-card">
                   <CardHeader className="border-b-4 border-border">
