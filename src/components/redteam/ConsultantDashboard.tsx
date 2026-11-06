@@ -97,6 +97,100 @@ interface DatabaseSession {
 
 const CONSULTANT_GENERATION_TIMEOUT_MS = 10000;
 
+const getInjectIcon = (type: string) => {
+  switch (type) {
+    case "social_post": return <MessageSquare className="h-4 w-4" />;
+    case "news_article": return <Newspaper className="h-4 w-4" />;
+    case "influencer": return <Users className="h-4 w-4" />;
+    case "official_response": return <Radio className="h-4 w-4" />;
+    case "leak": return <AlertTriangle className="h-4 w-4" />;
+    case "amplification": return <Zap className="h-4 w-4" />;
+    default: return <MessageSquare className="h-4 w-4" />;
+  }
+};
+
+/** One inject-menu card. Module-level so its source/channel selections survive re-renders. */
+const MenuInjectCard = ({
+  item,
+  isActive,
+  teamMode,
+  onSend,
+}: {
+  item: InjectMenuItem;
+  isActive: boolean;
+  teamMode: string;
+  onSend: (item: InjectMenuItem, source: string, channel: string, targetTeam: "blue" | "red" | "both") => void;
+}) => {
+  const [source, setSource] = useState(item.sources[0]);
+  const [channel, setChannel] = useState(item.channels[0]);
+  return (
+    <div className="border-2 border-border p-4 hover:border-warning transition-colors space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          {getInjectIcon(item.type)}
+          <span className="font-bold uppercase tracking-wider text-sm">{item.label}</span>
+        </div>
+        <Badge variant="outline" className={`text-[9px] uppercase ${CATEGORY_BADGE_STYLES[item.category]}`}>
+          {INJECT_CATEGORY_LABELS[item.category]}
+        </Badge>
+      </div>
+      <p className="text-xs text-muted-foreground">{item.content}</p>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Source</Label>
+          <Select value={source} onValueChange={setSource}>
+            <SelectTrigger className="h-8 text-xs border-2"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {item.sources.map((s) => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Channel</Label>
+          <Select value={channel} onValueChange={setChannel}>
+            <SelectTrigger className="h-8 text-xs border-2"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {item.channels.map((c) => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="flex-1 uppercase tracking-wider text-xs border-primary text-primary hover:bg-primary/10"
+          onClick={() => onSend(item, source, channel, "blue")}
+          disabled={!isActive}
+        >
+          <Shield className="h-3 w-3 mr-1" />
+          Blue
+        </Button>
+        {teamMode === "team-vs-team" && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 uppercase tracking-wider text-xs border-destructive text-destructive hover:bg-destructive/10"
+            onClick={() => onSend(item, source, channel, "red")}
+            disabled={!isActive}
+          >
+            <Target className="h-3 w-3 mr-1" />
+            Red
+          </Button>
+        )}
+        <Button
+          size="sm"
+          className="flex-1 uppercase tracking-wider text-xs"
+          onClick={() => onSend(item, source, channel, "both")}
+          disabled={!isActive}
+        >
+          Both
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
@@ -173,77 +267,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     category?: InjectCategory;
   }>>([]);
 
-  // Inject menu cards keep their own source/channel selection.
-  const MenuInjectCard = ({ item }: { item: InjectMenuItem }) => {
-    const [source, setSource] = useState(item.sources[0]);
-    const [channel, setChannel] = useState(item.channels[0]);
-    return (
-      <div className="border-2 border-border p-4 hover:border-warning transition-colors space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            {getInjectIcon(item.type)}
-            <span className="font-bold uppercase tracking-wider text-sm">{item.label}</span>
-          </div>
-          <Badge variant="outline" className={`text-[9px] uppercase ${CATEGORY_BADGE_STYLES[item.category]}`}>
-            {INJECT_CATEGORY_LABELS[item.category]}
-          </Badge>
-        </div>
-        <p className="text-xs text-muted-foreground">{item.content}</p>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Source</Label>
-            <Select value={source} onValueChange={setSource}>
-              <SelectTrigger className="h-8 text-xs border-2"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {item.sources.map((s) => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Channel</Label>
-            <Select value={channel} onValueChange={setChannel}>
-              <SelectTrigger className="h-8 text-xs border-2"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {item.channels.map((c) => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            className="flex-1 uppercase tracking-wider text-xs border-primary text-primary hover:bg-primary/10"
-            onClick={() => handleMenuInject(item, source, channel, "blue")}
-            disabled={!isExerciseActive}
-          >
-            <Shield className="h-3 w-3 mr-1" />
-            Blue
-          </Button>
-          {config.teamMode === "team-vs-team" && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 uppercase tracking-wider text-xs border-destructive text-destructive hover:bg-destructive/10"
-              onClick={() => handleMenuInject(item, source, channel, "red")}
-              disabled={!isExerciseActive}
-            >
-              <Target className="h-3 w-3 mr-1" />
-              Red
-            </Button>
-          )}
-          <Button
-            size="sm"
-            className="flex-1 uppercase tracking-wider text-xs"
-            onClick={() => handleMenuInject(item, source, channel, "both")}
-            disabled={!isExerciseActive}
-          >
-            Both
-          </Button>
-        </div>
-      </div>
-    );
-  };
+
 
   // Generate session code
   const generateSessionCode = () => {
