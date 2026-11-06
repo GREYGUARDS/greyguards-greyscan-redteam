@@ -1,10 +1,10 @@
 # Current work
 
-- [ ] Rename demo companies: Ashworth Reilly → Pharmacore International; Meridian Vale → TrustInsureUK PLC; Bristow Calder → PigeeBank!.com (bios, details, logos)
-- [ ] Red Team demo: 10 minutes only, limit scenarios to three
-- [ ] Hosted Red Team: session duration options 1h / 2h / 3h
-- [ ] Hosted Red Team: inject menu by category — Public Reaction / Disinformation / Malinformation — with type, source and channel dropdowns
-- [ ] Hosted Red Team: malinformation injects react to participant counter-posts
-- [ ] Hosted Red Team: pre-planned scenario + pre-prepared injects per demo company (one scenario each; flesh out Pharmacore first)
-- [ ] Host dashboard: horizontal storyline timeline with decision-tree routes and inject flags (mis/dis/mal/public reaction/press)
-- [ ] Host dashboard: separate inject-generation space with previews, separate from timeline and narrative
+- [x] Rename demo companies: Pharmacore International, TrustInsureUK PLC, PigeeBank!.com (bios, details, logos, X-post images)
+- [x] Red Team demo: 10 minutes only, three pre-written scenarios (one per company, no AI wait)
+- [x] Hosted Red Team: session duration options 1h / 2h / 3h
+- [x] Hosted Red Team: inject menu by category — Public Reaction / Disinformation / Malinformation — with type, source and channel dropdowns
+- [x] Hosted Red Team: malinformation injects react to participant counter-statements
+- [x] Hosted Red Team: pre-planned scenario packs per company (Pharmacore fleshed out, two lighter)
+- [x] Host dashboard: horizontal storyline timeline with decision-tree routes and inject category flags
+- [x] Host dashboard: separate AI Studio generation space with previews, separate from timeline and narrative
