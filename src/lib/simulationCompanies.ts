@@ -217,6 +217,17 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
           "A cloned profile posts 'insider concerns' about quality control standards, exploiting her genuine regulatory credibility to lend fabricated concerns false authority among industry peers.",
       },
     ],
+    demoScenario: {
+      title: "Fabricated Contamination Rumour Targets Pharmacore",
+      narrative:
+        "An anonymous pharmacist-forum post claims a specific batch from Pharmacore International's Doncaster cold-chain hub caused adverse patient reactions. There is no evidence, but the post is timed to coincide with a real, unrelated national shortage story, so it reads as plausible pattern-matching. A convincingly formatted fake MHRA field safety notice is now circulating in closed pharmacist WhatsApp groups.",
+      basedOnTruth: true,
+      truthElement:
+        "Pharmacore had a genuine, minor short-dated stock issue in 2023, resolved within 48 hours — it is being recirculated undated as evidence of a pattern.",
+      implicatedParties: ["Julian Mercer (Managing Director)", "Priya Khatri (Regulatory & Quality)"],
+      severity: "severe",
+      spreadPattern: "coordinated",
+    },
     structuralVulnerability:
       "Critical-but-faceless infrastructure: no public brand equity to spend, no media-trained first responder, and a real (minor) past supply incident that fabricated escalations can anchor to.",
   },
@@ -357,6 +368,17 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
           "Individually plausible 'accountability' posts and messages, coordinated in volume and timing, cross from legitimate scrutiny into a campaign designed to force her resignation as a symbolic win.",
       },
     ],
+    demoScenario: {
+      title: "Coordinated Complaint Amplification Hits TrustInsureUK",
+      narrative:
+        "A claims management company is funding coordinated social amplification of TrustInsureUK's genuine post-merger claims backlog, turning individually real, isolated complaints into a fabricated 'systemic non-payment' narrative. A complaint hashtag is being pushed to trend precisely as annual renewal notices go out, maximising exposure at the moment customers decide whether to switch.",
+      basedOnTruth: true,
+      truthElement:
+        "Complaint volumes genuinely rose after the 2024 merger — the coordination, the screenshots and the 'deliberate bad faith' framing are fabricated.",
+      implicatedParties: ["Thomas Reeve (Group CEO)", "Sarah Osei (Chief Claims Officer)"],
+      severity: "severe",
+      spreadPattern: "coordinated",
+    },
     structuralVulnerability:
       "A real, documented operational failure underneath the attack. Denial is impossible and fact-checking is insufficient; the exercise tests grievance handling, honest sequencing and protecting a personally targeted executive.",
   },
@@ -495,6 +517,15 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
           "A cloned or spoofed account posts 'internal concerns' in Hart's name, exploiting her lack of authentic public digital footprint for followers or journalists to cross-check against — a good test of the bank's thin bench strength.",
       },
     ],
+    demoScenario: {
+      title: "Bank-Run Rumour Campaign Targets PigeeBank!",
+      narrative:
+        "Messages seeded into closed WhatsApp and Telegram community groups claim PigeeBank! is 'restricting withdrawals', timed to its pre-IPO roadshow window. The campaign is designed to produce enough genuine customer anxiety to create real deposit-outflow data that then self-validates the rumour.",
+      basedOnTruth: false,
+      implicatedParties: ["Alex Bryce (Founder & CEO)", "Naomi Hart (Co-founder & COO)"],
+      severity: "critical",
+      spreadPattern: "viral",
+    },
     structuralVulnerability:
       "Market-timed, personality-fused and deposit-sensitive: the IPO roadshow gives attackers a bookable date, and rumour-driven outflow becomes self-validating evidence.",
   },
