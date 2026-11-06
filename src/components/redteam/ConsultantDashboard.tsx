@@ -38,6 +38,24 @@ import { ExerciseConfig, Inject, Scenario } from "@/pages/RedTeam";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import HostedInjectStudio from './HostedInjectStudio';
+import StorylineTimeline from './StorylineTimeline';
+import {
+  INJECT_MENU,
+  INJECT_CATEGORY_LABELS,
+  getHostedScenarioPack,
+  type HostedScenarioPack,
+  type InjectCategory,
+  type InjectMenuItem,
+  type StorylineInjectOption,
+} from "@/lib/hostedScenarios";
+
+const CATEGORY_BADGE_STYLES: Record<InjectCategory, string> = {
+  public_reaction: "border-primary text-primary",
+  press: "border-muted-foreground text-muted-foreground",
+  misinformation: "border-warning text-warning",
+  disinformation: "border-destructive text-destructive",
+  malinformation: "border-crimson text-crimson",
+};
 
 interface ConsultantDashboardProps {
   config: ExerciseConfig;
@@ -135,8 +153,16 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     source: "",
     reach: 10000,
     sentiment: "hostile" as Inject["sentiment"],
-    isAggressive: false
+    isAggressive: false,
+    category: "disinformation" as InjectCategory,
+    channel: "X"
   });
+
+  // Pre-planned storyline pack for the selected simulation company
+  const [storylinePack, setStorylinePack] = useState<HostedScenarioPack | null>(null);
+
+  // Recent participant statements — used for reactionary malinformation injects
+  const [recentResponses, setRecentResponses] = useState<Array<{ id: string; label: string; custom: string | null }>>([]);
 
   const [injectedEvents, setInjectedEvents] = useState<Array<{
     id: string;
@@ -144,6 +170,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     type: string;
     content: string;
     targetTeam: "blue" | "red" | "both";
+    category?: InjectCategory;
   }>>([]);
 
   const presetInjects = [
