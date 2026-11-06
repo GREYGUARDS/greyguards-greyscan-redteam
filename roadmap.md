@@ -1,14 +1,10 @@
-- [x] Red Team demo mode: disable "Write Your Own" scenario option
-- [x] Remove DMMI spectrum numbering from response options
-- [x] Red Team: exercise debrief on timer end / early exit
-- [x] Red Team: regulator+underwriter preset response for regulated financial targets
-- [x] GreyScan report: reconcile all mention counts to one canonical dataset + label timeframes
-- [x] GreyScan report: clarify or hide "API Status" badge in demo view
-- [x] AI Engine Exposure: demo-mode explanatory note for empty live results
-- [x] Red Team: generate X post screenshots + wire into inject renderer
-- [x] Red Team: ordered inject timeline with dates and narrative beats
-- [x] Red Team: realistic phone bezel mockup for hero alert injects
-- [x] Hosted Red Team: admin-only AI video generation and private storage
-- [x] Hosted Red Team: preview, direct inject delivery and participant playback
-- [x] Hosted Red Team: permission tests and live video flow verification (video/audio and X delivery tested; signed-out/session denial checked)
-- [x] Hosted Red Team: news-footage, website, X, WhatsApp, Telegram and Facebook inject generators
+# Current work
+
+- [ ] Rename demo companies: Ashworth Reilly → Pharmacore International; Meridian Vale → TrustInsureUK PLC; Bristow Calder → PigeeBank!.com (bios, details, logos)
+- [ ] Red Team demo: 10 minutes only, limit scenarios to three
+- [ ] Hosted Red Team: session duration options 1h / 2h / 3h
+- [ ] Hosted Red Team: inject menu by category — Public Reaction / Disinformation / Malinformation — with type, source and channel dropdowns
+- [ ] Hosted Red Team: malinformation injects react to participant counter-posts
+- [ ] Hosted Red Team: pre-planned scenario + pre-prepared injects per demo company (one scenario each; flesh out Pharmacore first)
+- [ ] Host dashboard: horizontal storyline timeline with decision-tree routes and inject flags (mis/dis/mal/public reaction/press)
+- [ ] Host dashboard: separate inject-generation space with previews, separate from timeline and narrative
