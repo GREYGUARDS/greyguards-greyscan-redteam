@@ -1,0 +1,2 @@
+ALTER TABLE public.exercise_injects ADD COLUMN narrative_category text;
+COMMENT ON COLUMN public.exercise_injects.narrative_category IS 'Host-assigned category: public_reaction, press, misinformation, disinformation or malinformation.';

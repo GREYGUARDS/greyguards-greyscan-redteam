@@ -36,6 +36,13 @@
       "when": 1793910228662,
       "tag": "0004_host_reads_new_session",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793962619473,
+      "tag": "0005_exercise_injects_narrative_category",
+      "breakpoints": true
     }
   ]
 }
