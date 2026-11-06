@@ -440,7 +440,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
         tier: "Tier 3–4",
         type: "Timed to roadshow",
         description:
-          "Messages seeded into closed WhatsApp/Telegram community groups claim Bristow Calder is 'restricting withdrawals', timed to the IPO roadshow window and designed to produce enough real customer anxiety to generate genuine deposit outflow data that then self-validates the rumour.",
+          "Messages seeded into closed WhatsApp/Telegram community groups claim PigeeBank! is 'restricting withdrawals', timed to the IPO roadshow window and designed to produce enough real customer anxiety to generate genuine deposit outflow data that then self-validates the rumour.",
       },
       {
         ref: 14,
@@ -456,7 +456,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
         tier: "Tier 4–5",
         type: "Fabricated official communication, market timing",
         description:
-          "A forged press release styled as an FCA statement about 'enhanced monitoring' of Bristow Calder, seeded to financial journalists right before market open to move institutional sentiment before any denial can catch the news cycle.",
+          "A forged press release styled as an FCA statement about 'enhanced monitoring' of PigeeBank!, seeded to financial journalists right before market open to move institutional sentiment before any denial can catch the news cycle.",
       },
       {
         ref: 16,
@@ -476,7 +476,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       },
       {
         ref: 18,
-        title: "Impersonation of Naomi Calder to fill the 'silent voice' gap",
+        title: "Impersonation of Naomi Hart to fill the 'silent voice' gap",
         tier: "Tier 2",
         type: "Identity spoofing",
         description:
