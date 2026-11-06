@@ -350,7 +350,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
   },
   {
     id: "bristow-calder",
-    name: "Bristow Calder Bank plc",
+    name: "PigeeBank!.com",
     logo: bristowLogo,
     icon: bristowIcon,
     type: "Public limited company, pre-IPO (targeting LSE listing)",
@@ -360,13 +360,13 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
     sector: "Banking / fintech",
     revenue: "£6.8bn deposits, 4.2 million customers",
     employees: "Not disclosed (fictional)",
-    website: "bristowcalder.co.uk",
+    website: "pigeebank.com",
     difficulty: "Capstone",
     difficultyNote:
       "Capstone scenario: market-timing sensitivity plus personal-brand fusion. Tests fast-response crisis-comms capability rather than detection alone.",
     tierRange: "Tiers 3–5",
     history: [
-      "Founded in 2016 by Alex Bryce and Naomi Calder, two former investment bank technologists, positioned as 'the honest bank' — a mobile-first current account provider with aggressive public commitments to fee transparency and real-time spending data.",
+      "Founded in 2016 by Alex Bryce and Naomi Hart, two former investment bank technologists, positioned as 'the honest bank' — a mobile-first current account provider with aggressive public commitments to fee transparency and real-time spending data.",
       "Grew through the late 2010s on word-of-mouth and Bryce's substantial public profile as a fintech commentator. His personal brand and the bank's brand became, deliberately, close to inseparable — the driver of early growth and now the company's single largest concentrated reputational risk as it approaches IPO.",
       "In 2023 the bank acquired a smaller, struggling rival neobank, absorbing its customer base and its core banking technology — a decision now understood internally, though not publicly reported in detail, to have created significant technical debt in reconciliation and ledger systems. The regulatory relationship is genuinely good but fragile: any public loss of confidence, regardless of factual basis, can move faster than a regulator's ability to reassure the market.",
       "Currently in a pre-IPO period with an institutional investor roadshow expected within two quarters — the highest-stakes, most time-compressed window in the company's history and the natural focal point for any red-team scenario.",
@@ -382,7 +382,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
           "An attack on his personal credibility — real or fabricated — transmits directly and immediately into deposit confidence in a way it would not for a conventionally corporate-fronted bank. The central structural vulnerability.",
       },
       {
-        name: "Naomi Calder",
+        name: "Naomi Hart",
         role: "Co-founder & COO",
         photo: calderPhoto,
         profile:
@@ -405,32 +405,32 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
         outlet: "Fintech Ledger UK",
         date: "2019",
         headline:
-          "Bristow Calder Passes 500,000 Customers, Bryce Says 'Trust Is the Only Product We Sell'",
+          "PigeeBank! Passes 500,000 Customers, Bryce Says 'Trust Is the Only Product We Sell'",
         note: "Establishes founder-brand-as-company-brand positioning — the later central vulnerability.",
       },
       {
         outlet: "The Digital Banker",
         date: "2023",
-        headline: "Bristow Calder Acquires Struggling Rival Northfield Bank",
+        headline: "PigeeBank! Acquires Struggling Rival Northfield Bank",
         note: "Factual coverage with brief, never-followed-up analyst commentary on technology integration risk.",
       },
       {
         outlet: "Fintech Ledger UK",
         date: "Early 2025",
-        headline: "Bristow Calder Confirms IPO Preparations, Targets London Listing",
+        headline: "PigeeBank! Confirms IPO Preparations, Targets London Listing",
         note: "Publicly establishes the IPO timeline — a known, bookable date to time an incident against.",
       },
       {
         outlet: "The Digital Banker",
         date: "Mid-2025",
-        headline: "David Okafor Joins Bristow Calder Board Ahead of Float",
+        headline: "David Okafor Joins PigeeBank! Board Ahead of Float",
         note: "Establishes governance context and the Chair's short tenure.",
       },
       {
         outlet: "Consumer Money Watch",
         date: "Autumn 2025",
         headline: "Short-Lived App Outage Affects Small Percentage of Users",
-        note: "Real, minor, resolved within hours — but establishes precedent for 'Bristow Calder has had tech problems before'.",
+        note: "Real, minor, resolved within hours — but establishes precedent for 'PigeeBank! has had tech problems before'.",
       },
     ],
     scenarios: [
