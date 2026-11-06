@@ -173,50 +173,77 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     category?: InjectCategory;
   }>>([]);
 
-  const presetInjects = [
-    {
-      label: "Viral Social Post",
-      type: "social_post" as const,
-      content: "BREAKING: Major allegations surface against [BRAND]",
-      source: "@AnonymousTipper",
-      reach: 50000
-    },
-    {
-      label: "News Pickup",
-      type: "news_article" as const,
-      content: "Media outlet picks up the story with sensational headline",
-      source: "DailyNews.com",
-      reach: 200000
-    },
-    {
-      label: "Influencer Amplification",
-      type: "influencer" as const,
-      content: "Major influencer shares and adds their take",
-      source: "@BigInfluencer (500K)",
-      reach: 500000
-    },
-    {
-      label: "Fake Document Leak",
-      type: "leak" as const,
-      content: "Forged internal document surfaces claiming to prove allegations",
-      source: "Anonymous paste site",
-      reach: 100000
-    },
-    {
-      label: "Bot Amplification",
-      type: "amplification" as const,
-      content: "Coordinated inauthentic behaviour detected - 100+ accounts amplifying",
-      source: "Bot network",
-      reach: 300000
-    },
-    {
-      label: "Competitor Opportunism",
-      type: "official_response" as const,
-      content: "Competitor makes thinly-veiled reference to the crisis",
-      source: "@CompetitorBrand",
-      reach: 150000
-    }
-  ];
+  // Inject menu cards keep their own source/channel selection.
+  const MenuInjectCard = ({ item }: { item: InjectMenuItem }) => {
+    const [source, setSource] = useState(item.sources[0]);
+    const [channel, setChannel] = useState(item.channels[0]);
+    return (
+      <div className="border-2 border-border p-4 hover:border-warning transition-colors space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            {getInjectIcon(item.type)}
+            <span className="font-bold uppercase tracking-wider text-sm">{item.label}</span>
+          </div>
+          <Badge variant="outline" className={`text-[9px] uppercase ${CATEGORY_BADGE_STYLES[item.category]}`}>
+            {INJECT_CATEGORY_LABELS[item.category]}
+          </Badge>
+        </div>
+        <p className="text-xs text-muted-foreground">{item.content}</p>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Source</Label>
+            <Select value={source} onValueChange={setSource}>
+              <SelectTrigger className="h-8 text-xs border-2"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {item.sources.map((s) => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Channel</Label>
+            <Select value={channel} onValueChange={setChannel}>
+              <SelectTrigger className="h-8 text-xs border-2"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {item.channels.map((c) => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 uppercase tracking-wider text-xs border-primary text-primary hover:bg-primary/10"
+            onClick={() => handleMenuInject(item, source, channel, "blue")}
+            disabled={!isExerciseActive}
+          >
+            <Shield className="h-3 w-3 mr-1" />
+            Blue
+          </Button>
+          {config.teamMode === "team-vs-team" && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-1 uppercase tracking-wider text-xs border-destructive text-destructive hover:bg-destructive/10"
+              onClick={() => handleMenuInject(item, source, channel, "red")}
+              disabled={!isExerciseActive}
+            >
+              <Target className="h-3 w-3 mr-1" />
+              Red
+            </Button>
+          )}
+          <Button
+            size="sm"
+            className="flex-1 uppercase tracking-wider text-xs"
+            onClick={() => handleMenuInject(item, source, channel, "both")}
+            disabled={!isExerciseActive}
+          >
+            Both
+          </Button>
+        </div>
+      </div>
+    );
+  };
 
   // Generate session code
   const generateSessionCode = () => {
