@@ -48,6 +48,17 @@ export interface SimulationScenarioSeed {
   description: string;
 }
 
+/** Pre-written demo scenario — the public demo runs these, no AI generation. */
+export interface DemoScenario {
+  title: string;
+  narrative: string;
+  basedOnTruth: boolean;
+  truthElement?: string;
+  implicatedParties: string[];
+  severity: "moderate" | "severe" | "critical";
+  spreadPattern: "viral" | "coordinated" | "organic";
+}
+
 export interface SimulationCompany {
   id: string;
   name: string;
@@ -66,6 +77,7 @@ export interface SimulationCompany {
   people: SimulationPerson[];
   mediaHistory: SimulationMediaItem[];
   scenarios: SimulationScenarioSeed[];
+  demoScenario: DemoScenario;
   structuralVulnerability: string;
   /** Fictional brand marks, where supplied. */
   logo?: string;
