@@ -533,6 +533,11 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
 
 export const SIMULATION_COMPANY_NAMES = SIMULATION_COMPANIES.map((c) => c.name);
 
+/** The pre-written demo scenario for a simulation company, if it has one. */
+export function getDemoScenario(companyId: string): DemoScenario | undefined {
+  return SIMULATION_COMPANIES.find((c) => c.id === companyId)?.demoScenario;
+}
+
 export function getSimulationCompany(nameOrId: string): SimulationCompany | undefined {
   const needle = nameOrId.trim().toLowerCase();
   if (!needle) return undefined;
