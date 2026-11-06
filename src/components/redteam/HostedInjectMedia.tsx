@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { VideoOverlayLayer, StatsBar, type VideoOverlay, type EngagementStats } from './InjectOverlay';
 import { RefreshCw, MessageCircle, Repeat2, Heart, Globe, Users, Send } from 'lucide-react';
 
 export interface HostedArtefact {
@@ -11,6 +12,7 @@ export interface HostedArtefact {
   body: string;
   messages: { sender: string; text: string; time: string }[];
   reactions: string;
+  stats?: EngagementStats;
 }
 
 export function HostedArtefactView({ artefact }: { artefact: HostedArtefact }) {
@@ -30,7 +32,7 @@ export function HostedArtefactView({ artefact }: { artefact: HostedArtefact }) {
       <div className="mb-3 flex items-center gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-xs">{artefact.author.slice(0, 2).toUpperCase()}</span><div className="min-w-0"><p className="text-sm font-semibold break-words">{artefact.author}</p><p className="text-xs text-muted-foreground break-words">{artefact.handle} · just now</p></div></div>
       {artefact.kind === 'facebook' && <h3 className="mb-2 text-sm font-medium break-words">{artefact.title}</h3>}
       <p className="whitespace-pre-wrap text-sm leading-relaxed break-words">{artefact.body}</p>
-      <div className="mt-4 flex items-center gap-5 border-t border-border pt-3 text-xs text-muted-foreground"><MessageCircle className="h-4 w-4" /><Repeat2 className="h-4 w-4" /><Heart className="h-4 w-4" /><span className="break-words">{artefact.reactions}</span></div>
+      {artefact.stats ? <StatsBar stats={artefact.stats} platform={artefact.kind} /> : <div className="mt-4 flex items-center gap-5 border-t border-border pt-3 text-xs text-muted-foreground"><MessageCircle className="h-4 w-4" /><Repeat2 className="h-4 w-4" /><Heart className="h-4 w-4" /><span className="break-words">{artefact.reactions}</span></div>}
     </div>}
   </div>;
 }
@@ -46,13 +48,19 @@ export default function HostedInjectMedia({ storagePath, artefact }: { storagePa
     setUrl(data.signedUrl);
   }, [storagePath]);
   useEffect(() => { setUrl(null); void load(); }, [load]);
-  const visual = artefact && typeof artefact === 'object' && 'kind' in artefact ? artefact as HostedArtefact : null;
+  const raw = artefact && typeof artefact === 'object' && 'kind' in artefact ? artefact as { kind: string; overlay?: VideoOverlay } : null;
+  const overlay = raw?.kind === 'video' ? raw.overlay ?? null : null;
+  const visual = raw && raw.kind !== 'video' ? raw as unknown as HostedArtefact : null;
   return <>
     {visual && <HostedArtefactView artefact={visual} />}
     {storagePath && <div className="my-4 space-y-2">
       <p className="text-xs font-medium text-crimson">FICTIONAL EXERCISE · AI-generated footage</p>
-      {url ? <video key={storagePath} aria-label="Exercise inject video" src={url} controls playsInline preload="metadata" className="max-h-[480px] w-full rounded-md bg-background object-contain" onError={() => setError('Video playback failed. Reload the clip to try again.')} /> : !error && <p className="text-xs text-muted-foreground" role="status">Loading exercise video…</p>}
+      {url ? <OverlayFrame overlay={overlay}><video key={storagePath} aria-label="Exercise inject video" src={url} controls playsInline preload="metadata" className="max-h-[480px] w-full rounded-md bg-background object-contain" onError={() => setError('Video playback failed. Reload the clip to try again.')} /></OverlayFrame> : !error && <p className="text-xs text-muted-foreground" role="status">Loading exercise video…</p>}
       {error && <div role="alert" className="text-sm text-destructive">{error}<Button size="sm" variant="outline" onClick={() => void load()} className="ml-2"><RefreshCw className="mr-2 h-3 w-3" />Reload clip</Button></div>}
     </div>}
   </>;
+}
+export function OverlayFrame({ overlay, children }: { overlay: VideoOverlay | null; children: React.ReactNode }) {
+  if (!overlay) return <>{children}</>;
+  return <div className={`relative mx-auto overflow-hidden rounded-md bg-background ${overlay.platform === 'news' ? 'w-full' : 'max-w-[300px]'}`}>{children}<VideoOverlayLayer overlay={overlay} /></div>;
 }

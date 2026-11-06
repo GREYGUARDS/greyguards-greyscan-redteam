@@ -1319,7 +1319,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
               </TabsContent>
 
               <TabsContent value="studio">
-                <HostedInjectStudio sessionId={sessionId} isActive={isExerciseActive} onSent={(id, content, type) => setInjectedEvents(previous => [{ id, content, type, time: new Date(), targetTeam: 'both' }, ...previous])} />
+                <HostedInjectStudio brand={config.brandName} currentBeat={currentBeat} scenario={scenario?.narrative} sessionId={sessionId} isActive={isExerciseActive} onSent={(id, content, type) => setInjectedEvents(previous => [{ id, content, type, time: new Date(), targetTeam: 'both' }, ...previous])} />
               </TabsContent>
               <TabsContent value="menu">
                 <Card className="border-4 border-border bg-card">

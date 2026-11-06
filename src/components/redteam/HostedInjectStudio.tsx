@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Video, Newspaper, Globe, MessageCircle, Send, Loader2, RefreshCw } from 'lucide-react';
+import { Video, Newspaper, Globe, MessageCircle, Send, Loader2, RefreshCw, Sparkles } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { PLATFORM_LABELS, suggestStats, type OverlayPlatform, type VideoOverlay, type EngagementStats } from './InjectOverlay';
+import { OverlayFrame } from './HostedInjectMedia';
+import { suggestForBeat } from '@/lib/injectSuggestions';
+import type { StorylineBeat } from '@/lib/hostedScenarios';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -31,7 +36,17 @@ async function invoke(endpoint: string, body: Record<string, unknown>) {
   return data;
 }
 
-export default function HostedInjectStudio({ sessionId, isActive, onSent }: { sessionId: string | null; isActive: boolean; onSent: (id: string, content: string, type: string) => void }) {
+export default function HostedInjectStudio({ sessionId, isActive, onSent, brand = 'the company', currentBeat = null, scenario }: { sessionId: string | null; isActive: boolean; onSent: (id: string, content: string, type: string) => void; brand?: string; currentBeat?: StorylineBeat | null; scenario?: string | null }) {
+  const [platform, setPlatform] = useState<OverlayPlatform>('tiktok');
+  const [overlay, setOverlay] = useState<VideoOverlay>({ platform: 'tiktok', handle: '', caption: '', channel: 'NEWS 24', headline: '', ticker: '', ...suggestStats('medium') });
+  const [stats, setStats] = useState<EngagementStats>(suggestStats('medium'));
+  const setO = (patch: Partial<VideoOverlay>) => setOverlay(o => ({ ...o, ...patch }));
+  const suggest = () => {
+    const p = kind === 'news' ? 'news' : platform;
+    const s = suggestForBeat(kind, p, brand, currentBeat, scenario);
+    if (kind === 'influencer' || kind === 'news') { setBrief(s.script); setSpeaker(s.speaker); } else setBrief(s.brief);
+    setO({ platform: p, handle: s.handle, caption: s.caption, headline: s.headline, ticker: s.ticker, channel: overlay.channel || s.channel });
+  };
   const [kind, setKind] = useState<Kind>('influencer');
   const [brief, setBrief] = useState('');
   const [speaker, setSpeaker] = useState('A fictional adult commentator, casually dressed, speaking calmly to camera.');
@@ -143,7 +158,7 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent }: { se
     if (!sessionId || !job || sending) return;
     setSending(true); setError(null);
     try {
-      const data = await invoke(endpoint, { action: 'send', sessionId, jobId: job.id });
+      const data = await invoke(endpoint, video ? { action: 'send', sessionId, jobId: job.id, overlay: { ...overlay, platform: kind === 'news' ? 'news' : platform } } : { action: 'send', sessionId, jobId: job.id, stats });
       if (video) setVideoJob(data.job); else setArtefactJob(data.job);
       onSent(data.injectId, job.artefact?.body ?? brief, video ? 'Video' : kind);
       toast.success('Inject sent to session participants.');
@@ -152,7 +167,18 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent }: { se
   return <section className="space-y-5 border border-border bg-card p-4">
     <h3 className="text-sm font-semibold uppercase">Inject Studio</h3>
     <div className="space-y-2"><Label htmlFor="inject-format">Format</Label><Select value={kind} onValueChange={value => { setKind(value as Kind); setError(null); }} disabled={busy}><SelectTrigger id="inject-format"><SelectValue /></SelectTrigger><SelectContent>{formats.map(format => <SelectItem key={format.value} value={format.value}><span className="flex items-center gap-2"><format.icon className="h-4 w-4" />{format.label}</span></SelectItem>)}</SelectContent></Select></div>
-    <div className="space-y-2"><Label htmlFor="inject-brief">{video ? 'Spoken line' : 'Story brief'}</Label><Textarea id="inject-brief" value={brief} onChange={event => setBrief(event.target.value)} maxLength={video ? 240 : 1500} placeholder={video ? 'A short claim the fictional speaker will say…' : 'The claim, who shares it, and how the story spreads…'} className="min-h-[96px]" disabled={busy} /><p className="text-right text-xs text-muted-foreground">{video ? `${brief.length}/240 · 8-second clip` : `${brief.length}/1500`}</p></div>
+    <div className="space-y-2 border border-border bg-secondary/40 p-3">
+      <div className="flex items-center justify-between gap-2"><p className="text-xs text-muted-foreground">{currentBeat ? <>Story is at: <span className="font-semibold text-foreground">{currentBeat.title}</span></> : 'No storyline step yet — suggestions use the scenario.'}</p><Button type="button" size="sm" variant="outline" onClick={suggest} disabled={busy}><Sparkles className="mr-1 h-3 w-3" />Suggest text</Button></div>
+      <p className="text-[11px] text-muted-foreground">Instantly fills the {video ? (kind === 'news' ? 'newsreader script, headline and ticker' : 'influencer script and caption') : 'post brief'} for where the story is now. Edit before generating.</p>
+    </div>
+    {video && kind === 'influencer' && <div className="space-y-2"><Label>Platform look</Label><Select value={platform} onValueChange={v => { setPlatform(v as OverlayPlatform); setO({ platform: v as OverlayPlatform }); }}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{(['tiktok', 'instagram', 'youtube', 'x', 'facebook'] as OverlayPlatform[]).map(p => <SelectItem key={p} value={p}>{PLATFORM_LABELS[p]}</SelectItem>)}</SelectContent></Select>
+      <div className="grid grid-cols-2 gap-2"><Input placeholder="@handle" value={overlay.handle} maxLength={60} onChange={e => setO({ handle: e.target.value })} /><Input placeholder="Caption & hashtags" value={overlay.caption} maxLength={200} onChange={e => setO({ caption: e.target.value })} /></div></div>}
+    {video && kind === 'news' && <div className="space-y-2"><Label>News graphics</Label>
+      <div className="grid grid-cols-3 gap-2"><Input placeholder="Channel" value={overlay.channel} maxLength={40} onChange={e => setO({ channel: e.target.value })} /><Input className="col-span-2" placeholder="Breaking headline" value={overlay.headline} maxLength={120} onChange={e => setO({ headline: e.target.value })} /></div>
+      <Input placeholder="Scrolling ticker text" value={overlay.ticker} maxLength={300} onChange={e => setO({ ticker: e.target.value })} /></div>}
+    {kind !== 'news' && kind !== 'website' && <div className="space-y-2"><div className="flex items-center justify-between"><Label>Engagement numbers</Label><div className="flex gap-1">{(['low', 'medium', 'viral'] as const).map(l => <Button key={l} type="button" size="sm" variant="ghost" className="h-6 px-2 text-[10px] uppercase" onClick={() => { const n = suggestStats(l); setStats(n); setO(n); }}>{l}</Button>)}</div></div>
+      <div className="grid grid-cols-4 gap-2">{(['views', 'likes', 'comments', 'shares'] as const).map(k => <div key={k}><p className="mb-1 text-[10px] uppercase text-muted-foreground">{k}</p><Input value={video ? overlay[k] : stats[k]} maxLength={12} onChange={e => { setStats(s => ({ ...s, [k]: e.target.value })); setO({ [k]: e.target.value }); }} /></div>)}</div></div>}
+    <div className="space-y-2"><Label htmlFor="inject-brief">{kind === 'news' ? 'Newsreader script' : video ? 'Influencer script' : 'Story brief'}</Label><Textarea id="inject-brief" value={brief} onChange={event => setBrief(event.target.value)} maxLength={video ? 240 : 1500} placeholder={video ? 'A short claim the fictional speaker will say…' : 'The claim, who shares it, and how the story spreads…'} className="min-h-[96px]" disabled={busy} /><p className="text-right text-xs text-muted-foreground">{video ? `${brief.length}/240 · 8-second clip` : `${brief.length}/1500`}</p></div>
     {video && <div className="space-y-2"><Label htmlFor="inject-speaker">Fictional speaker & setting</Label><Textarea id="inject-speaker" value={speaker} onChange={event => setSpeaker(event.target.value)} maxLength={300} disabled={busy} /></div>}
     <div className="space-y-3 text-xs">
       <label className="flex items-start gap-2"><Checkbox checked={fictional} onCheckedChange={value => setFictional(value === true)} /><span>This is fictional exercise material, not an imitation of a real person.</span></label>
@@ -165,8 +191,8 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent }: { se
     {paused && <Button variant="outline" size="sm" onClick={async () => { try { await invoke(endpoint, { action: 'resume', sessionId }); setPaused(false); setError(null); } catch (failure: any) { setError(failure.message); } }}><RefreshCw className="mr-2 h-4 w-4" />Access restored — resume</Button>}
     {job?.status === 'completed' && <div className="space-y-3 border-t border-border pt-4">
       <p className="text-xs text-crimson">FICTIONAL EXERCISE · Preview</p>
-      {job.videoUrl && <video aria-label="Generated inject preview" src={job.videoUrl} controls playsInline className="max-h-[480px] w-full rounded-md bg-background object-contain" />}
-      {job.artefact && <HostedArtefactView artefact={job.artefact} />}
+      {job.videoUrl && <OverlayFrame overlay={{ ...overlay, platform: kind === 'news' ? 'news' : platform }}><video aria-label="Generated inject preview" src={job.videoUrl} controls playsInline className="max-h-[480px] w-full rounded-md bg-background object-contain" /></OverlayFrame>}
+      {job.artefact && <HostedArtefactView artefact={kind === 'website' ? job.artefact : { ...job.artefact, stats }} />}
       <Button onClick={() => void send()} disabled={!isActive || sending || job.sent} className="w-full"><Send className="mr-2 h-4 w-4" />{job.sent ? 'Inject sent' : sending ? 'Sending…' : 'Send Inject'}</Button>
       {!isActive && !job.sent && <p className="text-xs text-muted-foreground">Start the exercise before sending.</p>}
     </div>}

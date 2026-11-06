@@ -91,6 +91,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        ticker: { from: { transform: "translateX(0)" }, to: { transform: "translateX(-100%)" } },
         "accordion-down": {
           from: {
             height: "0",
