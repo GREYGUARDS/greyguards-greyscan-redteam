@@ -492,6 +492,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     reach: number;
     sentiment: string;
     isAggressive: boolean;
+    category?: InjectCategory;
+    channel?: string;
   }) => {
     if (!sessionId) return;
 
@@ -502,10 +504,11 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
           session_id: sessionId,
           inject_type: inject.type,
           content: inject.content,
-          source: inject.source,
+          source: inject.channel ? `${inject.source} · ${inject.channel}` : inject.source,
           reach: inject.reach,
           sentiment: inject.sentiment,
           is_aggressive: inject.isAggressive,
+          narrative_category: inject.category ?? null,
           is_sent: true,
           sent_at: new Date().toISOString(),
           created_by: 'consultant',
@@ -535,7 +538,9 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       source: customInject.source,
       reach: customInject.reach,
       sentiment: customInject.sentiment,
-      isAggressive: customInject.isAggressive
+      isAggressive: customInject.isAggressive,
+      category: customInject.category,
+      channel: customInject.channel
     });
 
     const newEvent = {
@@ -543,7 +548,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       time: new Date(),
       type: customInject.type,
       content,
-      targetTeam
+      targetTeam,
+      category: customInject.category
     };
 
     setInjectedEvents(prev => [newEvent, ...prev]);
@@ -556,45 +562,59 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       source: "",
       reach: 10000,
       sentiment: "hostile",
-      isAggressive: false
+      isAggressive: false,
+      category: "disinformation",
+      channel: "X"
     });
   };
 
-  const handlePresetInject = async (preset: typeof presetInjects[0], targetTeam: "blue" | "red" | "both") => {
-    const content = preset.content.replace("[BRAND]", config.brandName);
+  const handleMenuInject = async (item: InjectMenuItem, source: string, channel: string, targetTeam: "blue" | "red" | "both") => {
+    const content = item.content.replace("[BRAND]", config.brandName);
 
-    // Save to database
     await sendInjectToDatabase({
-      type: preset.type,
+      type: item.type,
       content,
-      source: preset.source,
-      reach: preset.reach,
-      sentiment: "hostile",
-      isAggressive: false
+      source,
+      reach: item.reach,
+      sentiment: item.category === "public_reaction" || item.category === "press" ? "neutral" : "hostile",
+      isAggressive: item.category === "disinformation",
+      category: item.category,
+      channel
     });
 
-    const newEvent = {
+    setInjectedEvents(prev => [{
       id: crypto.randomUUID(),
       time: new Date(),
-      type: preset.type,
+      type: item.type,
       content,
-      targetTeam
-    };
-
-    setInjectedEvents(prev => [newEvent, ...prev]);
+      targetTeam,
+      category: item.category
+    }, ...prev]);
     toast.success("Inject sent!");
   };
 
-  const getInjectIcon = (type: string) => {
-    switch (type) {
-      case "social_post": return <MessageSquare className="h-4 w-4" />;
-      case "news_article": return <Newspaper className="h-4 w-4" />;
-      case "influencer": return <Users className="h-4 w-4" />;
-      case "official_response": return <Radio className="h-4 w-4" />;
-      case "leak": return <AlertTriangle className="h-4 w-4" />;
-      case "amplification": return <Zap className="h-4 w-4" />;
-      default: return <MessageSquare className="h-4 w-4" />;
-    }
+  // Storyline beat injects come pre-prepared from the scenario pack.
+  const handleStorylineInject = async (inject: StorylineInjectOption) => {
+    const content = inject.content.replace("[BRAND]", config.brandName);
+    await sendInjectToDatabase({
+      type: inject.type,
+      content,
+      source: inject.source,
+      reach: inject.reach,
+      sentiment: inject.category === "public_reaction" || inject.category === "press" ? "neutral" : "hostile",
+      isAggressive: inject.category === "disinformation",
+      category: inject.category,
+      channel: inject.channel
+    });
+    setInjectedEvents(prev => [{
+      id: crypto.randomUUID(),
+      time: new Date(),
+      type: inject.type,
+      content,
+      targetTeam: "both" as const,
+      category: inject.category
+    }, ...prev]);
+    toast.success(`Storyline inject sent: ${inject.label}`);
   };
 
   // Generate scenario and injects for preview
