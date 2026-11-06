@@ -7,6 +7,6 @@
     <path d="M96 46 L118 46 L118 68" stroke="#FFFFFF" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
   <!-- Wordmark -->
-  <text x="230" y="118" font-family="'Segoe UI', Verdana, Arial, sans-serif" font-weight="700" font-size="64" fill="#1B1B1F" letter-spacing="0.5">Bristow Calder</text>
+  <text x="230" y="118" font-family="'Segoe UI', Verdana, Arial, sans-serif" font-weight="700" font-size="64" fill="#1B1B1F" letter-spacing="0.5">PigeeBank!</text>
   <text x="232" y="160" font-family="'Segoe UI', Verdana, Arial, sans-serif" font-weight="400" font-size="24" fill="#8A8A93" letter-spacing="5">DIGITAL BANKING</text>
 </svg>

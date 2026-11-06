@@ -76,7 +76,7 @@ export interface SimulationCompany {
 export const SIMULATION_COMPANIES: SimulationCompany[] = [
   {
     id: "ashworth-reilly",
-    name: "Ashworth Reilly Pharma Distribution Ltd",
+    name: "Pharmacore International",
     type: "Private limited company (family-controlled, PE minority stake since 2019)",
     founded: "1961, Wolverhampton, England",
     headquarters:
@@ -85,7 +85,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
     sector: "Healthcare logistics",
     revenue: "£1.4bn (FY2025)",
     employees: "c. 2,600",
-    website: "ashworthreilly.co.uk",
+    website: "pharmacoreinternational.com",
     logo: ashworthLogo,
     icon: ashworthIcon,
 
