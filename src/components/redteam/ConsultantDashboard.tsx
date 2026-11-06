@@ -396,6 +396,61 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     };
   }, [sessionId]);
 
+  // Auto-load the pre-planned storyline pack for the selected simulation company
+  useEffect(() => {
+    const pack = getHostedScenarioPack(config.simulationCompanyId);
+    if (!pack) return;
+    setStorylinePack(pack);
+    if (!scenario) {
+      const packScenario: Scenario = {
+        id: crypto.randomUUID(),
+        refCode: generateRefCode(),
+        title: pack.title,
+        narrative: pack.narrative,
+        basedOnTruth: true,
+        implicatedParties: [],
+        severity: pack.severity,
+        spreadPattern: "coordinated",
+      };
+      setScenario(packScenario);
+      onScenarioGenerated?.(packScenario);
+      setPreviewInjects(
+        pack.beats.flatMap((beat) =>
+          beat.injects.map((inject, i) => ({
+            id: `${beat.id}-${i}`,
+            timestamp: Math.round(beat.offsetMinutes * (config.duration / 60)) * 60,
+            type: inject.type,
+            content: inject.content,
+            source: `${inject.source} · ${inject.channel}`,
+            reach: inject.reach,
+            sentiment: "hostile" as const,
+            requiresResponse: true,
+          }))
+        )
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.simulationCompanyId]);
+
+  // Recent participant statements — feed the reactionary malinformation picker
+  useEffect(() => {
+    if (!sessionId) return;
+    const fetchResponses = async () => {
+      const { data } = await supabase
+        .from('exercise_responses')
+        .select('id, response_label, custom_response')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      if (data) {
+        setRecentResponses(data.map((r) => ({ id: r.id, label: r.response_label, custom: r.custom_response })));
+      }
+    };
+    fetchResponses();
+    const interval = setInterval(fetchResponses, 15000);
+    return () => clearInterval(interval);
+  }, [sessionId]);
+
   // Timer effect
   useEffect(() => {
     if (!isExerciseActive || isPaused) return;
