@@ -94,14 +94,14 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       "Learn-the-mechanics scenario: clean fabrication with clear ground truth. Trains verification and provenance skills.",
     tierRange: "Tiers 1–4",
     history: [
-      "Founded 1961 by Harold Ashworth as a single-van chemist's wholesaler supplying independent pharmacies across the Black Country. Grew through the 1970s and 80s on NHS contract wholesaling, and merged with Reilly Medical Supplies of Dudley in 1988 — the merger that produced the current name and brought the Reilly family into joint ownership.",
-      "Remained privately held across three generations, resisting approaches from pan-European distributors in the 2000s. In 2019, under capital pressure to modernise warehousing and cold-chain infrastructure, the Ashworth family sold a 30% minority stake to mid-market private equity fund Colston Bridge Capital while retaining operational control. Julian Ashworth became Managing Director in 2021.",
+      "Founded 1961 by Harold Mercer as a single-van chemist's wholesaler supplying independent pharmacies across the Black Country. Grew through the 1970s and 80s on NHS contract wholesaling, and merged with Khatri Medical Supplies of Dudley in 1988 — the merger that produced the Pharmacore International name and brought the Khatri family into joint ownership.",
+      "Remained privately held across three generations, resisting approaches from pan-European distributors in the 2000s. In 2019, under capital pressure to modernise warehousing and cold-chain infrastructure, the Mercer family sold a 30% minority stake to mid-market private equity fund Colston Bridge Capital while retaining operational control. Julian Mercer became Managing Director in 2021.",
       "Structurally critical but invisible to the public: one of a small number of full-line wholesalers licensed to distribute controlled and temperature-sensitive medicines to NHS trusts and community pharmacies across the Midlands, North and Scotland. An attack does not need to convince the public who they are — only that 'a distributor' cannot be trusted, which is enough to trigger downstream panic among pharmacists and patients.",
       "Most significant recent move: a £40m automated cold-chain hub near Doncaster, completed 2024, supporting growth in biologics and specialist oncology distribution — a category with genuine, well-documented UK supply fragility, giving any fabricated shortage narrative a plausible real-world backdrop to hide inside.",
     ],
     people: [
       {
-        name: "Julian Ashworth",
+        name: "Julian Mercer",
         role: "Managing Director",
         profile:
           "Birmingham University (Business Management, 2009), then a decade in operational roles across the family business; took the top job at 34. Operationally excellent on logistics, procurement and NHS contract relationships.",
@@ -111,17 +111,17 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       },
 
       {
-        name: "Priya Reilly",
+        name: "Priya Khatri",
         role: "Director of Regulatory & Quality Affairs",
         profile:
-          "Great-granddaughter of co-founder Thomas Reilly and the family's most senior remaining presence in the merged business. Pharmacist by training (Nottingham, MPharm, 2007) with fifteen years in regulatory affairs; the firm's most credible public voice and its real line of defence in any MHRA-facing incident.",
+          "Great-granddaughter of co-founder Thomas Khatri and the family's most senior remaining presence in the merged business. Pharmacist by training (Nottingham, MPharm, 2007) with fifteen years in regulatory affairs; the firm's most credible public voice and its real line of defence in any MHRA-facing incident.",
         vulnerability:
           "Structurally under-used — appears in trade press only rarely, so has little pre-existing public credibility to draw on when suddenly required to counter a fast-moving rumour. A prime impersonation target.",
         photo: priyaPhoto,
       },
 
       {
-        name: "Frank Ashworth",
+        name: "Frank Mercer",
         role: "Chairman (Non-Executive)",
         profile:
           "Julian's father, 68. Retired from day-to-day operations in 2021 but remains Chairman and the family's largest individual shareholder. Well-regarded as an elder statesman of independent pharma distribution.",
