@@ -32,12 +32,31 @@ import {
   RefreshCw,
   BookOpen,
   CheckCircle,
-  Loader2
+  Loader2,
+  GitBranch
 } from "lucide-react";
 import { ExerciseConfig, Inject, Scenario } from "@/pages/RedTeam";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import HostedInjectStudio from './HostedInjectStudio';
+import StorylineTimeline from './StorylineTimeline';
+import {
+  INJECT_MENU,
+  INJECT_CATEGORY_LABELS,
+  getHostedScenarioPack,
+  type HostedScenarioPack,
+  type InjectCategory,
+  type InjectMenuItem,
+  type StorylineInjectOption,
+} from "@/lib/hostedScenarios";
+
+const CATEGORY_BADGE_STYLES: Record<InjectCategory, string> = {
+  public_reaction: "border-primary text-primary",
+  press: "border-muted-foreground text-muted-foreground",
+  misinformation: "border-warning text-warning",
+  disinformation: "border-destructive text-destructive",
+  malinformation: "border-crimson text-crimson",
+};
 
 interface ConsultantDashboardProps {
   config: ExerciseConfig;
@@ -78,6 +97,100 @@ interface DatabaseSession {
 }
 
 const CONSULTANT_GENERATION_TIMEOUT_MS = 10000;
+
+const getInjectIcon = (type: string) => {
+  switch (type) {
+    case "social_post": return <MessageSquare className="h-4 w-4" />;
+    case "news_article": return <Newspaper className="h-4 w-4" />;
+    case "influencer": return <Users className="h-4 w-4" />;
+    case "official_response": return <Radio className="h-4 w-4" />;
+    case "leak": return <AlertTriangle className="h-4 w-4" />;
+    case "amplification": return <Zap className="h-4 w-4" />;
+    default: return <MessageSquare className="h-4 w-4" />;
+  }
+};
+
+/** One inject-menu card. Module-level so its source/channel selections survive re-renders. */
+const MenuInjectCard = ({
+  item,
+  isActive,
+  teamMode,
+  onSend,
+}: {
+  item: InjectMenuItem;
+  isActive: boolean;
+  teamMode: string;
+  onSend: (item: InjectMenuItem, source: string, channel: string, targetTeam: "blue" | "red" | "both") => void;
+}) => {
+  const [source, setSource] = useState(item.sources[0]);
+  const [channel, setChannel] = useState(item.channels[0]);
+  return (
+    <div className="border-2 border-border p-4 hover:border-warning transition-colors space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          {getInjectIcon(item.type)}
+          <span className="font-bold uppercase tracking-wider text-sm">{item.label}</span>
+        </div>
+        <Badge variant="outline" className={`text-[9px] uppercase ${CATEGORY_BADGE_STYLES[item.category]}`}>
+          {INJECT_CATEGORY_LABELS[item.category]}
+        </Badge>
+      </div>
+      <p className="text-xs text-muted-foreground">{item.content}</p>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Source</Label>
+          <Select value={source} onValueChange={setSource}>
+            <SelectTrigger className="h-8 text-xs border-2"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {item.sources.map((s) => <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Channel</Label>
+          <Select value={channel} onValueChange={setChannel}>
+            <SelectTrigger className="h-8 text-xs border-2"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {item.channels.map((c) => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="flex-1 uppercase tracking-wider text-xs border-primary text-primary hover:bg-primary/10"
+          onClick={() => onSend(item, source, channel, "blue")}
+          disabled={!isActive}
+        >
+          <Shield className="h-3 w-3 mr-1" />
+          Blue
+        </Button>
+        {teamMode === "team-vs-team" && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1 uppercase tracking-wider text-xs border-destructive text-destructive hover:bg-destructive/10"
+            onClick={() => onSend(item, source, channel, "red")}
+            disabled={!isActive}
+          >
+            <Target className="h-3 w-3 mr-1" />
+            Red
+          </Button>
+        )}
+        <Button
+          size="sm"
+          className="flex-1 uppercase tracking-wider text-xs"
+          onClick={() => onSend(item, source, channel, "both")}
+          disabled={!isActive}
+        >
+          Both
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -135,8 +248,16 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     source: "",
     reach: 10000,
     sentiment: "hostile" as Inject["sentiment"],
-    isAggressive: false
+    isAggressive: false,
+    category: "disinformation" as InjectCategory,
+    channel: "X"
   });
+
+  // Pre-planned storyline pack for the selected simulation company
+  const [storylinePack, setStorylinePack] = useState<HostedScenarioPack | null>(null);
+
+  // Recent participant statements — used for reactionary malinformation injects
+  const [recentResponses, setRecentResponses] = useState<Array<{ id: string; label: string; custom: string | null }>>([]);
 
   const [injectedEvents, setInjectedEvents] = useState<Array<{
     id: string;
@@ -144,52 +265,10 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     type: string;
     content: string;
     targetTeam: "blue" | "red" | "both";
+    category?: InjectCategory;
   }>>([]);
 
-  const presetInjects = [
-    {
-      label: "Viral Social Post",
-      type: "social_post" as const,
-      content: "BREAKING: Major allegations surface against [BRAND]",
-      source: "@AnonymousTipper",
-      reach: 50000
-    },
-    {
-      label: "News Pickup",
-      type: "news_article" as const,
-      content: "Media outlet picks up the story with sensational headline",
-      source: "DailyNews.com",
-      reach: 200000
-    },
-    {
-      label: "Influencer Amplification",
-      type: "influencer" as const,
-      content: "Major influencer shares and adds their take",
-      source: "@BigInfluencer (500K)",
-      reach: 500000
-    },
-    {
-      label: "Fake Document Leak",
-      type: "leak" as const,
-      content: "Forged internal document surfaces claiming to prove allegations",
-      source: "Anonymous paste site",
-      reach: 100000
-    },
-    {
-      label: "Bot Amplification",
-      type: "amplification" as const,
-      content: "Coordinated inauthentic behaviour detected - 100+ accounts amplifying",
-      source: "Bot network",
-      reach: 300000
-    },
-    {
-      label: "Competitor Opportunism",
-      type: "official_response" as const,
-      content: "Competitor makes thinly-veiled reference to the crisis",
-      source: "@CompetitorBrand",
-      reach: 150000
-    }
-  ];
+
 
   // Generate session code
   const generateSessionCode = () => {
@@ -318,6 +397,61 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     };
   }, [sessionId]);
 
+  // Auto-load the pre-planned storyline pack for the selected simulation company
+  useEffect(() => {
+    const pack = getHostedScenarioPack(config.simulationCompanyId);
+    if (!pack) return;
+    setStorylinePack(pack);
+    if (!scenario) {
+      const packScenario: Scenario = {
+        id: crypto.randomUUID(),
+        refCode: generateRefCode(),
+        title: pack.title,
+        narrative: pack.narrative,
+        basedOnTruth: true,
+        implicatedParties: [],
+        severity: pack.severity,
+        spreadPattern: "coordinated",
+      };
+      setScenario(packScenario);
+      onScenarioGenerated?.(packScenario);
+      setPreviewInjects(
+        pack.beats.flatMap((beat) =>
+          beat.injects.map((inject, i) => ({
+            id: `${beat.id}-${i}`,
+            timestamp: Math.round(beat.offsetMinutes * (config.duration / 60)) * 60,
+            type: inject.type,
+            content: inject.content,
+            source: `${inject.source} · ${inject.channel}`,
+            reach: inject.reach,
+            sentiment: "hostile" as const,
+            requiresResponse: true,
+          }))
+        )
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.simulationCompanyId]);
+
+  // Recent participant statements — feed the reactionary malinformation picker
+  useEffect(() => {
+    if (!sessionId) return;
+    const fetchResponses = async () => {
+      const { data } = await supabase
+        .from('exercise_responses')
+        .select('id, response_label, custom_response')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      if (data) {
+        setRecentResponses(data.map((r) => ({ id: r.id, label: r.response_label, custom: r.custom_response })));
+      }
+    };
+    fetchResponses();
+    const interval = setInterval(fetchResponses, 15000);
+    return () => clearInterval(interval);
+  }, [sessionId]);
+
   // Timer effect
   useEffect(() => {
     if (!isExerciseActive || isPaused) return;
@@ -414,6 +548,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     reach: number;
     sentiment: string;
     isAggressive: boolean;
+    category?: InjectCategory;
+    channel?: string;
   }) => {
     if (!sessionId) return;
 
@@ -424,10 +560,11 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
           session_id: sessionId,
           inject_type: inject.type,
           content: inject.content,
-          source: inject.source,
+          source: inject.channel ? `${inject.source} · ${inject.channel}` : inject.source,
           reach: inject.reach,
           sentiment: inject.sentiment,
           is_aggressive: inject.isAggressive,
+          narrative_category: inject.category ?? null,
           is_sent: true,
           sent_at: new Date().toISOString(),
           created_by: 'consultant',
@@ -457,7 +594,9 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       source: customInject.source,
       reach: customInject.reach,
       sentiment: customInject.sentiment,
-      isAggressive: customInject.isAggressive
+      isAggressive: customInject.isAggressive,
+      category: customInject.category,
+      channel: customInject.channel
     });
 
     const newEvent = {
@@ -465,7 +604,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       time: new Date(),
       type: customInject.type,
       content,
-      targetTeam
+      targetTeam,
+      category: customInject.category
     };
 
     setInjectedEvents(prev => [newEvent, ...prev]);
@@ -478,45 +618,59 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       source: "",
       reach: 10000,
       sentiment: "hostile",
-      isAggressive: false
+      isAggressive: false,
+      category: "disinformation",
+      channel: "X"
     });
   };
 
-  const handlePresetInject = async (preset: typeof presetInjects[0], targetTeam: "blue" | "red" | "both") => {
-    const content = preset.content.replace("[BRAND]", config.brandName);
+  const handleMenuInject = async (item: InjectMenuItem, source: string, channel: string, targetTeam: "blue" | "red" | "both") => {
+    const content = item.content.replace("[BRAND]", config.brandName);
 
-    // Save to database
     await sendInjectToDatabase({
-      type: preset.type,
+      type: item.type,
       content,
-      source: preset.source,
-      reach: preset.reach,
-      sentiment: "hostile",
-      isAggressive: false
+      source,
+      reach: item.reach,
+      sentiment: item.category === "public_reaction" || item.category === "press" ? "neutral" : "hostile",
+      isAggressive: item.category === "disinformation",
+      category: item.category,
+      channel
     });
 
-    const newEvent = {
+    setInjectedEvents(prev => [{
       id: crypto.randomUUID(),
       time: new Date(),
-      type: preset.type,
+      type: item.type,
       content,
-      targetTeam
-    };
-
-    setInjectedEvents(prev => [newEvent, ...prev]);
+      targetTeam,
+      category: item.category
+    }, ...prev]);
     toast.success("Inject sent!");
   };
 
-  const getInjectIcon = (type: string) => {
-    switch (type) {
-      case "social_post": return <MessageSquare className="h-4 w-4" />;
-      case "news_article": return <Newspaper className="h-4 w-4" />;
-      case "influencer": return <Users className="h-4 w-4" />;
-      case "official_response": return <Radio className="h-4 w-4" />;
-      case "leak": return <AlertTriangle className="h-4 w-4" />;
-      case "amplification": return <Zap className="h-4 w-4" />;
-      default: return <MessageSquare className="h-4 w-4" />;
-    }
+  // Storyline beat injects come pre-prepared from the scenario pack.
+  const handleStorylineInject = async (inject: StorylineInjectOption) => {
+    const content = inject.content.replace("[BRAND]", config.brandName);
+    await sendInjectToDatabase({
+      type: inject.type,
+      content,
+      source: inject.source,
+      reach: inject.reach,
+      sentiment: inject.category === "public_reaction" || inject.category === "press" ? "neutral" : "hostile",
+      isAggressive: inject.category === "disinformation",
+      category: inject.category,
+      channel: inject.channel
+    });
+    setInjectedEvents(prev => [{
+      id: crypto.randomUUID(),
+      time: new Date(),
+      type: inject.type,
+      content,
+      targetTeam: "both" as const,
+      category: inject.category
+    }, ...prev]);
+    toast.success(`Storyline inject sent: ${inject.label}`);
   };
 
   // Generate scenario and injects for preview
@@ -982,68 +1136,115 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
 
           {/* Center Panel - Inject Controls */}
           <div className="lg:col-span-6">
-            <Tabs defaultValue="quick" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="quick" className="uppercase tracking-wider">Quick Injects</TabsTrigger>
-                <TabsTrigger value="custom" className="uppercase tracking-wider">Custom Inject</TabsTrigger>
+            <Tabs defaultValue={storylinePack ? "storyline" : "menu"} className="w-full">
+              <TabsList className="grid w-full grid-cols-4 mb-6">
+                <TabsTrigger value="storyline" className="uppercase tracking-wider">Storyline</TabsTrigger>
+                <TabsTrigger value="menu" className="uppercase tracking-wider">Inject Menu</TabsTrigger>
                 <TabsTrigger value="studio" className="uppercase tracking-wider">AI Studio</TabsTrigger>
+                <TabsTrigger value="custom" className="uppercase tracking-wider">Custom</TabsTrigger>
               </TabsList>
+
+              <TabsContent value="storyline">
+                <Card className="border-4 border-border bg-card">
+                  <CardHeader className="border-b-4 border-border">
+                    <CardTitle className="flex items-center gap-2 uppercase tracking-wider text-sm">
+                      <GitBranch className="h-4 w-4 text-primary" />
+                      Storyline & Decision Tree
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    {storylinePack ? (
+                      <StorylineTimeline
+                        pack={storylinePack}
+                        durationMinutes={config.duration}
+                        elapsedSeconds={config.duration * 60 - timeRemaining}
+                        isActive={isExerciseActive && !isPaused}
+                        onSendInject={handleStorylineInject}
+                      />
+                    ) : (
+                      <div className="p-8 text-center text-muted-foreground text-sm">
+                        <GitBranch className="h-10 w-10 mx-auto mb-3 opacity-50" />
+                        <p>No pre-planned storyline for this target.</p>
+                        <p className="text-xs mt-1">Select one of the three simulation companies on the setup screen to load its pre-planned scenario, or generate a scenario from the Preview dialog.</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
               <TabsContent value="studio">
                 <HostedInjectStudio sessionId={sessionId} isActive={isExerciseActive} onSent={(id, content, type) => setInjectedEvents(previous => [{ id, content, type, time: new Date(), targetTeam: 'both' }, ...previous])} />
               </TabsContent>
-              <TabsContent value="quick">
+              <TabsContent value="menu">
                 <Card className="border-4 border-border bg-card">
                   <CardHeader className="border-b-4 border-border">
                     <CardTitle className="flex items-center gap-2 uppercase tracking-wider text-sm">
                       <Zap className="h-4 w-4 text-warning" />
-                      Preset Injects
+                      Inject Menu
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {presetInjects.map((preset, i) => (
-                        <div key={i} className="border-2 border-border p-4 hover:border-warning transition-colors">
-                          <div className="flex items-center gap-2 mb-2">
-                            {getInjectIcon(preset.type)}
-                            <span className="font-bold uppercase tracking-wider text-sm">{preset.label}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mb-3">{preset.content}</p>
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="flex-1 uppercase tracking-wider text-xs border-primary text-primary hover:bg-primary/10"
-                              onClick={() => handlePresetInject(preset, "blue")}
-                              disabled={!isExerciseActive}
-                            >
-                              <Shield className="h-3 w-3 mr-1" />
-                              Blue
-                            </Button>
-                            {config.teamMode === "team-vs-team" && (
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                className="flex-1 uppercase tracking-wider text-xs border-destructive text-destructive hover:bg-destructive/10"
-                                onClick={() => handlePresetInject(preset, "red")}
-                                disabled={!isExerciseActive}
-                              >
-                                <Target className="h-3 w-3 mr-1" />
-                                Red
-                              </Button>
-                            )}
-                            <Button 
-                              size="sm" 
-                              className="flex-1 uppercase tracking-wider text-xs"
-                              onClick={() => handlePresetInject(preset, "both")}
-                              disabled={!isExerciseActive}
-                            >
-                              Both
-                            </Button>
-                          </div>
+                  <CardContent className="p-4 space-y-8">
+                    {(["public_reaction", "disinformation", "malinformation"] as InjectCategory[]).map((category) => (
+                      <div key={category} className="space-y-3">
+                        <div className="flex items-center gap-2 border-b-2 border-border pb-2">
+                          <Badge variant="outline" className={`uppercase ${CATEGORY_BADGE_STYLES[category]}`}>
+                            {INJECT_CATEGORY_LABELS[category]}
+                          </Badge>
+                          <span className="text-[11px] text-muted-foreground">
+                            {category === "public_reaction" && "Genuine voices and organic coverage — the believable background noise."}
+                            {category === "disinformation" && "Adversary fabrications — forged, synthetic or impersonated material."}
+                            {category === "malinformation" && "Genuine material weaponised — real quotes, clips and data stripped of context."}
+                          </span>
                         </div>
-                      ))}
-                    </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {INJECT_MENU.filter((item) => item.category === category).map((item) => (
+                            <MenuInjectCard
+                              key={item.label}
+                              item={item}
+                              isActive={isExerciseActive}
+                              teamMode={config.teamMode}
+                              onSend={handleMenuInject}
+                            />
+                          ))}
+                        </div>
+                        {category === "malinformation" && recentResponses.length > 0 && (
+                          <div className="border-2 border-dashed border-crimson/40 p-3 space-y-2">
+                            <Label className="text-[10px] uppercase tracking-wider text-crimson">
+                              Reactionary — quote a participant statement out of context
+                            </Label>
+                            <Select
+                              onValueChange={(responseId) => {
+                                const response = recentResponses.find((r) => r.id === responseId);
+                                if (!response) return;
+                                const statement = response.custom || response.label;
+                                setCustomInject({
+                                  type: "news_article",
+                                  content: `Quoted out of context: "${statement}" — presented as an admission that the situation is worse than the company admits.`,
+                                  source: "Adversary account network",
+                                  reach: 70000,
+                                  sentiment: "hostile",
+                                  isAggressive: false,
+                                  category: "malinformation",
+                                  channel: "X"
+                                });
+                                toast.info("Malinformation inject drafted — review and send from the Custom tab.");
+                              }}
+                            >
+                              <SelectTrigger className="h-8 text-xs border-2">
+                                <SelectValue placeholder="Pick a recent participant statement…" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {recentResponses.map((r) => (
+                                  <SelectItem key={r.id} value={r.id} className="text-xs">
+                                    {(r.custom || r.label).slice(0, 80)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -1090,6 +1291,41 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                             <SelectItem value="hostile">Hostile</SelectItem>
                             <SelectItem value="confused">Confused</SelectItem>
                             <SelectItem value="neutral">Neutral</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-xs uppercase tracking-wider">Category</Label>
+                        <Select
+                          value={customInject.category}
+                          onValueChange={(v) => setCustomInject({...customInject, category: v as InjectCategory})}
+                        >
+                          <SelectTrigger className="border-2">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(Object.keys(INJECT_CATEGORY_LABELS) as InjectCategory[]).map((cat) => (
+                              <SelectItem key={cat} value={cat}>{INJECT_CATEGORY_LABELS[cat]}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-xs uppercase tracking-wider">Channel</Label>
+                        <Select
+                          value={customInject.channel}
+                          onValueChange={(v) => setCustomInject({...customInject, channel: v})}
+                        >
+                          <SelectTrigger className="border-2">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["X", "Facebook", "Telegram", "WhatsApp", "Website", "YouTube", "TikTok", "Instagram", "LinkedIn", "Reddit", "Press wire", "TV"].map((c) => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -1196,7 +1432,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                     <div className="divide-y divide-border">
                       {injectedEvents.map((event) => (
                         <div key={event.id} className="p-3 hover:bg-muted/50">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
                             {getInjectIcon(event.type)}
                             <span className="text-xs font-mono text-muted-foreground">
                               {event.time.toLocaleTimeString()}
@@ -1211,6 +1447,11 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                             >
                               {event.targetTeam === 'both' ? 'ALL' : event.targetTeam.toUpperCase()}
                             </Badge>
+                            {event.category && (
+                              <Badge variant="outline" className={`text-[10px] uppercase ${CATEGORY_BADGE_STYLES[event.category]}`}>
+                                {INJECT_CATEGORY_LABELS[event.category]}
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-sm line-clamp-2">{event.content}</p>
                         </div>

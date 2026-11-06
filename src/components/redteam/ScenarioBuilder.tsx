@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { ExerciseConfig, Scenario } from "@/pages/RedTeam";
 import { supabase } from "@/integrations/supabase/client";
+import { getDemoScenario } from "@/lib/simulationCompanies";
 import { toast } from "sonner";
 
 // Countdown component that actually counts down
@@ -81,6 +82,19 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
   const [isGenerating, setIsGenerating] = useState(false);
   const [previewScenario, setPreviewScenario] = useState<Scenario | null>(null);
   const [isReady, setIsReady] = useState(false);
+
+  // Demo mode: run the company's pre-written scenario straight away — no AI
+  // generation, no mode choice, one of the three canonical demo scenarios.
+  useEffect(() => {
+    if (!demoMode || previewScenario) return;
+    const preset = config.simulationCompanyId
+      ? getDemoScenario(config.simulationCompanyId)
+      : undefined;
+    if (preset) {
+      setBuildMode("generate");
+      setPreviewScenario({ id: crypto.randomUUID(), ...preset });
+    }
+  }, [demoMode, config.simulationCompanyId, previewScenario]);
 
   const generateScenario = async (baseScenario?: string) => {
     setIsGenerating(true);
@@ -251,6 +265,21 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
 
   // Initial mode selection
   if (!buildMode) {
+    // Demo mode always uses one of the three pre-written company scenarios.
+    if (demoMode) {
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <div className="text-center space-y-4">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
+            <p className="text-muted-foreground uppercase tracking-wider">Preparing demo scenario…</p>
+            <Button variant="ghost" onClick={onBack} className="uppercase tracking-wider">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen bg-background p-4 sm:p-8">
         <div className="max-w-3xl mx-auto">
@@ -481,6 +510,7 @@ The AI will enhance your scenario with realistic details and create dynamic inje
                 You have {config.duration} minutes to respond to this crisis. Think carefully, the clock is ticking.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                {!demoMode && (
                 <Button
                   variant="outline"
                   onClick={() => generateScenario(buildMode === "write" ? userScenario : undefined)}
@@ -490,6 +520,7 @@ The AI will enhance your scenario with realistic details and create dynamic inje
                   <RefreshCw className={`h-5 w-5 mr-3 ${isGenerating ? 'animate-spin' : ''}`} />
                   Regenerate Scenario
                 </Button>
+                )}
                 <Button
                   onClick={handleConfirmScenario}
                   disabled={isGenerating}

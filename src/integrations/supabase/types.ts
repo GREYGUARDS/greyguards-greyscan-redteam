@@ -129,6 +129,7 @@ export type Database = {
           inject_type: string
           is_aggressive: boolean | null
           is_sent: boolean | null
+          narrative_category: string | null
           reach: number | null
           sent_at: string | null
           sentiment: string | null
@@ -146,6 +147,7 @@ export type Database = {
           inject_type: string
           is_aggressive?: boolean | null
           is_sent?: boolean | null
+          narrative_category?: string | null
           reach?: number | null
           sent_at?: string | null
           sentiment?: string | null
@@ -163,6 +165,7 @@ export type Database = {
           inject_type?: string
           is_aggressive?: boolean | null
           is_sent?: boolean | null
+          narrative_category?: string | null
           reach?: number | null
           sent_at?: string | null
           sentiment?: string | null

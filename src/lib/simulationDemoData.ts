@@ -88,7 +88,7 @@ const PROFILES: Record<string, DemoProfile> = {
     baseVolume: 22,
     keywords: [
       "cold chain", "Doncaster hub", "batch recall", "MHRA", "pharmacist forum",
-      "supply shortage", "oncology medicines", "contamination", "NHS supply", "Priya Reilly",
+      "supply shortage", "oncology medicines", "contamination", "NHS supply", "Priya Khatri",
     ],
     narratives: [
       {
@@ -204,7 +204,7 @@ const PROFILES: Record<string, DemoProfile> = {
         type: "feature",
       },
     ],
-    entities: ["Julian Ashworth", "Priya Reilly", "Frank Ashworth", "MHRA", "NHS Supply Chain", "Colston Bridge Capital"],
+    entities: ["Julian Mercer", "Priya Khatri", "Frank Mercer", "MHRA", "NHS Supply Chain", "Colston Bridge Capital"],
     locations: [
       { name: "Wolverhampton", count: 21, lat: 52.5862, lon: -2.1288 },
       { name: "Doncaster", count: 18, lat: 53.5228, lon: -1.1285 },
@@ -228,7 +228,7 @@ const PROFILES: Record<string, DemoProfile> = {
       { name: "Trade press", count: 6 },
     ],
     risingQueries: [
-      { query: "ashworth reilly recall", value: 3900 },
+      { query: "pharmacore recall", value: 3900 },
       { query: "mhra field safety notice pharmacy", value: 2600 },
       { query: "doncaster cold chain batch", value: 1800 },
       { query: "medicine shortage midlands", value: 1450 },
@@ -363,7 +363,7 @@ const PROFILES: Record<string, DemoProfile> = {
         type: "news",
       },
     ],
-    entities: ["Thomas Vale", "Sarah Meridian-Osei", "Robert Iyanu", "Financial Conduct Authority", "Financial Ombudsman Service"],
+    entities: ["Thomas Reeve", "Sarah Osei", "Robert Iyanu", "Financial Conduct Authority", "Financial Ombudsman Service"],
     locations: [
       { name: "London", count: 34, lat: 51.5072, lon: -0.1276 },
       { name: "Manchester", count: 17, lat: 53.4808, lon: -2.2426 },
@@ -387,11 +387,11 @@ const PROFILES: Record<string, DemoProfile> = {
       { name: "Consumer forums", count: 9 },
     ],
     risingQueries: [
-      { query: "meridian vale claim refused", value: 6100 },
+      { query: "trustinsureuk claim refused", value: 6100 },
       { query: "insurance postcode algorithm", value: 4700 },
       { query: "flood cover exclusion meaning", value: 3300 },
       { query: "how to complain to the ombudsman", value: 2500 },
-      { query: "meridian vale class action", value: 1600 },
+      { query: "trustinsureuk class action", value: 1600 },
     ],
   },
 
@@ -522,7 +522,7 @@ const PROFILES: Record<string, DemoProfile> = {
         type: "fact-check",
       },
     ],
-    entities: ["Alex Bryce", "Naomi Calder", "David Okafor", "Bank of England", "Financial Conduct Authority", "Ratings agencies"],
+    entities: ["Alex Bryce", "Naomi Hart", "David Okafor", "Bank of England", "Financial Conduct Authority", "Ratings agencies"],
     locations: [
       { name: "London", count: 58, lat: 51.5072, lon: -0.1276 },
       { name: "Edinburgh", count: 19, lat: 55.9533, lon: -3.1883 },
@@ -546,11 +546,11 @@ const PROFILES: Record<string, DemoProfile> = {
       { name: "Investor chat groups", count: 12 },
     ],
     risingQueries: [
-      { query: "bristow calder liquidity", value: 12400 },
-      { query: "is my money safe bristow calder", value: 9800 },
+      { query: "pigeebank liquidity", value: 12400 },
+      { query: "is my money safe pigeebank", value: 9800 },
       { query: "cfo audio leak bank", value: 7200 },
       { query: "fscs deposit protection limit", value: 5100 },
-      { query: "bristow calder branch queues", value: 3600 },
+      { query: "pigeebank branch queues", value: 3600 },
     ],
   },
 };
