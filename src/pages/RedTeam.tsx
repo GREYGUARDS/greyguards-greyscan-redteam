@@ -193,7 +193,7 @@ interface ExerciseResults {
 interface TeamSessionData {
   sessionId: string;
   teamId: string;
-  teamType: "blue" | "red";
+  teamType: "blue" | "red" | "observer";
   sessionData: any;
 }
 
