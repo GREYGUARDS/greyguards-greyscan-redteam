@@ -32,7 +32,8 @@ import {
   RefreshCw,
   BookOpen,
   CheckCircle,
-  Loader2
+  Loader2,
+  GitBranch
 } from "lucide-react";
 import { ExerciseConfig, Inject, Scenario } from "@/pages/RedTeam";
 import { supabase } from "@/integrations/supabase/client";
@@ -1295,6 +1296,41 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                       </div>
                     </div>
 
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-xs uppercase tracking-wider">Category</Label>
+                        <Select
+                          value={customInject.category}
+                          onValueChange={(v) => setCustomInject({...customInject, category: v as InjectCategory})}
+                        >
+                          <SelectTrigger className="border-2">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(Object.keys(INJECT_CATEGORY_LABELS) as InjectCategory[]).map((cat) => (
+                              <SelectItem key={cat} value={cat}>{INJECT_CATEGORY_LABELS[cat]}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-xs uppercase tracking-wider">Channel</Label>
+                        <Select
+                          value={customInject.channel}
+                          onValueChange={(v) => setCustomInject({...customInject, channel: v})}
+                        >
+                          <SelectTrigger className="border-2">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["X", "Facebook", "Telegram", "WhatsApp", "Website", "YouTube", "TikTok", "Instagram", "LinkedIn", "Reddit", "Press wire", "TV"].map((c) => (
+                              <SelectItem key={c} value={c}>{c}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
                     <div>
                       <Label className="text-xs uppercase tracking-wider">Source</Label>
                       <Input
@@ -1396,7 +1432,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                     <div className="divide-y divide-border">
                       {injectedEvents.map((event) => (
                         <div key={event.id} className="p-3 hover:bg-muted/50">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
                             {getInjectIcon(event.type)}
                             <span className="text-xs font-mono text-muted-foreground">
                               {event.time.toLocaleTimeString()}
@@ -1411,6 +1447,11 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                             >
                               {event.targetTeam === 'both' ? 'ALL' : event.targetTeam.toUpperCase()}
                             </Badge>
+                            {event.category && (
+                              <Badge variant="outline" className={`text-[10px] uppercase ${CATEGORY_BADGE_STYLES[event.category]}`}>
+                                {INJECT_CATEGORY_LABELS[event.category]}
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-sm line-clamp-2">{event.content}</p>
                         </div>
