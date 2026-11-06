@@ -22,7 +22,7 @@ import {
   Shield,
   TrendingUp,
   TrendingDown,
-  Loader2
+  Loader2,
   Pause,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";

@@ -30,7 +30,7 @@ import {
   VolumeX,
   CheckCircle2,
   XCircle,
-  Lightbulb
+  Lightbulb,
   Pause,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";

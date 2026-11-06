@@ -8,3 +8,7 @@
 - [x] Hosted Red Team: pre-planned scenario packs per company (Pharmacore fleshed out, two lighter)
 - [x] Host dashboard: horizontal storyline timeline with decision-tree routes and inject category flags
 - [x] Host dashboard: separate AI Studio generation space with previews, separate from timeline and narrative
+- [x] Hosted: participant pre-brief shown while waiting
+- [x] Hosted: host freeze-frame decision points (clock stops, question shown full-screen)
+- [x] Hosted: observer-only read-only seats
+- [x] Hosted: record decision-tree routes and show after-action decision path at end
