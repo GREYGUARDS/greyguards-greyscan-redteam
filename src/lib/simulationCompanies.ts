@@ -210,44 +210,44 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
   },
   {
     id: "meridian-vale",
-    name: "Meridian Vale Insurance Group",
+    name: "TrustInsureUK PLC",
     logo: meridianLogo,
     icon: meridianIcon,
     type: "Public limited company (LSE-listed)",
     founded:
-      "2024 via merger; constituent firms founded 1911 (Meridian Assurance) and 1967 (Vale General)",
+      "2024 via merger; constituent firms founded 1911 (Trustline Assurance) and 1967 (UK Direct General)",
     headquarters:
       "Bristol (registered), with operational centres in Leeds, Glasgow and Belfast",
     industry: "General insurance (motor, home, travel)",
     sector: "Financial services / insurance",
     revenue: "£3.1bn gross written premium (FY2025)",
     employees: "c. 8,900",
-    website: "meridianvale.co.uk",
+    website: "trustinsureuk.co.uk",
     difficulty: "Intermediate",
     difficultyNote:
       "Introduces the true/false mixing problem. The underlying grievance is real — the lesson is that you cannot fact-check your way out of a true-story amplification attack.",
     tierRange: "Tiers 1–3",
     history: [
-      "Formed in early 2024 by the merger of Meridian Assurance — a Bristol-headquartered mutual-turned-plc with roots to 1911 — and Vale General, a Leeds-based motor and home insurer known for aggressive price-comparison-site competitiveness since the 1990s. Pitched to shareholders as a scale play with £180m of synergies by 2027.",
+      "Formed in early 2024 by the merger of Trustline Assurance — a Bristol-headquartered mutual-turned-plc with roots to 1911 — and UK Direct General, a Leeds-based motor and home insurer known for aggressive price-comparison-site competitiveness since the 1990s. Pitched to shareholders as a scale play with £180m of synergies by 2027.",
       "Eighteen months on, integration has been publicly rocky. Legacy claims-handling systems remain unintegrated, causing well-documented delays in motor claims that require cross-referencing both firms' historic policyholder databases. Financial Ombudsman Service complaint volumes rose sharply through 2025 — a real, structural grievance entirely separate from any disinformation activity. The attacker's job here is not to invent a crisis but to amplify, distort and weaponise a genuine one.",
-      "Group CEO Thomas Vale, architect of the merger and formerly CEO of the smaller Vale General, leads the combined group — read by some analysts as evidence the deal was more acquisition than merger of equals, feeding resentment among former Meridian staff and complicating the CEO's credibility with legacy Meridian customers.",
+      "Group CEO Thomas Reeve, architect of the merger and formerly CEO of the smaller UK Direct General, leads the combined group — read by some analysts as evidence the deal was more acquisition than merger of equals, feeding resentment among former Trustline staff and complicating the CEO's credibility with legacy Trustline customers.",
     ],
     people: [
       {
-        name: "Thomas Vale",
+        name: "Thomas Reeve",
         role: "Group CEO",
         photo: valePhoto,
         profile:
-          "50, career insurance executive who built Vale General's growth through the 2010s on a low-cost, digital-first model. Confident and numbers-fluent in investor settings.",
+          "50, career insurance executive who built UK Direct General's growth through the 2010s on a low-cost, digital-first model. Confident and numbers-fluent in investor settings.",
         vulnerability:
           "Struggles in consumer-facing media. A widely circulated, genuine (unmanipulated) mid-2025 TV clip in which he appeared to minimise claims delays as 'a data migration issue' is a real reputational vulnerability an attacker can re-cut, recontextualise or pair with fabricated material.",
       },
       {
-        name: "Sarah Meridian-Osei",
+        name: "Sarah Osei",
         role: "Chief Claims Officer",
         photo: oseiPhoto,
         profile:
-          "Great-niece of a Meridian Assurance founding actuary (name retained by family tradition, not executive lineage). Joined from a rival insurer in 2023 specifically to lead post-merger claims integration — inheriting a genuinely difficult operational problem she did not create.",
+          "Great-niece of a Trustline Assurance founding actuary (name retained by family tradition, not executive lineage). Joined from a rival insurer in 2023 specifically to lead post-merger claims integration — inheriting a genuinely difficult operational problem she did not create.",
         vulnerability:
           "Has become the public face of the backlash by default, fielding hostile consumer-journalist and Treasury Select Committee questioning. The figure most likely to be personally targeted by coordinated harassment framed as 'accountability'.",
       },
