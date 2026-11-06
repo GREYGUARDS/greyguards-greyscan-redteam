@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { ExerciseConfig, Scenario } from "@/pages/RedTeam";
 import { supabase } from "@/integrations/supabase/client";
+import { getDemoScenario } from "@/lib/simulationCompanies";
 import { toast } from "sonner";
 
 // Countdown component that actually counts down
@@ -81,6 +82,19 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
   const [isGenerating, setIsGenerating] = useState(false);
   const [previewScenario, setPreviewScenario] = useState<Scenario | null>(null);
   const [isReady, setIsReady] = useState(false);
+
+  // Demo mode: run the company's pre-written scenario straight away — no AI
+  // generation, no mode choice, one of the three canonical demo scenarios.
+  useEffect(() => {
+    if (!demoMode || previewScenario) return;
+    const preset = config.simulationCompanyId
+      ? getDemoScenario(config.simulationCompanyId)
+      : undefined;
+    if (preset) {
+      setBuildMode("generate");
+      setPreviewScenario({ id: crypto.randomUUID(), ...preset });
+    }
+  }, [demoMode, config.simulationCompanyId, previewScenario]);
 
   const generateScenario = async (baseScenario?: string) => {
     setIsGenerating(true);
