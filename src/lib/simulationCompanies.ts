@@ -480,7 +480,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
         tier: "Tier 2",
         type: "Identity spoofing",
         description:
-          "A cloned or spoofed account posts 'internal concerns' in Calder's name, exploiting her lack of authentic public digital footprint for followers or journalists to cross-check against — a good test of the bank's thin bench strength.",
+          "A cloned or spoofed account posts 'internal concerns' in Hart's name, exploiting her lack of authentic public digital footprint for followers or journalists to cross-check against — a good test of the bank's thin bench strength.",
       },
     ],
     structuralVulnerability:
