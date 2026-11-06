@@ -266,32 +266,32 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
         outlet: "Cover & Claim Bulletin",
         date: "January 2024",
         headline:
-          "Meridian and Vale Complete Merger, Vale's Thomas Vale to Lead Combined Group",
+          "Trustline and UK Direct Complete Merger, UK Direct's Thomas Reeve to Lead Combined Group",
         note: "Neutral/analytical coverage noting integration risk.",
       },
       {
         outlet: "Consumer Money Watch",
         date: "August 2025",
-        headline: "Meridian Vale Complaints Triple Since Merger, FOS Data Shows",
+        headline: "TrustInsureUK Complaints Triple Since Merger, FOS Data Shows",
         note: "Factual and damaging — establishes the genuine grievance base an attacker will later exploit.",
       },
       {
         outlet: "Cover & Claim Bulletin",
         date: "September 2025",
-        headline: "Sarah Meridian-Osei Faces MPs Over Claims Backlog",
+        headline: "Sarah Osei Faces MPs Over Claims Backlog",
         note: "A real, difficult select committee appearance; establishes her as the personalised face of the crisis.",
       },
       {
         outlet: "Consumer Money Watch",
         date: "October 2025",
         headline:
-          "'Data Migration Issue,' Says Vale CEO, as Customers Report Months-Long Delays",
+          "'Data Migration Issue,' Says TrustInsureUK CEO, as Customers Report Months-Long Delays",
         note: "The clip above — genuinely damaging and ripe for recontextualisation.",
       },
       {
         outlet: "Insurance Sector Monitor",
         date: "November 2025",
-        headline: "Claims Management Companies Circle Meridian Vale Backlash",
+        headline: "Claims Management Companies Circle TrustInsureUK Backlash",
         note: "Flags the real commercial incentive of CMCs to inflame the narrative.",
       },
     ],
@@ -334,11 +334,11 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
         tier: "Tier 3",
         type: "Synthetic media",
         description:
-          "A fabricated audio clip purporting to be a Meridian Vale claims handler admitting the firm is 'deliberately slow-walking payouts', built to go viral on consumer-rights social media and TikTok.",
+          "A fabricated audio clip purporting to be a TrustInsureUK claims handler admitting the firm is 'deliberately slow-walking payouts', built to go viral on consumer-rights social media and TikTok.",
       },
       {
         ref: 12,
-        title: "Coordinated harassment campaign against Sarah Meridian-Osei",
+        title: "Coordinated harassment campaign against Sarah Osei",
         tier: "Tier 3",
         type: "Personalised targeting",
         description:
