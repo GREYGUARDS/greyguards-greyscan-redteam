@@ -1135,68 +1135,115 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
 
           {/* Center Panel - Inject Controls */}
           <div className="lg:col-span-6">
-            <Tabs defaultValue="quick" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
-                <TabsTrigger value="quick" className="uppercase tracking-wider">Quick Injects</TabsTrigger>
-                <TabsTrigger value="custom" className="uppercase tracking-wider">Custom Inject</TabsTrigger>
+            <Tabs defaultValue={storylinePack ? "storyline" : "menu"} className="w-full">
+              <TabsList className="grid w-full grid-cols-4 mb-6">
+                <TabsTrigger value="storyline" className="uppercase tracking-wider">Storyline</TabsTrigger>
+                <TabsTrigger value="menu" className="uppercase tracking-wider">Inject Menu</TabsTrigger>
                 <TabsTrigger value="studio" className="uppercase tracking-wider">AI Studio</TabsTrigger>
+                <TabsTrigger value="custom" className="uppercase tracking-wider">Custom</TabsTrigger>
               </TabsList>
+
+              <TabsContent value="storyline">
+                <Card className="border-4 border-border bg-card">
+                  <CardHeader className="border-b-4 border-border">
+                    <CardTitle className="flex items-center gap-2 uppercase tracking-wider text-sm">
+                      <GitBranch className="h-4 w-4 text-primary" />
+                      Storyline & Decision Tree
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    {storylinePack ? (
+                      <StorylineTimeline
+                        pack={storylinePack}
+                        durationMinutes={config.duration}
+                        elapsedSeconds={config.duration * 60 - timeRemaining}
+                        isActive={isExerciseActive && !isPaused}
+                        onSendInject={handleStorylineInject}
+                      />
+                    ) : (
+                      <div className="p-8 text-center text-muted-foreground text-sm">
+                        <GitBranch className="h-10 w-10 mx-auto mb-3 opacity-50" />
+                        <p>No pre-planned storyline for this target.</p>
+                        <p className="text-xs mt-1">Select one of the three simulation companies on the setup screen to load its pre-planned scenario, or generate a scenario from the Preview dialog.</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
               <TabsContent value="studio">
                 <HostedInjectStudio sessionId={sessionId} isActive={isExerciseActive} onSent={(id, content, type) => setInjectedEvents(previous => [{ id, content, type, time: new Date(), targetTeam: 'both' }, ...previous])} />
               </TabsContent>
-              <TabsContent value="quick">
+              <TabsContent value="menu">
                 <Card className="border-4 border-border bg-card">
                   <CardHeader className="border-b-4 border-border">
                     <CardTitle className="flex items-center gap-2 uppercase tracking-wider text-sm">
                       <Zap className="h-4 w-4 text-warning" />
-                      Preset Injects
+                      Inject Menu
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {presetInjects.map((preset, i) => (
-                        <div key={i} className="border-2 border-border p-4 hover:border-warning transition-colors">
-                          <div className="flex items-center gap-2 mb-2">
-                            {getInjectIcon(preset.type)}
-                            <span className="font-bold uppercase tracking-wider text-sm">{preset.label}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mb-3">{preset.content}</p>
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              className="flex-1 uppercase tracking-wider text-xs border-primary text-primary hover:bg-primary/10"
-                              onClick={() => handlePresetInject(preset, "blue")}
-                              disabled={!isExerciseActive}
-                            >
-                              <Shield className="h-3 w-3 mr-1" />
-                              Blue
-                            </Button>
-                            {config.teamMode === "team-vs-team" && (
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                className="flex-1 uppercase tracking-wider text-xs border-destructive text-destructive hover:bg-destructive/10"
-                                onClick={() => handlePresetInject(preset, "red")}
-                                disabled={!isExerciseActive}
-                              >
-                                <Target className="h-3 w-3 mr-1" />
-                                Red
-                              </Button>
-                            )}
-                            <Button 
-                              size="sm" 
-                              className="flex-1 uppercase tracking-wider text-xs"
-                              onClick={() => handlePresetInject(preset, "both")}
-                              disabled={!isExerciseActive}
-                            >
-                              Both
-                            </Button>
-                          </div>
+                  <CardContent className="p-4 space-y-8">
+                    {(["public_reaction", "disinformation", "malinformation"] as InjectCategory[]).map((category) => (
+                      <div key={category} className="space-y-3">
+                        <div className="flex items-center gap-2 border-b-2 border-border pb-2">
+                          <Badge variant="outline" className={`uppercase ${CATEGORY_BADGE_STYLES[category]}`}>
+                            {INJECT_CATEGORY_LABELS[category]}
+                          </Badge>
+                          <span className="text-[11px] text-muted-foreground">
+                            {category === "public_reaction" && "Genuine voices and organic coverage — the believable background noise."}
+                            {category === "disinformation" && "Adversary fabrications — forged, synthetic or impersonated material."}
+                            {category === "malinformation" && "Genuine material weaponised — real quotes, clips and data stripped of context."}
+                          </span>
                         </div>
-                      ))}
-                    </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {INJECT_MENU.filter((item) => item.category === category).map((item) => (
+                            <MenuInjectCard
+                              key={item.label}
+                              item={item}
+                              isActive={isExerciseActive}
+                              teamMode={config.teamMode}
+                              onSend={handleMenuInject}
+                            />
+                          ))}
+                        </div>
+                        {category === "malinformation" && recentResponses.length > 0 && (
+                          <div className="border-2 border-dashed border-crimson/40 p-3 space-y-2">
+                            <Label className="text-[10px] uppercase tracking-wider text-crimson">
+                              Reactionary — quote a participant statement out of context
+                            </Label>
+                            <Select
+                              onValueChange={(responseId) => {
+                                const response = recentResponses.find((r) => r.id === responseId);
+                                if (!response) return;
+                                const statement = response.custom || response.label;
+                                setCustomInject({
+                                  type: "news_article",
+                                  content: `Quoted out of context: "${statement}" — presented as an admission that the situation is worse than the company admits.`,
+                                  source: "Adversary account network",
+                                  reach: 70000,
+                                  sentiment: "hostile",
+                                  isAggressive: false,
+                                  category: "malinformation",
+                                  channel: "X"
+                                });
+                                toast.info("Malinformation inject drafted — review and send from the Custom tab.");
+                              }}
+                            >
+                              <SelectTrigger className="h-8 text-xs border-2">
+                                <SelectValue placeholder="Pick a recent participant statement…" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {recentResponses.map((r) => (
+                                  <SelectItem key={r.id} value={r.id} className="text-xs">
+                                    {(r.custom || r.label).slice(0, 80)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </CardContent>
                 </Card>
               </TabsContent>
