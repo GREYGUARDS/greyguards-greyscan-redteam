@@ -25,9 +25,13 @@ interface StorylineTimelineProps {
   elapsedSeconds: number;
   isActive: boolean;
   onSendInject: (inject: StorylineInjectOption) => void;
+  /** Routes the host has recorded, keyed by beat — feeds the after-action decision path. */
+  decisions?: { beatId: string; condition: string }[];
+  canRecord?: boolean;
+  onRecordBranch?: (beatId: string, beatTitle: string, condition: string, route: string) => void;
 }
 
-const StorylineTimeline = ({ pack, durationMinutes, elapsedSeconds, isActive, onSendInject }: StorylineTimelineProps) => {
+const StorylineTimeline = ({ pack, durationMinutes, elapsedSeconds, isActive, onSendInject, decisions = [], canRecord = false, onRecordBranch }: StorylineTimelineProps) => {
   const scale = durationMinutes / 60;
   const elapsedMinutes = elapsedSeconds / 60;
 
@@ -115,14 +119,27 @@ const StorylineTimeline = ({ pack, durationMinutes, elapsedSeconds, isActive, on
 
                 {beat.branches.length > 0 && (
                   <div className="space-y-1 border-t border-border pt-2">
-                    {beat.branches.map((branch) => (
-                      <p key={branch.condition} className="text-[11px] text-muted-foreground flex gap-1.5">
-                        <GitBranch className="h-3 w-3 mt-0.5 shrink-0 text-primary" />
-                        <span>
-                          <span className="text-foreground">If {branch.condition}:</span> {branch.route}
-                        </span>
-                      </p>
-                    ))}
+                    {beat.branches.map((branch) => {
+                      const chosen = decisions.some(d => d.beatId === beat.id && d.condition === branch.condition);
+                      return (
+                        <div key={branch.condition} className={`text-[11px] flex gap-1.5 p-1 ${chosen ? "bg-primary/10 border-l-2 border-primary" : ""}`}>
+                          <GitBranch className="h-3 w-3 mt-0.5 shrink-0 text-primary" />
+                          <span className="flex-1 text-muted-foreground">
+                            <span className="text-foreground">If {branch.condition}:</span> {branch.route}
+                          </span>
+                          {onRecordBranch && (
+                            <button
+                              type="button"
+                              disabled={!canRecord}
+                              onClick={() => onRecordBranch(beat.id, beat.title, branch.condition, branch.route)}
+                              className="shrink-0 self-start text-[9px] uppercase tracking-wider text-primary underline-offset-2 hover:underline disabled:opacity-40 disabled:no-underline"
+                            >
+                              {chosen ? "Recorded" : "Record route"}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
