@@ -135,7 +135,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       {
         outlet: "The Distribution Ledger",
         date: "March 2022",
-        headline: "Ashworth Reilly Completes £40m Doncaster Cold-Chain Investment",
+        headline: "Pharmacore Completes £40m Doncaster Cold-Chain Investment",
         note: "Positive coverage of the automated hub and biologics ambitions.",
       },
       {
@@ -148,12 +148,12 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
         outlet: "Pharmacy Trade Weekly",
         date: "June 2023",
         headline: "Short-Dated Stock Issue Affects Single Antibiotic Line",
-        note: "Genuine, minor, fully resolved within 48 hours — but establishes real precedent that 'Ashworth Reilly has had supply issues before'.",
+        note: "Genuine, minor, fully resolved within 48 hours — but establishes real precedent that 'Pharmacore has had supply issues before'.",
       },
       {
         outlet: "The Distribution Ledger",
         date: "February 2024",
-        headline: "Priya Reilly Appointed to Industry Cold-Chain Standards Working Group",
+        headline: "Priya Khatri Appointed to Industry Cold-Chain Standards Working Group",
         note: "Establishes her credibility and visibility ahead of any incident in which she might be discredited or impersonated.",
       },
       {
@@ -178,7 +178,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
         tier: "Tier 3–4",
         type: "Fabricated official communication",
         description:
-          "A convincingly formatted PDF styled as an MHRA field safety notice naming Ashworth Reilly, circulated first in closed pharmacist WhatsApp/Telegram groups before surfacing publicly — designed to trigger real-world stock hoarding before any official correction can catch up.",
+          "A convincingly formatted PDF styled as an MHRA field safety notice naming Pharmacore International, circulated first in closed pharmacist WhatsApp/Telegram groups before surfacing publicly — designed to trigger real-world stock hoarding before any official correction can catch up.",
       },
       {
         ref: 3,
@@ -186,7 +186,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
         tier: "Tier 1–2",
         type: "Narrative seeding",
         description:
-          "Multiple new or low-history accounts on pharmacy trade forums independently 'report' missed deliveries in the same week, seeding a 'can we still trust Ashworth Reilly' thread that outlasts any factual correction.",
+          "Multiple new or low-history accounts on pharmacy trade forums independently 'report' missed deliveries in the same week, seeding a 'can we still trust Pharmacore' thread that outlasts any factual correction.",
       },
       {
         ref: 4,
@@ -194,11 +194,11 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
         tier: "Tier 4–5",
         type: "Geopolitical framing",
         description:
-          "A narrative alleging that Ashworth Reilly's cold-chain supplier relationships create a 'foreign-controlled vulnerability' in NHS medicine supply, amplified via accounts with a track record of critical-infrastructure anxiety content — designed to draw select-committee or media attention disproportionate to any real risk.",
+          "A narrative alleging that Pharmacore's cold-chain supplier relationships create a 'foreign-controlled vulnerability' in NHS medicine supply, amplified via accounts with a track record of critical-infrastructure anxiety content — designed to draw select-committee or media attention disproportionate to any real risk.",
       },
       {
         ref: 6,
-        title: "Impersonation of Priya Reilly on LinkedIn",
+        title: "Impersonation of Priya Khatri on LinkedIn",
         tier: "Tier 2",
         type: "Identity spoofing",
         description:
