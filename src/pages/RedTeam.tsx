@@ -78,7 +78,7 @@ const ScenarioIcon = ({ name, className }: { name: string; className?: string })
 
 
 export type ExerciseMode = "self" | "consultant";
-export type ExerciseDuration = 10 | 20 | 30;
+export type ExerciseDuration = 10 | 20 | 30 | 60 | 120 | 180;
 export type TeamMode = "solo" | "team-vs-team";
 
 export type ScenarioCategory = 
@@ -563,7 +563,9 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
               value={config.mode}
               onValueChange={(value: ExerciseMode) => {
                 if (demoMode && value === "consultant") return;
-                setConfig({ ...config, mode: value });
+                // Hosted sessions run 1–3 hours; self-navigated runs 10–30 minutes.
+                const duration = value === "consultant" ? 60 : 10;
+                setConfig({ ...config, mode: value, duration });
                 if (value === "consultant" && !access.isAdmin) setConsultantAction("join");
               }}
               className="grid gap-3 grid-cols-1 sm:grid-cols-2"
@@ -647,13 +649,13 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
               onValueChange={(value) => setConfig({ ...config, duration: parseInt(value) as ExerciseDuration })}
               className="grid grid-cols-3 gap-2"
             >
-              {[10, 20, 30].map((mins) => (
+              {(config.mode === "consultant" ? [60, 120, 180] : [10, 20, 30]).map((mins) => (
                 <div key={mins} className={`relative border-2 p-3 cursor-pointer text-center transition-all ${config.duration === mins ? 'border-warning bg-warning/5' : 'border-border hover:border-muted-foreground'}`}>
                   <RadioGroupItem value={mins.toString()} id={`dur-${mins}`} className="absolute top-1 right-1 h-3 w-3" />
                   <Label htmlFor={`dur-${mins}`} className="cursor-pointer">
                     <Timer className="h-5 w-5 mx-auto mb-1 text-warning" />
-                    <span className="font-bold text-xl">{mins}</span>
-                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">min</span>
+                    <span className="font-bold text-xl">{config.mode === "consultant" ? mins / 60 : mins}</span>
+                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">{config.mode === "consultant" ? (mins === 60 ? "hour" : "hours") : "min"}</span>
                   </Label>
                 </div>
               ))}
