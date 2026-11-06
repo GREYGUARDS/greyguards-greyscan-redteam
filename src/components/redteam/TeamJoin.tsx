@@ -4,20 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Shield, Target, Users, Loader2 } from "lucide-react";
+import { ArrowLeft, Shield, Target, Users, Loader2, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import greyguardsLogo from "@/assets/greyguards-logo-light.png";
 import { Link } from "react-router-dom";
 
 interface TeamJoinProps {
-  onJoinSession: (sessionId: string, teamId: string, teamType: "blue" | "red", sessionData: any) => void;
+  onJoinSession: (sessionId: string, teamId: string, teamType: "blue" | "red" | "observer", sessionData: any) => void;
   onBack: () => void;
 }
 
 const TeamJoin = ({ onJoinSession, onBack }: TeamJoinProps) => {
   const [sessionCode, setSessionCode] = useState("");
-  const [selectedTeam, setSelectedTeam] = useState<"blue" | "red" | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<"blue" | "red" | "observer" | null>(null);
   const [teamName, setTeamName] = useState("");
   const [isJoining, setIsJoining] = useState(false);
   const [sessionData, setSessionData] = useState<any>(null);
@@ -65,7 +65,7 @@ const TeamJoin = ({ onJoinSession, onBack }: TeamJoinProps) => {
 
     setIsJoining(true);
     try {
-      const existingTeam = sessionData.teams?.find((t: any) => t.team_type === selectedTeam && t.is_connected);
+      const existingTeam = selectedTeam !== "observer" && sessionData.teams?.find((t: any) => t.team_type === selectedTeam && t.is_connected);
       if (existingTeam) {
         toast.error(`The ${selectedTeam} team is already connected`);
         setIsJoining(false);
@@ -82,7 +82,7 @@ const TeamJoin = ({ onJoinSession, onBack }: TeamJoinProps) => {
 
       if (error) throw error;
 
-      toast.success(`Joined as ${selectedTeam} team!`);
+      toast.success(selectedTeam === "observer" ? "Joined as observer" : `Joined as ${selectedTeam} team!`);
       onJoinSession(sessionData.id, teamId as string, selectedTeam, sessionData);
     } catch (error) {
       console.error("Error joining team:", error);
@@ -213,6 +213,16 @@ const TeamJoin = ({ onJoinSession, onBack }: TeamJoinProps) => {
                     {isTeamTaken("red") && (
                       <Badge variant="secondary" className="mt-2">Connected</Badge>
                     )}
+                  </button>
+                  <button
+                    onClick={() => setSelectedTeam("observer")}
+                    className={`col-span-2 p-4 border-4 transition-all text-center ${
+                      selectedTeam === "observer" ? "border-warning bg-warning/10" : "border-border hover:border-warning/50"
+                    }`}
+                  >
+                    <Eye className={`h-8 w-8 mx-auto mb-2 ${selectedTeam === "observer" ? "text-warning" : "text-muted-foreground"}`} />
+                    <span className="font-bold uppercase tracking-wider block">Observer</span>
+                    <span className="text-xs text-muted-foreground block mt-1">Watch the defenders' feed — read-only, no decisions</span>
                   </button>
                 </div>
 

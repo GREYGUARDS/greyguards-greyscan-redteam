@@ -255,8 +255,11 @@ export type Database = {
           completed_at: string | null
           created_at: string
           created_by_user_id: string | null
+          decision_log: Json
           duration: number
+          freeze_prompt: string | null
           id: string
+          pre_brief: string | null
           red_team_score: Json | null
           scenario_narrative: string | null
           scenario_title: string | null
@@ -271,8 +274,11 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by_user_id?: string | null
+          decision_log?: Json
           duration?: number
+          freeze_prompt?: string | null
           id?: string
+          pre_brief?: string | null
           red_team_score?: Json | null
           scenario_narrative?: string | null
           scenario_title?: string | null
@@ -287,8 +293,11 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by_user_id?: string | null
+          decision_log?: Json
           duration?: number
+          freeze_prompt?: string | null
           id?: string
+          pre_brief?: string | null
           red_team_score?: Json | null
           scenario_narrative?: string | null
           scenario_title?: string | null

@@ -22,7 +22,8 @@ import {
   Shield,
   TrendingUp,
   TrendingDown,
-  Loader2
+  Loader2,
+  Pause,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -230,7 +231,7 @@ const RedTeamDashboard = ({ sessionId, teamId, sessionData, onLeave }: RedTeamDa
 
           <div className="flex items-center gap-4">
             <Badge variant={session.status === "active" ? "default" : "secondary"} className="uppercase">
-              {session.status === "waiting" ? "Waiting to Start" : session.status === "active" ? "LIVE" : "Ended"}
+              {session.status === "waiting" ? "Waiting to Start" : session.status === "active" ? "LIVE" : session.status === "paused" ? "Paused" : "Ended"}
             </Badge>
             <div className="flex items-center gap-2 px-3 py-1 border-2 border-destructive bg-destructive/10">
               <Target className="h-4 w-4 text-destructive" />
@@ -240,7 +241,28 @@ const RedTeamDashboard = ({ sessionId, teamId, sessionData, onLeave }: RedTeamDa
         </div>
       </header>
 
+      {session.freeze_prompt && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/90 p-4">
+          <Card className="border-4 border-warning max-w-xl w-full">
+            <CardContent className="p-8 space-y-4 text-center">
+              <Pause className="h-10 w-10 mx-auto text-warning" />
+              <p className="text-xs uppercase tracking-widest text-warning">Freeze frame · Clock stopped</p>
+              <p className="text-lg leading-relaxed">{session.freeze_prompt}</p>
+              <p className="text-xs text-muted-foreground">The facilitator will resume the exercise shortly.</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <main className="container mx-auto px-4 py-6">
+        {session.status === "waiting" && session.pre_brief && (
+          <Card className="border-2 border-warning mb-6">
+            <CardContent className="p-4">
+              <p className="text-xs uppercase tracking-wider text-warning mb-2">Pre-brief</p>
+              <p className="text-sm whitespace-pre-line">{session.pre_brief}</p>
+            </CardContent>
+          </Card>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Blue Team Status Monitor */}
           <Card className="border-4 border-primary/30 bg-primary/5">

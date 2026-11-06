@@ -193,7 +193,7 @@ interface ExerciseResults {
 interface TeamSessionData {
   sessionId: string;
   teamId: string;
-  teamType: "blue" | "red";
+  teamType: "blue" | "red" | "observer";
   sessionData: any;
 }
 
@@ -292,7 +292,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
     setTeamSession(null);
   };
 
-  const handleTeamJoin = (sessionId: string, teamId: string, teamType: "blue" | "red", sessionData: any) => {
+  const handleTeamJoin = (sessionId: string, teamId: string, teamType: "blue" | "red" | "observer", sessionData: any) => {
     setTeamSession({ sessionId, teamId, teamType, sessionData });
     setPhase("team-dashboard");
   };
@@ -318,9 +318,10 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
 
   // Team Dashboard Phase
   if (phase === "team-dashboard" && teamSession) {
-    if (teamSession.teamType === "blue") {
+    if (teamSession.teamType === "blue" || teamSession.teamType === "observer") {
       return (
         <BlueTeamDashboard
+          readOnly={teamSession.teamType === "observer"}
           sessionId={teamSession.sessionId}
           teamId={teamSession.teamId}
           sessionData={teamSession.sessionData}

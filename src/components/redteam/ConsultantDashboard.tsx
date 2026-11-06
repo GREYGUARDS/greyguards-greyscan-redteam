@@ -205,6 +205,15 @@ const withTimeout = async <T,>(promise: Promise<T>, timeoutMs: number): Promise<
   }
 };
 
+export interface DecisionLogEntry {
+  beatId: string;
+  beatTitle: string;
+  condition: string;
+  route: string;
+  atSeconds: number;
+  frozen?: boolean;
+}
+
 const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScenario }: ConsultantDashboardProps) => {
   const [isExerciseActive, setIsExerciseActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(config.duration * 60);
@@ -255,6 +264,15 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
 
   // Pre-planned storyline pack for the selected simulation company
   const [storylinePack, setStorylinePack] = useState<HostedScenarioPack | null>(null);
+
+  // Participant pre-brief, freeze-frame decision points, recorded decision path
+  const [preBrief, setPreBrief] = useState("");
+  const [freezePrompt, setFreezePrompt] = useState("");
+  const [isFreezeOpen, setIsFreezeOpen] = useState(false);
+  const [isFrozen, setIsFrozen] = useState(false);
+  const [decisionLog, setDecisionLog] = useState<DecisionLogEntry[]>([]);
+  const [observerCount, setObserverCount] = useState(0);
+  const [hasEnded, setHasEnded] = useState(false);
 
   // Recent participant statements — used for reactionary malinformation injects
   const [recentResponses, setRecentResponses] = useState<Array<{ id: string; label: string; custom: string | null }>>([]);
@@ -325,6 +343,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       if (teams) {
         const blue = teams.find(t => t.team_type === 'blue');
         const red = teams.find(t => t.team_type === 'red');
+        setObserverCount(teams.filter(t => t.team_type === 'observer' && t.is_connected).length);
 
         if (blue) {
           setBlueTeam(prev => ({
@@ -367,6 +386,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
         },
         (payload) => {
           const team = payload.new as any;
+          if (team.team_type === 'observer') { fetchTeams(); return; }
           if (team.team_type === 'blue') {
             setBlueTeam(prev => ({
               ...prev,
@@ -402,6 +422,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     const pack = getHostedScenarioPack(config.simulationCompanyId);
     if (!pack) return;
     setStorylinePack(pack);
+    if (pack) setPreBrief(prev => prev || `You are the crisis team for ${config.brandName}. ${pack.narrative}\n\nYou'll receive news, social posts and leaks as they break. Decide quickly, agree who signs off statements, and keep a note of why you chose each action.`);
     if (!scenario) {
       const packScenario: Scenario = {
         id: crypto.randomUUID(),
@@ -505,16 +526,61 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     try {
       const { error } = await supabase
         .from('exercise_sessions')
-        .update({ status: newStatus })
+        .update({ status: newStatus, freeze_prompt: null })
         .eq('id', sessionId);
 
       if (error) throw error;
 
+      setIsFrozen(false);
       setIsPaused(!isPaused);
       toast.info(isPaused ? "Exercise resumed" : "Exercise paused");
     } catch (error) {
       console.error("Error toggling pause:", error);
     }
+  };
+
+  const elapsedSeconds = config.duration * 60 - timeRemaining;
+
+  const currentBeat = (() => {
+    if (!storylinePack) return null;
+    const scale = config.duration / 60;
+    let beat = storylinePack.beats[0] ?? null;
+    for (const b of storylinePack.beats) if (elapsedSeconds / 60 >= Math.round(b.offsetMinutes * scale)) beat = b;
+    return beat;
+  })();
+
+  const handleSavePreBrief = async () => {
+    if (!sessionId) return;
+    const { error } = await supabase.from('exercise_sessions').update({ pre_brief: preBrief.trim() || null }).eq('id', sessionId);
+    if (error) { toast.error("Couldn't save the pre-brief"); return; }
+    toast.success("Pre-brief shared with participants");
+  };
+
+  const openFreeze = () => {
+    setFreezePrompt(currentBeat ? `Decision point: ${currentBeat.title}. What do you do next, and who signs it off?` : "Decision point: what do you do next, and who signs it off?");
+    setIsFreezeOpen(true);
+  };
+
+  const handleFreeze = async () => {
+    if (!sessionId || !freezePrompt.trim()) return;
+    const { error } = await supabase.from('exercise_sessions').update({ status: 'paused', freeze_prompt: freezePrompt.trim() }).eq('id', sessionId);
+    if (error) { toast.error("Couldn't freeze the exercise"); return; }
+    setIsPaused(true);
+    setIsFrozen(true);
+    setIsFreezeOpen(false);
+    toast.info("Freeze frame shown to participants");
+  };
+
+  const handleRecordBranch = async (beatId: string, beatTitle: string, condition: string, route: string) => {
+    if (!sessionId) return;
+    const next = [
+      ...decisionLog.filter(d => d.beatId !== beatId),
+      { beatId, beatTitle, condition, route, atSeconds: elapsedSeconds, frozen: isFrozen },
+    ];
+    setDecisionLog(next);
+    const { error } = await supabase.from('exercise_sessions').update({ decision_log: next as any }).eq('id', sessionId);
+    if (error) toast.error("Couldn't save that decision");
+    else toast.success(`Route recorded for "${beatTitle}"`);
   };
 
   // End exercise
@@ -526,6 +592,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
         .from('exercise_sessions')
         .update({
           status: 'completed',
+          freeze_prompt: null,
           completed_at: new Date().toISOString()
         })
         .eq('id', sessionId);
@@ -534,6 +601,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
 
       setIsExerciseActive(false);
       setIsPaused(true);
+      setIsFrozen(false);
+      setHasEnded(true);
       toast.success("Exercise ended!");
     } catch (error) {
       console.error("Error ending exercise:", error);
@@ -1002,6 +1071,25 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                       {isPaused ? <Play className="h-4 w-4 mr-2" /> : <Pause className="h-4 w-4 mr-2" />}
                       {isPaused ? "Resume" : "Pause"}
                     </Button>
+                    <Button
+                      variant="outline"
+                      onClick={openFreeze}
+                      disabled={isFrozen}
+                      className="uppercase tracking-wider border-warning text-warning"
+                    >
+                      <Pause className="h-4 w-4 mr-2" />
+                      Freeze Frame
+                    </Button>
+                    <Dialog open={isFreezeOpen} onOpenChange={setIsFreezeOpen}>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle className="uppercase tracking-wider">Freeze Frame Decision Point</DialogTitle>
+                        </DialogHeader>
+                        <p className="text-sm text-muted-foreground">The clock stops and every participant sees this question full-screen until you resume.</p>
+                        <Textarea value={freezePrompt} onChange={(e) => setFreezePrompt(e.target.value)} className="min-h-[100px]" />
+                        <Button onClick={handleFreeze} disabled={!freezePrompt.trim()} className="uppercase tracking-wider">Freeze &amp; Show Question</Button>
+                      </DialogContent>
+                    </Dialog>
                     <Button 
                       variant="destructive"
                       onClick={handleEndExercise}
@@ -1021,6 +1109,61 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Panel - Team Status */}
           <div className="lg:col-span-3 space-y-6">
+            {!isExerciseActive && !hasEnded && (
+              <Card className="border-4 border-warning bg-card">
+                <CardHeader className="border-b-4 border-warning bg-warning/10 py-3">
+                  <CardTitle className="flex items-center gap-2 uppercase tracking-wider text-sm">
+                    <BookOpen className="h-4 w-4 text-warning" />
+                    Participant Pre-brief
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 space-y-3">
+                  <p className="text-xs text-muted-foreground">Shown to participants while they wait for you to start.</p>
+                  <Textarea value={preBrief} onChange={(e) => setPreBrief(e.target.value)} placeholder="Set the scene: who they are, what they know, house rules..." className="min-h-[140px] text-xs" />
+                  <Button size="sm" onClick={handleSavePreBrief} disabled={!sessionId} className="w-full uppercase tracking-wider">
+                    <Send className="h-3 w-3 mr-2" />
+                    Share Pre-brief
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {hasEnded && (
+              <Card className="border-4 border-primary bg-card">
+                <CardHeader className="border-b-4 border-primary bg-primary/10 py-3">
+                  <CardTitle className="flex items-center gap-2 uppercase tracking-wider text-sm">
+                    <GitBranch className="h-4 w-4 text-primary" />
+                    After-Action: Decision Path
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 space-y-3">
+                  {decisionLog.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">No routes were recorded. Use "Record route" on the storyline during the exercise to build the decision path.</p>
+                  ) : (
+                    [...decisionLog].sort((a, b) => a.atSeconds - b.atSeconds).map((d) => (
+                      <div key={d.beatId} className="border-l-2 border-primary pl-3 space-y-1">
+                        <p className="text-[10px] font-mono text-muted-foreground">
+                          {Math.floor(d.atSeconds / 60)}m {d.atSeconds % 60}s{d.frozen ? " · at freeze frame" : ""}
+                        </p>
+                        <p className="text-xs font-bold uppercase tracking-wider">{d.beatTitle}</p>
+                        <p className="text-xs"><span className="text-muted-foreground">Team chose:</span> {d.condition}</p>
+                        <p className="text-xs text-muted-foreground">Result: {d.route}</p>
+                      </div>
+                    ))
+                  )}
+                  <p className="text-[10px] text-muted-foreground border-t border-border pt-2">
+                    {injectedEvents.length} injects sent · {storylinePack ? `${new Set(decisionLog.map(d => d.beatId)).size}/${storylinePack.beats.length} beats with a recorded decision` : "no storyline pack"}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {observerCount > 0 && (
+              <div className="flex items-center gap-2 border-2 border-border px-3 py-2 text-xs uppercase tracking-wider text-muted-foreground">
+                <Eye className="h-3 w-3" />
+                {observerCount} observer{observerCount === 1 ? "" : "s"} watching
+              </div>
+            )}
             {/* Blue Team */}
             <Card className="border-4 border-primary bg-card">
               <CardHeader className="border-b-4 border-primary bg-primary/10 py-3">
@@ -1160,6 +1303,9 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                         elapsedSeconds={config.duration * 60 - timeRemaining}
                         isActive={isExerciseActive && !isPaused}
                         onSendInject={handleStorylineInject}
+                        decisions={decisionLog}
+                        canRecord={isExerciseActive}
+                        onRecordBranch={handleRecordBranch}
                       />
                     ) : (
                       <div className="p-8 text-center text-muted-foreground text-sm">

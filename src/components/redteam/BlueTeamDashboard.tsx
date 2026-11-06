@@ -30,7 +30,8 @@ import {
   VolumeX,
   CheckCircle2,
   XCircle,
-  Lightbulb
+  Lightbulb,
+  Pause,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -46,6 +47,8 @@ interface BlueTeamDashboardProps {
   sessionData: any;
   onLeave: () => void;
   onComplete: (score: any) => void;
+  /** Observer seat: sees the defenders' feed but cannot respond. */
+  readOnly?: boolean;
 }
 
 interface Inject {
@@ -72,7 +75,7 @@ interface ResponseOption {
   riskLevel: "low" | "medium" | "high";
 }
 
-const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete }: BlueTeamDashboardProps) => {
+const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete, readOnly = false }: BlueTeamDashboardProps) => {
   const [session, setSession] = useState(sessionData);
   const [injects, setInjects] = useState<Inject[]>([]);
   const [activeInject, setActiveInject] = useState<Inject | null>(null);
@@ -158,7 +161,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
         { event: 'INSERT', schema: 'public', table: 'exercise_injects', filter: `session_id=eq.${sessionId}` },
         (payload) => {
           const newInject = payload.new as Inject;
-          if (newInject.is_sent && !activeInject) {
+          if (newInject.is_sent && (!activeInject || readOnly)) {
             setActiveInject(newInject);
             injectStartTime.current = Date.now();
             
@@ -184,7 +187,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
         { event: 'UPDATE', schema: 'public', table: 'exercise_injects', filter: `session_id=eq.${sessionId}` },
         (payload) => {
           const updatedInject = payload.new as Inject;
-          if (updatedInject.is_sent && !activeInject) {
+          if (updatedInject.is_sent && (!activeInject || readOnly)) {
             setActiveInject(updatedInject);
             injectStartTime.current = Date.now();
           }
@@ -218,6 +221,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
 
   // Update team stats in database
   useEffect(() => {
+    if (readOnly) return;
     const updateStats = async () => {
       await supabase
         .from("exercise_teams")
@@ -251,7 +255,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
   };
 
   const handleResponse = async (option: ResponseOption) => {
-    if (!activeInject || !injectStartTime.current) return;
+    if (readOnly || !activeInject || !injectStartTime.current) return;
 
     const responseTime = (Date.now() - injectStartTime.current) / 1000;
     const wasCorrect = option.effectiveness >= 65;
@@ -444,11 +448,11 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
             </Button>
             <div>
               <span className="font-bold uppercase tracking-wider text-primary text-sm">{session.brand_name}</span>
-              <span className="block text-xs text-muted-foreground uppercase">Blue Team - Defenders</span>
+              <span className="block text-xs text-muted-foreground uppercase">{readOnly ? "Observer - Read only" : "Blue Team - Defenders"}</span>
             </div>
           </div>
 
-          {session.status === "active" ? (
+          {session.status === "active" || (session.status === "paused" && !session.freeze_prompt) ? (
             <CountdownTimer
               timeRemaining={timeRemaining}
               totalDuration={totalDuration}
@@ -457,7 +461,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
             />
           ) : (
             <Badge variant="secondary" className="uppercase">
-              {session.status === "waiting" ? "Waiting for Start" : "Ended"}
+              {session.status === "waiting" ? "Waiting for Start" : session.status === "paused" ? "Paused" : "Ended"}
             </Badge>
           )}
 
@@ -506,6 +510,19 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
         />
       </header>
 
+      {session.freeze_prompt && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/90 p-4">
+          <Card className="border-4 border-warning max-w-xl w-full">
+            <CardContent className="p-8 space-y-4 text-center">
+              <Pause className="h-10 w-10 mx-auto text-warning" />
+              <p className="text-xs uppercase tracking-widest text-warning">Freeze frame · Clock stopped</p>
+              <p className="text-lg leading-relaxed">{session.freeze_prompt}</p>
+              <p className="text-xs text-muted-foreground">Discuss this with your team. The facilitator will resume the exercise.</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="pt-28 pb-8 container mx-auto px-4 min-h-screen">
         {session.status === "waiting" ? (
@@ -516,6 +533,12 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
               <p className="text-muted-foreground">
                 The facilitator will start the exercise shortly. Stay ready!
               </p>
+              {session.pre_brief && (
+                <div className="mt-8 text-left border-l-2 border-warning pl-4">
+                  <p className="text-xs uppercase tracking-wider text-warning mb-2">Pre-brief</p>
+                  <p className="text-sm whitespace-pre-line">{session.pre_brief}</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -589,7 +612,10 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
                       </span>
                     </div>
 
-                    <div className="border-t-4 border-border pt-6">
+                    {readOnly ? (
+                      <p className="border-t-4 border-border pt-6 text-sm text-muted-foreground">Observer view — the defending team is choosing their response.</p>
+                    ) : (
+<div className="border-t-4 border-border pt-6">
                       <h4 className="text-sm uppercase tracking-wider font-bold mb-4">Choose Your Response</h4>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {generateResponseOptions(activeInject).map((option) => (
@@ -666,6 +692,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
                         )}
                       </div>
                     </div>
+                    )}
                   </CardContent>
                 </Card>
               ) : (
