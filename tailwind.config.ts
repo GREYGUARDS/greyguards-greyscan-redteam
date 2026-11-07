@@ -20,6 +20,7 @@ export default {
       },
       colors: {
         bone: "hsl(var(--brand-bone))",
+        defender: "hsl(var(--brand-bone))",
         forest: "hsl(var(--brand-forest))",
         graphite: "hsl(var(--brand-graphite))",
         crimson: "hsl(var(--brand-crimson))",

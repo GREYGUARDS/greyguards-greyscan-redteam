@@ -130,6 +130,8 @@ export type Database = {
           is_aggressive: boolean | null
           is_sent: boolean | null
           narrative_category: string | null
+          phase: string | null
+          queue_position: number | null
           reach: number | null
           sent_at: string | null
           sentiment: string | null
@@ -148,6 +150,8 @@ export type Database = {
           is_aggressive?: boolean | null
           is_sent?: boolean | null
           narrative_category?: string | null
+          phase?: string | null
+          queue_position?: number | null
           reach?: number | null
           sent_at?: string | null
           sentiment?: string | null
@@ -166,6 +170,8 @@ export type Database = {
           is_aggressive?: boolean | null
           is_sent?: boolean | null
           narrative_category?: string | null
+          phase?: string | null
+          queue_position?: number | null
           reach?: number | null
           sent_at?: string | null
           sentiment?: string | null
@@ -662,6 +668,66 @@ export type Database = {
         }
         Relationships: []
       }
+      red_visual_requests: {
+        Row: {
+          brief: string
+          claim: string
+          created_at: string
+          format: string
+          host_note: string | null
+          id: string
+          inject_id: string | null
+          phase: string | null
+          reach: number
+          session_id: string
+          status: string
+          team_id: string
+        }
+        Insert: {
+          brief: string
+          claim?: string
+          created_at?: string
+          format: string
+          host_note?: string | null
+          id?: string
+          inject_id?: string | null
+          phase?: string | null
+          reach?: number
+          session_id: string
+          status?: string
+          team_id: string
+        }
+        Update: {
+          brief?: string
+          claim?: string
+          created_at?: string
+          format?: string
+          host_note?: string | null
+          id?: string
+          inject_id?: string | null
+          phase?: string | null
+          reach?: number
+          session_id?: string
+          status?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "red_visual_requests_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "red_visual_requests_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sentiment_history: {
         Row: {
           brand_name: string
@@ -735,6 +801,14 @@ export type Database = {
       claim_brand_access: { Args: never; Returns: string }
       get_my_locked_brand: { Args: never; Returns: string }
       is_admin: { Args: { _uid: string }; Returns: boolean }
+      is_red_member: {
+        Args: { _session_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_session_host: {
+        Args: { _session_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_session_participant: {
         Args: { _session_id: string; _user_id: string }
         Returns: boolean
@@ -763,6 +837,8 @@ export type Database = {
           team_mode: string
         }[]
       }
+      red_fire_inject: { Args: { _inject_id: string }; Returns: undefined }
+      red_set_queue: { Args: { _inject_ids: string[] }; Returns: undefined }
       user_can_access_realtime_topic: {
         Args: { _topic: string }
         Returns: boolean
