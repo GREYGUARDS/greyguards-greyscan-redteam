@@ -50,6 +50,13 @@
       "when": 1793963454360,
       "tag": "0006_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794052185010,
+      "tag": "0007_red_team_composer",
+      "breakpoints": true
     }
   ]
 }
