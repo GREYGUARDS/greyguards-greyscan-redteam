@@ -11,7 +11,7 @@ const schema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('generate'), sessionId: z.string().uuid(), kind: kinds, brief: z.string().trim().min(5).max(1500), fictionalConfirmed: z.literal(true), costConfirmed: z.literal(true) }),
   z.object({ action: z.literal('latest'), sessionId: z.string().uuid() }),
   z.object({ action: z.literal('resume'), sessionId: z.string().uuid() }),
-  z.object({ action: z.literal('send'), sessionId: z.string().uuid(), jobId: z.string().uuid(), stats: z.object({ likes: z.string().max(12), comments: z.string().max(12), shares: z.string().max(12), views: z.string().max(12) }).strict().optional() }),
+  z.object({ action: z.literal('send'), sessionId: z.string().uuid(), jobId: z.string().uuid(), redRequestId: z.string().uuid().optional(), stats: z.object({ likes: z.string().max(12), comments: z.string().max(12), shares: z.string().max(12), views: z.string().max(12) }).strict().optional() }),
 ]);
 const outputSchema = z.object({ title: z.string(), author: z.string(), handle: z.string(), body: z.string(), messages: z.array(z.object({ sender: z.string(), text: z.string(), time: z.string() }).strict()), reactions: z.string() }).strict();
 const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -49,6 +49,15 @@ Deno.serve(async req => {
       if (job.status !== 'completed' || !job.artefact || session.status !== 'active') return reply({ error: 'Start the exercise and finish generation before sending.' }, 409);
       const visual = input.stats ? { ...job.artefact, stats: input.stats } : job.artefact;
       const content = ['whatsapp', 'telegram'].includes(job.kind) ? visual.messages.map((m: any) => `${m.sender}: ${m.text}`).join('\n') : visual.body;
+      const red = input.redRequestId ? (await service.from('red_visual_requests').select('*').eq('id', input.redRequestId).eq('session_id', session.id).maybeSingle()).data : null;
+      if (input.redRequestId && (!red || red.status === 'ready' || red.status === 'rejected')) return reply({ error: 'That Red request is no longer open.' }, 409);
+      if (red) {
+        const { error: redError } = await service.from('exercise_injects').upsert({ id: job.id, session_id: session.id, inject_type: 'social_post', content: red.claim || content, source: `${visual.author} · ${job.kind} · fictional exercise`, reach: red.reach, sentiment: 'hostile', is_aggressive: red.reach >= 500000, is_sent: false, sent_at: null, created_by: 'red_team', phase: red.phase, artefact: visual }, { onConflict: 'id', ignoreDuplicates: true });
+        if (redError) throw redError;
+        await service.from('exercise_artefact_jobs').update({ inject_id: job.id }).eq('id', job.id);
+        await service.from('red_visual_requests').update({ status: 'ready', inject_id: job.id }).eq('id', red.id);
+        return reply({ job: present({ ...job, inject_id: job.id }), injectId: job.id, returnedToRed: true });
+      }
       const { error } = await service.from('exercise_injects').upsert({ id: job.id, session_id: session.id, inject_type: job.kind === 'website' ? 'news_article' : 'social_post', content, source: `${visual.author} · ${job.kind} · fictional exercise`, reach: 50000, sentiment: 'hostile', is_sent: true, sent_at: new Date().toISOString(), created_by: 'consultant', artefact: visual, timestamp_offset: session.started_at ? Math.max(0, Math.floor((Date.now() - new Date(session.started_at).getTime()) / 1000)) : 0 }, { onConflict: 'id', ignoreDuplicates: true });
       if (error) throw error;
       const { error: updateError } = await service.from('exercise_artefact_jobs').update({ inject_id: job.id }).eq('id', job.id);
