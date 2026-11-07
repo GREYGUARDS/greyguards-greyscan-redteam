@@ -105,7 +105,11 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
             brandName: config.brandName,
             duration: config.duration,
             ...(config.brandContext ? { brandContext: config.brandContext } : {}),
-            ...(baseScenario?.trim() ? { userScenario: baseScenario.trim() } : {}),
+            ...(baseScenario?.trim()
+              ? { userScenario: baseScenario.trim() }
+              : config.narrativeSeed
+                ? { userScenario: `Disinformation narrative: ${config.narrativeSeed}` }
+                : {}),
             scenarioCategory: config.scenarioCategory || "random"
           }
         }),
@@ -448,6 +452,16 @@ The AI will enhance your scenario with realistic details and create dynamic inje
             <h1 className="text-2xl sm:text-3xl font-bold uppercase tracking-wider mb-2">
               {previewScenario.title}
             </h1>
+          </div>
+
+          <div className="border-2 border-destructive bg-destructive/10 p-4 mb-6 text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-destructive mb-1">
+              Disinformation Exercise
+            </p>
+            <p className="text-sm text-foreground">
+              This story is a deliberate, fabricated disinformation campaign against a fictional company.
+              Your job is to respond to false claims — not a genuine wrongdoing.
+            </p>
           </div>
 
           <Card className="border-4 border-destructive/30 bg-card mb-6">

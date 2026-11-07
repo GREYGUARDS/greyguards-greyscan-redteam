@@ -752,6 +752,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
             brandName: config.brandName,
             duration: config.duration,
             scenarioCategory: config.scenarioCategory || "random",
+            ...(config.narrativeSeed ? { userScenario: `Disinformation narrative: ${config.narrativeSeed}` } : {}),
             ...(config.brandContext ? { brandContext: config.brandContext } : {})
           }
         }),

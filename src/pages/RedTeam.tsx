@@ -106,6 +106,55 @@ export const SCENARIO_CATEGORIES: { value: ScenarioCategory; label: string; icon
   { value: "political_ties", label: "Political Ties", icon: "landmark" },
 ];
 
+/** Example disinformation narratives offered under each crisis theme. */
+export const DISINFO_NARRATIVES: Partial<Record<ScenarioCategory, string[]>> = {
+  product_safety: [
+    "Doctored lab report 'proves' a flagship product contains a banned toxin",
+    "Fake recall notice claims products are being quietly pulled from shelves",
+    "Edited video shows a product 'catching fire' — actually footage of a rival's item",
+  ],
+  data_breach: [
+    "Hacker group falsely claims to have stolen millions of customer records",
+    "Fake 'breach notification' email urges customers to reset passwords via a phishing link",
+    "Forged screenshot claims staff can see customers' private messages",
+  ],
+  environmental: [
+    "Fabricated drone footage 'shows' the company dumping waste into a river",
+    "Fake leaked memo says executives covered up a toxic spill",
+    "False claim that 'green' products are secretly made with banned chemicals",
+  ],
+  labor_practices: [
+    "Fake 'whistleblower' TikTok alleges child labour at a supplier factory",
+    "Doctored payslips claim warehouse staff are paid below minimum wage",
+    "Invented story that staff were sacked for joining a union",
+  ],
+  financial_fraud: [
+    "Forged audit letter claims the company is hiding huge losses",
+    "Fake rumour that the CEO is under investigation for insider trading",
+    "Bogus 'leaked' board minutes say the company is about to go bust",
+  ],
+  supply_chain: [
+    "Fake shipping manifests 'prove' sourcing from sanctioned countries",
+    "False claim that a key supplier uses forced labour camps",
+    "Invented shortage story says products will run out within weeks",
+  ],
+  ai_ethics: [
+    "Fabricated chatbot screenshots show the company's AI making racist remarks",
+    "False claim the company secretly trains AI on customers' private data",
+    "Deepfake clip of an executive boasting about replacing staff with AI",
+  ],
+  health_claims: [
+    "Wellness influencers falsely claim products cause cancer",
+    "Fake 'doctor' video says ingredients trigger allergic reactions in children",
+    "Forged regulator warning claims products are unsafe during pregnancy",
+  ],
+  political_ties: [
+    "Fake donation records link the company to an extremist party",
+    "Deepfake audio of the CEO praising a hostile foreign government",
+    "False story that the company funds a controversial lobbying campaign",
+  ],
+};
+
 
 export interface ExerciseConfig {
   brandName: string;
@@ -116,6 +165,8 @@ export interface ExerciseConfig {
   /** Canon briefing for a simulation-pack target company, if one is selected. */
   brandContext?: string;
   simulationCompanyId?: string;
+  /** Specific disinformation narrative chosen under the crisis theme. */
+  narrativeSeed?: string;
 }
 
 
@@ -696,7 +747,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
               <Label className="text-xs uppercase tracking-wider font-medium">Crisis Category</Label>
               <Select
                 value={config.scenarioCategory}
-                onValueChange={(value: ScenarioCategory) => setConfig({ ...config, scenarioCategory: value })}
+                onValueChange={(value: ScenarioCategory) => setConfig({ ...config, scenarioCategory: value, narrativeSeed: undefined })}
               >
                 <SelectTrigger className="border-2 border-border bg-input h-11 text-xs uppercase tracking-wider">
                   <SelectValue placeholder="Select a crisis category…" />
@@ -712,6 +763,30 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                   ))}
                 </SelectContent>
               </Select>
+              {DISINFO_NARRATIVES[config.scenarioCategory] && (
+                <div className="space-y-1.5 pt-1">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Pick a disinformation narrative (optional)
+                  </p>
+                  {DISINFO_NARRATIVES[config.scenarioCategory]!.map((n) => {
+                    const active = config.narrativeSeed === n;
+                    return (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setConfig({ ...config, narrativeSeed: active ? undefined : n })}
+                        className={`w-full text-left text-xs px-3 py-2 border transition-colors ${
+                          active
+                            ? "border-destructive bg-destructive/10 text-foreground"
+                            : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 

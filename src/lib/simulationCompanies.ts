@@ -218,9 +218,9 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       },
     ],
     demoScenario: {
-      title: "Fabricated Contamination Rumour Targets Pharmacore",
+      title: "Disinformation: Fake Contamination Scare Targets Pharmacore",
       narrative:
-        "An anonymous pharmacist-forum post claims a specific batch from Pharmacore International's Doncaster cold-chain hub caused adverse patient reactions. There is no evidence, but the post is timed to coincide with a real, unrelated national shortage story, so it reads as plausible pattern-matching. A convincingly formatted fake MHRA field safety notice is now circulating in closed pharmacist WhatsApp groups.",
+        "DISINFORMATION — the claims in this story are false. An anonymous pharmacist-forum post falsely claims a specific batch from Pharmacore International's Doncaster cold-chain hub caused adverse patient reactions. There is no evidence, but the post is timed to coincide with a real, unrelated national shortage story, so it reads as plausible pattern-matching. A convincingly formatted fake MHRA field safety notice is now circulating in closed pharmacist WhatsApp groups.",
       basedOnTruth: true,
       truthElement:
         "Pharmacore had a genuine, minor short-dated stock issue in 2023, resolved within 48 hours — it is being recirculated undated as evidence of a pattern.",
@@ -369,9 +369,9 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       },
     ],
     demoScenario: {
-      title: "Coordinated Complaint Amplification Hits TrustInsureUK",
+      title: "Disinformation: Fake 'Insurer Refuses to Pay' Campaign Hits TrustInsureUK",
       narrative:
-        "A claims management company is funding coordinated social amplification of TrustInsureUK's genuine post-merger claims backlog, turning individually real, isolated complaints into a fabricated 'systemic non-payment' narrative. A complaint hashtag is being pushed to trend precisely as annual renewal notices go out, maximising exposure at the moment customers decide whether to switch.",
+        "DISINFORMATION — the 'systemic non-payment' claim is false. A claims management company is funding coordinated social amplification of TrustInsureUK's genuine post-merger claims backlog, turning individually real, isolated complaints into a fabricated 'systemic non-payment' narrative. A complaint hashtag is being pushed to trend precisely as annual renewal notices go out, maximising exposure at the moment customers decide whether to switch.",
       basedOnTruth: true,
       truthElement:
         "Complaint volumes genuinely rose after the 2024 merger — the coordination, the screenshots and the 'deliberate bad faith' framing are fabricated.",
@@ -518,9 +518,9 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
       },
     ],
     demoScenario: {
-      title: "Bank-Run Rumour Campaign Targets PigeeBank!",
+      title: "Disinformation: False Bank-Run Rumour Targets PigeeBank!",
       narrative:
-        "Messages seeded into closed WhatsApp and Telegram community groups claim PigeeBank! is 'restricting withdrawals', timed to its pre-IPO roadshow window. The campaign is designed to produce enough genuine customer anxiety to create real deposit-outflow data that then self-validates the rumour.",
+        "DISINFORMATION — PigeeBank! is not restricting withdrawals. Messages seeded into closed WhatsApp and Telegram community groups falsely claim PigeeBank! is 'restricting withdrawals', timed to its pre-IPO roadshow window. The campaign is designed to produce enough genuine customer anxiety to create real deposit-outflow data that then self-validates the rumour.",
       basedOnTruth: false,
       implicatedParties: ["Alex Bryce (Founder & CEO)", "Naomi Hart (Co-founder & COO)"],
       severity: "critical",
