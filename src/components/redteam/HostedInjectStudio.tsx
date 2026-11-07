@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { HostedArtefactView, type HostedArtefact } from './HostedInjectMedia';
 import { toast } from 'sonner';
 
+type RedRequest = { id: string; format: string; brief: string; claim: string; reach: number; status: string; phase: string | null };
 type Kind = 'influencer' | 'news' | HostedArtefact['kind'];
 type Job = { id: string; status: string; progress?: number; error?: string | null; accessPaused?: boolean; videoUrl?: string | null; artefact?: HostedArtefact; sent?: boolean; kind?: Kind };
 const formats: { value: Kind; label: string; icon: typeof Video }[] = [
@@ -65,6 +66,32 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
   const video = kind === 'influencer' || kind === 'news';
   const job = video ? videoJob : artefactJob;
   const endpoint = video ? 'hosted-video-inject' : 'hosted-artefact-inject';
+  const [redRequests, setRedRequests] = useState<RedRequest[]>([]);
+  const [activeRed, setActiveRed] = useState<RedRequest | null>(null);
+  const [rejectNote, setRejectNote] = useState('');
+  useEffect(() => {
+    if (!sessionId) return;
+    const load = async () => {
+      const { data } = await supabase.from('red_visual_requests').select('*').eq('session_id', sessionId).in('status', ['requested', 'generating']).order('created_at');
+      setRedRequests((data ?? []) as RedRequest[]);
+    };
+    void load();
+    const channel = supabase.channel(`red-requests-${sessionId}`).on('postgres_changes', { event: '*', schema: 'public', table: 'red_visual_requests', filter: `session_id=eq.${sessionId}` }, () => void load()).subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [sessionId]);
+  const takeRed = async (r: RedRequest) => {
+    const k: Kind = r.format === 'news_clip' ? 'news' : r.format === 'short_video' ? 'influencer' : 'facebook';
+    setKind(k); setActiveRed(r); setError(null);
+    setBrief(k === 'facebook' ? `${r.brief}\nOn-screen claim: ${r.claim}` : (r.claim || r.brief).slice(0, 240));
+    if (k !== 'facebook') setSpeaker(r.brief.slice(0, 300));
+    if (k === 'news') setO({ headline: r.claim.slice(0, 120) }); else setO({ caption: r.claim.slice(0, 200) });
+    await supabase.from('red_visual_requests').update({ status: 'generating' }).eq('id', r.id);
+  };
+  const rejectRed = async () => {
+    if (!activeRed) return;
+    await supabase.from('red_visual_requests').update({ status: 'rejected', host_note: rejectNote.slice(0, 300) || 'Rejected by host' }).eq('id', activeRed.id);
+    setActiveRed(null); setRejectNote(''); toast.success('Red request rejected.');
+  };
   const generatingVideo = Boolean(videoJob && ['creating', 'queued', 'in_progress'].includes(videoJob.status));
 
   useEffect(() => {
@@ -158,14 +185,25 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
     if (!sessionId || !job || sending) return;
     setSending(true); setError(null);
     try {
-      const data = await invoke(endpoint, video ? { action: 'send', sessionId, jobId: job.id, overlay: { ...overlay, platform: kind === 'news' ? 'news' : platform } } : { action: 'send', sessionId, jobId: job.id, stats });
+      const red = activeRed ? { redRequestId: activeRed.id } : {};
+      const data = await invoke(endpoint, video ? { action: 'send', sessionId, jobId: job.id, ...red, overlay: { ...overlay, platform: kind === 'news' ? 'news' : platform } } : { action: 'send', sessionId, jobId: job.id, ...red, stats });
       if (video) setVideoJob(data.job); else setArtefactJob(data.job);
+      if (data.returnedToRed) { setActiveRed(null); toast.success('Returned to Red. They decide when to fire it.'); return; }
       onSent(data.injectId, job.artefact?.body ?? brief, video ? 'Video' : kind);
       toast.success('Inject sent to session participants.');
     } catch (failure: any) { setError(failure.message); } finally { setSending(false); }
   };
   return <section className="space-y-5 border border-border bg-card p-4">
     <h3 className="text-sm font-semibold uppercase">Inject Studio</h3>
+    {redRequests.length > 0 && <div className="space-y-2 border border-destructive/60 p-3">
+      <p className="text-xs font-semibold uppercase tracking-wider text-destructive">Red requests · {redRequests.length}</p>
+      {redRequests.map(r => <button key={r.id} type="button" onClick={() => void takeRed(r)} className={`w-full border p-2 text-left text-xs ${activeRed?.id === r.id ? 'border-destructive bg-destructive/10' : 'border-border hover:border-foreground/40'}`}>
+        <span className="block uppercase text-muted-foreground">{r.format.replace('_', ' ')} · {r.reach.toLocaleString()} reach · {r.status}</span>
+        <span className="block font-medium">{r.claim || r.brief}</span>
+      </button>)}
+      {activeRed && <div className="flex gap-2"><Input placeholder="Reason for rejecting (optional)" value={rejectNote} maxLength={300} onChange={e => setRejectNote(e.target.value)} /><Button type="button" size="sm" variant="outline" onClick={() => void rejectRed()}>Reject</Button></div>}
+      {activeRed && <p className="text-[11px] text-muted-foreground">Studio is filled from Red's request. Generate, review, then use "Return to Red".</p>}
+    </div>}
     <div className="space-y-2"><Label htmlFor="inject-format">Format</Label><Select value={kind} onValueChange={value => { setKind(value as Kind); setError(null); }} disabled={busy}><SelectTrigger id="inject-format"><SelectValue /></SelectTrigger><SelectContent>{formats.map(format => <SelectItem key={format.value} value={format.value}><span className="flex items-center gap-2"><format.icon className="h-4 w-4" />{format.label}</span></SelectItem>)}</SelectContent></Select></div>
     <div className="space-y-2 border border-border bg-secondary/40 p-3">
       <div className="flex items-center justify-between gap-2"><p className="text-xs text-muted-foreground">{currentBeat ? <>Story is at: <span className="font-semibold text-foreground">{currentBeat.title}</span></> : 'No storyline step yet — suggestions use the scenario.'}</p><Button type="button" size="sm" variant="outline" onClick={suggest} disabled={busy}><Sparkles className="mr-1 h-3 w-3" />Suggest text</Button></div>
@@ -193,7 +231,7 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
       <p className="text-xs text-crimson">FICTIONAL EXERCISE · Preview</p>
       {job.videoUrl && <OverlayFrame overlay={{ ...overlay, platform: kind === 'news' ? 'news' : platform }}><video aria-label="Generated inject preview" src={job.videoUrl} controls playsInline className="max-h-[480px] w-full rounded-md bg-background object-contain" /></OverlayFrame>}
       {job.artefact && <HostedArtefactView artefact={kind === 'website' ? job.artefact : { ...job.artefact, stats }} />}
-      <Button onClick={() => void send()} disabled={!isActive || sending || job.sent} className="w-full"><Send className="mr-2 h-4 w-4" />{job.sent ? 'Inject sent' : sending ? 'Sending…' : 'Send Inject'}</Button>
+      <Button onClick={() => void send()} disabled={!isActive || sending || job.sent} className="w-full"><Send className="mr-2 h-4 w-4" />{job.sent ? 'Inject sent' : sending ? 'Sending…' : activeRed ? 'Return to Red' : 'Send Inject'}</Button>
       {!isActive && !job.sent && <p className="text-xs text-muted-foreground">Start the exercise before sending.</p>}
     </div>}
   </section>;
