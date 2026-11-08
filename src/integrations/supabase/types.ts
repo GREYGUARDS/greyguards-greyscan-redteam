@@ -265,11 +265,15 @@ export type Database = {
           duration: number
           freeze_prompt: string | null
           id: string
+          opened_at: string | null
           pre_brief: string | null
+          preparation_config: Json
+          preparation_notes: string
           red_team_score: Json | null
           scenario_narrative: string | null
           scenario_title: string | null
           session_code: string
+          session_label: string | null
           started_at: string | null
           status: string
           team_mode: string
@@ -284,11 +288,15 @@ export type Database = {
           duration?: number
           freeze_prompt?: string | null
           id?: string
+          opened_at?: string | null
           pre_brief?: string | null
+          preparation_config?: Json
+          preparation_notes?: string
           red_team_score?: Json | null
           scenario_narrative?: string | null
           scenario_title?: string | null
           session_code: string
+          session_label?: string | null
           started_at?: string | null
           status?: string
           team_mode?: string
@@ -303,11 +311,15 @@ export type Database = {
           duration?: number
           freeze_prompt?: string | null
           id?: string
+          opened_at?: string | null
           pre_brief?: string | null
+          preparation_config?: Json
+          preparation_notes?: string
           red_team_score?: Json | null
           scenario_narrative?: string | null
           scenario_title?: string | null
           session_code?: string
+          session_label?: string | null
           started_at?: string | null
           status?: string
           team_mode?: string
@@ -800,6 +812,10 @@ export type Database = {
       }
       claim_brand_access: { Args: never; Returns: string }
       get_my_locked_brand: { Args: never; Returns: string }
+      host_fire_prepared_inject: {
+        Args: { _inject_id: string }
+        Returns: undefined
+      }
       is_admin: { Args: { _uid: string }; Returns: boolean }
       is_red_member: {
         Args: { _session_id: string; _user_id: string }
