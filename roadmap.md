@@ -1,5 +1,7 @@
 # Current work
 
+- [ ] Make named-company GreyScan/background research explicit in hosted setup and add Custom Scenario to narrative themes; verify scan and saved outline
+
 - [x] Make the board-video watermark a restrained readable corner label, visible throughout rather than a full-width banner; permanent rendering checked on a sample clip with a locally supplied processor asset (hosted asset delivery still unverified)
 
 - [ ] Add approved board synthetic-video option, separate synthetic-speech consent, burned-in disclosure and explicit host review; verify publication safeguards
