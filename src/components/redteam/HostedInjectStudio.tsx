@@ -15,14 +15,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { HostedArtefactView, type HostedArtefact } from './HostedInjectMedia';
 import { toast } from 'sonner';
 import HostedPhotoStudio from './HostedPhotoStudio';
+import { stampBoardVideo } from '@/lib/boardVideoWatermark';
 
 type RedRequest = { id: string; format: string; brief: string; claim: string; reach: number; status: string; phase: string | null };
-type Kind = 'influencer' | 'news' | 'photo' | HostedArtefact['kind'];
-type Job = { id: string; status: string; progress?: number; error?: string | null; accessPaused?: boolean; videoUrl?: string | null; artefact?: HostedArtefact; sent?: boolean; kind?: Kind };
+type Kind = 'influencer' | 'news' | 'board' | 'photo' | HostedArtefact['kind'];
+type Job = { id: string; status: string; progress?: number; error?: string | null; accessPaused?: boolean; videoUrl?: string | null; artefact?: HostedArtefact; sent?: boolean; kind?: Kind; watermarkApplied?: boolean };
 const formats: { value: Kind; label: string; icon: typeof Video }[] = [
   { value: 'photo', label: 'Photo · company, director or board', icon: Video },
   { value: 'influencer', label: 'Influencer video', icon: Video },
   { value: 'news', label: 'News footage', icon: Newspaper },
+  { value: 'board', label: 'Board deepfake · watermarked training video', icon: Video },
   { value: 'website', label: 'Website story', icon: Globe },
   { value: 'x', label: 'X post', icon: MessageCircle },
   { value: 'whatsapp', label: 'WhatsApp thread', icon: MessageCircle },
@@ -45,6 +47,7 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
   const [stats, setStats] = useState<EngagementStats>(suggestStats('medium'));
   const setO = (patch: Partial<VideoOverlay>) => setOverlay(o => ({ ...o, ...patch }));
   const suggest = () => {
+    if (kind === 'board') { setBrief('This is a synthetic training clip. The board is reviewing the situation and will share verified facts.'); setSpeaker(`Client-approved adult board member [name and role] at ${brand}, speaking in a clearly staged corporate interview.`); return; }
     const p = kind === 'news' ? 'news' : platform;
     const s = suggestForBeat(kind, p, brand, currentBeat, scenario);
     if (kind === 'influencer' || kind === 'news') { setBrief(s.script); setSpeaker(s.speaker); } else setBrief(s.brief);
@@ -65,8 +68,30 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
   const started = useRef(0);
   const stopped = useRef(false);
   const [pollStopped, setPollStopped] = useState(false);
-  const video = kind === 'influencer' || kind === 'news';
-  const job = video ? videoJob : artefactJob;
+  const [boardConsent, setBoardConsent] = useState(false);
+  const [likenessConsent, setLikenessConsent] = useState(false);
+  const [savingConsent, setSavingConsent] = useState(false);
+  const [reviewed, setReviewed] = useState(false);
+  const video = kind === 'influencer' || kind === 'news' || kind === 'board';
+  const job = video ? (videoJob?.kind === kind ? videoJob : null) : artefactJob;
+  useEffect(() => { setReviewed(false); }, [videoJob?.id]);
+  useEffect(() => {
+    let cancelled = false; setBoardConsent(false); setLikenessConsent(false);
+    if (sessionId && kind === 'board') void invoke('hosted-video-inject', { action: 'boardConsent', sessionId }).then(d => { if (!cancelled) { setBoardConsent(d.approved === true); setLikenessConsent(d.likenessApproved === true); } }).catch(e => { if (!cancelled) setError(e.message); });
+    return () => { cancelled = true; };
+  }, [sessionId, kind]);
+  const saveBoardConsent = async (approved: boolean) => {
+    setSavingConsent(true);
+    try { const d = await invoke('hosted-video-inject', { action: 'boardConsent', sessionId, approved }); setBoardConsent(d.approved === true); setLikenessConsent(d.likenessApproved === true); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Approval could not be saved.'); }
+    finally { setSavingConsent(false); }
+  };
+  const applyWatermark = async () => {
+    if (!job?.videoUrl) return; setBusy(true); setError(null);
+    try { const videoBase64 = await stampBoardVideo(job.videoUrl); const d = await invoke('hosted-video-inject', { action: 'watermark', sessionId, jobId: job.id, videoBase64 }); setVideoJob(d.job); setReviewed(false); }
+    catch (e) { setError(e instanceof Error ? e.message : 'Watermark processing failed.'); }
+    finally { setBusy(false); }
+  };
   const endpoint = video ? 'hosted-video-inject' : 'hosted-artefact-inject';
   const [redRequests, setRedRequests] = useState<RedRequest[]>([]);
   const [activeRed, setActiveRed] = useState<RedRequest | null>(null);
@@ -188,7 +213,7 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
     setSending(true); setError(null);
     try {
       const red = activeRed ? { redRequestId: activeRed.id } : {};
-      const data = await invoke(endpoint, video ? { action: 'send', prepare, sessionId, jobId: job.id, ...red, overlay: { ...overlay, platform: kind === 'news' ? 'news' : platform } } : { action: 'send', prepare, sessionId, jobId: job.id, ...red, stats });
+      const data = await invoke(endpoint, video ? { action: 'send', hostReviewed: reviewed, prepare, sessionId, jobId: job.id, ...red, overlay: { ...overlay, platform: kind === 'news' ? 'news' : platform } } : { action: 'send', prepare, sessionId, jobId: job.id, ...red, stats });
       if (video) setVideoJob(data.job); else setArtefactJob(data.job);
       if (data.returnedToRed) { setActiveRed(null); toast.success('Returned to Red. They decide when to fire it.'); return; }
       if (prepare) { onPrepared?.(); toast.success('Inject saved to ready shelf.'); return; }
@@ -209,6 +234,7 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
     </div>}
     <div className="space-y-2"><Label htmlFor="inject-format">Format</Label><Select value={kind} onValueChange={value => { setKind(value as Kind); setError(null); }} disabled={busy}><SelectTrigger id="inject-format"><SelectValue /></SelectTrigger><SelectContent>{formats.map(format => <SelectItem key={format.value} value={format.value}><span className="flex items-center gap-2"><format.icon className="h-4 w-4" />{format.label}</span></SelectItem>)}</SelectContent></Select></div>
     {kind === 'photo' ? <HostedPhotoStudio sessionId={sessionId} brand={brand} scenario={scenario} onPrepared={onPrepared} /> : <>
+    {kind === 'board' && <div className="space-y-3 border-l-2 border-crimson pl-3"><p className="text-xs font-semibold text-crimson">DEEPFAKE · AI-GENERATED · FICTIONAL EXERCISE</p><label className="flex gap-2 text-xs"><Checkbox aria-label="Approve synthetic board speech" checked={boardConsent} disabled={!sessionId || !likenessConsent || savingConsent || busy} onCheckedChange={v => void saveBoardConsent(v === true)} />The client and depicted board members have explicitly approved synthetic likeness and speech for this private exercise.</label>{!likenessConsent && <p className="text-xs text-muted-foreground">Record names and likeness approval in the Photo generator first.</p>}<p className="text-xs text-muted-foreground">Approval is recorded for this session. Each clip must be permanently watermarked and reviewed before delivery.</p></div>}
     <div className="space-y-2 border border-border bg-secondary/40 p-3">
       <div className="flex items-center justify-between gap-2"><p className="text-xs text-muted-foreground">{currentBeat ? <>Story is at: <span className="font-semibold text-foreground">{currentBeat.title}</span></> : 'No storyline step yet — suggestions use the scenario.'}</p><Button type="button" size="sm" variant="outline" onClick={suggest} disabled={busy}><Sparkles className="mr-1 h-3 w-3" />Suggest text</Button></div>
       <p className="text-[11px] text-muted-foreground">Instantly fills the {video ? (kind === 'news' ? 'newsreader script, headline and ticker' : 'influencer script and caption') : 'post brief'} for where the story is now. Edit before generating.</p>
@@ -220,13 +246,13 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
       <Input placeholder="Scrolling ticker text" value={overlay.ticker} maxLength={300} onChange={e => setO({ ticker: e.target.value })} /></div>}
     {kind !== 'news' && kind !== 'website' && <div className="space-y-2"><div className="flex items-center justify-between"><Label>Engagement numbers</Label><div className="flex gap-1">{(['low', 'medium', 'viral'] as const).map(l => <Button key={l} type="button" size="sm" variant="ghost" className="h-6 px-2 text-[10px] uppercase" onClick={() => { const n = suggestStats(l); setStats(n); setO(n); }}>{l}</Button>)}</div></div>
       <div className="grid grid-cols-4 gap-2">{(['views', 'likes', 'comments', 'shares'] as const).map(k => <div key={k}><p className="mb-1 text-[10px] uppercase text-muted-foreground">{k}</p><Input value={video ? overlay[k] : stats[k]} maxLength={12} onChange={e => { setStats(s => ({ ...s, [k]: e.target.value })); setO({ [k]: e.target.value }); }} /></div>)}</div></div>}
-    <div className="space-y-2"><Label htmlFor="inject-brief">{kind === 'news' ? 'Newsreader script' : video ? 'Influencer script' : 'Story brief'}</Label><Textarea id="inject-brief" value={brief} onChange={event => setBrief(event.target.value)} maxLength={video ? 240 : 1500} placeholder={video ? 'A short claim the fictional speaker will say…' : 'The claim, who shares it, and how the story spreads…'} className="min-h-[96px]" disabled={busy} /><p className="text-right text-xs text-muted-foreground">{video ? `${brief.length}/240 · 8-second clip` : `${brief.length}/1500`}</p></div>
+    <div className="space-y-2"><Label htmlFor="inject-brief">{kind === 'board' ? 'Approved synthetic board script' : kind === 'news' ? 'Newsreader script' : video ? 'Influencer script' : 'Story brief'}</Label><Textarea id="inject-brief" value={brief} onChange={event => setBrief(event.target.value)} maxLength={video ? 240 : 1500} placeholder={video ? 'A short claim the fictional speaker will say…' : 'The claim, who shares it, and how the story spreads…'} className="min-h-[96px]" disabled={busy} /><p className="text-right text-xs text-muted-foreground">{video ? `${brief.length}/240 · 8-second clip` : `${brief.length}/1500`}</p></div>
     {video && <div className="space-y-2"><Label htmlFor="inject-speaker">Fictional speaker & setting</Label><Textarea id="inject-speaker" value={speaker} onChange={event => setSpeaker(event.target.value)} maxLength={300} disabled={busy} /></div>}
     <div className="space-y-3 text-xs">
-      <label className="flex items-start gap-2"><Checkbox checked={fictional} onCheckedChange={value => setFictional(value === true)} /><span>This is fictional exercise material, not an imitation of a real person.</span></label>
+      <label className="flex items-start gap-2"><Checkbox checked={fictional} onCheckedChange={value => setFictional(value === true)} /><span>{kind === 'board' ? 'This is consented synthetic training footage, never a genuine recording or evidence.' : 'This is fictional exercise material, not an imitation of a real person.'}</span></label>
       <label className="flex items-start gap-2"><Checkbox checked={cost} onCheckedChange={value => setCost(value === true)} /><span>{video ? 'Generate one paid AI clip using workspace credits. Typical wait: 1–3 minutes.' : 'Generate one AI inject using workspace credits.'}</span></label>
     </div>
-    <Button onClick={() => void generate()} disabled={!sessionId || !fictional || !cost || brief.trim().length < 5 || (video && speaker.trim().length < 5) || busy || generatingVideo || paused} className="w-full">{busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Video className="mr-2 h-4 w-4" />}{video ? 'Generate Video' : 'Generate Inject'}</Button>
+    <Button onClick={() => void generate()} disabled={!sessionId || !fictional || !cost || brief.trim().length < 5 || (video && speaker.trim().length < 5) || (kind === 'board' && (!boardConsent || !likenessConsent || savingConsent)) || busy || generatingVideo || paused} className="w-full">{busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Video className="mr-2 h-4 w-4" />}{video ? 'Generate Video' : 'Generate Inject'}</Button>
     {(generatingVideo || busy) && <div role="status" className="space-y-2"><div className="flex items-center justify-between text-xs"><span>{generatingVideo ? 'Rendering footage' : 'Creating inject'}</span><span>{elapsed}s elapsed</span></div>{generatingVideo && <Progress value={videoJob?.progress ?? 0} />}<p className="text-xs text-muted-foreground">The exercise continues while this generates.</p></div>}
     {(error || job?.error) && <p role="alert" className="text-sm text-destructive break-words">{error ?? job?.error}</p>}
     {pollStopped && !paused && <Button variant="outline" size="sm" onClick={() => { stopped.current = false; setPollStopped(false); }}><RefreshCw className="mr-2 h-4 w-4" />Check existing video</Button>}
@@ -234,9 +260,10 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
     {job?.status === 'completed' && <div className="space-y-3 border-t border-border pt-4">
       <p className="text-xs text-crimson">FICTIONAL EXERCISE · Preview</p>
       {job.videoUrl && <OverlayFrame overlay={{ ...overlay, platform: kind === 'news' ? 'news' : platform }}><video aria-label="Generated inject preview" src={job.videoUrl} controls playsInline className="max-h-[480px] w-full rounded-md bg-background object-contain" /></OverlayFrame>}
+      {kind === 'board' && <div className="space-y-2">{!job.watermarkApplied ? <Button variant="outline" onClick={() => void applyWatermark()} disabled={busy}>Burn permanent deepfake watermark</Button> : <p className="text-xs text-crimson">Permanent deepfake watermark applied</p>}<label className="flex gap-2 text-xs"><Checkbox checked={reviewed} disabled={!job.watermarkApplied || busy} onCheckedChange={v => setReviewed(v === true)} />I have watched the final watermarked clip and approve it for this exercise.</label></div>}
       {job.artefact && <HostedArtefactView artefact={kind === 'website' ? job.artefact : { ...job.artefact, stats }} />}
-      {!activeRed && <Button variant="outline" onClick={() => void send(true)} disabled={sending || job.sent} className="w-full">Save to ready injects</Button>}
-      <Button onClick={() => void send()} disabled={!isActive || sending || job.sent} className="w-full"><Send className="mr-2 h-4 w-4" />{job.sent ? 'Inject sent' : sending ? 'Sending…' : activeRed ? 'Return to Red' : 'Send Inject'}</Button>
+      {!activeRed && <Button variant="outline" onClick={() => void send(true)} disabled={sending || job.sent || busy || (kind === 'board' && (!job.watermarkApplied || !reviewed))} className="w-full">Save to ready injects</Button>}
+      <Button onClick={() => void send()} disabled={!isActive || sending || job.sent || busy || (kind === 'board' && (!job.watermarkApplied || !reviewed))} className="w-full"><Send className="mr-2 h-4 w-4" />{job.sent ? 'Inject sent' : sending ? 'Sending…' : activeRed ? 'Return to Red' : 'Send Inject'}</Button>
       {!isActive && !job.sent && <p className="text-xs text-muted-foreground">Start the exercise before sending.</p>}
     </div>}
     </>}
