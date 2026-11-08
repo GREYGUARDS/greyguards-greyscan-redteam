@@ -310,6 +310,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
         const { data: privatePrep } = await supabase.from('host_session_preparations').select('host_notes').eq('session_id', preparedSession.id).maybeSingle();
         setPreparationNotes(privatePrep?.host_notes || '');
         setPreBrief(preparedSession.pre_brief || '');
+        setPreviewInjects(((preparedSession.preparation_config as unknown as { savedScenario?: Scenario })?.savedScenario?.injects) || []);
         if (preparedSession.scenario_narrative) setScenario({ id: preparedSession.id, title: preparedSession.scenario_title || 'Client exercise', narrative: preparedSession.scenario_narrative, basedOnTruth: false, implicatedParties: [], severity: 'severe', spreadPattern: 'coordinated', ...((preparedSession.preparation_config as unknown as { savedScenario?: Partial<Scenario> })?.savedScenario ?? {}) });
         setIsExerciseActive(['active', 'paused'].includes(preparedSession.status));
         setIsPaused(preparedSession.status !== 'active'); setHasEnded(preparedSession.status === 'completed');
@@ -846,6 +847,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
 
       setScenario(generatedScenario);
       setPreviewInjects(injectsData?.injects || []);
+      setScenario({ ...generatedScenario, injects: injectsData?.injects || [] });
       onScenarioGenerated?.(generatedScenario);
       toast.success("Scenario generated successfully!");
     } catch (error) {
