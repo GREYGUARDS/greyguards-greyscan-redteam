@@ -215,3 +215,19 @@
   .text-warmgrey { color: hsl(var(--brand-warmgrey)); }
   .border-crimson { border-color: hsl(var(--brand-crimson)); }
 }
+
+/* Blue team (defenders) console palette */
+.theme-blue {
+  --background: 215 45% 11%;
+  --card: 218 50% 7%;
+  --secondary: 214 38% 17%;
+  --muted: 214 30% 20%;
+  --border: 213 30% 26%;
+  --input: 213 30% 26%;
+  --popover: 218 50% 8%;
+}
+@keyframes incoming-in { 0% { opacity: 0; transform: translateY(-24px) scale(.96); } 12% { opacity: 1; transform: none; } 88% { opacity: 1; } 100% { opacity: 0; transform: translateY(-8px); } }
+@keyframes incoming-flash { 0%,100% { box-shadow: 0 0 0 0 hsl(var(--destructive) / .0); } 50% { box-shadow: 0 0 0 6px hsl(var(--destructive) / .45); } }
+.incoming-alert { animation: incoming-in 4.5s ease forwards, incoming-flash .9s ease-in-out 4; }
+@keyframes inject-arrive { 0% { background: hsl(var(--destructive) / .35); } 100% { background: transparent; } }
+.inject-arrive { animation: inject-arrive 2.5s ease-out; }
