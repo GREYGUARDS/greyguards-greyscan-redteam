@@ -227,7 +227,7 @@ serve(async (req) => {
 
     const systemPrompt = `You write short, realistic but fictional disinformation crisis scenarios for executive training exercises.
 
-Task: a ${selectedCategory.name} scenario (${selectedCategory.description}) for "${brandName}", a ${duration}-minute exercise.
+Task: ${userScenario ? 'Refine the host-provided fictional disinformation outline. Its central false claim is mandatory; do not substitute a different topic from company research or a random category.' : `a ${selectedCategory.name} scenario (${selectedCategory.description})`} for "${brandName}", a ${duration}-minute exercise.
 
 Work out what ${brandName} actually does and fit the crisis to that sector (e.g. for a military body, "product safety" means equipment reliability; for a charity, "financial fraud" means donation misuse).
 
@@ -243,7 +243,7 @@ Return a JSON object with these exact fields:
 - spreadPattern: "viral" (organic fast spread), "coordinated" (bot/troll farm), or "organic" (slow natural spread)${canonBlock}`;
 
     const userPrompt = userScenario 
-      ? `The user has provided this scenario outline. Tighten it into a short, plain-English scenario while keeping the core concept:\n\n"${userScenario}"\n\nKeep the narrative under 60 words, one paragraph. Specific to what ${brandName} actually does.`
+      ? `The host has provided this fictional scenario outline. Preserve the exact central false allegation and named target; research supplies background only, not a replacement attack. Tighten the outline into a short, plain-English scenario:\n\n"${userScenario}"\n\nKeep the narrative under 60 words, one paragraph. Clearly call the allegation false or fabricated. Specific to what ${brandName} actually does.`
       : `First, determine what "${brandName}" most likely is (their industry, purpose, and operations). Then create a short, original ${selectedCategory.name.toLowerCase()} disinformation scenario specific to that organisation. Name real platforms (X, Reddit, TikTok, Telegram). Keep the narrative under 60 words, one paragraph, plain English a busy executive can absorb in seconds.`;
 
     console.log("Generating scenario:", { brandName, duration, category: selectedCategory.type, clientIp, remaining: rateLimit.remaining });
