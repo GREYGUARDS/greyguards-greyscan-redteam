@@ -1,5 +1,7 @@
 # Current work
 
+- [ ] Add session-scoped host confirmation of client approval for real board members, enforce approved photo use and preserve fictional default; test saved approval and neutral imagery safeguards
+
 - [x] Link hosted participants' debriefs and host After-Action to durable decision paths, sent injects and team-specific actions with DISARM-informed training analogues and DMMI countermeasures; tests and desktop/mobile fixture interactions passed
 - [ ] Verify a live participant's completed-session debrief end to end — requesting account has no hosted team membership; existing client sessions were not modified for testing
 

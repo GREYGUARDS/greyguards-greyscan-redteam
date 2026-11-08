@@ -3,6 +3,7 @@
 - Hosted participant debriefs read durable session decision logs, sent injects and team-keyed responses through existing access controls; shared playbook mapping labels interpretations and never treats host branches as measured causal outcomes.
 
 - Photo generation streams through a host-authorised endpoint and persists completed images in private session-scoped storage; only host-reviewed durable photo references attach to unsent injects, with fictional labels and sent-only participant reads.
+- Real-board photo mode snapshots host-recorded session consent on each job and rechecks it before generation or attachment; approved imagery is neutral and permanently labelled, while unapproved jobs use fictional stand-ins.
 
 - Real-company Red Team generation scans a bounded set of GreyScan source feeds server-side, retains citation snapshots, and validates board names and roles against exact excerpts; fictional attack claims remain separate from sourced background and saved sessions retain the research.
 

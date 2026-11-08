@@ -1,0 +1,4 @@
+ALTER TABLE public.exercise_sessions ADD COLUMN IF NOT EXISTS real_board_members_approved boolean NOT NULL DEFAULT false, ADD COLUMN IF NOT EXISTS board_approval_recorded_by uuid, ADD COLUMN IF NOT EXISTS board_approval_recorded_at timestamptz;
+ALTER TABLE public.exercise_photo_jobs ADD COLUMN IF NOT EXISTS uses_real_board_members boolean NOT NULL DEFAULT false;
+COMMENT ON COLUMN public.exercise_sessions.real_board_members_approved IS 'Host confirms client and depicted board members approved private exercise use; false by default. This is a recorded attestation, not independently verified consent.';
+COMMENT ON COLUMN public.exercise_photo_jobs.uses_real_board_members IS 'Approval mode snapshotted on creation. Real-person generation and attachment also require current session approval.';
