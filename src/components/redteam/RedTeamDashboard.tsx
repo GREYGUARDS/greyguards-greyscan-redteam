@@ -8,6 +8,7 @@ import { ArrowLeft, Loader2, Pause, Plus, GripVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import HostedInjectMedia from './HostedInjectMedia';
+import HostedParticipantDebrief from './HostedParticipantDebrief';
 import { Meter, InjectThumb, PostCard, reachLabel, formatLabel, firstLine, clock, type ConsoleInject } from "./ConsoleParts";
 
 interface RedTeamDashboardProps {
@@ -135,7 +136,7 @@ const RedTeamDashboard = ({ sessionId, teamId, sessionData, onLeave }: RedTeamDa
     return Math.round(h[h.length - 1][key] - ref[key]);
   };
 
-  const fmt = FORMATS.find(f => f.key === format)!;
+  const fmt = FORMATS.find(f => f.key === format) ?? FORMATS[0];
   const loadedInject = injects.find(i => i.id === loadedId) ?? null;
   const loadedRequest = requests.find(r => r.id === loadedId) ?? null;
   const readyInjects = useMemo(() => injects.filter(i => !i.is_sent).sort((a, b) => (a.queue_position ?? 1e9) - (b.queue_position ?? 1e9) || a.created_at.localeCompare(b.created_at)), [injects]);
@@ -288,6 +289,10 @@ const RedTeamDashboard = ({ sessionId, teamId, sessionData, onLeave }: RedTeamDa
       <p className="text-sm whitespace-pre-line">{session.pre_brief}</p>
     </div>
   );
+
+  if (session.status === 'completed') {
+    return <HostedParticipantDebrief sessionId={sessionId} teamId={teamId} onBack={onLeave} />;
+  }
 
   // ===== Arsenal =====
   type Card_ = { id: string; title: string; formatL: string; reach: number; phase: string | null; status: "ready" | "generating" | "requested" | "fired" | "rejected" | "quick"; inject?: Inject; note?: string | null; sentAt?: string | null; preset?: typeof presetInjects[0] };

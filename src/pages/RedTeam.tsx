@@ -40,6 +40,7 @@ import type { AttackTimelineEntry } from "@/components/redteam/ExercisePlayer";
 import TeamJoin from "@/components/redteam/TeamJoin";
 import BlueTeamDashboard from "@/components/redteam/BlueTeamDashboard";
 import RedTeamDashboard from "@/components/redteam/RedTeamDashboard";
+import HostedParticipantDebrief from "@/components/redteam/HostedParticipantDebrief";
 import { useAccessProfile } from "@/hooks/useAccessProfile";
 import {
   Select,
@@ -435,6 +436,9 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
   }
 
   if (phase === "results" && exerciseResults) {
+    if (teamSession) {
+      return <HostedParticipantDebrief sessionId={teamSession.sessionId} teamId={teamSession.teamId} onBack={handleRestartExercise} />;
+    }
     return (
       <ExerciseDebrief 
         score={exerciseResults.score} 
