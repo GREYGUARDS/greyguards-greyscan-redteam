@@ -1,5 +1,7 @@
 # Current work
 
+- [ ] Add approved board synthetic-video option, separate synthetic-speech consent, burned-in disclosure and explicit host review; verify publication safeguards
+
 - [x] Add host-only session approval tick box and opt-in real-board photo mode; live approval save/readback and withdrawal blocking verified, neutral prompt tests passed; no paid likeness image generated during verification
 
 - [x] Link hosted participants' debriefs and host After-Action to durable decision paths, sent injects and team-specific actions with DISARM-informed training analogues and DMMI countermeasures; tests and desktop/mobile fixture interactions passed

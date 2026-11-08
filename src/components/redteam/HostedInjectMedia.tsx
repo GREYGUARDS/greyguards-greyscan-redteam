@@ -49,7 +49,7 @@ export default function HostedInjectMedia({ storagePath, artefact }: { storagePa
     setUrl(data.signedUrl);
   }, [storagePath]);
   useEffect(() => { setUrl(null); void load(); }, [load]);
-  const raw = artefact && typeof artefact === 'object' && 'kind' in artefact ? artefact as { kind: string; overlay?: VideoOverlay } : null;
+  const raw = artefact && typeof artefact === 'object' && 'kind' in artefact ? artefact as { kind: string; overlay?: VideoOverlay; videoKind?: string } : null;
   const overlay = raw?.kind === 'video' ? raw.overlay ?? null : null;
   const photo = asPhoto(artefact);
   const visual = raw && raw.kind !== 'video' && !photo ? raw as unknown as HostedArtefact : null;
@@ -57,7 +57,7 @@ export default function HostedInjectMedia({ storagePath, artefact }: { storagePa
     {photo && <HostedPhotoMedia photo={photo} />}
     {visual && <HostedArtefactView artefact={visual} />}
     {storagePath && <div className="my-4 space-y-2">
-      <p className="text-xs font-medium text-crimson">FICTIONAL EXERCISE · AI-generated footage</p>
+      <p className="text-xs font-medium text-crimson">{raw?.videoKind === 'board' ? 'DEEPFAKE · AI-GENERATED · FICTIONAL EXERCISE' : 'FICTIONAL EXERCISE · AI-generated footage'}</p>
       {url ? <OverlayFrame overlay={overlay}><video key={storagePath} aria-label="Exercise inject video" src={url} controls playsInline preload="metadata" className="max-h-[480px] w-full rounded-md bg-background object-contain" onError={() => setError('Video playback failed. Reload the clip to try again.')} /></OverlayFrame> : !error && <p className="text-xs text-muted-foreground" role="status">Loading exercise video…</p>}
       {error && <div role="alert" className="text-sm text-destructive">{error}<Button size="sm" variant="outline" onClick={() => void load()} className="ml-2"><RefreshCw className="mr-2 h-3 w-3" />Reload clip</Button></div>}
     </div>}

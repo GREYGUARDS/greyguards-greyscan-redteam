@@ -325,6 +325,9 @@ export type Database = {
           blue_team_score: Json | null
           board_approval_recorded_at: string | null
           board_approval_recorded_by: string | null
+          board_speech_approval_at: string | null
+          board_speech_approval_by: string | null
+          board_synthetic_speech_approved: boolean
           brand_name: string
           completed_at: string | null
           created_at: string
@@ -351,6 +354,9 @@ export type Database = {
           blue_team_score?: Json | null
           board_approval_recorded_at?: string | null
           board_approval_recorded_by?: string | null
+          board_speech_approval_at?: string | null
+          board_speech_approval_by?: string | null
+          board_synthetic_speech_approved?: boolean
           brand_name: string
           completed_at?: string | null
           created_at?: string
@@ -377,6 +383,9 @@ export type Database = {
           blue_team_score?: Json | null
           board_approval_recorded_at?: string | null
           board_approval_recorded_by?: string | null
+          board_speech_approval_at?: string | null
+          board_speech_approval_by?: string | null
+          board_synthetic_speech_approved?: boolean
           brand_name?: string
           completed_at?: string | null
           created_at?: string
@@ -457,6 +466,8 @@ export type Database = {
           created_at: string
           error_code: string | null
           error_message: string | null
+          host_reviewed_at: string | null
+          host_reviewed_by: string | null
           id: string
           inject_id: string | null
           ip_hash: string | null
@@ -469,12 +480,15 @@ export type Database = {
           storage_path: string | null
           user_id: string
           video_kind: string
+          watermark_applied: boolean
         }
         Insert: {
           access_paused?: boolean
           created_at?: string
           error_code?: string | null
           error_message?: string | null
+          host_reviewed_at?: string | null
+          host_reviewed_by?: string | null
           id?: string
           inject_id?: string | null
           ip_hash?: string | null
@@ -487,12 +501,15 @@ export type Database = {
           storage_path?: string | null
           user_id: string
           video_kind?: string
+          watermark_applied?: boolean
         }
         Update: {
           access_paused?: boolean
           created_at?: string
           error_code?: string | null
           error_message?: string | null
+          host_reviewed_at?: string | null
+          host_reviewed_by?: string | null
           id?: string
           inject_id?: string | null
           ip_hash?: string | null
@@ -505,6 +522,7 @@ export type Database = {
           storage_path?: string | null
           user_id?: string
           video_kind?: string
+          watermark_applied?: boolean
         }
         Relationships: [
           {
