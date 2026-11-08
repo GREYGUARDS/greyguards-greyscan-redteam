@@ -448,6 +448,29 @@ export type Database = {
           },
         ]
       }
+      host_session_preparations: {
+        Row: {
+          host_notes: string
+          session_id: string
+        }
+        Insert: {
+          host_notes?: string
+          session_id: string
+        }
+        Update: {
+          host_notes?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "host_session_preparations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: true
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mdm_alerts: {
         Row: {
           alert_type: string
