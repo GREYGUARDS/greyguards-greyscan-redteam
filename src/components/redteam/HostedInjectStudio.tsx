@@ -37,7 +37,7 @@ async function invoke(endpoint: string, body: Record<string, unknown>) {
   return data;
 }
 
-export default function HostedInjectStudio({ sessionId, isActive, onSent, brand = 'the company', currentBeat = null, scenario }: { sessionId: string | null; isActive: boolean; onSent: (id: string, content: string, type: string) => void; brand?: string; currentBeat?: StorylineBeat | null; scenario?: string | null }) {
+export default function HostedInjectStudio({ sessionId, isActive, onSent, brand = 'the company', currentBeat = null, scenario, onPrepared }: { onPrepared?: () => void; sessionId: string | null; isActive: boolean; onSent: (id: string, content: string, type: string) => void; brand?: string; currentBeat?: StorylineBeat | null; scenario?: string | null }) {
   const [platform, setPlatform] = useState<OverlayPlatform>('tiktok');
   const [overlay, setOverlay] = useState<VideoOverlay>({ platform: 'tiktok', handle: '', caption: '', channel: 'NEWS 24', headline: '', ticker: '', ...suggestStats('medium') });
   const [stats, setStats] = useState<EngagementStats>(suggestStats('medium'));
@@ -181,14 +181,15 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
     } catch (failure: any) { setError(failure.message); setPaused(Boolean(failure.accessPaused)); }
     finally { setBusy(false); }
   };
-  const send = async () => {
+  const send = async (prepare = false) => {
     if (!sessionId || !job || sending) return;
     setSending(true); setError(null);
     try {
       const red = activeRed ? { redRequestId: activeRed.id } : {};
-      const data = await invoke(endpoint, video ? { action: 'send', sessionId, jobId: job.id, ...red, overlay: { ...overlay, platform: kind === 'news' ? 'news' : platform } } : { action: 'send', sessionId, jobId: job.id, ...red, stats });
+      const data = await invoke(endpoint, video ? { action: 'send', prepare, sessionId, jobId: job.id, ...red, overlay: { ...overlay, platform: kind === 'news' ? 'news' : platform } } : { action: 'send', prepare, sessionId, jobId: job.id, ...red, stats });
       if (video) setVideoJob(data.job); else setArtefactJob(data.job);
       if (data.returnedToRed) { setActiveRed(null); toast.success('Returned to Red. They decide when to fire it.'); return; }
+      if (prepare) { onPrepared?.(); toast.success('Inject saved to ready shelf.'); return; }
       onSent(data.injectId, job.artefact?.body ?? brief, video ? 'Video' : kind);
       toast.success('Inject sent to session participants.');
     } catch (failure: any) { setError(failure.message); } finally { setSending(false); }
@@ -231,6 +232,7 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
       <p className="text-xs text-crimson">FICTIONAL EXERCISE · Preview</p>
       {job.videoUrl && <OverlayFrame overlay={{ ...overlay, platform: kind === 'news' ? 'news' : platform }}><video aria-label="Generated inject preview" src={job.videoUrl} controls playsInline className="max-h-[480px] w-full rounded-md bg-background object-contain" /></OverlayFrame>}
       {job.artefact && <HostedArtefactView artefact={kind === 'website' ? job.artefact : { ...job.artefact, stats }} />}
+      {!activeRed && <Button variant="outline" onClick={() => void send(true)} disabled={sending || job.sent} className="w-full">Save to ready injects</Button>}
       <Button onClick={() => void send()} disabled={!isActive || sending || job.sent} className="w-full"><Send className="mr-2 h-4 w-4" />{job.sent ? 'Inject sent' : sending ? 'Sending…' : activeRed ? 'Return to Red' : 'Send Inject'}</Button>
       {!isActive && !job.sent && <p className="text-xs text-muted-foreground">Start the exercise before sending.</p>}
     </div>}

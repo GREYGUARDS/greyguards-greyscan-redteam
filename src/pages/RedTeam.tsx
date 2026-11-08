@@ -33,6 +33,7 @@ import greyguardsLogo from "@/assets/greyguards-logo-light.png";
 import type { InjectVisualSpec } from "@/components/GreyguardsInject";
 import ScenarioBuilder from "@/components/redteam/ScenarioBuilder";
 import ExercisePlayer from "@/components/redteam/ExercisePlayer";
+import HostSessionLibrary, { sessionConfig, type PreparedSession } from "@/components/redteam/HostSessionLibrary";
 import ConsultantDashboard from "@/components/redteam/ConsultantDashboard";
 import ExerciseDebrief from "@/components/redteam/ExerciseDebrief";
 import type { AttackTimelineEntry } from "@/components/redteam/ExercisePlayer";
@@ -249,6 +250,7 @@ interface TeamSessionData {
 }
 
 const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
+  const [preparedSession, setPreparedSession] = useState<PreparedSession | null>(null);
   const [phase, setPhase] = useState<Phase>("landing");
   const access = useAccessProfile();
   const [config, setConfig] = useState<ExerciseConfig>({
@@ -306,6 +308,8 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
       if (consultantAction === "join" || !access.isAdmin) {
         setPhase("team-join");
       } else {
+        setPreparedSession(null);
+        setScenario(null);
         setPhase("consultant-dashboard");
       }
     } else {
@@ -395,7 +399,8 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
   if (phase === "consultant-dashboard") {
     return (
       <ConsultantDashboard 
-        config={config} 
+        config={config}
+        preparedSession={preparedSession}
         onBack={() => setPhase("landing")}
         onScenarioGenerated={handleScenarioFromConsultant}
         currentScenario={scenario}
@@ -476,6 +481,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
+          {!demoMode && access.isAdmin && <HostSessionLibrary onOpen={session => { setPreparedSession(session); setConfig(sessionConfig(session)); setScenario(null); setPhase('consultant-dashboard'); }} />}
           {/* Simulation target companies — full canon briefings */}
           {canPickCompany && (
             <div className="space-y-2">
@@ -803,7 +809,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
             <Target className="h-4 w-4 mr-2" />
             {config.mode === "consultant" && consultantAction === "join"
               ? "Join Session"
-              : "Start Red Teaming"}
+              : config.mode === "consultant" ? "Create Session Sandpit" : "Start Red Teaming"}
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
 
