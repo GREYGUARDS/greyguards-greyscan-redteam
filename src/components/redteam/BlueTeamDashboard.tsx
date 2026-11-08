@@ -22,6 +22,7 @@ import CountdownTimer from "./CountdownTimer";
 import { useSoundEffects } from "@/hooks/use-sound-effects";
 import { useIsMobile } from "@/hooks/use-mobile";
 import HostedInjectMedia from './HostedInjectMedia';
+import HostedParticipantDebrief from './HostedParticipantDebrief';
 import { Meter, InjectThumb, PostCard, timeAgo, reachLabel, formatLabel, firstLine, clock, type ConsoleInject } from "./ConsoleParts";
 
 interface BlueTeamDashboardProps {
@@ -400,6 +401,10 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
       {soundEnabled ? <Volume2 className="h-4 w-4 text-muted-foreground" /> : <VolumeX className="h-4 w-4 text-muted-foreground" />}
     </Button>
   );
+
+  if (session.status === 'completed') {
+    return <HostedParticipantDebrief sessionId={sessionId} teamId={teamId} onBack={onLeave} />;
+  }
 
   // ===== Phone-first (below 768px) =====
   if (isMobile) {

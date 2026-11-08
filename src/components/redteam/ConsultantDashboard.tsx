@@ -43,6 +43,7 @@ import PreparedInjectShelf from './PreparedInjectShelf';
 import ScenarioResearch from './ScenarioResearch';
 import type { PreparedSession } from './HostSessionLibrary';
 import StorylineTimeline from './StorylineTimeline';
+import HostedParticipantDebrief from './HostedParticipantDebrief';
 import {
   INJECT_MENU,
   INJECT_CATEGORY_LABELS,
@@ -1212,20 +1213,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 space-y-3">
-                  {decisionLog.length === 0 ? (
-                    <p className="text-xs text-muted-foreground">No routes were recorded. Use "Record route" on the storyline during the exercise to build the decision path.</p>
-                  ) : (
-                    [...decisionLog].sort((a, b) => a.atSeconds - b.atSeconds).map((d) => (
-                      <div key={d.beatId} className="border-l-2 border-primary pl-3 space-y-1">
-                        <p className="text-[10px] font-mono text-muted-foreground">
-                          {Math.floor(d.atSeconds / 60)}m {d.atSeconds % 60}s{d.frozen ? " · at freeze frame" : ""}
-                        </p>
-                        <p className="text-xs font-bold uppercase tracking-wider">{d.beatTitle}</p>
-                        <p className="text-xs"><span className="text-muted-foreground">Team chose:</span> {d.condition}</p>
-                        <p className="text-xs text-muted-foreground">Result: {d.route}</p>
-                      </div>
-                    ))
-                  )}
+                  {sessionId && <HostedParticipantDebrief sessionId={sessionId} />}
                   <p className="text-[10px] text-muted-foreground border-t border-border pt-2">
                     {injectedEvents.length} injects sent · {storylinePack ? `${new Set(decisionLog.map(d => d.beatId)).size}/${storylinePack.beats.length} beats with a recorded decision` : "no storyline pack"}
                   </p>
