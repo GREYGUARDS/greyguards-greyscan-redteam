@@ -107,7 +107,23 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
     return options;
   };
 
+  const [incoming, setIncoming] = useState<Inject | null>(null);
+  const [arrivedIds, setArrivedIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (!incoming) return;
+    const t = setTimeout(() => setIncoming(null), 4500);
+    return () => clearTimeout(t);
+  }, [incoming]);
+  // Keep the feed live even if a realtime event is missed.
+  useEffect(() => {
+    const t = setInterval(() => { if (document.visibilityState === "visible") fetchInjects(); }, 8000);
+    return () => clearInterval(t);
+  }, [sessionId]);
+
   const alertNewInject = (inject: Inject) => {
+    setIncoming(inject);
+    setArrivedIds(prev => new Set(prev).add(inject.id));
+    setTimeout(() => setArrivedIds(prev => { const n = new Set(prev); n.delete(inject.id); return n; }), 2600);
     playSound("inject");
     if (soundEnabled && typeof navigator !== "undefined" && "vibrate" in navigator) {
       try { navigator.vibrate?.([120, 60, 120]); } catch { /* unsupported */ }
@@ -409,8 +425,18 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
   // ===== Phone-first (below 768px) =====
   if (isMobile) {
     return (
-      <div className="min-h-[100dvh] bg-background">
+      <div className="theme-blue min-h-[100dvh] bg-background text-foreground">
         {freeze}
+        {incoming && (
+          <button type="button" key={incoming.id} onClick={() => { select(incoming.id); setIncoming(null); if (isMobile) setMobileScreen("inject"); }}
+            className="incoming-alert fixed left-1/2 top-4 z-[60] w-[min(92vw,420px)] -translate-x-1/2 border-2 border-destructive bg-card p-4 text-left shadow-lg">
+            <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-destructive">
+              <span className="h-2 w-2 animate-ping rounded-full bg-destructive" />Incoming
+            </span>
+            <span className="mt-1 block text-[10px] uppercase tracking-wider text-muted-foreground">{formatLabel(incoming)} · {incoming.source}</span>
+            <span className="mt-1 block text-sm font-semibold leading-snug">{firstLine(incoming.content, 90)}</span>
+          </button>
+        )}
         {mobileScreen === "inject" && activeInject ? (
           <div className="fixed inset-0 z-40 flex flex-col bg-background">
             <div className="flex items-center justify-between border-b border-border px-3 py-2">
@@ -455,7 +481,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
                     const isNew = !responded.has(inject.id);
                     return (
                       <button key={inject.id} type="button" onClick={() => { select(inject.id); setMobileScreen("inject"); }}
-                        className={`w-full p-4 text-left ${isNew && !readOnly ? "bg-bone text-forest" : "border border-border bg-card text-foreground"}`}>
+                        className={`w-full p-4 text-left ${arrivedIds.has(inject.id) ? "inject-arrive " : ""}${isNew && !readOnly ? "bg-bone text-forest" : "border border-border bg-card text-foreground"}`}>
                         <p className={`text-[10px] font-medium uppercase tracking-wider ${isNew && !readOnly ? "text-oxblood" : "text-muted-foreground"}`}>
                           {isNew && !readOnly ? "New inject" : "Responded"} · {inject.source} · {timeAgo(inject.sent_at, now)}
                         </p>
@@ -475,7 +501,17 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
 
   // ===== Desktop / tablet (newsroom feed) =====
   return (
-    <div className="flex min-h-screen flex-col bg-background lg:h-screen">
+    <div className="theme-blue flex min-h-screen flex-col bg-background text-foreground lg:h-screen">
+      {incoming && (
+        <button type="button" key={incoming.id} onClick={() => { select(incoming.id); setIncoming(null); if (isMobile) setMobileScreen("inject"); }}
+          className="incoming-alert fixed left-1/2 top-4 z-[60] w-[min(92vw,420px)] -translate-x-1/2 border-2 border-destructive bg-card p-4 text-left shadow-lg">
+          <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-destructive">
+            <span className="h-2 w-2 animate-ping rounded-full bg-destructive" />Incoming
+          </span>
+          <span className="mt-1 block text-[10px] uppercase tracking-wider text-muted-foreground">{formatLabel(incoming)} · {incoming.source}</span>
+          <span className="mt-1 block text-sm font-semibold leading-snug">{firstLine(incoming.content, 90)}</span>
+        </button>
+      )}
       <header className="sticky top-0 z-50 border-b-2 border-defender bg-card">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2">
           <div className="flex items-center gap-3">
@@ -515,7 +551,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
                 const active = inject.id === selectedId;
                 return (
                   <button key={inject.id} type="button" onClick={() => select(inject.id)}
-                    className={`flex w-64 shrink-0 items-center gap-2 border text-left lg:w-full ${active ? "border-defender bg-secondary" : "border-border hover:bg-secondary/60"}`}>
+                    className={`flex w-64 shrink-0 items-center gap-2 border text-left lg:w-full ${arrivedIds.has(inject.id) ? "inject-arrive " : ""}${active ? "border-defender bg-secondary" : "border-border hover:bg-secondary/60"}`}>
                     <span className={`w-[3px] self-stretch ${inject.is_aggressive ? "bg-destructive" : "bg-warning"}`} />
                     <InjectThumb inject={inject} />
                     <span className="min-w-0 flex-1 py-2 pr-2">
