@@ -41,6 +41,7 @@ import { toast } from "sonner";
 import HostedInjectStudio from './HostedInjectStudio';
 import PreparedInjectShelf from './PreparedInjectShelf';
 import ScenarioResearch from './ScenarioResearch';
+import { hostedScenarioRequest } from '@/lib/hostedScenarioRequest';
 import type { PreparedSession } from './HostSessionLibrary';
 import StorylineTimeline from './StorylineTimeline';
 import HostedParticipantDebrief from './HostedParticipantDebrief';
@@ -809,14 +810,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     try {
       const { data: scenarioData, error: scenarioError } = await withTimeout(
         supabase.functions.invoke('generate-redteam-scenario', {
-          body: {
-            brandName: config.brandName,
-            duration: config.duration,
-            researchCompany: !config.simulationCompanyId,
-            scenarioCategory: config.scenarioCategory || "random",
-            ...(config.narrativeSeed ? { userScenario: `Disinformation narrative: ${config.narrativeSeed}` } : {}),
-            ...(config.brandContext ? { brandContext: config.brandContext } : {})
-          }
+          body: hostedScenarioRequest(config)
         }),
         config.simulationCompanyId ? CONSULTANT_GENERATION_TIMEOUT_MS : 60000
       );

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
@@ -85,6 +86,7 @@ export type TeamMode = "solo" | "team-vs-team";
 
 export type ScenarioCategory = 
   | "random"
+  | "custom"
   | "product_safety"
   | "data_breach"
   | "environmental"
@@ -295,6 +297,10 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
   }, [demoMode, access.loading, access.isAdmin, access.lockedBrand]);
 
   const selectSimulationCompany = (id: string) => {
+    if (id === 'custom-company') {
+      setConfig(prev => ({ ...prev, brandName: '', simulationCompanyId: undefined, brandContext: undefined }));
+      return;
+    }
     const company = SIMULATION_COMPANIES.find((c) => c.id === id);
     if (!company) return;
     setConfig((prev) => ({
@@ -496,13 +502,14 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                 {demoMode ? "Demo Company" : "Simulation Target Company"}
               </Label>
               <Select
-                value={config.simulationCompanyId || ""}
+                value={config.simulationCompanyId || (!demoMode ? 'custom-company' : '')}
                 onValueChange={selectSimulationCompany}
               >
                 <SelectTrigger className="border-2 border-border bg-input h-11 text-xs uppercase tracking-wider">
                   <SelectValue placeholder={demoMode ? "Choose a demo company…" : "Select a simulation company…"} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-2 border-border z-50 max-h-72">
+                  {!demoMode && <SelectItem value="custom-company">Custom company / client</SelectItem>}
                   {SIMULATION_COMPANIES.map((company) => (
                     <SelectItem key={company.id} value={company.id} className="cursor-pointer py-2">
                       <span className="flex flex-col items-start gap-0.5">
@@ -577,8 +584,9 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
           {!demoMode && (
           <div className="space-y-2">
 
-            <Label className="text-xs uppercase tracking-wider font-medium">Target Brand / Organisation</Label>
+            <Label htmlFor="target-brand" className="text-xs uppercase tracking-wider font-medium">Target Brand / Organisation</Label>
             <Input
+              id="target-brand"
               value={config.brandName}
               onChange={(e) =>
                 canTypeBrand &&
@@ -757,7 +765,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
           {/* Crisis Category — compact dropdown */}
           {!demoMode && !(config.mode === "consultant" && consultantAction === "join") && (
             <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-wider font-medium">Crisis Category</Label>
+              <Label className="text-xs uppercase tracking-wider font-medium">Narrative Theme</Label>
               <Select
                 value={config.scenarioCategory}
                 onValueChange={(value: ScenarioCategory) => setConfig({ ...config, scenarioCategory: value, narrativeSeed: undefined })}
@@ -766,6 +774,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                   <SelectValue placeholder="Select a crisis category…" />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-2 border-border z-50 max-h-72">
+                  {config.mode === 'consultant' && access.isAdmin && <SelectItem value="custom">Custom Scenario</SelectItem>}
                   {SCENARIO_CATEGORIES.map((cat) => (
                     <SelectItem key={cat.value} value={cat.value} className="cursor-pointer">
                       <span className="flex items-center gap-2">
@@ -776,30 +785,46 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                   ))}
                 </SelectContent>
               </Select>
+              {config.scenarioCategory === 'custom' && (
+                <div className="space-y-2">
+                  <Label htmlFor="custom-scenario">Custom disinformation scenario</Label>
+                  <Textarea id="custom-scenario" value={config.narrativeSeed || ''} maxLength={4800} onChange={e => setConfig({ ...config, narrativeSeed: e.target.value })} placeholder="A forged board memo claims the company is hiding a product recall…" className="min-h-[100px]" />
+                </div>
+              )}
               {DISINFO_NARRATIVES[config.scenarioCategory] && (
                 <div className="space-y-1.5 pt-1">
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                     Pick a disinformation narrative (optional)
                   </p>
-                  {DISINFO_NARRATIVES[config.scenarioCategory]!.map((n) => {
+                  {DISINFO_NARRATIVES[config.scenarioCategory]?.map((n) => {
                     const active = config.narrativeSeed === n;
                     return (
-                      <button
+                      <Button
                         key={n}
-                        type="button"
+                        variant="outline"
                         onClick={() => setConfig({ ...config, narrativeSeed: active ? undefined : n })}
-                        className={`w-full text-left text-xs px-3 py-2 border transition-colors ${
+                        className={`w-full h-auto whitespace-normal justify-start text-left text-xs px-3 py-2 border transition-colors ${
                           active
                             ? "border-destructive bg-destructive/10 text-foreground"
                             : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
                         }`}
                       >
                         {n}
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
               )}
+            </div>
+          )}
+
+          {!demoMode && access.isAdmin && config.mode === 'consultant' && consultantAction === 'host' && !config.simulationCompanyId && (
+            <div className="space-y-2 border-y border-border py-3">
+              <h3 className="text-sm font-semibold">GreyScan &amp; company background check</h3>
+              <p className="text-xs text-muted-foreground">{config.brandName.trim() || 'Named client'} · Public company and board sources · Fictional attack scenario</p>
+              <Button variant="outline" className="w-full h-auto whitespace-normal" onClick={handleStartExercise} disabled={!config.brandName.trim() || (config.scenarioCategory === 'custom' && !config.narrativeSeed?.trim())}>
+                <Target className="mr-2 h-4 w-4 shrink-0" />Scan company &amp; prepare session
+              </Button>
             </div>
           )}
 
@@ -809,7 +834,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
             disabled={
               config.mode === "consultant" && consultantAction === "join"
                 ? false
-                : !config.brandName.trim()
+                : !config.brandName.trim() || (config.scenarioCategory === 'custom' && !config.narrativeSeed?.trim())
             }
             className="w-full h-12 text-base uppercase tracking-widest font-bold bg-destructive hover:bg-destructive/90 text-destructive-foreground"
           >
