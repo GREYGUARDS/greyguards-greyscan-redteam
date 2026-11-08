@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { scanCompany, researchPrompt, supportedBoard, type CompanyResearch } from "../_shared/company-research.ts";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
@@ -37,10 +39,11 @@ function getClientIp(req: Request): string {
 // Input validation schema
 const ScenarioInputSchema = z.object({
   brandName: z.string().min(1).max(100),
-  duration: z.number().min(1).max(60),
+  duration: z.number().min(1).max(180),
   userScenario: z.string().max(5000).optional(),
   scenarioCategory: z.string().max(50).optional(),
   brandContext: z.string().max(12000).optional(),
+  researchCompany: z.boolean().default(false),
 });
 
 // Brand-specific scenario categories for more variety
@@ -160,6 +163,10 @@ serve(async (req) => {
     );
   }
 
+  const caller = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '');
+  const { data: auth, error: authError } = await caller.auth.getUser(authHeader.slice(7));
+  if (authError || !auth.user) return new Response(JSON.stringify({ error: 'Sign in to prepare a scenario.' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  let research: CompanyResearch | undefined;
   // Rate limiting check
   const clientIp = getClientIp(req);
   const rateLimit = checkRateLimit(clientIp);
@@ -192,14 +199,16 @@ serve(async (req) => {
       );
     }
     
-    const { brandName, duration, userScenario, scenarioCategory, brandContext } = parseResult.data;
+    const { brandName, duration, userScenario, scenarioCategory, brandContext, researchCompany } = parseResult.data;
     
+    if (researchCompany) research = await scanCompany(brandName, authHeader);
+    const attachResearch = (scenario: any) => ({ ...scenario, ...(research ? { research, boardContext: supportedBoard(scenario.boardContext, research.sources), researchBasis: Array.isArray(scenario.researchBasis) ? scenario.researchBasis.slice(0, 3) : [], basedOnTruth: false, truthElement: undefined } : {}) });
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       console.error("LOVABLE_API_KEY is not configured");
       const fallback = generateFallbackScenario(brandName);
       return new Response(
-        JSON.stringify({ error: "Service configuration error", ...fallback }),
+        JSON.stringify(attachResearch({ error: "Service configuration error", ...fallback })),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -212,7 +221,7 @@ serve(async (req) => {
       selectedCategory = SCENARIO_CATEGORIES[Math.floor(Math.random() * SCENARIO_CATEGORIES.length)];
     }
 
-    const canonBlock = brandContext
+    const canonBlock = research ? `\n${researchPrompt(research)}\n` : brandContext
       ? `\n\nCANON BRIEFING — you MUST build the scenario inside these facts. Use the named (fictional) executives verbatim rather than "[REDACTED]" placeholders, and reference the listed trade publications and prior incidents where useful. Do not contradict the briefing.\n${brandContext}\n`
       : "";
 
@@ -264,7 +273,7 @@ Return a JSON object with these exact fields:
       console.error("AI gateway error:", { errorId, status: response.status, timestamp: new Date().toISOString() });
       const fallback = generateFallbackScenario(brandName, selectedCategory.type);
       return new Response(
-        JSON.stringify({ error: "Service temporarily unavailable", errorId, ...fallback }),
+        JSON.stringify(attachResearch({ error: "Service temporarily unavailable", errorId, ...fallback })),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -294,7 +303,7 @@ Return a JSON object with these exact fields:
     }
     const scenario = parsed;
 
-    return new Response(JSON.stringify(scenario), {
+    return new Response(JSON.stringify(attachResearch(scenario)), {
       headers: { 
         ...corsHeaders, 
         "Content-Type": "application/json",
@@ -306,7 +315,7 @@ Return a JSON object with these exact fields:
     console.error("Error generating scenario:", { errorId, error: error instanceof Error ? error.message : "Unknown", timestamp: new Date().toISOString() });
     const fallback = generateFallbackScenario("Brand");
     return new Response(
-      JSON.stringify({ error: "An error occurred", errorId, ...fallback }),
+      JSON.stringify({ error: "An error occurred", errorId, ...fallback, ...(research ? { research, boardContext: [], researchBasis: [], basedOnTruth: false } : {}) }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
