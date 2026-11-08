@@ -1,5 +1,5 @@
 import { test, expect } from 'bun:test';
-import { supportedBoard, researchPrompt } from '../supabase/functions/_shared/company-research';
+import { supportedBoard } from '../supabase/functions/_shared/company-research';
 
 const sources = [{ id: 'S1', title: 'Company leadership', url: 'https://company.example/board', text: 'Jane Example serves as Chief Executive. Alex Sample serves as Chair.', source: 'company' }];
 test('real board identities require matching source evidence for name and role', () => {

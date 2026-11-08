@@ -19,13 +19,17 @@ export async function scanCompany(brand: string, authorization: string): Promise
         if (name === 'fetch-wikipedia' && item.pageid && sources.filter(s => s.source === name).length < 2) {
           const wiki = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&format=json&pageids=${Number(item.pageid)}`, { signal: AbortSignal.timeout(5000) }).then(r => r.json()).catch(() => null);
           const extract = wiki?.query?.pages?.[item.pageid]?.extract;
-          if (extract) text = String(extract).slice(0, 8000);
+          if (extract) {
+            const full = String(extract);
+            const leadership = Array.from(full.matchAll(/.{0,180}(?:chief executive|chairman|chairwoman|chairperson|board of directors|chief financial).{0,220}/gi)).slice(0, 10).map(match => match[0]).join('\n');
+            text = `${full.slice(0, 4200)}\nLeadership excerpts:\n${leadership}`.slice(0, 8000);
+          }
         }
         sources.push({ id: '', title: String(item.title ?? item.text ?? 'Social mention').slice(0, 250), url, text: text.replace(/<[^>]*>/g, ' '), source: name, publishedAt: item.publishedAt ?? item.published_at });
       }
     } catch { unavailableSources.push(name); }
   }));
-  const unique = sources.filter((s, i, all) => all.findIndex(other => other.url === s.url) === i).slice(0, 24).map((s, i) => ({ ...s, id: `S${i + 1}` }));
+  const unique = sources.filter((s, i, all) => all.findIndex(other => other.url === s.url) === i).sort((a, b) => Number(b.source === 'fetch-wikipedia') - Number(a.source === 'fetch-wikipedia')).slice(0, 24).map((s, i) => ({ ...s, id: `S${i + 1}` }));
   return { scannedAt: new Date().toISOString(), sources: unique, unavailableSources, status: unique.length ? unavailableSources.length ? 'limited' : 'available' : 'unavailable' };
 }
 export function researchPrompt(research: CompanyResearch) {
