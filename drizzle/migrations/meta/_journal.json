@@ -78,6 +78,13 @@
       "when": 1794143764750,
       "tag": "0010_hosted_photo_injects",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794145551761,
+      "tag": "0011_client_board_image_consent",
+      "breakpoints": true
     }
   ]
 }

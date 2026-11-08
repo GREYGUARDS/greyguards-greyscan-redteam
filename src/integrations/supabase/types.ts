@@ -205,6 +205,7 @@ export type Database = {
           storage_path: string | null
           subject: string
           user_id: string
+          uses_real_board_members: boolean
         }
         Insert: {
           access_paused?: boolean
@@ -220,6 +221,7 @@ export type Database = {
           storage_path?: string | null
           subject: string
           user_id: string
+          uses_real_board_members?: boolean
         }
         Update: {
           access_paused?: boolean
@@ -235,6 +237,7 @@ export type Database = {
           storage_path?: string | null
           subject?: string
           user_id?: string
+          uses_real_board_members?: boolean
         }
         Relationships: [
           {
@@ -320,6 +323,8 @@ export type Database = {
       exercise_sessions: {
         Row: {
           blue_team_score: Json | null
+          board_approval_recorded_at: string | null
+          board_approval_recorded_by: string | null
           brand_name: string
           completed_at: string | null
           created_at: string
@@ -332,6 +337,7 @@ export type Database = {
           pre_brief: string | null
           preparation_config: Json
           preparation_notes: string
+          real_board_members_approved: boolean
           red_team_score: Json | null
           scenario_narrative: string | null
           scenario_title: string | null
@@ -343,6 +349,8 @@ export type Database = {
         }
         Insert: {
           blue_team_score?: Json | null
+          board_approval_recorded_at?: string | null
+          board_approval_recorded_by?: string | null
           brand_name: string
           completed_at?: string | null
           created_at?: string
@@ -355,6 +363,7 @@ export type Database = {
           pre_brief?: string | null
           preparation_config?: Json
           preparation_notes?: string
+          real_board_members_approved?: boolean
           red_team_score?: Json | null
           scenario_narrative?: string | null
           scenario_title?: string | null
@@ -366,6 +375,8 @@ export type Database = {
         }
         Update: {
           blue_team_score?: Json | null
+          board_approval_recorded_at?: string | null
+          board_approval_recorded_by?: string | null
           brand_name?: string
           completed_at?: string | null
           created_at?: string
@@ -378,6 +389,7 @@ export type Database = {
           pre_brief?: string | null
           preparation_config?: Json
           preparation_notes?: string
+          real_board_members_approved?: boolean
           red_team_score?: Json | null
           scenario_narrative?: string | null
           scenario_title?: string | null
