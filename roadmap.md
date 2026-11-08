@@ -1,6 +1,7 @@
 # Current work
 
-- [ ] Link hosted participants' debriefs to saved decision paths, sent injects and team-specific actions with grounded disinformation playbook guidance; verify end to end
+- [x] Link hosted participants' debriefs and host After-Action to durable decision paths, sent injects and team-specific actions with DISARM-informed training analogues and DMMI countermeasures; tests and desktop/mobile fixture interactions passed
+- [ ] Verify a live participant's completed-session debrief end to end — requesting account has no hosted team membership; existing client sessions were not modified for testing
 
 - [x] AI Studio photos: host-only streaming generator, private storage, direct inject attachments, thumbnails and participant display
 - [x] Verify photo generation and attachment end to end: live photo generated, saved, attached, previewed and sent; nonparticipant reads denied; portrait/board subjects use fictional stand-ins
