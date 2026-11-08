@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Photo generation streams through a host-authorised endpoint and persists completed images in private session-scoped storage; only host-reviewed durable photo references attach to unsent injects, with fictional labels and sent-only participant reads.
+
 - Real-company Red Team generation scans a bounded set of GreyScan source feeds server-side, retains citation snapshots, and validates board names and roles against exact excerpts; fictional attack claims remain separate from sourced background and saved sessions retain the research.
 
 - Host preparation reuses durable exercise sessions in a non-joinable preparing state; completed host-reviewed media is saved as unsent injects and fired through an admin-and-owner-checked RPC so preparation never starts response timers.
