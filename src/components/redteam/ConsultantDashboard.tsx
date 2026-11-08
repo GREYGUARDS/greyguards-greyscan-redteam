@@ -526,14 +526,14 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
   const populateInjects = async () => {
     if (!sessionId || !previewInjects.length) return;
     const { data: existing } = await supabase.from('exercise_injects').select('content,source').eq('session_id', sessionId);
-    const newInjects = previewInjects.filter(i => !existing?.some(e => e.content === i.content.replaceAll('[BRAND]', config.brandName) && e.source === i.source));
+    const newInjects = previewInjects.filter(i => !existing?.some(e => e.content === i.content.split('[BRAND]').join(config.brandName) && e.source === i.source));
     if (!newInjects.length) { toast.info('These injects are already prepared.'); return; }
-    const { error } = await supabase.from('exercise_injects').insert(newInjects.map(i => ({ session_id: sessionId, created_by: 'consultant', inject_type: i.type, content: i.content.replaceAll('[BRAND]', config.brandName), source: i.source, reach: i.reach, sentiment: i.sentiment, timestamp_offset: i.timestamp, is_sent: false })));
+    const { error } = await supabase.from('exercise_injects').insert(newInjects.map(i => ({ session_id: sessionId, created_by: 'consultant', inject_type: i.type, content: i.content.split('[BRAND]').join(config.brandName), source: i.source, reach: i.reach, sentiment: i.sentiment, timestamp_offset: i.timestamp, is_sent: false })));
     if (error) toast.error('Injects could not be prepared.'); else { setShelfRefresh(v => v + 1); toast.success(`${newInjects.length} injects ready.`); }
   };
   const saveCustomInject = async () => {
     if (!sessionId || !customInject.content.trim()) return;
-    const { error } = await supabase.from('exercise_injects').insert({ session_id: sessionId, created_by: 'consultant', inject_type: customInject.type, content: customInject.content.replaceAll('[BRAND]', config.brandName), source: `${customInject.source} · ${customInject.channel}`, reach: customInject.reach, sentiment: customInject.sentiment, narrative_category: customInject.category, timestamp_offset: 0, is_sent: false });
+    const { error } = await supabase.from('exercise_injects').insert({ session_id: sessionId, created_by: 'consultant', inject_type: customInject.type, content: customInject.content.split('[BRAND]').join(config.brandName), source: `${customInject.source} · ${customInject.channel}`, reach: customInject.reach, sentiment: customInject.sentiment, narrative_category: customInject.category, timestamp_offset: 0, is_sent: false });
     if (error) toast.error('Inject could not be saved.'); else { setShelfRefresh(v => v + 1); setCustomInject(i => ({ ...i, content: '' })); toast.success('Custom inject ready.'); }
   };
   // Start exercise
