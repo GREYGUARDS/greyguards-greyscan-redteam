@@ -803,6 +803,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
   // Generate scenario and injects for preview
   const handleGenerateScenario = async () => {
     setIsGeneratingScenario(true);
+    let generated: Scenario | null = null;
     try {
       const { data: scenarioData, error: scenarioError } = await withTimeout(
         supabase.functions.invoke('generate-redteam-scenario', {
@@ -826,6 +827,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
         refCode: generateRefCode()
       };
 
+      generated = generatedScenario;
       setScenario(generatedScenario);
       onScenarioGenerated?.(generatedScenario);
       const { data: injectsData, error: injectsError } = await withTimeout(
@@ -859,7 +861,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
         severity: "severe",
         spreadPattern: "coordinated"
       };
-      if (!scenario) { setScenario(fallbackScenario); onScenarioGenerated?.(fallbackScenario); }
+      if (!generated && !scenario) { setScenario(fallbackScenario); onScenarioGenerated?.(fallbackScenario); }
+      if (generated) toast.info('The researched scenario is ready; inject generation is unavailable. Prepare custom injects or retry.');
     } finally {
       setIsGeneratingScenario(false);
     }
