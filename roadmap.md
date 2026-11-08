@@ -1,5 +1,7 @@
 # Current work
 
+- [x] Make the board-video watermark a restrained readable corner label, visible throughout rather than a full-width banner; permanent rendering checked on a sample clip with a locally supplied processor asset (hosted asset delivery still unverified)
+
 - [ ] Add approved board synthetic-video option, separate synthetic-speech consent, burned-in disclosure and explicit host review; verify publication safeguards
 
 - [x] Add host-only session approval tick box and opt-in real-board photo mode; live approval save/readback and withdrawal blocking verified, neutral prompt tests passed; no paid likeness image generated during verification
