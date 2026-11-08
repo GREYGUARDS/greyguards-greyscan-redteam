@@ -20,6 +20,7 @@ import {
 import { ExerciseConfig, Scenario } from "@/pages/RedTeam";
 import { supabase } from "@/integrations/supabase/client";
 import { getDemoScenario } from "@/lib/simulationCompanies";
+import ScenarioResearch from "./ScenarioResearch";
 import { toast } from "sonner";
 
 // Countdown component that actually counts down
@@ -104,6 +105,7 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
           body: {
             brandName: config.brandName,
             duration: config.duration,
+            researchCompany: !config.simulationCompanyId,
             ...(config.brandContext ? { brandContext: config.brandContext } : {}),
             ...(baseScenario?.trim()
               ? { userScenario: baseScenario.trim() }
@@ -113,7 +115,7 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
             scenarioCategory: config.scenarioCategory || "random"
           }
         }),
-        SCENARIO_GENERATION_TIMEOUT_MS
+        config.simulationCompanyId ? SCENARIO_GENERATION_TIMEOUT_MS : 60000
       );
 
       if (error) throw error;
@@ -124,6 +126,9 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
 
       const scenario: Scenario = {
         id: crypto.randomUUID(),
+        research: payload.research,
+        researchBasis: payload.researchBasis,
+        boardContext: payload.boardContext,
         title: payload.title,
         narrative: payload.narrative,
         basedOnTruth: payload.basedOnTruth,
@@ -422,7 +427,7 @@ The AI will enhance your scenario with realistic details and create dynamic inje
         <div className="text-center">
           <Loader2 className="h-16 w-16 mx-auto mb-6 animate-spin text-primary" />
           <h2 className="text-2xl font-bold uppercase tracking-wider mb-2">Generating Scenario</h2>
-          <p className="text-muted-foreground">Creating a realistic crisis scenario for {config.brandName}...</p>
+          <p className="text-muted-foreground">{config.simulationCompanyId ? 'Creating a fictional exercise' : 'GreyScan is checking company coverage and leadership background'} for {config.brandName}…</p>
         </div>
       </div>
     );
@@ -459,7 +464,7 @@ The AI will enhance your scenario with realistic details and create dynamic inje
               Disinformation Exercise
             </p>
             <p className="text-sm text-foreground">
-              This story is a deliberate, fabricated disinformation campaign against a fictional company.
+              This story is a deliberate, fabricated disinformation campaign against {config.simulationCompanyId ? 'a fictional company' : config.brandName}.
               Your job is to respond to false claims — not a genuine wrongdoing.
             </p>
           </div>
@@ -516,6 +521,7 @@ The AI will enhance your scenario with realistic details and create dynamic inje
             </CardContent>
           </Card>
 
+          <ScenarioResearch scenario={previewScenario} />
           <Card className="border-4 border-border bg-card">
             <CardContent className="p-6 text-center">
               <Shield className="h-12 w-12 mx-auto mb-4 text-primary" />

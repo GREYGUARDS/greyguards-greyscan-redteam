@@ -181,6 +181,9 @@ export interface Scenario {
   implicatedParties: string[];
   severity: "moderate" | "severe" | "critical";
   spreadPattern: "viral" | "coordinated" | "organic";
+  research?: { scannedAt: string; status: 'available' | 'limited' | 'unavailable'; unavailableSources: string[]; sources: Array<{ id: string; title: string; url: string; text: string; source: string; publishedAt?: string }> };
+  researchBasis?: string[];
+  boardContext?: Array<{ name: string; role: string; sourceId: string; evidence: string }>;
   injects?: Inject[]; // Pre-generated injects for preview
 }
 
