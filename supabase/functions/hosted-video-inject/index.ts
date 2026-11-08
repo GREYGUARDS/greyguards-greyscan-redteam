@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { z } from 'npm:zod@3';
-import { canHostVideo, canPublishVideo, VIDEO_DURATION_SECONDS, VIDEO_CREATE_LIMIT } from '../_shared/hosted-inject-rules.ts';
+import { canHostVideo, canPublishVideo, canSavePreparedVideo, VIDEO_DURATION_SECONDS, VIDEO_CREATE_LIMIT } from '../_shared/hosted-inject-rules.ts';
 
 const baseURL = 'https://ai.gateway.lovable.dev/v1';
 const bucket = 'exercise-videos';
@@ -10,7 +10,7 @@ const schema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('status'), sessionId: z.string().uuid(), jobId: z.string().uuid() }),
   z.object({ action: z.literal('latest'), sessionId: z.string().uuid() }),
   z.object({ action: z.literal('resume'), sessionId: z.string().uuid() }),
-  z.object({ action: z.literal('send'), sessionId: z.string().uuid(), jobId: z.string().uuid(), redRequestId: z.string().uuid().optional(), reach: z.number().int().min(0).max(100000000).default(50000), overlay: z.object({ platform: z.enum(['tiktok', 'instagram', 'youtube', 'x', 'facebook', 'news']), handle: z.string().max(60).default(''), caption: z.string().max(200).default(''), likes: z.string().max(12).default(''), comments: z.string().max(12).default(''), shares: z.string().max(12).default(''), views: z.string().max(12).default(''), channel: z.string().max(40).default(''), headline: z.string().max(120).default(''), ticker: z.string().max(300).default('') }).strict().optional() }),
+  z.object({ action: z.literal('send'), sessionId: z.string().uuid(), jobId: z.string().uuid(), prepare: z.boolean().default(false), redRequestId: z.string().uuid().optional(), reach: z.number().int().min(0).max(100000000).default(50000), overlay: z.object({ platform: z.enum(['tiktok', 'instagram', 'youtube', 'x', 'facebook', 'news']), handle: z.string().max(60).default(''), caption: z.string().max(200).default(''), likes: z.string().max(12).default(''), comments: z.string().max(12).default(''), shares: z.string().max(12).default(''), views: z.string().max(12).default(''), channel: z.string().max(40).default(''), headline: z.string().max(120).default(''), ticker: z.string().max(300).default('') }).strict().optional() }),
 ]);
 const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 class RequestError extends Error {
@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
       return reply({ job: data ? await present(data) : null });
     }
     if (input.action === 'create') {
-      if (!['waiting', 'active'].includes(session.status)) return reply({ error: 'This session has ended.' }, 409);
+      if (!['preparing', 'waiting', 'paused', 'active'].includes(session.status)) return reply({ error: 'This session has ended.' }, 409);
       const { data: paused } = await service.from('exercise_video_jobs').select('error_message').eq('access_paused', true).limit(1).maybeSingle();
       if (paused) return reply({ error: paused.error_message ?? 'Video generation is paused. Restore access, then explicitly resume.', accessPaused: true }, 403);
       const since = new Date(Date.now() - 3600000).toISOString();
@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
     if (jobError) throw jobError;
     if (!job) return reply({ error: 'Video not found in this session.' }, 404);
     if (input.action === 'send') {
-      if (!canPublishVideo(job.status, job.storage_path, session.status)) return reply({ error: 'Start the exercise and wait for the clip to finish before sending.' }, 409);
+      if (!(input.prepare ? canSavePreparedVideo(job.status, job.storage_path, session.status) : canPublishVideo(job.status, job.storage_path, session.status))) return reply({ error: 'Start the exercise and wait for the clip to finish before sending.' }, 409);
       // Deterministic inject ID makes repeated Send requests idempotent.
       const red = input.redRequestId ? (await service.from('red_visual_requests').select('*').eq('id', input.redRequestId).eq('session_id', session.id).maybeSingle()).data : null;
       if (input.redRequestId && (!red || red.status === 'ready' || red.status === 'rejected')) return reply({ error: 'That Red request is no longer open.' }, 409);
@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
         await service.from('red_visual_requests').update({ status: 'ready', inject_id: job.id }).eq('id', red.id);
         return reply({ job: await present({ ...job, inject_id: job.id }), injectId: job.id, returnedToRed: true });
       }
-      const { error } = await service.from('exercise_injects').upsert({ id: job.id, session_id: session.id, inject_type: job.video_kind === 'news' ? 'news_article' : 'influencer', content: job.script, source: job.video_kind === 'news' ? 'Fictional news footage · AI-generated exercise' : 'Fictional influencer · AI-generated exercise', reach: input.reach, sentiment: 'hostile', is_aggressive: false, is_sent: true, sent_at: new Date().toISOString(), created_by: 'consultant', timestamp_offset: session.started_at ? Math.max(0, Math.floor((Date.now() - new Date(session.started_at).getTime()) / 1000)) : 0, video_storage_path: job.storage_path, artefact: input.overlay ? { kind: 'video', overlay: input.overlay } : null }, { onConflict: 'id', ignoreDuplicates: true });
+      const { error } = await service.from('exercise_injects').upsert({ id: job.id, session_id: session.id, inject_type: job.video_kind === 'news' ? 'news_article' : 'influencer', content: job.script, source: job.video_kind === 'news' ? 'Fictional news footage · AI-generated exercise' : 'Fictional influencer · AI-generated exercise', reach: input.reach, sentiment: 'hostile', is_aggressive: false, is_sent: !input.prepare, sent_at: input.prepare ? null : new Date().toISOString(), created_by: 'consultant', timestamp_offset: session.started_at ? Math.max(0, Math.floor((Date.now() - new Date(session.started_at).getTime()) / 1000)) : 0, video_storage_path: job.storage_path, artefact: input.overlay ? { kind: 'video', overlay: input.overlay } : null }, { onConflict: 'id', ignoreDuplicates: true });
       if (error) throw error;
       const { error: updateError } = await service.from('exercise_video_jobs').update({ inject_id: job.id }).eq('id', job.id);
       if (updateError) throw updateError;

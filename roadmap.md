@@ -1,5 +1,8 @@
 # Current work
 
+- [ ] Internal host sandpit: save client sessions, prepopulate injects, show ready thumbnails, reopen from session library
+- [ ] Verify preparation, private access, reopening and live delivery
+
 - [x] Rename demo companies: Pharmacore International, TrustInsureUK PLC, PigeeBank!.com (bios, details, logos, X-post images)
 - [x] Red Team demo: 10 minutes only, three pre-written scenarios (one per company, no AI wait)
 - [x] Hosted Red Team: session duration options 1h / 2h / 3h
