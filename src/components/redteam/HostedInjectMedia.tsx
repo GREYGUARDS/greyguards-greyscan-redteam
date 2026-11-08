@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { VideoOverlayLayer, StatsBar, type VideoOverlay, type EngagementStats } from './InjectOverlay';
 import { RefreshCw, MessageCircle, Repeat2, Heart, Globe, Users, Send } from 'lucide-react';
+import HostedPhotoMedia, { asPhoto } from './HostedPhotoMedia';
 
 export interface HostedArtefact {
   kind: 'website' | 'x' | 'whatsapp' | 'telegram' | 'facebook';
@@ -50,8 +51,10 @@ export default function HostedInjectMedia({ storagePath, artefact }: { storagePa
   useEffect(() => { setUrl(null); void load(); }, [load]);
   const raw = artefact && typeof artefact === 'object' && 'kind' in artefact ? artefact as { kind: string; overlay?: VideoOverlay } : null;
   const overlay = raw?.kind === 'video' ? raw.overlay ?? null : null;
-  const visual = raw && raw.kind !== 'video' ? raw as unknown as HostedArtefact : null;
+  const photo = asPhoto(artefact);
+  const visual = raw && raw.kind !== 'video' && !photo ? raw as unknown as HostedArtefact : null;
   return <>
+    {photo && <HostedPhotoMedia photo={photo} />}
     {visual && <HostedArtefactView artefact={visual} />}
     {storagePath && <div className="my-4 space-y-2">
       <p className="text-xs font-medium text-crimson">FICTIONAL EXERCISE · AI-generated footage</p>

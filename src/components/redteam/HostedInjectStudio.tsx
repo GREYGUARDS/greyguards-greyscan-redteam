@@ -14,11 +14,13 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { HostedArtefactView, type HostedArtefact } from './HostedInjectMedia';
 import { toast } from 'sonner';
+import HostedPhotoStudio from './HostedPhotoStudio';
 
 type RedRequest = { id: string; format: string; brief: string; claim: string; reach: number; status: string; phase: string | null };
-type Kind = 'influencer' | 'news' | HostedArtefact['kind'];
+type Kind = 'influencer' | 'news' | 'photo' | HostedArtefact['kind'];
 type Job = { id: string; status: string; progress?: number; error?: string | null; accessPaused?: boolean; videoUrl?: string | null; artefact?: HostedArtefact; sent?: boolean; kind?: Kind };
 const formats: { value: Kind; label: string; icon: typeof Video }[] = [
+  { value: 'photo', label: 'Photo · company, director or board', icon: Video },
   { value: 'influencer', label: 'Influencer video', icon: Video },
   { value: 'news', label: 'News footage', icon: Newspaper },
   { value: 'website', label: 'Website story', icon: Globe },
@@ -206,6 +208,7 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
       {activeRed && <p className="text-[11px] text-muted-foreground">Studio is filled from Red's request. Generate, review, then use "Return to Red".</p>}
     </div>}
     <div className="space-y-2"><Label htmlFor="inject-format">Format</Label><Select value={kind} onValueChange={value => { setKind(value as Kind); setError(null); }} disabled={busy}><SelectTrigger id="inject-format"><SelectValue /></SelectTrigger><SelectContent>{formats.map(format => <SelectItem key={format.value} value={format.value}><span className="flex items-center gap-2"><format.icon className="h-4 w-4" />{format.label}</span></SelectItem>)}</SelectContent></Select></div>
+    {kind === 'photo' ? <HostedPhotoStudio sessionId={sessionId} brand={brand} scenario={scenario} onPrepared={onPrepared} /> : <>
     <div className="space-y-2 border border-border bg-secondary/40 p-3">
       <div className="flex items-center justify-between gap-2"><p className="text-xs text-muted-foreground">{currentBeat ? <>Story is at: <span className="font-semibold text-foreground">{currentBeat.title}</span></> : 'No storyline step yet — suggestions use the scenario.'}</p><Button type="button" size="sm" variant="outline" onClick={suggest} disabled={busy}><Sparkles className="mr-1 h-3 w-3" />Suggest text</Button></div>
       <p className="text-[11px] text-muted-foreground">Instantly fills the {video ? (kind === 'news' ? 'newsreader script, headline and ticker' : 'influencer script and caption') : 'post brief'} for where the story is now. Edit before generating.</p>
@@ -236,5 +239,6 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
       <Button onClick={() => void send()} disabled={!isActive || sending || job.sent} className="w-full"><Send className="mr-2 h-4 w-4" />{job.sent ? 'Inject sent' : sending ? 'Sending…' : activeRed ? 'Return to Red' : 'Send Inject'}</Button>
       {!isActive && !job.sent && <p className="text-xs text-muted-foreground">Start the exercise before sending.</p>}
     </div>}
+    </>}
   </section>;
 }
