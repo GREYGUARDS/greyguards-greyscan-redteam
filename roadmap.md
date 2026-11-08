@@ -1,6 +1,6 @@
 # Current work
 
-- [ ] Real-company scenarios: GreyScan source scan, sourced board background, relevant fictional narratives, saved research, live verification
+- [x] Real-company scenarios: bounded GreyScan source scan, evidence-backed board background, relevant fictional narratives, saved research; live Tesco scan/save/reopen verified (board names are omitted when sources do not support roles)
 
 - [x] Internal host sandpit: save client sessions, prepopulate injects, show ready thumbnails, reopen from session library
 - [x] Verify preparation, private access, reopening and live delivery (real admin save/reopen/send; non-host privacy checked; fresh paid video generation not exercised)
