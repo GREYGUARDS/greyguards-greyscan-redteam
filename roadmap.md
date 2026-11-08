@@ -1,5 +1,7 @@
 # Current work
 
+- [ ] Link hosted participants' debriefs to saved decision paths, sent injects and team-specific actions with grounded disinformation playbook guidance; verify end to end
+
 - [x] AI Studio photos: host-only streaming generator, private storage, direct inject attachments, thumbnails and participant display
 - [x] Verify photo generation and attachment end to end: live photo generated, saved, attached, previewed and sent; nonparticipant reads denied; portrait/board subjects use fictional stand-ins
 
