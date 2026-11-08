@@ -1,5 +1,8 @@
 # Current work
 
+- [ ] AI Studio photos: host-only streaming generator, private storage, direct inject attachments, thumbnails and participant display
+- [ ] Verify photo generation and attachment end to end
+
 - [x] Real-company scenarios: bounded GreyScan source scan, evidence-backed board background, relevant fictional narratives, saved research; live Tesco scan/save/reopen verified (board names are omitted when sources do not support roles)
 
 - [x] Internal host sandpit: save client sessions, prepopulate injects, show ready thumbnails, reopen from session library
