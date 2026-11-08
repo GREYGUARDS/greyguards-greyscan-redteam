@@ -71,6 +71,13 @@
       "when": 1794143104373,
       "tag": "0009_private_host_notes_and_saved_session_join",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794143764750,
+      "tag": "0010_hosted_photo_injects",
+      "breakpoints": true
     }
   ]
 }

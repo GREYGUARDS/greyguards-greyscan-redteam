@@ -190,6 +190,69 @@ export type Database = {
           },
         ]
       }
+      exercise_photo_jobs: {
+        Row: {
+          access_paused: boolean
+          caption: string
+          created_at: string
+          error_message: string | null
+          id: string
+          inject_id: string | null
+          ip_hash: string
+          prompt: string
+          session_id: string
+          status: string
+          storage_path: string | null
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          access_paused?: boolean
+          caption?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          inject_id?: string | null
+          ip_hash: string
+          prompt: string
+          session_id: string
+          status?: string
+          storage_path?: string | null
+          subject: string
+          user_id: string
+        }
+        Update: {
+          access_paused?: boolean
+          caption?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          inject_id?: string | null
+          ip_hash?: string
+          prompt?: string
+          session_id?: string
+          status?: string
+          storage_path?: string | null
+          subject?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_photo_jobs_inject_id_fkey"
+            columns: ["inject_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_injects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_photo_jobs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exercise_responses: {
         Row: {
           created_at: string | null
