@@ -40,6 +40,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import HostedInjectStudio from './HostedInjectStudio';
 import PreparedInjectShelf from './PreparedInjectShelf';
+import ScenarioResearch from './ScenarioResearch';
 import type { PreparedSession } from './HostSessionLibrary';
 import StorylineTimeline from './StorylineTimeline';
 import {
@@ -99,7 +100,7 @@ interface DatabaseSession {
   completed_at: string | null;
 }
 
-const CONSULTANT_GENERATION_TIMEOUT_MS = 10000;
+const CONSULTANT_GENERATION_TIMEOUT_MS = 25000;
 
 const getInjectIcon = (type: string) => {
   switch (type) {
@@ -309,7 +310,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
         const { data: privatePrep } = await supabase.from('host_session_preparations').select('host_notes').eq('session_id', preparedSession.id).maybeSingle();
         setPreparationNotes(privatePrep?.host_notes || '');
         setPreBrief(preparedSession.pre_brief || '');
-        if (preparedSession.scenario_narrative) setScenario({ id: preparedSession.id, title: preparedSession.scenario_title || 'Client exercise', narrative: preparedSession.scenario_narrative, basedOnTruth: false, implicatedParties: [], severity: 'severe', spreadPattern: 'coordinated' });
+        if (preparedSession.scenario_narrative) setScenario({ id: preparedSession.id, title: preparedSession.scenario_title || 'Client exercise', narrative: preparedSession.scenario_narrative, basedOnTruth: false, implicatedParties: [], severity: 'severe', spreadPattern: 'coordinated', ...((preparedSession.preparation_config as unknown as { savedScenario?: Partial<Scenario> })?.savedScenario ?? {}) });
         setIsExerciseActive(['active', 'paused'].includes(preparedSession.status));
         setIsPaused(preparedSession.status !== 'active'); setHasEnded(preparedSession.status === 'completed');
         if (preparedSession.started_at) setTimeRemaining(Math.max(0, config.duration * 60 - Math.floor((Date.now() - new Date(preparedSession.started_at).getTime()) / 1000)));
@@ -351,6 +352,12 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
 
     createSession();
   }, [config.brandName, config.duration, config.teamMode, preparedSession]);
+
+  useEffect(() => {
+    if (!isCreatingSession && sessionId && !preparedSession && !config.simulationCompanyId) void handleGenerateScenario();
+    // Only the first load of a new real-company preparation triggers research.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCreatingSession, sessionId]);
 
   // Subscribe to team connections
   useEffect(() => {
@@ -515,7 +522,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
   const savePreparation = async () => {
     if (!sessionId) return;
     setSavingPreparation(true);
-    const { error } = await supabase.from('exercise_sessions').update({ session_label: sessionLabel.trim() || config.brandName, pre_brief: preBrief, scenario_title: scenario?.title || null, scenario_narrative: scenario?.narrative || null, preparation_config: JSON.parse(JSON.stringify(config)) }).eq('id', sessionId);
+    const { error } = await supabase.from('exercise_sessions').update({ session_label: sessionLabel.trim() || config.brandName, pre_brief: preBrief, scenario_title: scenario?.title || null, scenario_narrative: scenario?.narrative || null, preparation_config: JSON.parse(JSON.stringify({ ...config, savedScenario: scenario })) }).eq('id', sessionId);
     const { error: notesError } = await supabase.from('host_session_preparations').upsert({ session_id: sessionId, host_notes: preparationNotes });
     setSavingPreparation(false);
     if (error || notesError) toast.error('Session could not be saved.'); else toast.success('Preparation saved to your session library.');
@@ -802,12 +809,13 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
           body: {
             brandName: config.brandName,
             duration: config.duration,
+            researchCompany: !config.simulationCompanyId,
             scenarioCategory: config.scenarioCategory || "random",
             ...(config.narrativeSeed ? { userScenario: `Disinformation narrative: ${config.narrativeSeed}` } : {}),
             ...(config.brandContext ? { brandContext: config.brandContext } : {})
           }
         }),
-        CONSULTANT_GENERATION_TIMEOUT_MS
+        config.simulationCompanyId ? CONSULTANT_GENERATION_TIMEOUT_MS : 60000
       );
 
       if (scenarioError) throw scenarioError;
@@ -818,6 +826,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
         refCode: generateRefCode()
       };
 
+      setScenario(generatedScenario);
+      onScenarioGenerated?.(generatedScenario);
       const { data: injectsData, error: injectsError } = await withTimeout(
         supabase.functions.invoke('generate-redteam-injects', {
           body: {
@@ -849,8 +859,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
         severity: "severe",
         spreadPattern: "coordinated"
       };
-      setScenario(fallbackScenario);
-      onScenarioGenerated?.(fallbackScenario);
+      if (!scenario) { setScenario(fallbackScenario); onScenarioGenerated?.(fallbackScenario); }
     } finally {
       setIsGeneratingScenario(false);
     }
@@ -1051,6 +1060,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                         </Card>
                       )}
 
+                      <ScenarioResearch scenario={scenario} />
                       {/* Preview Injects */}
                       {previewInjects.length > 0 && (
                         <div>
@@ -1162,7 +1172,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
           <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="font-display text-3xl">{isSandpit ? 'Session sandpit' : 'Session preparation'}</h1><Badge variant="outline">Internal · {isSandpit ? 'Private draft' : 'Lobby open'}</Badge></div>
           <div className="grid gap-4 md:grid-cols-2"><div className="space-y-2"><Label htmlFor="session-label">Client / session name</Label><Input id="session-label" value={sessionLabel} onChange={e => setSessionLabel(e.target.value)} /></div><div className="space-y-2"><Label htmlFor="preparation-notes">Private host notes</Label><Textarea id="preparation-notes" value={preparationNotes} onChange={e => setPreparationNotes(e.target.value)} /></div></div>
           <div className="grid gap-4 md:grid-cols-2"><div className="space-y-2"><Label htmlFor="scenario-title">Scenario title</Label><Input id="scenario-title" value={scenario?.title || ''} onChange={e => setScenario(previous => ({ id: previous?.id || crypto.randomUUID(), narrative: previous?.narrative || '', basedOnTruth: false, implicatedParties: [], severity: 'severe', spreadPattern: 'coordinated', ...previous, title: e.target.value }))} /></div><div className="space-y-2"><Label htmlFor="scenario-narrative">Disinformation narrative</Label><Textarea id="scenario-narrative" value={scenario?.narrative || ''} onChange={e => setScenario(previous => ({ id: previous?.id || crypto.randomUUID(), title: previous?.title || 'Client exercise', basedOnTruth: false, implicatedParties: [], severity: 'severe', spreadPattern: 'coordinated', ...previous, narrative: e.target.value }))} /></div></div>
-          <div className="flex flex-wrap gap-2"><Button onClick={() => void savePreparation()} disabled={savingPreparation}><Save className="mr-2 h-4 w-4" />Save preparation</Button><Button variant="outline" onClick={() => void populateInjects()} disabled={!previewInjects.length}><Plus className="mr-2 h-4 w-4" />Prepare scenario injects</Button>{isSandpit && <Button variant="outline" onClick={() => void openLobby()} disabled={!scenario?.narrative.trim()}><Users className="mr-2 h-4 w-4" />Open session lobby</Button>}</div>
+          <ScenarioResearch scenario={scenario} />
+          <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => void handleGenerateScenario()} disabled={isGeneratingScenario}><RefreshCw className={`mr-2 h-4 w-4 ${isGeneratingScenario ? 'animate-spin' : ''}`} />{isGeneratingScenario ? 'Scanning & building…' : config.simulationCompanyId ? 'Generate scenario' : 'GreyScan & build scenario'}</Button><Button onClick={() => void savePreparation()} disabled={savingPreparation}><Save className="mr-2 h-4 w-4" />Save preparation</Button><Button variant="outline" onClick={() => void populateInjects()} disabled={!previewInjects.length}><Plus className="mr-2 h-4 w-4" />Prepare scenario injects</Button>{isSandpit && <Button variant="outline" onClick={() => void openLobby()} disabled={!scenario?.narrative.trim()}><Users className="mr-2 h-4 w-4" />Open session lobby</Button>}</div>
         </section>}
         {sessionId && <PreparedInjectShelf sessionId={sessionId} isActive={isExerciseActive && !isPaused} refreshKey={shelfRefresh} onSent={(id, content, type) => setInjectedEvents(prev => [{ id, content, type, time: new Date(), targetTeam: 'both' }, ...prev])} />}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
