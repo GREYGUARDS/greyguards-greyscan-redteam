@@ -226,7 +226,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
   const [isCreatingSession, setIsCreatingSession] = useState(true);
 
   const [sessionLabel, setSessionLabel] = useState(preparedSession?.session_label || config.brandName);
-  const [preparationNotes, setPreparationNotes] = useState(preparedSession?.preparation_notes || '');
+  const [preparationNotes, setPreparationNotes] = useState('');
   const [shelfRefresh, setShelfRefresh] = useState(0);
   const [isSandpit, setIsSandpit] = useState(!preparedSession || preparedSession.status === 'preparing');
   const [savingPreparation, setSavingPreparation] = useState(false);
@@ -306,6 +306,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     const createSession = async () => {
       if (preparedSession) {
         setSessionId(preparedSession.id); setSessionCode(preparedSession.session_code);
+        const { data: privatePrep } = await supabase.from('host_session_preparations').select('host_notes').eq('session_id', preparedSession.id).maybeSingle();
+        setPreparationNotes(privatePrep?.host_notes || '');
         setPreBrief(preparedSession.pre_brief || '');
         if (preparedSession.scenario_narrative) setScenario({ id: preparedSession.id, title: preparedSession.scenario_title || 'Client exercise', narrative: preparedSession.scenario_narrative, basedOnTruth: false, implicatedParties: [], severity: 'severe', spreadPattern: 'coordinated' });
         setIsExerciseActive(['active', 'paused'].includes(preparedSession.status));
@@ -513,9 +515,10 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
   const savePreparation = async () => {
     if (!sessionId) return;
     setSavingPreparation(true);
-    const { error } = await supabase.from('exercise_sessions').update({ session_label: sessionLabel.trim() || config.brandName, preparation_notes: preparationNotes, pre_brief: preBrief, scenario_title: scenario?.title || null, scenario_narrative: scenario?.narrative || null, preparation_config: JSON.parse(JSON.stringify(config)) }).eq('id', sessionId);
+    const { error } = await supabase.from('exercise_sessions').update({ session_label: sessionLabel.trim() || config.brandName, pre_brief: preBrief, scenario_title: scenario?.title || null, scenario_narrative: scenario?.narrative || null, preparation_config: JSON.parse(JSON.stringify(config)) }).eq('id', sessionId);
+    const { error: notesError } = await supabase.from('host_session_preparations').upsert({ session_id: sessionId, host_notes: preparationNotes });
     setSavingPreparation(false);
-    if (error) toast.error('Session could not be saved.'); else toast.success('Preparation saved to your session library.');
+    if (error || notesError) toast.error('Session could not be saved.'); else toast.success('Preparation saved to your session library.');
   };
   const openLobby = async () => {
     if (!sessionId) return;

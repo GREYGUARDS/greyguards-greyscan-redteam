@@ -64,6 +64,13 @@
       "when": 1794142184012,
       "tag": "0008_host_session_sandpit",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794143104373,
+      "tag": "0009_private_host_notes_and_saved_session_join",
+      "breakpoints": true
     }
   ]
 }
