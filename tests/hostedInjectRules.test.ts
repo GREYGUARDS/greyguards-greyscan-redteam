@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { canHostVideo, canPublishVideo, VIDEO_DURATION_SECONDS, VIDEO_CREATE_LIMIT } from '../supabase/functions/_shared/hosted-inject-rules';
+import { canHostVideo, canPublishVideo, canPrepareInject, canSavePreparedVideo, VIDEO_DURATION_SECONDS, VIDEO_CREATE_LIMIT } from '../supabase/functions/_shared/hosted-inject-rules';
 
 describe('hosted video rules', () => {
   test('only the admin who owns the session can generate video', () => {
@@ -16,4 +16,13 @@ describe('hosted video rules', () => {
   });
   test('new clips last eight seconds', () => expect(VIDEO_DURATION_SECONDS).toBe(8));
   test('clip creation is capped at ten per hour', () => expect(VIDEO_CREATE_LIMIT).toBe(10));
+});
+test('prepare client sessions without starting or sending', () => {
+  expect(canPrepareInject('preparing')).toBe(true);
+  expect(canPrepareInject('completed')).toBe(false);
+  expect(canPublishVideo('completed', 'clip.mp4', 'preparing')).toBe(false);
+});
+test('ready shelf requires completed footage', () => {
+  expect(canSavePreparedVideo('completed', 'clip.mp4', 'preparing')).toBe(true);
+  expect(canSavePreparedVideo('queued', null, 'preparing')).toBe(false);
 });
