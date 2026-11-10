@@ -26,7 +26,8 @@ import {
   PenLine
 } from "lucide-react";
 import { ExerciseConfig, Scenario, Inject, ResponseOption, TeamScore, ResponseRecord } from "@/pages/RedTeam";
-import { getSimulationCompany } from "@/lib/simulationCompanies";
+import { getSimulationCompany, getDemoScenario } from "@/lib/simulationCompanies";
+import { getDemoInjects } from "@/lib/demoInjects";
 import { buildInjectTimeline, findBeat, type TimelineBeat } from "@/lib/injectTimeline";
 
 
@@ -183,6 +184,12 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
 
   // Generate pre-defined injects based on scenario
   const generateInjects = useCallback(async () => {
+    // Public demo scenarios run the approved scripted injects — no AI wait.
+    const preset = config.simulationCompanyId ? getDemoScenario(config.simulationCompanyId) : undefined;
+    if (preset && preset.title === scenario.title) {
+      const scripted = getDemoInjects(config.simulationCompanyId);
+      if (scripted?.length) return scripted.filter((i) => i.timestamp <= config.duration * 60 - 15);
+    }
     try {
       const { data, error } = await withTimeout(
         supabase.functions.invoke('generate-redteam-injects', {
