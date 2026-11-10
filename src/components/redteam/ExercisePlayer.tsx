@@ -1063,7 +1063,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
               </CardHeader>
               <CardContent className="p-4">
                 <h3 className="font-bold text-sm uppercase tracking-wider mb-2">{scenario.title}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-4">{scenario.narrative}</p>
+                <p className="text-sm text-muted-foreground line-clamp-6 whitespace-pre-line">{scenario.narrative}</p>
               </CardContent>
             </Card>
 

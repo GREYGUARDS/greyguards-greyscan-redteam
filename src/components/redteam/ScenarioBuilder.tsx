@@ -491,7 +491,7 @@ The AI will enhance your scenario with realistic details and create dynamic inje
               </div>
 
               <div className="p-4 bg-muted border-l-4 border-destructive">
-                <p className="text-foreground leading-relaxed">{previewScenario.narrative}</p>
+                <p className="text-foreground leading-relaxed whitespace-pre-line">{previewScenario.narrative}</p>
               </div>
 
               {previewScenario.basedOnTruth && previewScenario.truthElement && (
