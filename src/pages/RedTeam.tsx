@@ -496,6 +496,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
+          {!demoMode && access.isAdmin && <div className="space-y-2 border-t border-border pt-4"><h3 className="text-sm font-semibold">Test as a participant</h3><p className="text-xs text-muted-foreground">Host in one browser, then open this page in another browser and join with the session code.</p><Button variant="outline" className="w-full" onClick={() => { setConfig(prev => ({ ...prev, mode: 'consultant' })); setConsultantAction('join'); setPhase('team-join'); }}>Join a session as Blue / Red Team</Button></div>}
           {!demoMode && access.isAdmin && <HostSessionLibrary onOpen={session => { setPreparedSession(session); setConfig(sessionConfig(session)); setScenario(null); setPhase('consultant-dashboard'); }} />}
           {/* Simulation target companies — full canon briefings */}
           {canPickCompany && (
