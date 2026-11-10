@@ -205,6 +205,8 @@ export interface Inject {
   consequence?: string;
   /** Platform-accurate mock-up rendered instead of the generic visual */
   visual?: InjectVisualSpec;
+  /** Pre-made demo film with platform graphics */
+  demoVideo?: { url: string; overlay: import("@/components/redteam/InjectOverlay").VideoOverlay };
 }
 
 export interface ResponseOption {

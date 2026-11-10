@@ -4,6 +4,7 @@ import { Inject as InjectTemplate, downloadInjectPNG, hasInjectTemplate } from "
 import type { SimulationCompany, SimulationPerson } from "@/lib/simulationCompanies";
 import "@/components/greyguards-inject.css";
 import PhoneFrame from "./PhoneFrame";
+import { VideoOverlayLayer } from "./InjectOverlay";
 import { getXPostScreenshot } from "@/lib/injectArtefacts";
 
 import { Download } from "lucide-react";
@@ -66,6 +67,22 @@ const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
           : {}),
       }
     : undefined;
+
+  if (inject.demoVideo) {
+    return (
+      <div className="border-2 border-border bg-background">
+        <div className="flex items-center justify-between gap-2 border-b-2 border-border px-3 py-2">
+          <span className="truncate text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Video · circulating · unverified</span>
+          <span className="shrink-0 text-[10px] uppercase tracking-wider text-destructive">Fictional · AI generated</span>
+        </div>
+        <div className="relative mx-auto aspect-[9/16] max-h-[520px] overflow-hidden bg-background">
+          <video src={inject.demoVideo.url} autoPlay muted loop playsInline controls className="h-full w-full object-cover" aria-label="Fictional exercise video" />
+          <VideoOverlayLayer overlay={inject.demoVideo.overlay} />
+        </div>
+        <p className="border-t-2 border-border px-4 py-3 text-sm leading-relaxed">{inject.content}</p>
+      </div>
+    );
+  }
 
   // Preferred path: the scenario generator supplied a platform-accurate mock-up.
   if (inject.visual && hasInjectTemplate(inject.visual.template)) {
