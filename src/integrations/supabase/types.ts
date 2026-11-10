@@ -928,6 +928,7 @@ export type Database = {
       }
       claim_brand_access: { Args: never; Returns: string }
       get_my_locked_brand: { Args: never; Returns: string }
+      host_delete_session: { Args: { _session_id: string }; Returns: undefined }
       host_fire_prepared_inject: {
         Args: { _inject_id: string }
         Returns: undefined
