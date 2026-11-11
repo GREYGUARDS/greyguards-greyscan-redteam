@@ -22,3 +22,4 @@
 - Hosted observers join as team_type "observer" with a partial unique index per session/user; blue/red retain one seat per session/type and the response insert policy keeps observers read-only.
 - Red team adds text-only injects and fires them via the red_fire_inject RPC; visuals go through red_visual_requests and only the host's reviewed "Return to Red" creates the media inject, so Red never triggers paid generation or unreviewed media.
 - Blue vs Red leaderboard scores only fired Red Team injects (Blue earns best response effectiveness, Red the remainder) via one shared scorer so host, Blue and Red always see the same numbers.
+- Clients join only the Blue Team by code (enforced server-side); hosts can lock a finished session, which revokes the code and cuts participant read access via is_session_participant.
