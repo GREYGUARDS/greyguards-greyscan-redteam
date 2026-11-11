@@ -1,6 +1,6 @@
 # Current work
 
-- [ ] Add host direct start for canonical demos and prepared cases, bypassing the sandpit; keep preparation optional.
+- [x] Add host direct start for canonical demos and prepared cases, bypassing the sandpit; seven tests and isolated browser flows passed. Live host verification unavailable: requesting account is not a host admin.
 
 - [x] Fix first-inject Blue alerts and banner centring; live empty-feed first-send check passed on mobile; Observer UI join, two distinct seats, stable rejoin, sent inject readback and response rejection passed; test sessions cleaned up
 
