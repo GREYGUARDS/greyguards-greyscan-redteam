@@ -593,11 +593,26 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     const worked = effectiveness >= 70;
     const partial = effectiveness >= 50 && effectiveness < 70;
 
+    const tag = `#${config.brandName.replace(/\s+/g, '')}`;
+    const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
     const content = worked
-      ? `Credit where it's due — ${config.brandName} came out and said: "${quote}". Some of us pushing this story are now asking for the receipts before we post again. Thread paused. #${config.brandName.replace(/\s+/g, '')}`
+      ? pick([
+          `Update: ${config.brandName} just put out: "${quote}". A few accounts are quietly deleting earlier posts. ${tag}`,
+          `Community note now on the viral thread, quoting ${config.brandName}: "${quote}". Shares dropping fast. ${tag}`,
+          `${config.brandName} statement: "${quote}". Some of us pushing this are now asking for proof before posting again. ${tag}`,
+          `Original poster has locked replies after ${config.brandName} said: "${quote}". Story losing steam. ${tag}`,
+        ])
       : partial
-        ? `So ${config.brandName} says: "${quote}". Notice what they DIDN'T address. Still no answer on the original documents. We'll keep asking. #${config.brandName.replace(/\s+/g, '')}`
-        : `${config.brandName} response: "${quote}". That's it? Screenshotted and going out to every group chat — this is exactly what a cover-up sounds like. #${config.brandName.replace(/\s+/g, '')}`;
+        ? pick([
+            `So ${config.brandName} says: "${quote}". Notice what they DIDN'T address. We'll keep asking. ${tag}`,
+            `"${quote}" — nice words from ${config.brandName}, but still no answer on the original claims. ${tag}`,
+            `${config.brandName} responds: "${quote}". Half an answer. The real question is still out there. ${tag}`,
+          ])
+        : pick([
+            `${config.brandName} response: "${quote}". That's it? Screenshotted and going to every group chat. ${tag}`,
+            `"${quote}" — this is exactly what a cover-up sounds like. ${config.brandName} just made it worse. ${tag}`,
+            `LOL. ${config.brandName} really went with "${quote}". Ratio incoming. ${tag}`,
+          ]);
 
     const consequence = worked
       ? "Your written action landed: hostile amplification slowed and the network is hedging."
