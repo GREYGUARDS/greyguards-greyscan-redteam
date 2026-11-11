@@ -1,5 +1,7 @@
 # Current work
 
+- [ ] Build Host Master Inject Sandbox with demo/saved-session catalogue, filters, participant previews and response matrix; verify desktop/mobile and host access
+
 - [x] Make named-company GreyScan/background research explicit in hosted setup and add Custom Scenario to narrative themes; live Tesco scan returned 24 source links, preserved the custom false claim and saved research/outline; four tests passed
 
 - [x] Make the board-video watermark a restrained readable corner label, visible throughout rather than a full-width banner; permanent rendering checked on a sample clip with a locally supplied processor asset (hosted asset delivery still unverified)

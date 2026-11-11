@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import type { ExerciseConfig } from '@/pages/RedTeam';
 import type { Tables } from '@/integrations/supabase/types';
+import MasterInjectSandbox from './MasterInjectSandbox';
 
 export type PreparedSession = Tables<'exercise_sessions'>;
 export function sessionConfig(session: PreparedSession): ExerciseConfig {
@@ -41,6 +42,7 @@ export default function HostSessionLibrary({ onOpen }: { onOpen: (session: Prepa
   useEffect(() => { void load(); }, []);
   const filtered = sessions.filter(s => `${s.brand_name} ${s.session_label ?? ''} ${s.scenario_title ?? ''}`.toLowerCase().includes(search.toLowerCase()));
   return <section className="space-y-3 border-t border-border pt-4">
+    <MasterInjectSandbox />
     <div className="flex items-center justify-between gap-2"><h3 className="flex items-center gap-2 text-sm font-semibold"><FolderOpen className="h-4 w-4" />Prepared sessions</h3><Button variant="ghost" size="icon" aria-label="Refresh saved sessions" onClick={() => void load()} disabled={busy}><RefreshCw className={`h-4 w-4 ${busy ? 'animate-spin' : ''}`} /></Button></div>
     <p className="flex items-center gap-1 text-xs text-muted-foreground"><Lock className="h-3 w-3" />Private host library</p>
     <Input aria-label="Search saved sessions" placeholder="Search client or session…" value={search} onChange={e => setSearch(e.target.value)} />
