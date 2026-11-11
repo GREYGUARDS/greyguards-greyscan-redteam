@@ -940,6 +940,7 @@ export type Database = {
         Args: { _inject_id: string }
         Returns: undefined
       }
+      host_lock_session: { Args: { _session_id: string }; Returns: undefined }
       is_admin: { Args: { _uid: string }; Returns: boolean }
       is_red_member: {
         Args: { _session_id: string; _user_id: string }

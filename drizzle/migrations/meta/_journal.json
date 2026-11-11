@@ -120,6 +120,13 @@
       "when": 1794424709131,
       "tag": "0016_find_recent_signup",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794424884995,
+      "tag": "0017_participant_blue_only_and_session_lock",
+      "breakpoints": true
     }
   ]
 }

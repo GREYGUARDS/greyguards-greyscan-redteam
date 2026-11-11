@@ -676,6 +676,16 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     }
   };
 
+  const [isLocked, setIsLocked] = useState(false);
+  const handleLockSession = async () => {
+    if (!sessionId) return;
+    if (!window.confirm('Lock this session? The code stops working and participants lose access to everything, including the debrief. This cannot be undone.')) return;
+    const { error } = await supabase.rpc('host_lock_session', { _session_id: sessionId });
+    if (error) { toast.error("Couldn't lock the session"); return; }
+    setIsLocked(true); setHasEnded(true); setIsExerciseActive(false);
+    toast.success('Session locked — participant access closed');
+  };
+
   // Send inject to database
   const sendInjectToDatabase = async (inject: {
     type: string;
@@ -1235,6 +1245,10 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+                    <p className="text-xs text-muted-foreground">{isLocked ? 'Locked: the code no longer works and participants have been removed.' : 'Participants can still see their debrief with the code. Lock to close access.'}</p>
+                    <Button size="sm" variant={isLocked ? 'outline' : 'destructive'} disabled={isLocked} onClick={() => void handleLockSession()}>{isLocked ? 'Session locked' : 'Lock session'}</Button>
+                  </div>
                   {sessionId && <HostedParticipantDebrief sessionId={sessionId} />}
                   <p className="text-[10px] text-muted-foreground border-t border-border pt-2">
                     {injectedEvents.length} injects sent · {storylinePack ? `${new Set(decisionLog.map(d => d.beatId)).size}/${storylinePack.beats.length} beats with a recorded decision` : "no storyline pack"}

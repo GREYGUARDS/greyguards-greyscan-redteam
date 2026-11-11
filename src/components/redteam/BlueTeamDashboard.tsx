@@ -173,6 +173,18 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
     };
   }, [sessionId, session.status]);
 
+  // Locked sessions become unreadable to participants; poll so devices close access promptly.
+  const [locked, setLocked] = useState(false);
+  useEffect(() => {
+    const check = async () => {
+      const { data, error } = await supabase.from('exercise_sessions').select('status').eq('id', sessionId).maybeSingle();
+      if (!error && (!data || data.status === 'locked')) { setLocked(true); setInjects([]); }
+    };
+    void check();
+    const t = setInterval(check, 8000);
+    return () => clearInterval(t);
+  }, [sessionId]);
+
   // Timer effect
   useEffect(() => {
     if (isPaused || timeRemaining <= 0 || session.status !== "active") return;
@@ -420,6 +432,10 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
       {soundEnabled ? <Volume2 className="h-4 w-4 text-muted-foreground" /> : <VolumeX className="h-4 w-4 text-muted-foreground" />}
     </Button>
   );
+
+  if (locked || session.status === 'locked') {
+    return <div className="flex min-h-[100dvh] items-center justify-center bg-background p-6 text-center text-foreground"><div className="max-w-sm space-y-3"><h1 className="text-xl font-semibold uppercase tracking-wider">Exercise locked</h1><p className="text-sm text-muted-foreground">Your facilitator has closed this session. The code no longer works and the exercise content is no longer available.</p><Button onClick={onLeave}>Leave</Button></div></div>;
+  }
 
   if (session.status === 'completed') {
     return <HostedParticipantDebrief sessionId={sessionId} teamId={teamId} onBack={onLeave} />;
