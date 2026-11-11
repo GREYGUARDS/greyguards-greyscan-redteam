@@ -3,7 +3,6 @@ import { Inject } from "@/pages/RedTeam";
 import { Inject as InjectTemplate, downloadInjectPNG, hasInjectTemplate } from "@/components/GreyguardsInject";
 import type { SimulationCompany, SimulationPerson } from "@/lib/simulationCompanies";
 import "@/components/greyguards-inject.css";
-import PhoneFrame from "./PhoneFrame";
 import { VideoOverlayLayer } from "./InjectOverlay";
 import { getXPostScreenshot } from "@/lib/injectArtefacts";
 
@@ -131,19 +130,7 @@ const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
             {compact(reach)} impressions
           </span>
         </div>
-        {inject.isAggressive ? (
-          <PhoneFrame
-            alert={{
-              app: "X",
-              title: inject.source,
-              body: inject.content,
-            }}
-          >
-            {shot}
-          </PhoneFrame>
-        ) : (
-          shot
-        )}
+        {shot}
         <p className="border-t-2 border-border px-4 py-3 text-sm leading-relaxed">{inject.content}</p>
       </div>
     );

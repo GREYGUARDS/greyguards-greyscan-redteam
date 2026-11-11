@@ -1053,7 +1053,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       <main className="pt-28 pb-8 container mx-auto px-4 min-h-screen">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Scenario & Event Log */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="order-2 lg:order-1 lg:col-span-1 space-y-6">
             <Card className="border-4 border-border bg-card">
               <CardHeader className="border-b-4 border-border py-3">
                 <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wider">
@@ -1108,7 +1108,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
           </div>
 
           {/* Center Column - Active Inject */}
-          <div className="lg:col-span-2">
+          <div className="order-1 lg:order-2 lg:col-span-2">
             {activeInject ? (
               <Card className={`border-4 ${activeInject.isAggressive ? 'border-destructive glow-danger' : 'border-warning'} bg-card animate-scale-in`}>
                 <CardHeader className={`border-b-4 ${activeInject.isAggressive ? 'border-destructive bg-destructive/10' : 'border-warning bg-warning/10'}`}>
@@ -1140,8 +1140,8 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="p-6">
-                  <div className="mb-6">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="mb-5">
                     {lastFeedback && (
                       <div className={`mb-4 border-2 p-3 ${
                         lastFeedback.effectiveness >= 70 ? 'border-success bg-success/5' :
@@ -1199,37 +1199,29 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                     </div>
                   </div>
 
-                  <div className="border-t-4 border-border pt-6">
-                    <h4 className="text-sm uppercase tracking-wider font-bold mb-4 flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-primary" />
-                      Choose Your Response
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {activeInject.responseOptions?.map((option) => (
+                  <div className="border-t border-border pt-5">
+                    <div className="mb-4 flex items-end justify-between gap-3">
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-[0.25em] text-primary">Your move</span>
+                        <h4 className="text-base font-semibold">How do you respond?</h4>
+                      </div>
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Tap one</span>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {activeInject.responseOptions?.map((option, idx) => (
                         <button
                           key={option.id}
                           onClick={() => handleResponse(option)}
-                          className={`p-4 border-2 text-left transition-all hover:scale-[1.02] ${
-                            option.effectiveness >= 80 ? 'border-success hover:bg-success/10' :
-                            option.effectiveness >= 60 ? 'border-warning hover:bg-warning/10' :
-                            'border-destructive hover:bg-destructive/10'
-                          }`}
+                          className="group flex w-full items-start gap-3 border border-border bg-background/40 p-3 text-left transition-colors hover:border-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.99]"
                         >
-                          <div className="flex items-center gap-2 mb-2">
-                            {option.type === "greyguards_service" && <Shield className="h-4 w-4 text-primary" />}
-                            <span className="font-bold uppercase tracking-wider text-sm">{option.label}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mb-3">{option.description}</p>
-                          <div className="flex items-center justify-between text-xs">
-                            <Badge variant="outline" className={`${
-                              option.riskLevel === "low" ? "border-success text-success" :
-                              option.riskLevel === "medium" ? "border-warning text-warning" :
-                              "border-destructive text-destructive"
-                            }`}>
-                              {option.riskLevel} risk
-                            </Badge>
-                            <span className="text-muted-foreground">{option.timeToExecute}s</span>
-                          </div>
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-border text-sm font-semibold text-muted-foreground group-hover:border-primary group-hover:text-primary">
+                            {String.fromCharCode(65 + idx)}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-sm font-semibold uppercase tracking-wider">{option.label}</span>
+                            <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{option.description}</span>
+                          </span>
+                          <ChevronRight className="mt-2 h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary" />
                         </button>
                       ))}
                     </div>
