@@ -263,6 +263,7 @@ const ScenarioBuilder = ({ config, onScenarioReady, onBack, demoMode = false }: 
   };
 
   const handleConfirmScenario = () => {
+    if (demoMode && previewScenario) { onScenarioReady(previewScenario); return; }
     setIsReady(true);
   };
 
@@ -464,14 +465,13 @@ The AI will enhance your scenario with realistic details and create dynamic inje
               Disinformation Exercise
             </p>
             <p className="text-sm text-foreground">
-              This story is a deliberate, fabricated disinformation campaign against {config.simulationCompanyId ? 'a fictional company' : config.brandName}.
-              Your job is to respond to false claims — not a genuine wrongdoing.
+              {demoMode ? 'Fictional attack. Respond to the false claims.' : `This story is a deliberate, fabricated disinformation campaign against ${config.simulationCompanyId ? 'a fictional company' : config.brandName}. Your job is to respond to false claims.`}
             </p>
           </div>
 
           <Card className="border-4 border-destructive/30 bg-card mb-6">
             <CardContent className="p-6 space-y-6">
-              <div className="flex flex-wrap gap-3 justify-center">
+              <div className={`${demoMode ? 'hidden' : 'flex'} flex-wrap gap-3 justify-center`}>
                 <Badge variant="outline" className={`uppercase tracking-wider ${
                   previewScenario.severity === "critical" ? "border-destructive text-destructive" :
                   previewScenario.severity === "severe" ? "border-warning text-warning" :
@@ -506,7 +506,7 @@ The AI will enhance your scenario with realistic details and create dynamic inje
                 </div>
               )}
 
-              {previewScenario.implicatedParties.length > 0 && (
+              {!demoMode && previewScenario.implicatedParties.length > 0 && (
                 <div className="p-4 bg-muted">
                   <span className="font-bold uppercase tracking-wider text-sm block mb-2">Implicated Parties</span>
                   <div className="flex flex-wrap gap-2">
@@ -524,10 +524,10 @@ The AI will enhance your scenario with realistic details and create dynamic inje
           <ScenarioResearch scenario={previewScenario} />
           <Card className="border-4 border-border bg-card">
             <CardContent className="p-6 text-center">
-              <Shield className="h-12 w-12 mx-auto mb-4 text-primary" />
-              <h3 className="text-xl font-bold uppercase tracking-wider mb-2">Ready to Counter This Narrative?</h3>
+              {!demoMode && <Shield className="h-12 w-12 mx-auto mb-4 text-primary" />}
+              <h3 className="text-xl font-bold uppercase tracking-wider mb-2">{demoMode ? 'Your move' : 'Ready to Counter This Narrative?'}</h3>
               <p className="text-muted-foreground mb-6">
-                You have {config.duration} minutes to respond to this crisis. Think carefully, the clock is ticking.
+                {config.duration} minutes · Choose your response to each incoming attack.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 {!demoMode && (
