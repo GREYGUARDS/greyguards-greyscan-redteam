@@ -7,7 +7,7 @@ import type { VideoOverlay } from "@/components/redteam/InjectOverlay";
 import pharmacoreVideo from "@/assets/demo_video_pharmacore.mp4.asset.json";
 import trustinsureVideo from "@/assets/demo_video_trustinsure.mp4.asset.json";
 import newsTonightVideo from "@/assets/demo_news_tonight.mp4.asset.json";
-import cbbnVideo from "@/assets/demo_news_cbbn.mp4.asset.json";
+import cbbnVideo from "@/assets/demo_reporter_cbbn.mp4.asset.json";
 import pigeebankVideo from "@/assets/demo_video_pigeebank.mp4.asset.json";
 
 type Opt = [label: string, description: string, type: ResponseOption["type"], effectiveness: number, risk: ResponseOption["riskLevel"], time: number];
