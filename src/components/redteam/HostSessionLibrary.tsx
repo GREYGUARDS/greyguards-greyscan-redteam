@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { FolderOpen, Lock, RefreshCw, Trash2 } from 'lucide-react';
+import { FolderOpen, Lock, RefreshCw, Trash2, Play } from 'lucide-react';
+import { canStartPreparedSession } from '@/lib/hostSessionStart';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ export function sessionConfig(session: PreparedSession): ExerciseConfig {
   return { ...saved, brandName: session.brand_name, duration: session.duration as ExerciseConfig['duration'], teamMode: session.team_mode as ExerciseConfig['teamMode'], mode: 'consultant', scenarioCategory: saved?.scenarioCategory ?? 'random' };
 }
 
-export default function HostSessionLibrary({ onOpen }: { onOpen: (session: PreparedSession) => void }) {
+export default function HostSessionLibrary({ onOpen, onStart }: { onOpen: (session: PreparedSession) => void; onStart: (session: PreparedSession) => void }) {
   const [sessions, setSessions] = useState<PreparedSession[]>([]);
   const [search, setSearch] = useState('');
   const [busy, setBusy] = useState(true);
@@ -47,9 +48,10 @@ export default function HostSessionLibrary({ onOpen }: { onOpen: (session: Prepa
     <p className="flex items-center gap-1 text-xs text-muted-foreground"><Lock className="h-3 w-3" />Private host library</p>
     <Input aria-label="Search saved sessions" placeholder="Search client or session…" value={search} onChange={e => setSearch(e.target.value)} />
     {error && <p role="alert" className="text-xs text-destructive">{error}</p>}
-    {busy ? <p role="status" className="text-xs text-muted-foreground">Loading sessions…</p> : filtered.length === 0 ? <p className="text-xs text-muted-foreground">No saved sessions yet.</p> : <div className="max-h-72 space-y-2 overflow-y-auto">{filtered.map(s => <div key={s.id} className="flex items-center gap-3 rounded-md border border-border p-3">
+    {busy ? <p role="status" className="text-xs text-muted-foreground">Loading sessions…</p> : filtered.length === 0 ? <p className="text-xs text-muted-foreground">No saved sessions yet.</p> : <div className="max-h-72 space-y-2 overflow-y-auto">{filtered.map(s => <div key={s.id} className="flex flex-wrap items-center gap-3 rounded-md border border-border p-3">
       <div className="min-w-0 flex-1"><p className="break-words text-sm font-medium">{s.session_label || s.brand_name}</p><p className="break-words text-xs text-muted-foreground">{s.brand_name} · {s.scenario_title || 'Scenario to prepare'}</p><div className="mt-2 flex flex-wrap items-center gap-2"><Badge variant="outline">{s.status === 'preparing' ? 'Sandpit' : s.status}</Badge><span className="text-[10px] text-muted-foreground">{s.duration / 60}h · {new Date(s.created_at).toLocaleDateString('en-GB')}</span></div></div>
       <Button size="sm" variant="outline" onClick={() => onOpen(s)}><FolderOpen className="mr-1 h-3 w-3" />Open</Button>
+      {canStartPreparedSession(s) && <Button size="sm" onClick={() => onStart(s)}><Play className="mr-1 h-3 w-3" />Start session</Button>}
       <Button size="icon" variant="ghost" aria-label={`Delete ${s.session_label || s.brand_name}`} onClick={() => setPendingDelete(s)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
     </div>)}</div>}
     <AlertDialog open={!!pendingDelete} onOpenChange={o => { if (!o && !deleting) setPendingDelete(null); }}>

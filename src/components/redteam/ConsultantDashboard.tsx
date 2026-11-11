@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,6 +69,7 @@ const CATEGORY_BADGE_STYLES: Record<InjectCategory, string> = {
 interface ConsultantDashboardProps {
   config: ExerciseConfig;
   preparedSession?: PreparedSession | null;
+  startImmediately?: boolean;
   onBack: () => void;
   onScenarioGenerated?: (scenario: Scenario) => void;
   currentScenario?: Scenario | null;
@@ -223,7 +224,9 @@ export interface DecisionLogEntry {
   frozen?: boolean;
 }
 
-const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScenario, preparedSession }: ConsultantDashboardProps) => {
+const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScenario, preparedSession, startImmediately = false }: ConsultantDashboardProps) => {
+  const directStartAttempted = useRef(false);
+  const [isStarting, setIsStarting] = useState(startImmediately);
   const hostedDemo = getHostedDemoScript(config.simulationCompanyId);
   const [isExerciseActive, setIsExerciseActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(config.duration * 60);
@@ -508,26 +511,30 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
   }, [isExerciseActive, isPaused]);
 
   const savePreparation = async () => {
-    if (!sessionId) return;
+    if (!sessionId) return false;
     setSavingPreparation(true);
     const { error } = await supabase.from('exercise_sessions').update({ session_label: sessionLabel.trim() || config.brandName, pre_brief: preBrief, scenario_title: scenario?.title || null, scenario_narrative: scenario?.narrative || null, preparation_config: JSON.parse(JSON.stringify({ ...config, savedScenario: scenario })) }).eq('id', sessionId);
     const { error: notesError } = await supabase.from('host_session_preparations').upsert({ session_id: sessionId, host_notes: preparationNotes });
     setSavingPreparation(false);
     if (error || notesError) toast.error('Session could not be saved.'); else toast.success('Preparation saved to your session library.');
+    return !error && !notesError;
   };
   const openLobby = async () => {
     if (!sessionId) return;
-    await savePreparation();
+    if (!await savePreparation()) return;
     const { error } = await supabase.from('exercise_sessions').update({ status: 'waiting', opened_at: new Date().toISOString() }).eq('id', sessionId);
     if (error) toast.error('Session could not be opened.'); else { setIsSandpit(false); toast.success('Session open for participants.'); }
   };
   const populateInjects = async () => {
-    if (!sessionId || !previewInjects.length) return;
-    const { data: existing } = await supabase.from('exercise_injects').select('content,source').eq('session_id', sessionId);
+    if (!sessionId) return false;
+    if (!previewInjects.length) return true;
+    const { data: existing, error: readError } = await supabase.from('exercise_injects').select('content,source').eq('session_id', sessionId);
+    if (readError) { toast.error('Prepared injects could not be checked.'); return false; }
     const newInjects = previewInjects.filter(i => !existing?.some(e => e.content === i.content.split('[BRAND]').join(config.brandName) && e.source === i.source));
-    if (!newInjects.length) { toast.info('These injects are already prepared.'); return; }
+    if (!newInjects.length) { return true; }
     const { error } = await supabase.from('exercise_injects').insert(newInjects.map(i => ({ session_id: sessionId, created_by: 'consultant', inject_type: i.type, content: i.content.split('[BRAND]').join(config.brandName), source: i.source, reach: i.reach, sentiment: i.sentiment, is_aggressive: i.isAggressive ?? false, artefact: hostedDemo && config.simulationCompanyId ? toHostedDemoArtefact(i, config.simulationCompanyId) : null, timestamp_offset: i.timestamp, is_sent: false })));
     if (error) toast.error('Injects could not be prepared.'); else { setShelfRefresh(v => v + 1); toast.success(`${newInjects.length} injects ready.`); }
+    return !error;
   };
   const saveCustomInject = async () => {
     if (!sessionId || !customInject.content.trim()) return;
@@ -536,9 +543,11 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
   };
   // Start exercise
   const handleStartExercise = async () => {
-    if (!sessionId) return;
+    if (!sessionId || !scenario?.narrative.trim() || hasEnded) return;
+    setIsStarting(true);
 
     try {
+      if (!await savePreparation() || !await populateInjects()) return;
       // Update session status and scenario
       const { error } = await supabase
         .from('exercise_sessions')
@@ -560,8 +569,18 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     } catch (error) {
       console.error("Error starting exercise:", error);
       toast.error("Failed to start exercise");
+    } finally {
+      setIsStarting(false);
     }
   };
+
+  useEffect(() => {
+    if (!startImmediately || directStartAttempted.current || isCreatingSession || !sessionId || !scenario?.narrative.trim()) return;
+    directStartAttempted.current = true;
+    void handleStartExercise();
+    // Start once, only after the saved case or canonical demo is loaded.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startImmediately, isCreatingSession, sessionId, scenario]);
 
   // Pause/Resume exercise
   const handleTogglePause = async () => {
@@ -917,12 +936,12 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
   };
 
   // Loading state
-  if (isCreatingSession) {
+  if (isCreatingSession || (startImmediately && isStarting)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground uppercase tracking-wider">Creating session...</p>
+          <p className="text-muted-foreground uppercase tracking-wider">{isCreatingSession ? 'Creating session…' : 'Starting session…'}</p>
         </div>
       </div>
     );
@@ -1124,7 +1143,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                   <Button 
                     onClick={handleStartExercise}
                     className="uppercase tracking-wider bg-success hover:bg-success/90"
-                    disabled={!scenario || hasEnded || isSandpit}
+                    disabled={!scenario?.narrative.trim() || hasEnded || isStarting}
                   >
                     <Play className="h-4 w-4 mr-2" />
                     Start Exercise
