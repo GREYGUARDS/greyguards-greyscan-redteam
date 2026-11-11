@@ -10,7 +10,8 @@ export type InjectTemplate =
   | "news-comments"
   | "reviews"
   | "document"
-  | "press-release";
+  | "press-release"
+  | "facebook";
 
 export interface InjectVisualSpec {
   template: InjectTemplate | string;
