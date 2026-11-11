@@ -48,7 +48,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       content: "320 new accounts posted the same 'Pharmacore knew' wording in 40 minutes. Most were created this month.",
       options: [
         ["Publish the pattern", "Share evidence of the coordinated accounts with health journalists.", "media_outreach", 82, "medium", 45],
-        ["Report to platforms", "Send the account list to X and Meta trust & safety teams.", "internal_action", 75, "low", 20],
+        ["Report to platforms", "Send the account list to the platforms' trust & safety teams.", "internal_action", 75, "low", 20],
         ["Reply to every account", "Get the social team to answer each post individually.", "social_response", 20, "high", 30],
       ] },
     { t: 345, type: "social_post", source: "r/NHS · Reddit", reach: 41000, sentiment: "confused",
@@ -67,12 +67,12 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Comment publicly", "Reply under his post with the data link.", "social_response", 72, "low", 15],
         ["Ask him to delete", "Message him saying the post is damaging.", "legal", 20, "high", 10],
       ] },
-    { t: 30, type: "social_post", source: "@UK_PharmaWatch (3.2k followers) · X", reach: 3200, sentiment: "hostile",
+    { t: 30, type: "social_post", source: "@UK_PharmaWatch (3.2k followers) · Tweets", reach: 3200, sentiment: "hostile",
       content: "UNVERIFIED: Pharmacore's Doncaster hub had a cold-chain breach and still shipped amoxicillin. Three children in Sheffield hospital. Why no MHRA alert? #DrugSafety",
       options: [
         ["Truth-sandwich holding line", "Share unbroken 2–8°C hub logs, say you're monitoring, give chemists a contact line.", "statement", 85, "low", 30],
         ["Brief pharmacy network", "Batch-verification memo to community pharmacies before consumer press picks it up.", "internal_action", 80, "low", 45],
-        ["Flat denial + legal warning", "Reply on X: '100% false and malicious, lawyers are watching.'", "legal", 30, "high", 15],
+        ["Flat denial + legal warning", "Reply in Tweets: '100% false and malicious, lawyers are watching.'", "legal", 30, "high", 15],
       ] },
     { t: 120, type: "influencer", source: "Parent creator · TikTok · 180k views #RecallTheMeds", reach: 180000, sentiment: "hostile",
       video: { url: pharmacoreVideo.url, overlay: { platform: "tiktok", handle: "@sheffieldmum_jo", caption: "Pharmacore knew. Check your kids' meds 😡 #RecallTheMeds", likes: "24.6K", comments: "3.1K", shares: "8.9K", views: "180K", channel: "", headline: "", ticker: "" } },
@@ -137,7 +137,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Manager huddles", "Ask team leaders to brief staff verbally.", "internal_action", 70, "low", 30],
         ["Ban phones on the floor", "Stop staff discussing it in chats.", "internal_action", 15, "high", 10],
       ] },
-    { t: 30, type: "social_post", source: "X / Reddit · 12k reposts", reach: 120000, sentiment: "hostile",
+    { t: 30, type: "social_post", source: "Tweets / Reddit · 12k reposts", reach: 120000, sentiment: "hostile",
       content: "Recut 12s clip: TrustInsureUK CEO Thomas Reeve 'admits' they stall flood claims — 'People will simply have to wait; claims aren't our priority.'",
       options: [
         ["Post the unedited footage", "Side-by-side video proving the quote was cut mid-sentence.", "social_response", 88, "low", 30],
@@ -199,7 +199,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Prioritise support", "Move staff to clear the transfer queue fast.", "internal_action", 82, "low", 30],
         ["Hide reviews", "Ask Apple to remove 'unfair' reviews.", "internal_action", 20, "high", 15],
       ] },
-    { t: 520, type: "social_post", source: "Fintech journalist · X", reach: 150000, sentiment: "confused",
+    { t: 520, type: "social_post", source: "Fintech journalist · Tweets", reach: 150000, sentiment: "confused",
       visual: { template: "social-dark", label: "Tweets", data: { displayName: "Ellie Marsh", handle: "@elliemarsh_fin", verified: true, timestamp: "14m", body: "I've seen no evidence PigeeBank is restricting withdrawals. But the bank needs to publish numbers, not vibes. Asked them for data.", comments: "312", reposts: "1.2K", likes: "4.8K", bookmarks: "290" } },
       content: "A respected fintech journalist sees no evidence of a problem — but wants numbers.",
       options: [
@@ -207,7 +207,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Founder replies", "Alex Bryce quote-posts with a short reassurance.", "social_response", 65, "medium", 15],
         ["Decline to comment", "Say the bank won't comment on rumours.", "statement", 20, "high", 10],
       ] },
-    { t: 30, type: "social_post", source: "Reddit r/UKPersonalFinance & X", reach: 80000, sentiment: "hostile",
+    { t: 30, type: "social_post", source: "Reddit r/UKPersonalFinance & Tweets", reach: 80000, sentiment: "hostile",
       content: "'PigeeBank app has frozen all Faster Payments right before their IPO. Exit scam? Get your cash out now.' (re-shared maintenance screenshot)",
       options: [
         ["Live status dashboard", "Post the live payments dashboard showing 99.98% processing.", "social_response", 88, "low", 30],
