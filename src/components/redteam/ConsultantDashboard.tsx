@@ -356,6 +356,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       } catch (error) {
         console.error("Error creating session:", error);
         toast.error("Failed to create session");
+        setIsStarting(false);
       } finally {
         setIsCreatingSession(false);
       }
