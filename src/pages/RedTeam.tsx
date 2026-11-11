@@ -771,7 +771,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
           )}
 
           {/* Crisis Category — compact dropdown */}
-          {!demoMode && !(config.mode === "consultant" && consultantAction === "join") && (
+          {!demoMode && !config.simulationCompanyId && !(config.mode === "consultant" && consultantAction === "join") && (
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-wider font-medium">Narrative Theme</Label>
               <Select
