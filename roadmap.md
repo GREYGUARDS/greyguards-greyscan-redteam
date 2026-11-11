@@ -1,5 +1,7 @@
 # Current work
 
+- [x] Add host direct start for canonical demos and prepared cases, bypassing the sandpit; seven tests and isolated browser flows passed. Live host verification unavailable: requesting account is not a host admin.
+
 - [x] Fix first-inject Blue alerts and banner centring; live empty-feed first-send check passed on mobile; Observer UI join, two distinct seats, stable rejoin, sent inject readback and response rejection passed; test sessions cleaned up
 
 - [x] Build Host Master Inject Sandbox: 27 canonical demo injects plus owner-scoped saved inject reads, filters, participant previews and response matrix; admin desktop/mobile and video checks passed (host account currently has no saved injects)

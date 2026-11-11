@@ -12,6 +12,7 @@
 - Hosted scenario requests share one builder for named-company research and custom outlines; custom themes use the existing outline API rather than inventing a provider category.
 
 - Host preparation reuses durable exercise sessions in a non-joinable preparing state; completed host-reviewed media is saved as unsent injects and fired through an admin-and-owner-checked RPC so preparation never starts response timers.
+- Host direct start reuses the existing session lifecycle, saves the scenario and prepares unsent injects before activating; canonical demos and saved cases can bypass the sandpit without bypassing host review of generated media.
 - Private preparation notes live in owner-and-admin-scoped host_session_preparations, not participant-readable session rows; the saved-session library retrieves durable sessions independently of the participant join window.
 
 - Hosted video generation uses server-authorised asynchronous jobs with private storage and durable inject references; this keeps paid generation host-only and playback session-scoped.

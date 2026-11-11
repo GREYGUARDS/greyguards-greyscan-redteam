@@ -261,6 +261,7 @@ interface TeamSessionData {
 const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
   const [restoredDemo] = useState(() => demoMode ? readDemoSession(sessionStorage) : null);
   const [preparedSession, setPreparedSession] = useState<PreparedSession | null>(null);
+  const [directHostStart, setDirectHostStart] = useState(false);
   const [phase, setPhase] = useState<Phase>(restoredDemo ? 'exercise' : 'landing');
   const access = useAccessProfile();
   const [config, setConfig] = useState<ExerciseConfig>(restoredDemo?.config ?? {
@@ -317,11 +318,12 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
 
 
 
-  const handleStartExercise = () => {
+  const handleStartExercise = (directStart = false) => {
     if (config.mode === "consultant") {
       if (consultantAction === "join" || !access.isAdmin) {
         setPhase("team-join");
       } else {
+        setDirectHostStart(directStart);
         setPreparedSession(null);
         setScenario(null);
         setPhase("consultant-dashboard");
@@ -422,6 +424,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
       <ConsultantDashboard 
         config={config}
         preparedSession={preparedSession}
+        startImmediately={directHostStart}
         onBack={() => setPhase("landing")}
         onScenarioGenerated={handleScenarioFromConsultant}
         currentScenario={scenario}
@@ -506,7 +509,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
 
         <CardContent className="p-6 space-y-6">
           {!demoMode && access.isAdmin && <div className="space-y-2 border-t border-border pt-4"><h3 className="text-sm font-semibold">Test as a participant</h3><p className="text-xs text-muted-foreground">Host in one browser, then open this page in another browser and join with the session code.</p><Button variant="outline" className="w-full" onClick={() => { setConfig(prev => ({ ...prev, mode: 'consultant' })); setConsultantAction('join'); setPhase('team-join'); }}>Join a session as Blue / Red Team</Button></div>}
-          {!demoMode && access.isAdmin && <HostSessionLibrary onOpen={session => { setPreparedSession(session); setConfig(sessionConfig(session)); setScenario(null); setPhase('consultant-dashboard'); }} />}
+          {!demoMode && access.isAdmin && <HostSessionLibrary onOpen={session => { setDirectHostStart(false); setPreparedSession(session); setConfig(sessionConfig(session)); setScenario(null); setPhase('consultant-dashboard'); }} onStart={session => { setDirectHostStart(true); setPreparedSession(session); setConfig(sessionConfig(session)); setScenario(null); setPhase('consultant-dashboard'); }} />}
           {/* Simulation target companies — full canon briefings */}
           {canPickCompany && (
             <div className="space-y-2">
@@ -830,15 +833,20 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
             <div className="space-y-2 border-y border-border py-3">
               <h3 className="text-sm font-semibold">GreyScan &amp; company background check</h3>
               <p className="text-xs text-muted-foreground">{config.brandName.trim() || 'Named client'} · Public company and board sources · Fictional attack scenario</p>
-              <Button variant="outline" className="w-full h-auto whitespace-normal" onClick={handleStartExercise} disabled={!config.brandName.trim() || (config.scenarioCategory === 'custom' && !config.narrativeSeed?.trim())}>
+              <Button variant="outline" className="w-full h-auto whitespace-normal" onClick={() => handleStartExercise()} disabled={!config.brandName.trim() || (config.scenarioCategory === 'custom' && !config.narrativeSeed?.trim())}>
                 <Target className="mr-2 h-4 w-4 shrink-0" />Scan company &amp; prepare session
               </Button>
             </div>
           )}
 
           {/* Start */}
+          {!demoMode && access.isAdmin && config.mode === 'consultant' && consultantAction === 'host' && config.simulationCompanyId && (
+            <Button onClick={() => handleStartExercise(true)} className="w-full h-12">
+              <Zap className="mr-2 h-4 w-4" />Start demo session
+            </Button>
+          )}
           <Button
-            onClick={handleStartExercise}
+            onClick={() => handleStartExercise()}
             disabled={
               config.mode === "consultant" && consultantAction === "join"
                 ? false
