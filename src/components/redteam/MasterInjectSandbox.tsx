@@ -12,6 +12,7 @@ import { cataloguePhase, filterCatalogue, type CatalogueEntry } from '@/lib/inje
 import type { Tables } from '@/integrations/supabase/types';
 import InjectVisual from './InjectVisual';
 import HostedInjectMedia from './HostedInjectMedia';
+import HostedInjectStudio from './HostedInjectStudio';
 
 function channelFor(source: string, fallback: string): string {
   if (/tiktok/i.test(source)) return 'TikTok';
@@ -44,6 +45,9 @@ export default function MasterInjectSandbox({ refreshKey = 0 }: { refreshKey?: n
   const [reload, setReload] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [phone, setPhone] = useState(true);
+  const [sessionsList, setSessionsList] = useState<Tables<'exercise_sessions'>[]>([]);
+  const [creating, setCreating] = useState(false);
+  const [targetId, setTargetId] = useState('');
   const [filters, setFilters] = useState({ search: '', brand: 'all', channel: 'all', phase: 'all', origin: 'all' });
 
   useEffect(() => {
@@ -78,7 +82,7 @@ export default function MasterInjectSandbox({ refreshKey = 0 }: { refreshKey?: n
             if ((data?.length ?? 0) < 500) break;
           }
         }
-        if (!cancelled) setEntries(saved);
+        if (!cancelled) { setEntries(saved); setSessionsList(sessions.filter(x => x.status !== 'completed' && x.status !== 'locked')); }
       } catch {
         if (!cancelled) setError('Saved-session injects could not be loaded. Demo injects are still available.');
       } finally { if (!cancelled) setLoading(false); }
@@ -98,13 +102,14 @@ export default function MasterInjectSandbox({ refreshKey = 0 }: { refreshKey?: n
     <Button variant="outline" onClick={() => setOpen(true)}><Library className="mr-2 h-4 w-4" />Master Inject Sandbox</Button>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="flex h-[90dvh] w-[calc(100%-1rem)] max-w-6xl flex-col gap-4 overflow-hidden p-4 sm:p-6">
-        <DialogHeader className="pr-6"><DialogTitle className="font-display text-2xl">Master Inject Sandbox</DialogTitle><div className="flex flex-wrap gap-2 pt-2"><Badge variant="outline">Internal · Read only</Badge><Badge variant="secondary">{demos.length} demo · {entries.length} saved</Badge></div></DialogHeader>
+        <DialogHeader className="pr-6"><DialogTitle className="font-display text-2xl">Master Inject Sandbox</DialogTitle><div className="flex flex-wrap gap-2 pt-2"><Badge variant="outline">Internal · Browse & create</Badge><Badge variant="secondary">{demos.length} demo · {entries.length} saved</Badge></div></DialogHeader>
         <div className="flex gap-2"><Input aria-label="Search inject catalogue" placeholder="Search company, session or content…" value={filters.search} onChange={e => change('search', e.target.value)} /><Button variant="outline" size="icon" aria-label="Refresh inject catalogue" disabled={loading} onClick={() => setReload(v => v + 1)}><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /></Button></div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4"><Filter label="Companies" value={filters.brand} onChange={v => change('brand', v)} options={choices('brand')} /><Filter label="Channels" value={filters.channel} onChange={v => change('channel', v)} options={choices('channel')} /><Filter label="Phases" value={filters.phase} onChange={v => change('phase', v)} options={choices('phase')} /><Select value={filters.origin} onValueChange={v => change('origin', v)}><SelectTrigger aria-label="Catalogue source"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All sources</SelectItem><SelectItem value="demo">Demo scripts</SelectItem><SelectItem value="saved">Saved sessions</SelectItem></SelectContent></Select></div>
         {error && <p role="alert" className="text-xs text-destructive">{error}</p>}
         {loading && <p role="status" className="text-xs text-muted-foreground">Loading saved injects…</p>}
+        <div className="flex flex-wrap items-center gap-2"><Button variant={creating ? 'secondary' : 'default'} onClick={() => setCreating(v => !v)}>{creating ? '← Catalogue' : '+ Create inject'}</Button>{creating && <Select value={targetId} onValueChange={setTargetId}><SelectTrigger aria-label="Target session" className="w-72 max-w-full"><SelectValue placeholder="Choose a prepared session…" /></SelectTrigger><SelectContent>{sessionsList.map(x => <SelectItem key={x.id} value={x.id}>{x.session_label || x.scenario_title || x.brand_name} · {x.brand_name}</SelectItem>)}</SelectContent></Select>}</div>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          {selected ? <div className="space-y-4">
+          {creating ? (targetId ? <HostedInjectStudio key={targetId} sessionId={targetId} isActive={false} brand={sessionsList.find(x => x.id === targetId)?.brand_name} scenario={sessionsList.find(x => x.id === targetId)?.scenario_narrative} onSent={() => {}} onPrepared={() => setReload(v => v + 1)} /> : <p className="text-sm text-muted-foreground">{sessionsList.length ? 'Choose the session this inject belongs to. It is saved unsent, ready for review.' : 'No open prepared sessions yet. Create a session sandpit first.'}</p>) : selected ? <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2"><Button variant="ghost" onClick={() => setSelectedId(null)}>← Catalogue</Button><div className="flex gap-1"><Button variant={phone ? 'secondary' : 'ghost'} size="icon" aria-label="Phone preview" aria-pressed={phone} onClick={() => setPhone(true)}><Smartphone className="h-4 w-4" /></Button><Button variant={!phone ? 'secondary' : 'ghost'} size="icon" aria-label="Desktop preview" aria-pressed={!phone} onClick={() => setPhone(false)}><Monitor className="h-4 w-4" /></Button></div></div>
             <div className="space-y-1"><h3 className="break-words font-semibold">{selected.brand} · {selected.status}</h3><p className="break-words text-xs text-muted-foreground">{selected.session} · {selected.channel} · {selected.phase} · {Math.floor(selected.offset / 60)}:{String(selected.offset % 60).padStart(2, '0')}</p><p className="break-words text-xs text-muted-foreground">{selected.source}</p></div>
             <div className={`mx-auto w-full min-w-0 ${phone ? 'max-w-[375px]' : 'max-w-3xl'}`} key={selected.id}>
