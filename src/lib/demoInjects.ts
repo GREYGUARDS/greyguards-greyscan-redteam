@@ -1,6 +1,6 @@
 /**
  * Scripted, phone-first injects for the three public demo scenarios.
- * Approved copy: 5 short injects, 3 one-line choices each. Fictional only.
+ * Scripted copy: 9 short injects per demo across X, TikTok, Facebook, Reddit, Telegram, reviews and news. Fictional only.
  */
 import type { Inject, ResponseOption } from "@/pages/RedTeam";
 import type { VideoOverlay } from "@/components/redteam/InjectOverlay";
