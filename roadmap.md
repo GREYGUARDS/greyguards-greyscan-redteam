@@ -1,6 +1,7 @@
 # Current work
 
 - [ ] Build Host Master Inject Sandbox with demo/saved-session catalogue, filters, participant previews and response matrix; verify desktop/mobile and host access
+- [ ] Fix mobile demo clock positioning, simplify company bios/front-page information, show first inject immediately, reset scroll after decisions and preserve exercise through pull-to-refresh
 
 - [x] Make named-company GreyScan/background research explicit in hosted setup and add Custom Scenario to narrative themes; live Tesco scan returned 24 source links, preserved the custom false claim and saved research/outline; four tests passed
 
