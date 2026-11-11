@@ -400,6 +400,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
     return (
       <TeamJoin 
         onJoinSession={handleTeamJoin}
+        allowAllTeams={access.isAdmin}
         onBack={() => setPhase("landing")}
       />
     );

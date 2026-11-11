@@ -13,9 +13,11 @@ import { Link } from "react-router-dom";
 interface TeamJoinProps {
   onJoinSession: (sessionId: string, teamId: string, teamType: "blue" | "red" | "observer", sessionData: any) => void;
   onBack: () => void;
+  /** Greyguards staff may pick any seat; clients always join the Blue Team. */
+  allowAllTeams?: boolean;
 }
 
-const TeamJoin = ({ onJoinSession, onBack }: TeamJoinProps) => {
+const TeamJoin = ({ onJoinSession, onBack, allowAllTeams = false }: TeamJoinProps) => {
   const [sessionCode, setSessionCode] = useState("");
   const [selectedTeam, setSelectedTeam] = useState<"blue" | "red" | "observer" | null>(null);
   const [teamName, setTeamName] = useState("");
@@ -50,7 +52,15 @@ const TeamJoin = ({ onJoinSession, onBack }: TeamJoinProps) => {
       const { data: teams } = await supabase
         .rpc("list_session_team_slots", { _session_id: session.id });
 
-      setSessionData({ ...session, teams: teams || [] });
+      const full = { ...session, teams: teams || [] };
+      if (!allowAllTeams) {
+        const { data: teamId, error: joinError } = await supabase.rpc("join_exercise_team", { _session_id: session.id, _team_type: "blue", _team_name: "Blue Team" });
+        if (joinError) throw joinError;
+        toast.success("Joined the exercise");
+        onJoinSession(session.id, teamId as string, "blue", full);
+        return;
+      }
+      setSessionData(full);
       setStep("team");
     } catch (error) {
       console.error("Error looking up session:", error);
