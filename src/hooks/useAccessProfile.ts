@@ -33,7 +33,7 @@ export function useAccessProfile(): AccessProfile {
         .select("email")
         .eq("email", email)
         .maybeSingle();
-      const isAdmin = !!adminRow;
+      const isAdmin = !!adminRow && email.endsWith("@greyguards.com") && !!user.email_confirmed_at;
 
       let lockedBrand: string | null = null;
       if (!isAdmin) {
