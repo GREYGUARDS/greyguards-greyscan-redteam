@@ -27,6 +27,7 @@ export const INJECT_TEMPLATE_KEYS: InjectTemplate[] = [
   "reviews",
   "document",
   "press-release",
+  "facebook",
 ];
 
 const Stars = ({ n = 0 }: { n?: number }) => {
@@ -289,6 +290,23 @@ function PressRelease({ data = {} }: TplProps) {
   );
 }
 
+function Facebook({ data = {} }: TplProps) {
+  const { pageName = "Community Group", groupLabel = "Public group", author = "Member", timestamp = "Just now", body = "", reactions = "0", comments = "0", shares = "0", topComment } = data;
+  return (
+    <div className="tpl-facebook">
+      <div className="grp">{pageName} <span>· {groupLabel}</span></div>
+      <div className="row">
+        <div className="avatar">{String(author).slice(0, 2).toUpperCase()}</div>
+        <div><div className="name">{author}</div><div className="time">{timestamp} · 🌐</div></div>
+      </div>
+      <div className="body">{body}</div>
+      <div className="stats"><span>👍😮😡 {reactions}</span><span>{comments} comments · {shares} shares</span></div>
+      <div className="actions"><span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span></div>
+      {topComment && <div className="comment"><b>{topComment.author}</b> {topComment.text}</div>}
+    </div>
+  );
+}
+
 const TEMPLATES: Record<string, (p: TplProps) => JSX.Element> = {
   "social-dark": SocialDark,
   messaging: Messaging,
@@ -298,6 +316,7 @@ const TEMPLATES: Record<string, (p: TplProps) => JSX.Element> = {
   reviews: Reviews,
   document: DocumentTpl,
   "press-release": PressRelease,
+  facebook: Facebook,
 };
 
 export const hasInjectTemplate = (template?: string) => !!template && !!TEMPLATES[template];
