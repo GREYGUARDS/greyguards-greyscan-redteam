@@ -172,7 +172,7 @@ const TeamJoin = ({ onJoinSession, onBack }: TeamJoinProps) => {
                   Choose Your Team
                 </CardTitle>
                 <p className="text-center text-sm text-muted-foreground mt-2">
-                  {sessionData?.brand_name} - {sessionData?.duration} min exercise
+                  {sessionData?.brand_name}
                 </p>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
