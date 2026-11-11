@@ -1,3 +1,4 @@
+import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -385,6 +386,16 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
   };
 
   // Team Join Phase
+  // Clients (non-Greyguards accounts) never see setup options — straight to joining a session.
+  if (!demoMode && !access.loading && !access.isAdmin && phase === "landing") {
+    return (
+      <TeamJoin
+        onJoinSession={handleTeamJoin}
+        onBack={() => { void supabase.auth.signOut().then(() => { window.location.href = "/redteam/login"; }); }}
+      />
+    );
+  }
+
   if (phase === "team-join") {
     return (
       <TeamJoin 
