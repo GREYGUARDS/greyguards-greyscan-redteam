@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import CountdownTimer from "./CountdownTimer";
 import { useSoundEffects } from "@/hooks/use-sound-effects";
 import { useIsMobile } from "@/hooks/use-mobile";
+import LiveLeaderboard from "./LiveLeaderboard";
 import HostedInjectMedia from './HostedInjectMedia';
 import HostedParticipantDebrief from './HostedParticipantDebrief';
 import { createInjectArrivalTracker } from '@/lib/injectArrivalTracker';
@@ -534,6 +535,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
             {soundToggle}
           </div>
         </div>
+        {session.team_mode === "team-vs-team" && <div className="px-4 pb-2"><LiveLeaderboard sessionId={sessionId} compact={isMobile} /></div>}
       </header>
 
       {freeze}

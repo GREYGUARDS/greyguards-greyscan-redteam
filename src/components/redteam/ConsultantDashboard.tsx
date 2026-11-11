@@ -1,3 +1,4 @@
+import LiveLeaderboard from "./LiveLeaderboard";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1288,6 +1289,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
               </CardContent>
             </Card>
 
+            {config.teamMode === "team-vs-team" && sessionId && <LiveLeaderboard sessionId={sessionId} />}
             {/* Red Team (if team vs team) */}
             {config.teamMode === "team-vs-team" && (
               <Card className="border-4 border-destructive bg-card">

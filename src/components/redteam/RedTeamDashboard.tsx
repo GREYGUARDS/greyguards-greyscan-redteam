@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Loader2, Pause, Plus, GripVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import LiveLeaderboard from "./LiveLeaderboard";
 import HostedInjectMedia from './HostedInjectMedia';
 import HostedParticipantDebrief from './HostedParticipantDebrief';
 import { Meter, InjectThumb, PostCard, reachLabel, formatLabel, firstLine, clock, type ConsoleInject } from "./ConsoleParts";
@@ -267,6 +268,7 @@ const RedTeamDashboard = ({ sessionId, teamId, sessionData, onLeave }: RedTeamDa
           {mode === "arsenal" && <Button size="sm" variant="outline" onClick={() => { resetForm(); setMode("compose"); }} className="uppercase"><Plus className="mr-1 h-3 w-3" />New inject</Button>}
         </div>
       </div>
+      <div className="px-4 pb-2"><LiveLeaderboard sessionId={sessionId} /></div>
     </header>
   );
 
