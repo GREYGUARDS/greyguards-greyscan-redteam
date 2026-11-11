@@ -9,6 +9,9 @@ import type { VideoOverlay } from './InjectOverlay';
 import type { Tables } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 import HostedPhotoMedia, { asPhoto } from './HostedPhotoMedia';
+import InjectVisual from './InjectVisual';
+import { fromHostedDemoArtefact } from '@/lib/hostedDemoScenario';
+import { getSimulationCompany } from '@/lib/simulationCompanies';
 
 type ReadyInject = Tables<'exercise_injects'>;
 function Thumbnail({ inject }: { inject: ReadyInject }) {
@@ -21,9 +24,10 @@ function Thumbnail({ inject }: { inject: ReadyInject }) {
   }, [inject.id, inject.session_id, inject.video_storage_path]);
   const visual = inject.artefact as unknown as HostedArtefact | null;
   const photo = asPhoto(inject.artefact);
+  const demo = fromHostedDemoArtefact(inject.artefact);
   if (photo) return <div className="aspect-video overflow-hidden border-b border-border"><HostedPhotoMedia photo={photo} thumbnail /></div>;
   return <div className="relative aspect-video overflow-hidden border-b border-border bg-secondary pointer-events-none" aria-hidden="true">
-    {inject.video_storage_path ? url ? <video src={`${url}#t=0.1`} muted playsInline preload="metadata" className="h-full w-full object-cover" /> : <Video className="mx-auto mt-8 h-8 w-8 text-muted-foreground" /> : visual && visual.kind !== ('video' as string) ? <div className="origin-top-left w-[200%] scale-50"><HostedArtefactView artefact={visual} /></div> : <div className="p-3"><MessageSquare className="mb-2 h-4 w-4 text-primary" /><p className="line-clamp-4 text-xs">{inject.content}</p></div>}
+    {demo ? <div className="origin-top-left h-[200%] w-[200%] scale-50"><InjectVisual inject={demo.inject} company={getSimulationCompany(demo.companyId)} /></div> : inject.video_storage_path ? url ? <video src={`${url}#t=0.1`} muted playsInline preload="metadata" className="h-full w-full object-cover" /> : <Video className="mx-auto mt-8 h-8 w-8 text-muted-foreground" /> : visual && visual.kind !== ('video' as string) ? <div className="origin-top-left w-[200%] scale-50"><HostedArtefactView artefact={visual} /></div> : <div className="p-3"><MessageSquare className="mb-2 h-4 w-4 text-primary" /><p className="line-clamp-4 text-xs">{inject.content}</p></div>}
   </div>;
 }
 export default function PreparedInjectShelf({ sessionId, isActive, refreshKey, onSent }: { sessionId: string; isActive: boolean; refreshKey: number; onSent: (id: string, content: string, type: string) => void }) {
