@@ -31,7 +31,7 @@ export default function DemoScriptTimeline({ title, injects, durationMinutes, is
             </div>
             <div><p className="text-xs font-medium break-words">{inject.source}</p><p className="mt-2 text-xs text-muted-foreground line-clamp-4">{inject.content}</p></div>
             <div className="flex items-center justify-between gap-2 border-t border-border pt-3">
-              <span className="text-[10px] uppercase text-muted-foreground">{inject.demoVideo ? "Video" : inject.visual ? "Graphic" : inject.type.replaceAll("_", " ")}</span>
+              <span className="text-[10px] uppercase text-muted-foreground">{inject.demoVideo ? "Video" : inject.visual ? "Graphic" : inject.type.replace(/_/g, " ")}</span>
               <Button size="sm" variant="outline" disabled={!isActive} onClick={() => onSendInject(inject)}><Send className="mr-1 h-3 w-3" />Send</Button>
             </div>
           </article>;

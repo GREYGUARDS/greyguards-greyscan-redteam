@@ -1,6 +1,7 @@
 import { getDemoInjects } from "@/lib/demoInjects";
 import { getDemoScenario } from "@/lib/simulationCompanies";
 import type { Inject, Scenario } from "@/pages/RedTeam";
+import type { Json } from "@/integrations/supabase/types";
 
 export interface HostedDemoArtefact {
   kind: "demo";
@@ -27,8 +28,8 @@ export function getHostedDemoScript(companyId?: string): { scenario: Scenario; i
 }
 
 /** Keeps the exact demo media and response matrix with the durable hosted inject. */
-export function toHostedDemoArtefact(inject: Inject, companyId: string): HostedDemoArtefact {
-  return { kind: "demo", companyId, inject: { ...inject, responseOptions: inject.responseOptions?.map(option => ({ ...option })) } };
+export function toHostedDemoArtefact(inject: Inject, companyId: string): Json {
+  return { kind: "demo", companyId, inject: { ...inject, responseOptions: inject.responseOptions?.map(option => ({ ...option })) } } as unknown as Json;
 }
 
 export function fromHostedDemoArtefact(value: unknown): HostedDemoArtefact | null {
