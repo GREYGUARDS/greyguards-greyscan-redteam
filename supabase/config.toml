@@ -63,3 +63,8 @@ project_id = "pszrmmsjaracqxlzljxr"
     verify_jwt = false
   [functions.generate-strategic-recommendations]
     verify_jwt = false
+
+[functions.preview-transactional-email]
+  verify_jwt = false
+[functions.notify-admin]
+  verify_jwt = false
