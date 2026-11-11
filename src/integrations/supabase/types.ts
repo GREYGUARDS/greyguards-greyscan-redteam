@@ -927,6 +927,13 @@ export type Database = {
         Returns: undefined
       }
       claim_brand_access: { Args: never; Returns: string }
+      find_recent_signup: {
+        Args: { _email: string }
+        Returns: {
+          created_at: string
+          id: string
+        }[]
+      }
       get_my_locked_brand: { Args: never; Returns: string }
       host_delete_session: { Args: { _session_id: string }; Returns: undefined }
       host_fire_prepared_inject: {
