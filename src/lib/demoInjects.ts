@@ -6,6 +6,8 @@ import type { Inject, ResponseOption } from "@/pages/RedTeam";
 import type { VideoOverlay } from "@/components/redteam/InjectOverlay";
 import pharmacoreVideo from "@/assets/demo_video_pharmacore.mp4.asset.json";
 import trustinsureVideo from "@/assets/demo_video_trustinsure.mp4.asset.json";
+import newsTonightVideo from "@/assets/demo_news_tonight.mp4.asset.json";
+import cbbnVideo from "@/assets/demo_news_cbbn.mp4.asset.json";
 import pigeebankVideo from "@/assets/demo_video_pigeebank.mp4.asset.json";
 
 type Opt = [label: string, description: string, type: ResponseOption["type"], effectiveness: number, risk: ResponseOption["riskLevel"], time: number];
@@ -89,7 +91,8 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Trade-only bulletin", "Urgent alert to chemists: stock is verified clear.", "internal_action", 65, "low", 30],
         ["Precautionary freeze", "Pause amoxicillin shipments while verifying batches.", "internal_action", 25, "high", 20],
       ] },
-    { t: 420, type: "news_article", source: "News Tonight / CBBN · Breaking alert", reach: 2000000, sentiment: "confused",
+    { t: 420, type: "news_article", source: "News Tonight · Breaking alert", reach: 2000000, sentiment: "confused",
+      video: { url: newsTonightVideo.url, overlay: { platform: "news", handle: "", caption: "", likes: "", comments: "", shares: "", views: "", channel: "NEWS TONIGHT", headline: "Pharmacore antibiotic contamination claims", ticker: "Regulator yet to confirm any recall · Parents urged to check official sources" } },
       content: "BREAKING: Health officials investigate distribution giant Pharmacore after nationwide antibiotic contamination reports.",
       options: [
         ["Live broadcast interview", "Put Priya Khatri (Regulatory Director) on News Tonight within 15 minutes.", "media_outreach", 80, "high", 60],
@@ -121,7 +124,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Flag review spike", "Ask Trustpilot to review the unusual surge.", "internal_action", 70, "low", 15],
         ["Offer vouchers", "Offer reviewers a discount to remove reviews.", "statement", 10, "high", 20],
       ] },
-    { t: 375, type: "news_article", source: "Money Daily · Online", reach: 300000, sentiment: "confused",
+    { t: 375, type: "news_article", source: "News Tonight · Online", reach: 300000, sentiment: "confused",
       visual: { template: "news-comments", label: "News Tonight · reader comments", data: { headline: "TrustInsureUK boss in 'claims can wait' row — insurer says clip was edited", commentCount: "842", comments: [ { username: "sceptic_steve", timestamp: "5m", text: "Edited or not, they all delay payouts." }, { username: "clare_m", timestamp: "9m", text: "Has anyone actually seen the full video?" } ] } },
       content: "A consumer news site has run the story — readers are split on whether the clip was edited.",
       options: [
@@ -229,7 +232,8 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Clearing partner confirmation", "Banking partner issues a joint routing confirmation.", "statement", 82, "low", 45],
         ["Threaten the leaker", "Warn of criminal action against fake leakers.", "legal", 20, "high", 20],
       ] },
-    { t: 450, type: "news_article", source: "Bloomberg / Sifted · Push alert", reach: 900000, sentiment: "confused",
+    { t: 450, type: "news_article", source: "CBBN · Live business desk", reach: 900000, sentiment: "confused",
+      video: { url: cbbnVideo.url, overlay: { platform: "news", handle: "", caption: "", likes: "", comments: "", shares: "", views: "", channel: "CBBN", headline: "PigeeBank IPO under pressure", ticker: "Withdrawal rumours spread on Telegram · Bank yet to publish outflow data" } },
       content: "BREAKING: PigeeBank IPO roadshow in jeopardy as deposit outflows surge amid weekend social panic.",
       options: [
         ["On-the-record briefing", "CFO and Naomi Hart (COO) give verified deposit retention figures.", "media_outreach", 85, "medium", 45],
