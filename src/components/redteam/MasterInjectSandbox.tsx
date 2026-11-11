@@ -23,7 +23,7 @@ function channelFor(source: string, fallback: string): string {
   if (/tweets|twitter/i.test(source)) return 'Tweets';
   if (/linkedin/i.test(source)) return 'Professional';
   if (/reviews|trustpilot|glassdoor/i.test(source)) return 'Reviews';
-  return fallback.replaceAll('_', ' ');
+  return fallback.split('_').join(' ');
 }
 
 const demos: CatalogueEntry[] = SIMULATION_COMPANIES.flatMap(company => (getDemoInjects(company.id) ?? []).map((inject, index) => ({
