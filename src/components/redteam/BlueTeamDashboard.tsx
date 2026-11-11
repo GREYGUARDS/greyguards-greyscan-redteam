@@ -23,6 +23,7 @@ import { useSoundEffects } from "@/hooks/use-sound-effects";
 import { useIsMobile } from "@/hooks/use-mobile";
 import HostedInjectMedia from './HostedInjectMedia';
 import HostedParticipantDebrief from './HostedParticipantDebrief';
+import { createInjectArrivalTracker } from '@/lib/injectArrivalTracker';
 import { Meter, InjectThumb, PostCard, timeAgo, reachLabel, formatLabel, firstLine, clock, type ConsoleInject } from "./ConsoleParts";
 
 interface BlueTeamDashboardProps {
@@ -79,7 +80,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
   const [mobileScreen, setMobileScreen] = useState<"feed" | "inject">("feed");
   const [sheetOpen, setSheetOpen] = useState(false);
   const firstSeen = useRef<Record<string, number>>({});
-  const knownIds = useRef<Set<string>>(new Set());
+  const arrivalTracker = useRef(createInjectArrivalTracker());
   const isMobile = useIsMobile();
 
   const { playSound, setEnabled: setSoundEffectsEnabled } = useSoundEffects();
@@ -200,14 +201,12 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
       .order("sent_at", { ascending: false });
     if (!data) return;
     const list = data as Inject[];
-    const fresh = list.filter(i => !knownIds.current.has(i.id));
-    const initialLoad = knownIds.current.size === 0;
+    const fresh = arrivalTracker.current.accept(list);
     list.forEach(i => {
-      knownIds.current.add(i.id);
       if (!firstSeen.current[i.id]) firstSeen.current[i.id] = Date.now();
     });
     setInjects(list);
-    if (!initialLoad) fresh.forEach(alertNewInject);
+    fresh.forEach(alertNewInject);
     // Auto-select newest only when nothing unanswered is selected.
     setSelectedId(current => {
       const cur = list.find(i => i.id === current);
@@ -428,14 +427,14 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
       <div className="theme-blue min-h-[100dvh] bg-background text-foreground">
         {freeze}
         {incoming && (
-          <button type="button" key={incoming.id} onClick={() => { select(incoming.id); setIncoming(null); if (isMobile) setMobileScreen("inject"); }}
-            className="incoming-alert fixed left-1/2 top-4 z-[60] w-[min(92vw,420px)] -translate-x-1/2 border-2 border-destructive bg-card p-4 text-left shadow-lg">
+          <Button type="button" variant="ghost" key={incoming.id} onClick={() => { select(incoming.id); setIncoming(null); if (isMobile) setMobileScreen("inject"); }}
+            className="incoming-alert fixed inset-x-0 mx-auto top-4 z-[60] h-auto w-[min(92vw,420px)] flex-col items-start whitespace-normal rounded-none border-2 border-destructive bg-card p-4 text-left shadow-lg">
             <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-destructive">
               <span className="h-2 w-2 animate-ping rounded-full bg-destructive" />Incoming
             </span>
             <span className="mt-1 block text-[10px] uppercase tracking-wider text-muted-foreground">{formatLabel(incoming)} · {incoming.source}</span>
             <span className="mt-1 block text-sm font-semibold leading-snug">{firstLine(incoming.content, 90)}</span>
-          </button>
+          </Button>
         )}
         {mobileScreen === "inject" && activeInject ? (
           <div className="fixed inset-0 z-40 flex flex-col bg-background">
@@ -503,14 +502,14 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
   return (
     <div className="theme-blue flex min-h-screen flex-col bg-background text-foreground lg:h-screen">
       {incoming && (
-        <button type="button" key={incoming.id} onClick={() => { select(incoming.id); setIncoming(null); if (isMobile) setMobileScreen("inject"); }}
-          className="incoming-alert fixed left-1/2 top-4 z-[60] w-[min(92vw,420px)] -translate-x-1/2 border-2 border-destructive bg-card p-4 text-left shadow-lg">
+        <Button type="button" variant="ghost" key={incoming.id} onClick={() => { select(incoming.id); setIncoming(null); if (isMobile) setMobileScreen("inject"); }}
+          className="incoming-alert fixed inset-x-0 mx-auto top-4 z-[60] h-auto w-[min(92vw,420px)] flex-col items-start whitespace-normal rounded-none border-2 border-destructive bg-card p-4 text-left shadow-lg">
           <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-destructive">
             <span className="h-2 w-2 animate-ping rounded-full bg-destructive" />Incoming
           </span>
           <span className="mt-1 block text-[10px] uppercase tracking-wider text-muted-foreground">{formatLabel(incoming)} · {incoming.source}</span>
           <span className="mt-1 block text-sm font-semibold leading-snug">{firstLine(incoming.content, 90)}</span>
-        </button>
+        </Button>
       )}
       <header className="sticky top-0 z-50 border-b-2 border-defender bg-card">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2">
