@@ -45,7 +45,9 @@ import ScenarioResearch from './ScenarioResearch';
 import { hostedScenarioRequest } from '@/lib/hostedScenarioRequest';
 import type { PreparedSession } from './HostSessionLibrary';
 import StorylineTimeline from './StorylineTimeline';
+import DemoScriptTimeline from './DemoScriptTimeline';
 import HostedParticipantDebrief from './HostedParticipantDebrief';
+import { getHostedDemoScript, toHostedDemoArtefact } from '@/lib/hostedDemoScenario';
 import {
   INJECT_MENU,
   INJECT_CATEGORY_LABELS,
@@ -222,6 +224,7 @@ export interface DecisionLogEntry {
 }
 
 const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScenario, preparedSession }: ConsultantDashboardProps) => {
+  const hostedDemo = getHostedDemoScript(config.simulationCompanyId);
   const [isExerciseActive, setIsExerciseActive] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(config.duration * 60);
   const [isPaused, setIsPaused] = useState(true);
@@ -313,8 +316,9 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
         const { data: privatePrep } = await supabase.from('host_session_preparations').select('host_notes').eq('session_id', preparedSession.id).maybeSingle();
         setPreparationNotes(privatePrep?.host_notes || '');
         setPreBrief(preparedSession.pre_brief || '');
-        setPreviewInjects(((preparedSession.preparation_config as unknown as { savedScenario?: Scenario })?.savedScenario?.injects) || []);
-        if (preparedSession.scenario_narrative) setScenario({ id: preparedSession.id, title: preparedSession.scenario_title || 'Client exercise', narrative: preparedSession.scenario_narrative, basedOnTruth: false, implicatedParties: [], severity: 'severe', spreadPattern: 'coordinated', ...((preparedSession.preparation_config as unknown as { savedScenario?: Partial<Scenario> })?.savedScenario ?? {}) });
+        setPreviewInjects(hostedDemo?.injects || ((preparedSession.preparation_config as unknown as { savedScenario?: Scenario })?.savedScenario?.injects) || []);
+        if (hostedDemo) { setScenario(hostedDemo.scenario); onScenarioGenerated?.(hostedDemo.scenario); }
+        else if (preparedSession.scenario_narrative) setScenario({ id: preparedSession.id, title: preparedSession.scenario_title || 'Client exercise', narrative: preparedSession.scenario_narrative, basedOnTruth: false, implicatedParties: [], severity: 'severe', spreadPattern: 'coordinated', ...((preparedSession.preparation_config as unknown as { savedScenario?: Partial<Scenario> })?.savedScenario ?? {}) });
         setIsExerciseActive(['active', 'paused'].includes(preparedSession.status));
         setIsPaused(preparedSession.status !== 'active'); setHasEnded(preparedSession.status === 'completed');
         if (preparedSession.started_at) setTimeRemaining(Math.max(0, config.duration * 60 - Math.floor((Date.now() - new Date(preparedSession.started_at).getTime()) / 1000)));
@@ -450,40 +454,20 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     };
   }, [sessionId]);
 
-  // Auto-load the pre-planned storyline pack for the selected simulation company
+  // Fictional companies always use the exact public-demo scenario and injects.
   useEffect(() => {
+    const demo = getHostedDemoScript(config.simulationCompanyId);
+    if (demo) {
+      setStorylinePack(null);
+      setScenario(demo.scenario);
+      setPreviewInjects(demo.injects);
+      onScenarioGenerated?.(demo.scenario);
+      setPreBrief(prev => prev || `You are the crisis team for ${config.brandName}. ${demo.scenario.narrative}\n\nYou'll receive news, social posts and leaks as they break. Decide quickly, agree who signs off statements, and keep a note of why you chose each action.`);
+      return;
+    }
     const pack = getHostedScenarioPack(config.simulationCompanyId);
     if (!pack) return;
     setStorylinePack(pack);
-    if (pack) setPreBrief(prev => prev || `You are the crisis team for ${config.brandName}. ${pack.narrative}\n\nYou'll receive news, social posts and leaks as they break. Decide quickly, agree who signs off statements, and keep a note of why you chose each action.`);
-    if (!scenario) {
-      const packScenario: Scenario = {
-        id: crypto.randomUUID(),
-        refCode: generateRefCode(),
-        title: pack.title,
-        narrative: pack.narrative,
-        basedOnTruth: true,
-        implicatedParties: [],
-        severity: pack.severity,
-        spreadPattern: "coordinated",
-      };
-      setScenario(packScenario);
-      onScenarioGenerated?.(packScenario);
-      setPreviewInjects(
-        pack.beats.flatMap((beat) =>
-          beat.injects.map((inject, i) => ({
-            id: `${beat.id}-${i}`,
-            timestamp: Math.round(beat.offsetMinutes * (config.duration / 60)) * 60,
-            type: inject.type,
-            content: inject.content,
-            source: `${inject.source} · ${inject.channel}`,
-            reach: inject.reach,
-            sentiment: "hostile" as const,
-            requiresResponse: true,
-          }))
-        )
-      );
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.simulationCompanyId]);
 
@@ -542,7 +526,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     const { data: existing } = await supabase.from('exercise_injects').select('content,source').eq('session_id', sessionId);
     const newInjects = previewInjects.filter(i => !existing?.some(e => e.content === i.content.split('[BRAND]').join(config.brandName) && e.source === i.source));
     if (!newInjects.length) { toast.info('These injects are already prepared.'); return; }
-    const { error } = await supabase.from('exercise_injects').insert(newInjects.map(i => ({ session_id: sessionId, created_by: 'consultant', inject_type: i.type, content: i.content.split('[BRAND]').join(config.brandName), source: i.source, reach: i.reach, sentiment: i.sentiment, timestamp_offset: i.timestamp, is_sent: false })));
+    const { error } = await supabase.from('exercise_injects').insert(newInjects.map(i => ({ session_id: sessionId, created_by: 'consultant', inject_type: i.type, content: i.content.split('[BRAND]').join(config.brandName), source: i.source, reach: i.reach, sentiment: i.sentiment, is_aggressive: i.isAggressive ?? false, artefact: hostedDemo && config.simulationCompanyId ? toHostedDemoArtefact(i, config.simulationCompanyId) : null, timestamp_offset: i.timestamp, is_sent: false })));
     if (error) toast.error('Injects could not be prepared.'); else { setShelfRefresh(v => v + 1); toast.success(`${newInjects.length} injects ready.`); }
   };
   const saveCustomInject = async () => {
@@ -681,6 +665,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     isAggressive: boolean;
     category?: InjectCategory;
     channel?: string;
+    artefact?: ReturnType<typeof toHostedDemoArtefact>;
   }) => {
     if (!sessionId) return;
 
@@ -696,6 +681,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
           sentiment: inject.sentiment,
           is_aggressive: inject.isAggressive,
           narrative_category: inject.category ?? null,
+          artefact: inject.artefact ?? null,
           is_sent: true,
           sent_at: new Date().toISOString(),
           created_by: 'consultant',
@@ -804,8 +790,26 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     toast.success(`Storyline inject sent: ${inject.label}`);
   };
 
+  const handleDemoScriptInject = async (inject: Inject) => {
+    if (!config.simulationCompanyId) return;
+    const saved = await sendInjectToDatabase({
+      type: inject.type,
+      content: inject.content,
+      source: inject.source,
+      reach: inject.reach,
+      sentiment: inject.sentiment,
+      isAggressive: inject.isAggressive ?? false,
+      category: 'disinformation',
+      artefact: toHostedDemoArtefact(inject, config.simulationCompanyId),
+    });
+    if (!saved) return;
+    setInjectedEvents(prev => [{ id: saved.id, time: new Date(), type: inject.type, content: inject.content, targetTeam: 'both', category: 'disinformation' }, ...prev]);
+    toast.success('Demo inject sent.');
+  };
+
   // Generate scenario and injects for preview
   const handleGenerateScenario = async () => {
+    if (hostedDemo) return;
     setIsGeneratingScenario(true);
     let generated: Scenario | null = null;
     try {
@@ -894,6 +898,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
   };
 
   const handleLoadScenario = (refCode: string) => {
+    if (hostedDemo) return;
     const found = savedScenarios.find(s => s.refCode === refCode);
     if (found) {
       setScenario(found.scenario);
