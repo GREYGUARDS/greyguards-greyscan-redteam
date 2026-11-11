@@ -116,6 +116,9 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
         options: { emailRedirectTo: `${window.location.origin}${copy.landing}` },
       });
       if (error) throw error;
+      void supabase.functions.invoke("notify-admin", {
+        body: { kind: "signup", email: email.trim(), product: variant === "redteam" ? "Red Team" : "GreyScan" },
+      });
       if (data.session) {
         await supabase.rpc("claim_brand_access");
         navigate(copy.landing, { replace: true });
@@ -158,7 +161,9 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
     }
     setLoading(true);
     try {
+      const requestId = crypto.randomUUID();
       const { error: insertError } = await supabase.from("platform_access_requests").insert({
+        id: requestId,
         full_name: name,
         organisation,
         email,
@@ -167,13 +172,9 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
       });
       if (insertError) throw insertError;
 
-      const subject = encodeURIComponent(
-        `${variant === "redteam" ? "Red Team" : "GreyScan"} access request — ${organisation}`
-      );
-      const body = encodeURIComponent(
-        `Name: ${name}\nOrganisation: ${organisation}\nBrand: ${brandName}\nEmail: ${email}\n\nUse case:\n${useCase || "(none provided)"}\n\n— Submitted via ${variant === "redteam" ? "Red Team" : "GreyScan"}`
-      );
-      window.location.href = `mailto:info@greyguards.com?subject=${subject}&body=${body}`;
+      void supabase.functions.invoke("notify-admin", {
+        body: { kind: "access_request", requestId, product: variant === "redteam" ? "Red Team" : "GreyScan" },
+      });
 
       toast({
         title: "Request received",
