@@ -108,7 +108,7 @@ const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
 
   // Pre-rendered circulating X post for the fictional companies. The most
   // aggressive social beat is shown as a hero alert inside a handset.
-  if ((inject.type === "social_post" || inject.type === "influencer") && xPostShot) {
+  if ((inject.type === "social_post" || inject.type === "influencer") && xPostShot && !String(inject.id).startsWith("reactive") && /-1$/.test(String(inject.id))) {
     const shot = (
       <img
         src={xPostShot}
