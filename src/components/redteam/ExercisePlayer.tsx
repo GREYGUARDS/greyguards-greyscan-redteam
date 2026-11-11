@@ -28,6 +28,7 @@ import {
 import { ExerciseConfig, Scenario, Inject, ResponseOption, TeamScore, ResponseRecord } from "@/pages/RedTeam";
 import { getSimulationCompany, getDemoScenario } from "@/lib/simulationCompanies";
 import { getDemoInjects } from "@/lib/demoInjects";
+import { DEMO_PROGRESS_KEY, readDemoProgress, demoActionConsequence } from '@/lib/demoPlayback';
 import { buildInjectTimeline, findBeat, type TimelineBeat } from "@/lib/injectTimeline";
 
 
@@ -104,18 +105,20 @@ interface ExercisePlayerProps {
 }
 
 const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayerProps) => {
-  const [timeRemaining, setTimeRemaining] = useState(config.duration * 60);
-  const [isPaused, setIsPaused] = useState(false);
-  const [injects, setInjects] = useState<Inject[]>([]);
-  const [activeInject, setActiveInject] = useState<Inject | null>(null);
-  const [narrativeControl, setNarrativeControl] = useState(50);
-  const [reputationDamage, setReputationDamage] = useState(20);
-  const [decisionsCorrect, setDecisionsCorrect] = useState(0);
-  const [decisionsTotal, setDecisionsTotal] = useState(0);
-  const [responseTimes, setResponseTimes] = useState<number[]>([]);
-  const [injectStartTime, setInjectStartTime] = useState<number | null>(null);
-  const [eventLog, setEventLog] = useState<Array<{ time: number; message: string; type: "inject" | "response" | "system" }>>([]);
-  const [responseHistory, setResponseHistory] = useState<ResponseRecord[]>([]);
+  const isScriptedDemo = getDemoScenario(config.simulationCompanyId || '')?.title === scenario.title;
+  const [restored] = useState(() => isScriptedDemo ? readDemoProgress(sessionStorage, scenario.id) : null);
+  const [timeRemaining, setTimeRemaining] = useState(restored?.timeRemaining ?? config.duration * 60);
+  const [isPaused, setIsPaused] = useState(restored?.isPaused ?? false);
+  const [injects, setInjects] = useState<Inject[]>(restored?.injects ?? []);
+  const [activeInject, setActiveInject] = useState<Inject | null>(restored?.activeInject ?? null);
+  const [narrativeControl, setNarrativeControl] = useState(restored?.narrativeControl ?? 50);
+  const [reputationDamage, setReputationDamage] = useState(restored?.reputationDamage ?? 20);
+  const [decisionsCorrect, setDecisionsCorrect] = useState(restored?.decisionsCorrect ?? 0);
+  const [decisionsTotal, setDecisionsTotal] = useState(restored?.decisionsTotal ?? 0);
+  const [responseTimes, setResponseTimes] = useState<number[]>(restored?.responseTimes ?? []);
+  const [injectStartTime, setInjectStartTime] = useState<number | null>(restored?.injectStartTime ?? null);
+  const [eventLog, setEventLog] = useState<Array<{ time: number; message: string; type: "inject" | "response" | "system" }>>(restored?.eventLog ?? []);
+  const [responseHistory, setResponseHistory] = useState<ResponseRecord[]>(restored?.responseHistory ?? []);
   const [isLoading, setIsLoading] = useState(false);
   const [loadElapsed, setLoadElapsed] = useState(0);
   const [customCountermeasure, setCustomCountermeasure] = useState("");
@@ -125,7 +128,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   const reactingRef = useRef(false);
   const nextInjectTimeRef = useRef<number>(15); // First inject after 15 seconds
   const injectCountRef = useRef<number>(0);
-  const firedCountRef = useRef<number>(0);
+  const firedCountRef = useRef<number>(restored?.firedCount ?? 0);
   const lastResponseTimeRef = useRef<number | null>(null);
 
   const totalDuration = config.duration * 60;
@@ -142,6 +145,19 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   });
   const completedRef = useRef(false);
   const attackTimelineRef = useRef<AttackTimelineEntry[]>([]);
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const previous = [html.style.overscrollBehaviorY, body.style.overscrollBehaviorY];
+    html.style.overscrollBehaviorY = 'none'; body.style.overscrollBehaviorY = 'none';
+    return () => { html.style.overscrollBehaviorY = previous[0]; body.style.overscrollBehaviorY = previous[1]; };
+  }, []);
+  useEffect(() => {
+    if (!isScriptedDemo || !injects.length || completedRef.current) return;
+    sessionStorage.setItem(DEMO_PROGRESS_KEY, JSON.stringify({ scenarioId: scenario.id, timeRemaining, isPaused, injects, activeInject, narrativeControl, reputationDamage, decisionsCorrect, decisionsTotal, responseTimes, injectStartTime, eventLog, responseHistory, firedCount: firedCountRef.current }));
+  }, [isScriptedDemo, scenario.id, timeRemaining, isPaused, injects, activeInject, narrativeControl, reputationDamage, decisionsCorrect, decisionsTotal, responseTimes, injectStartTime, eventLog, responseHistory]);
+  useEffect(() => { if (activeInject) window.scrollTo({ top: 0, behavior: 'instant' }); }, [activeInject?.id]);
 
   useEffect(() => {
     metricsRef.current = {
@@ -442,12 +458,14 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
 
   // Initialize injects — ordered into a real dated timeline before play starts
   useEffect(() => {
+    if (restored) return;
     const loadInjects = async () => {
       setIsLoading(true);
       const generatedInjects = await generateInjects();
       const ordered = buildInjectTimeline(generatedInjects, config.duration * 60).map((b) => b.inject);
       firedCountRef.current = 0;
       setInjects(ordered);
+      if (isScriptedDemo && ordered[0]) { firedCountRef.current = 1; triggerInject(ordered[0]); }
       setIsLoading(false);
     };
     loadInjects();
@@ -671,6 +689,17 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
     feedback: string | undefined,
     controlAfter: number
   ) => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    if (isScriptedDemo) {
+      const next = injects[firedCountRef.current];
+      if (next) {
+        firedCountRef.current += 1;
+        triggerInject({ ...next, consequence: demoActionConsequence(actionText.split(' — ')[0], effectiveness) });
+      } else {
+        setTimeout(finishExercise, 0);
+      }
+      return;
+    }
     setIsReacting(true);
     reactingRef.current = true;
 
@@ -1010,20 +1039,20 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
   }
 
   return (
-    <div className="min-h-screen bg-background overflow-auto">
+    <div className="min-h-screen bg-background">
       {/* Top Bar with Timer */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b-4 border-border">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-40 bg-card border-b-2 border-border">
+        <div className="container mx-auto px-3 py-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
             <Button variant="ghost" size="sm" onClick={handleExit} className="uppercase tracking-wider">
               <ArrowLeft className="h-4 w-4 mr-1" />
-              End &amp; Debrief
+              <span className="hidden sm:inline">End &amp; Debrief</span><span className="sm:hidden">End</span>
 
 
             </Button>
-            <div>
-              <span className="font-bold uppercase tracking-wider text-sm">{config.brandName}</span>
-              <span className="block text-xs text-muted-foreground uppercase">Crisis Exercise</span>
+            <div className="min-w-0">
+              <span className="block truncate font-bold text-xs sm:text-sm">{config.brandName}</span>
+              <span className="hidden sm:block text-xs text-muted-foreground uppercase">Crisis Exercise</span>
             </div>
           </div>
 
@@ -1034,7 +1063,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
             onPauseToggle={() => setIsPaused(!isPaused)}
           />
 
-            <div className="flex items-center gap-6">
+            <div className="hidden lg:flex items-center gap-6">
             <div className="text-right">
               <div className="flex items-center gap-2 justify-end">
                 <span className={`text-xl font-bold ${narrativeControl >= 50 ? 'text-success' : 'text-destructive'}`}>
@@ -1065,7 +1094,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       </header>
 
       {/* Main Content */}
-      <main className="pt-28 pb-8 container mx-auto px-4 min-h-screen">
+      <main className="pt-4 pb-8 container mx-auto px-3 sm:px-4 min-h-screen">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Scenario & Event Log */}
           <div className="order-2 lg:order-1 lg:col-span-1 space-y-6">
@@ -1127,12 +1156,12 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
             {activeInject ? (
               <Card className={`border-4 ${activeInject.isAggressive ? 'border-destructive glow-danger' : 'border-warning'} bg-card animate-scale-in`}>
                 <CardHeader className={`border-b-4 ${activeInject.isAggressive ? 'border-destructive bg-destructive/10' : 'border-warning bg-warning/10'}`}>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-3 uppercase tracking-wider">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <CardTitle className="flex min-w-0 flex-1 items-center gap-2 uppercase">
                       <div className={`p-2 ${activeInject.isAggressive ? 'bg-destructive' : 'bg-warning'} text-background`}>
                         {getInjectIcon(activeInject.type)}
                       </div>
-                      <div>
+                      <div className="min-w-0 break-words">
                         <span className="block text-lg">{activeInject.type.replace("_", " ").toUpperCase()}</span>
                         <span className="block text-xs text-muted-foreground font-normal">{activeInject.source}</span>
                         {activeBeat && (
