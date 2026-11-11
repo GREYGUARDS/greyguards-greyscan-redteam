@@ -1,11 +1,13 @@
 /**
  * Scripted, phone-first injects for the three public demo scenarios.
- * Scripted copy: 9 short injects per demo across X, TikTok, Facebook, Reddit, Telegram, reviews and news. Fictional only.
+ * Scripted copy: 9 short injects per demo across Tweets, TikTok, Community pages, Reddit, Telegram, reviews and news. Fictional only.
  */
 import type { Inject, ResponseOption } from "@/pages/RedTeam";
 import type { VideoOverlay } from "@/components/redteam/InjectOverlay";
 import pharmacoreVideo from "@/assets/demo_video_pharmacore.mp4.asset.json";
 import trustinsureVideo from "@/assets/demo_video_trustinsure.mp4.asset.json";
+import newsTonightVideo from "@/assets/demo_news_tonight.mp4.asset.json";
+import cbbnVideo from "@/assets/demo_news_cbbn.mp4.asset.json";
 import pigeebankVideo from "@/assets/demo_video_pigeebank.mp4.asset.json";
 
 type Opt = [label: string, description: string, type: ResponseOption["type"], effectiveness: number, risk: ResponseOption["riskLevel"], time: number];
@@ -36,19 +38,19 @@ const build = (prefix: string, specs: Spec[]): Inject[] =>
 
 const DEMO_INJECTS: Record<string, Inject[]> = {
   "ashworth-reilly": build("pc", [
-    { t: 75, type: "social_post", source: "Sheffield Parents Network · Facebook group", reach: 22000, sentiment: "hostile",
-      visual: { template: "facebook", label: "Facebook group · 22k members", data: { pageName: "Sheffield Parents Network", groupLabel: "Private group · 22K members", author: "Kerry Walsh", timestamp: "18m", body: "PLEASE SHARE 🙏 My friend's a nurse at the Children's and says they've had 3 kids in with reactions to Pharmacore amoxicillin. Check your bottles!!", reactions: "1.4K", comments: "612", shares: "2.3K", topComment: { author: "Dan R", text: "Just binned ours. Not risking it." } } },
+    { t: 75, type: "social_post", source: "Sheffield Parents Network · Community page", reach: 22000, sentiment: "hostile",
+      visual: { template: "facebook", label: "Community page · 22k members", data: { pageName: "Sheffield Parents Network", groupLabel: "Private group · 22K members", author: "Kerry Walsh", timestamp: "18m", body: "PLEASE SHARE 🙏 My friend's a nurse at the Children's and says they've had 3 kids in with reactions to Pharmacore amoxicillin. Check your bottles!!", reactions: "1.4K", comments: "612", shares: "2.3K", topComment: { author: "Dan R", text: "Just binned ours. Not risking it." } } },
       content: "A local parents' group post claiming nurses have seen reactions to Pharmacore amoxicillin is being shared thousands of times.",
       options: [
         ["Ask admins to pin facts", "Send group admins the verified batch checker and GP advice to pin.", "social_response", 82, "low", 30],
         ["Paid local ads", "Run geo-targeted 'check the facts' ads in Sheffield.", "social_response", 60, "medium", 30],
-        ["Report group to Facebook", "Ask Facebook to remove the post as health misinformation.", "internal_action", 40, "medium", 15],
+        ["Report group to the platform", "Ask the platform to remove the post as health misinformation.", "internal_action", 40, "medium", 15],
       ] },
-    { t: 195, type: "amplification", source: "Network analysis · X & Facebook", reach: 95000, sentiment: "hostile",
+    { t: 195, type: "amplification", source: "Network analysis · Tweets & Community pages", reach: 95000, sentiment: "hostile",
       content: "320 new accounts posted the same 'Pharmacore knew' wording in 40 minutes. Most were created this month.",
       options: [
         ["Publish the pattern", "Share evidence of the coordinated accounts with health journalists.", "media_outreach", 82, "medium", 45],
-        ["Report to platforms", "Send the account list to X and Meta trust & safety teams.", "internal_action", 75, "low", 20],
+        ["Report to platforms", "Send the account list to the platforms' trust & safety teams.", "internal_action", 75, "low", 20],
         ["Reply to every account", "Get the social team to answer each post individually.", "social_response", 20, "high", 30],
       ] },
     { t: 345, type: "social_post", source: "r/NHS · Reddit", reach: 41000, sentiment: "confused",
@@ -67,12 +69,12 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Comment publicly", "Reply under his post with the data link.", "social_response", 72, "low", 15],
         ["Ask him to delete", "Message him saying the post is damaging.", "legal", 20, "high", 10],
       ] },
-    { t: 30, type: "social_post", source: "@UK_PharmaWatch (3.2k followers) · X", reach: 3200, sentiment: "hostile",
+    { t: 30, type: "social_post", source: "@UK_PharmaWatch (3.2k followers) · Tweets", reach: 3200, sentiment: "hostile",
       content: "UNVERIFIED: Pharmacore's Doncaster hub had a cold-chain breach and still shipped amoxicillin. Three children in Sheffield hospital. Why no MHRA alert? #DrugSafety",
       options: [
         ["Truth-sandwich holding line", "Share unbroken 2–8°C hub logs, say you're monitoring, give chemists a contact line.", "statement", 85, "low", 30],
         ["Brief pharmacy network", "Batch-verification memo to community pharmacies before consumer press picks it up.", "internal_action", 80, "low", 45],
-        ["Flat denial + legal warning", "Reply on X: '100% false and malicious, lawyers are watching.'", "legal", 30, "high", 15],
+        ["Flat denial + legal warning", "Reply in Tweets: '100% false and malicious, lawyers are watching.'", "legal", 30, "high", 15],
       ] },
     { t: 120, type: "influencer", source: "Parent creator · TikTok · 180k views #RecallTheMeds", reach: 180000, sentiment: "hostile",
       video: { url: pharmacoreVideo.url, overlay: { platform: "tiktok", handle: "@sheffieldmum_jo", caption: "Pharmacore knew. Check your kids' meds 😡 #RecallTheMeds", likes: "24.6K", comments: "3.1K", shares: "8.9K", views: "180K", channel: "", headline: "", ticker: "" } },
@@ -89,10 +91,11 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Trade-only bulletin", "Urgent alert to chemists: stock is verified clear.", "internal_action", 65, "low", 30],
         ["Precautionary freeze", "Pause amoxicillin shipments while verifying batches.", "internal_action", 25, "high", 20],
       ] },
-    { t: 420, type: "news_article", source: "BBC / Sky · Breaking alert", reach: 2000000, sentiment: "confused",
+    { t: 420, type: "news_article", source: "News Tonight · Breaking alert", reach: 2000000, sentiment: "confused",
+      video: { url: newsTonightVideo.url, overlay: { platform: "news", handle: "", caption: "", likes: "", comments: "", shares: "", views: "", channel: "NEWS TONIGHT", headline: "Pharmacore antibiotic contamination claims", ticker: "Regulator yet to confirm any recall · Parents urged to check official sources" } },
       content: "BREAKING: Health officials investigate distribution giant Pharmacore after nationwide antibiotic contamination reports.",
       options: [
-        ["Live broadcast interview", "Put Priya Khatri (Regulatory Director) on BBC News within 15 minutes.", "media_outreach", 80, "high", 60],
+        ["Live broadcast interview", "Put Priya Khatri (Regulatory Director) on News Tonight within 15 minutes.", "media_outreach", 80, "high", 60],
         ["Written wire statement", "Verifiable factsheet to PA Media and health editors.", "statement", 78, "low", 30],
         ["No comment", "Wait for the internal audit to finish tomorrow morning.", "internal_action", 15, "high", 15],
       ] },
@@ -105,13 +108,13 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
   ]),
   "meridian-vale": build("ti", [
-    { t: 90, type: "social_post", source: "Flood Victims UK · Facebook page", reach: 48000, sentiment: "hostile",
-      visual: { template: "facebook", label: "Facebook page · 48k followers", data: { pageName: "Flood Victims UK", groupLabel: "Community page", author: "Flood Victims UK", timestamp: "1h", body: "Their CEO SAID IT. 'People will simply have to wait.' 6 months on, still no payout for our members. Share if TrustInsureUK let you down 👇", reactions: "5.2K", comments: "1.9K", shares: "3.4K", topComment: { author: "Mel Jones", text: "Same here, still waiting since March." } } },
+    { t: 90, type: "social_post", source: "Flood Victims UK · Community page", reach: 48000, sentiment: "hostile",
+      visual: { template: "facebook", label: "Community page · 48k followers", data: { pageName: "Flood Victims UK", groupLabel: "Community page", author: "Flood Victims UK", timestamp: "1h", body: "Their CEO SAID IT. 'People will simply have to wait.' 6 months on, still no payout for our members. Share if TrustInsureUK let you down 👇", reactions: "5.2K", comments: "1.9K", shares: "3.4K", topComment: { author: "Mel Jones", text: "Same here, still waiting since March." } } },
       content: "A flood victims' page is sharing the cut CEO clip and collecting complaints.",
       options: [
         ["Offer a direct case line", "Post a named contact for anyone waiting on a flood claim.", "social_response", 85, "low", 30],
         ["Share the full clip", "Comment with the unedited footage and context.", "social_response", 75, "low", 15],
-        ["Report the page", "Ask Facebook to remove the clip as manipulated media.", "internal_action", 40, "medium", 15],
+        ["Report the page", "Ask the platform to remove the clip as manipulated media.", "internal_action", 40, "medium", 15],
       ] },
     { t: 225, type: "social_post", source: "Trustpilot · review spike", reach: 30000, sentiment: "hostile",
       visual: { template: "reviews", label: "Trustpilot · last hour", data: { businessName: "TrustInsureUK PLC", overallRating: 1.6, totalReviews: "4,118", reviews: [ { author: "J. Patel", date: "12 min ago", rating: 1, text: "Watched the CEO video. Cancelling today." }, { author: "Sam K", date: "20 min ago", rating: 1, text: "Never had a claim but not waiting to find out." }, { author: "R. Ellis", date: "31 min ago", rating: 1, text: "Disgusting attitude to customers." } ] } },
@@ -121,8 +124,8 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Flag review spike", "Ask Trustpilot to review the unusual surge.", "internal_action", 70, "low", 15],
         ["Offer vouchers", "Offer reviewers a discount to remove reviews.", "statement", 10, "high", 20],
       ] },
-    { t: 375, type: "news_article", source: "Money Daily · Online", reach: 300000, sentiment: "confused",
-      visual: { template: "news-comments", label: "News site · comments", data: { headline: "TrustInsureUK boss in 'claims can wait' row — insurer says clip was edited", commentCount: "842", comments: [ { username: "sceptic_steve", timestamp: "5m", text: "Edited or not, they all delay payouts." }, { username: "clare_m", timestamp: "9m", text: "Has anyone actually seen the full video?" } ] } },
+    { t: 375, type: "news_article", source: "News Tonight · Online", reach: 300000, sentiment: "confused",
+      visual: { template: "news-comments", label: "News Tonight · reader comments", data: { headline: "TrustInsureUK boss in 'claims can wait' row — insurer says clip was edited", commentCount: "842", comments: [ { username: "sceptic_steve", timestamp: "5m", text: "Edited or not, they all delay payouts." }, { username: "clare_m", timestamp: "9m", text: "Has anyone actually seen the full video?" } ] } },
       content: "A consumer news site has run the story — readers are split on whether the clip was edited.",
       options: [
         ["Give the full clip to the editor", "Ask for the unedited footage to be embedded in the article.", "media_outreach", 85, "low", 30],
@@ -137,7 +140,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Manager huddles", "Ask team leaders to brief staff verbally.", "internal_action", 70, "low", 30],
         ["Ban phones on the floor", "Stop staff discussing it in chats.", "internal_action", 15, "high", 10],
       ] },
-    { t: 30, type: "social_post", source: "X / Reddit · 12k reposts", reach: 120000, sentiment: "hostile",
+    { t: 30, type: "social_post", source: "Tweets / Reddit · 12k reposts", reach: 120000, sentiment: "hostile",
       content: "Recut 12s clip: TrustInsureUK CEO Thomas Reeve 'admits' they stall flood claims — 'People will simply have to wait; claims aren't our priority.'",
       options: [
         ["Post the unedited footage", "Side-by-side video proving the quote was cut mid-sentence.", "social_response", 88, "low", 30],
@@ -183,8 +186,8 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Report the channel", "Report the channel to Telegram as financial scam content.", "internal_action", 55, "low", 15],
         ["Raise withdrawal limits", "Temporarily increase limits to 'prove' money is there.", "internal_action", 35, "high", 20],
       ] },
-    { t: 225, type: "social_post", source: "Savers Club UK · Facebook group", reach: 64000, sentiment: "hostile",
-      visual: { template: "facebook", label: "Facebook group · 64k members", data: { pageName: "Savers Club UK", groupLabel: "Public group · 64K members", author: "Gary Whitfield", timestamp: "22m", body: "Moved my £12k out of PigeeBank this morning. Better safe than sorry with this IPO stuff. Anyone else?", reactions: "2.1K", comments: "940", shares: "780", topComment: { author: "Linda P", text: "Doing mine now. FSCS takes months to pay out." } } },
+    { t: 225, type: "social_post", source: "Savers Club UK · Community page", reach: 64000, sentiment: "hostile",
+      visual: { template: "facebook", label: "Community page · 64k members", data: { pageName: "Savers Club UK", groupLabel: "Public group · 64K members", author: "Gary Whitfield", timestamp: "22m", body: "Moved my £12k out of PigeeBank this morning. Better safe than sorry with this IPO stuff. Anyone else?", reactions: "2.1K", comments: "940", shares: "780", topComment: { author: "Linda P", text: "Doing mine now. FSCS takes months to pay out." } } },
       content: "A big savers' group is swapping stories about pulling money out — and a false claim that FSCS is slow.",
       options: [
         ["Explain FSCS clearly", "Post a plain guide: £85k protected, paid in days not months.", "social_response", 85, "low", 30],
@@ -199,15 +202,15 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Prioritise support", "Move staff to clear the transfer queue fast.", "internal_action", 82, "low", 30],
         ["Hide reviews", "Ask Apple to remove 'unfair' reviews.", "internal_action", 20, "high", 15],
       ] },
-    { t: 520, type: "social_post", source: "Fintech journalist · X", reach: 150000, sentiment: "confused",
-      visual: { template: "social-dark", label: "X post", data: { displayName: "Ellie Marsh", handle: "@elliemarsh_fin", verified: true, timestamp: "14m", body: "I've seen no evidence PigeeBank is restricting withdrawals. But the bank needs to publish numbers, not vibes. Asked them for data.", comments: "312", reposts: "1.2K", likes: "4.8K", bookmarks: "290" } },
+    { t: 520, type: "social_post", source: "Fintech journalist · Tweets", reach: 150000, sentiment: "confused",
+      visual: { template: "social-dark", label: "Tweets", data: { displayName: "Ellie Marsh", handle: "@elliemarsh_fin", verified: true, timestamp: "14m", body: "I've seen no evidence PigeeBank is restricting withdrawals. But the bank needs to publish numbers, not vibes. Asked them for data.", comments: "312", reposts: "1.2K", likes: "4.8K", bookmarks: "290" } },
       content: "A respected fintech journalist sees no evidence of a problem — but wants numbers.",
       options: [
         ["Send her the data", "Give her live withdrawal and deposit figures on the record.", "media_outreach", 88, "low", 30],
         ["Founder replies", "Alex Bryce quote-posts with a short reassurance.", "social_response", 65, "medium", 15],
         ["Decline to comment", "Say the bank won't comment on rumours.", "statement", 20, "high", 10],
       ] },
-    { t: 30, type: "social_post", source: "Reddit r/UKPersonalFinance & X", reach: 80000, sentiment: "hostile",
+    { t: 30, type: "social_post", source: "Reddit r/UKPersonalFinance & Tweets", reach: 80000, sentiment: "hostile",
       content: "'PigeeBank app has frozen all Faster Payments right before their IPO. Exit scam? Get your cash out now.' (re-shared maintenance screenshot)",
       options: [
         ["Live status dashboard", "Post the live payments dashboard showing 99.98% processing.", "social_response", 88, "low", 30],
@@ -229,7 +232,8 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Clearing partner confirmation", "Banking partner issues a joint routing confirmation.", "statement", 82, "low", 45],
         ["Threaten the leaker", "Warn of criminal action against fake leakers.", "legal", 20, "high", 20],
       ] },
-    { t: 450, type: "news_article", source: "Bloomberg / Sifted · Push alert", reach: 900000, sentiment: "confused",
+    { t: 450, type: "news_article", source: "CBBN · Live business desk", reach: 900000, sentiment: "confused",
+      video: { url: cbbnVideo.url, overlay: { platform: "news", handle: "", caption: "", likes: "", comments: "", shares: "", views: "", channel: "CBBN", headline: "PigeeBank IPO under pressure", ticker: "Withdrawal rumours spread on Telegram · Bank yet to publish outflow data" } },
       content: "BREAKING: PigeeBank IPO roadshow in jeopardy as deposit outflows surge amid weekend social panic.",
       options: [
         ["On-the-record briefing", "CFO and Naomi Hart (COO) give verified deposit retention figures.", "media_outreach", 85, "medium", 45],

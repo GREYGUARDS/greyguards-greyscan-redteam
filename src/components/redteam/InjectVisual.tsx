@@ -112,7 +112,7 @@ const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
     const shot = (
       <img
         src={xPostShot}
-        alt={`Fictional X post about ${company?.name ?? "the target"}`}
+        alt={`Fictional tweet about ${company?.name ?? "the target"}`}
         loading="lazy"
         width={1024}
         height={640}
