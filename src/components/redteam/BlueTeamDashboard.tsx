@@ -24,6 +24,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import HostedInjectMedia from './HostedInjectMedia';
 import HostedParticipantDebrief from './HostedParticipantDebrief';
 import { createInjectArrivalTracker } from '@/lib/injectArrivalTracker';
+import { fromHostedDemoArtefact } from '@/lib/hostedDemoScenario';
 import { Meter, InjectThumb, PostCard, timeAgo, reachLabel, formatLabel, firstLine, clock, type ConsoleInject } from "./ConsoleParts";
 
 interface BlueTeamDashboardProps {
@@ -94,6 +95,8 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
 
   // Response options are neutral: effectiveness and risk only appear in feedback.
   const generateResponseOptions = (inject: Inject): ResponseOption[] => {
+    const scripted = fromHostedDemoArtefact(inject.artefact)?.inject.responseOptions;
+    if (scripted?.length) return scripted.map(option => ({ id: option.id, label: option.label, description: option.description, type: option.type, effectiveness: option.effectiveness, riskLevel: option.riskLevel }));
     const options: ResponseOption[] = [
       { id: "1", label: "Issue denial statement", description: "Quickly deny the allegations publicly", type: "statement", effectiveness: 60, riskLevel: "medium" },
       { id: "2", label: "Monitor & gather intel", description: "Watch the situation develop before responding", type: "internal_action", effectiveness: 70, riskLevel: "low" },

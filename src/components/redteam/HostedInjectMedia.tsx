@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { VideoOverlayLayer, StatsBar, type VideoOverlay, type EngagementStats } from './InjectOverlay';
 import { RefreshCw, MessageCircle, Repeat2, Heart, Globe, Users, Send } from 'lucide-react';
 import HostedPhotoMedia, { asPhoto } from './HostedPhotoMedia';
+import InjectVisual from './InjectVisual';
+import { fromHostedDemoArtefact } from '@/lib/hostedDemoScenario';
+import { getSimulationCompany } from '@/lib/simulationCompanies';
 
 export interface HostedArtefact {
   kind: 'website' | 'x' | 'whatsapp' | 'telegram' | 'facebook';
@@ -52,8 +55,10 @@ export default function HostedInjectMedia({ storagePath, artefact }: { storagePa
   const raw = artefact && typeof artefact === 'object' && 'kind' in artefact ? artefact as { kind: string; overlay?: VideoOverlay; videoKind?: string } : null;
   const overlay = raw?.kind === 'video' ? raw.overlay ?? null : null;
   const photo = asPhoto(artefact);
-  const visual = raw && raw.kind !== 'video' && !photo ? raw as unknown as HostedArtefact : null;
+  const demo = fromHostedDemoArtefact(artefact);
+  const visual = raw && raw.kind !== 'video' && raw.kind !== 'demo' && !photo ? raw as unknown as HostedArtefact : null;
   return <>
+    {demo && <InjectVisual inject={demo.inject} company={getSimulationCompany(demo.companyId)} />}
     {photo && <HostedPhotoMedia photo={photo} />}
     {visual && <HostedArtefactView artefact={visual} />}
     {storagePath && <div className="my-4 space-y-2">
