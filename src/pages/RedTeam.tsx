@@ -43,6 +43,7 @@ import BlueTeamDashboard from "@/components/redteam/BlueTeamDashboard";
 import RedTeamDashboard from "@/components/redteam/RedTeamDashboard";
 import HostedParticipantDebrief from "@/components/redteam/HostedParticipantDebrief";
 import { useAccessProfile } from "@/hooks/useAccessProfile";
+import { DEMO_SESSION_KEY, DEMO_PROGRESS_KEY, readDemoSession } from '@/lib/demoPlayback';
 import {
   Select,
   SelectContent,
@@ -258,10 +259,11 @@ interface TeamSessionData {
 }
 
 const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
+  const [restoredDemo] = useState(() => demoMode ? readDemoSession(sessionStorage) : null);
   const [preparedSession, setPreparedSession] = useState<PreparedSession | null>(null);
-  const [phase, setPhase] = useState<Phase>("landing");
+  const [phase, setPhase] = useState<Phase>(restoredDemo ? 'exercise' : 'landing');
   const access = useAccessProfile();
-  const [config, setConfig] = useState<ExerciseConfig>({
+  const [config, setConfig] = useState<ExerciseConfig>(restoredDemo?.config ?? {
     brandName: "",
     mode: "self",
     duration: 10,
@@ -269,7 +271,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
     scenarioCategory: "random"
   });
   const [consultantAction, setConsultantAction] = useState<"host" | "join">("join");
-  const [scenario, setScenario] = useState<Scenario | null>(null);
+  const [scenario, setScenario] = useState<Scenario | null>(restoredDemo?.scenario ?? null);
   const [exerciseResults, setExerciseResults] = useState<ExerciseResults | null>(null);
   const [teamSession, setTeamSession] = useState<TeamSessionData | null>(null);
 
@@ -331,6 +333,11 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
 
 
   const handleScenarioReady = (generatedScenario: Scenario) => {
+    if (demoMode) {
+      sessionStorage.removeItem(DEMO_PROGRESS_KEY);
+      sessionStorage.setItem(DEMO_SESSION_KEY, JSON.stringify({ config, scenario: generatedScenario }));
+    }
+    window.scrollTo(0, 0);
     setScenario(generatedScenario);
     setPhase("exercise");
   };
@@ -341,11 +348,13 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
     eventLog: Array<{ time: number; message: string; type: string }>,
     attackTimeline?: AttackTimelineEntry[]
   ) => {
+    if (demoMode) { sessionStorage.removeItem(DEMO_SESSION_KEY); sessionStorage.removeItem(DEMO_PROGRESS_KEY); }
     setExerciseResults({ score, responseHistory, eventLog, attackTimeline });
     setPhase("results");
   };
 
   const handleRestartExercise = () => {
+    if (demoMode) { sessionStorage.removeItem(DEMO_SESSION_KEY); sessionStorage.removeItem(DEMO_PROGRESS_KEY); }
     setPhase("landing");
     setConfig({
       brandName: "",
@@ -518,7 +527,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                       <span className="flex flex-col items-start gap-0.5">
                         <span className="text-xs uppercase tracking-wider">{company.name}</span>
                         <span className="text-[10px] text-muted-foreground">
-                          {company.sector} · {company.difficulty} · {company.tierRange}
+                          {company.sector}
                         </span>
                       </span>
                     </SelectItem>
@@ -536,7 +545,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                       />
                     )}
                     <p className="text-[11px] text-muted-foreground">
-                      {activeCompany.industry} · {activeCompany.headquarters}
+                      {activeCompany.sector} · Fictional company
                     </p>
                   </div>
 
@@ -558,15 +567,11 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
                         <div className="min-w-0">
                           <p className="text-[11px] uppercase tracking-wider">{p.name}</p>
                           <p className="text-[10px] text-muted-foreground">{p.role}</p>
-                          <p className="text-[10px] text-muted-foreground/80">{p.vulnerability}</p>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <p className="text-[11px] text-muted-foreground">
-                    {activeCompany.difficultyNote}
-                  </p>
                   <p className="text-[10px] text-muted-foreground/70">
                     Fictional company, people and imagery — simulation use only.
                   </p>

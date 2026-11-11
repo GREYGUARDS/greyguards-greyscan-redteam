@@ -1,6 +1,7 @@
 # Current work
 
-- [ ] Build Host Master Inject Sandbox with demo/saved-session catalogue, filters, participant previews and response matrix; verify desktop/mobile and host access
+- [x] Build Host Master Inject Sandbox: 27 canonical demo injects plus owner-scoped saved inject reads, filters, participant previews and response matrix; admin desktop/mobile and video checks passed (host account currently has no saved injects)
+- [x] Mobile demo: compact sticky clock, shorter profiles/brief, immediate first and next scripted inject, scroll-to-top and session refresh recovery; nine-decision mobile run through debrief passed; native DuckDuckGo gesture not available in Chromium checks
 
 - [x] Make named-company GreyScan/background research explicit in hosted setup and add Custom Scenario to narrative themes; live Tesco scan returned 24 source links, preserved the custom false claim and saved research/outline; four tests passed
 

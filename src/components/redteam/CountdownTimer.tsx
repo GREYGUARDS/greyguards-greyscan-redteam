@@ -53,8 +53,8 @@ const CountdownTimer = ({ timeRemaining, totalDuration, isPaused, onPauseToggle 
   };
 
   return (
-    <div className="flex items-center gap-3">
-      <div className={`relative px-6 py-3 border-4 transition-all duration-300 ${getTimerStyles()}`}>
+    <div className="flex shrink-0 items-center gap-2 sm:gap-3" aria-label="Exercise countdown">
+      <div className={`relative px-2 py-1 sm:px-6 sm:py-3 border-2 sm:border-4 transition-all duration-300 ${getTimerStyles()}`}>
         {/* Danger indicator */}
         {pulseIntensity >= 2 && (
           <div className="absolute -top-2 -right-2">
@@ -64,19 +64,19 @@ const CountdownTimer = ({ timeRemaining, totalDuration, isPaused, onPauseToggle 
 
         {/* Timer display */}
         <div className="flex items-center gap-1">
-          <span className={`text-3xl font-mono font-bold tracking-wider ${getDigitStyles()}`}>
+          <span className={`text-xl sm:text-3xl font-mono font-bold ${getDigitStyles()}`}>
             {minutes.toString().padStart(2, '0')}
           </span>
-          <span className={`text-3xl font-mono font-bold ${pulseIntensity === 3 ? 'animate-pulse' : ''} ${getDigitStyles()}`}>
+          <span className={`text-xl sm:text-3xl font-mono font-bold ${pulseIntensity === 3 ? 'animate-pulse' : ''} ${getDigitStyles()}`}>
             :
           </span>
-          <span className={`text-3xl font-mono font-bold tracking-wider ${getDigitStyles()}`}>
+          <span className={`text-xl sm:text-3xl font-mono font-bold ${getDigitStyles()}`}>
             {seconds.toString().padStart(2, '0')}
           </span>
         </div>
 
         {/* Urgency label */}
-        <div className="text-center mt-1">
+        <div className="hidden sm:block text-center mt-1">
           <span className={`text-[10px] uppercase tracking-widest ${
             pulseIntensity === 3 ? 'text-destructive font-bold' :
             pulseIntensity === 2 ? 'text-warning' :
@@ -105,6 +105,7 @@ const CountdownTimer = ({ timeRemaining, totalDuration, isPaused, onPauseToggle 
         variant="outline"
         size="icon"
         onClick={onPauseToggle}
+        aria-label={isPaused ? 'Resume exercise' : 'Pause exercise'}
         className="border-2"
       >
         {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
