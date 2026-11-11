@@ -37,7 +37,7 @@ const build = (prefix: string, specs: Spec[]): Inject[] =>
 const DEMO_INJECTS: Record<string, Inject[]> = {
   "ashworth-reilly": build("pc", [
     { t: 75, type: "social_post", source: "Sheffield Parents Network · Facebook group", reach: 22000, sentiment: "hostile",
-      visual: { template: "facebook", label: "Facebook group · 22k members", data: { pageName: "Sheffield Parents Network", groupLabel: "Private group · 22K members", author: "Kerry Walsh", timestamp: "18m", body: "PLEASE SHARE 🙏 My friend's a nurse at the Children's and says they've had 3 kids in with reactions to Pharmacore amoxicillin. Check your bottles!!", reactions: "1.4K", comments: "612", shares: "2.3K", topComment: { author: "Dan R", text: "Just binned ours. Not risking it." } } },
+      visual: { template: "facebook", label: "Community page · 22k members", data: { pageName: "Sheffield Parents Network", groupLabel: "Private group · 22K members", author: "Kerry Walsh", timestamp: "18m", body: "PLEASE SHARE 🙏 My friend's a nurse at the Children's and says they've had 3 kids in with reactions to Pharmacore amoxicillin. Check your bottles!!", reactions: "1.4K", comments: "612", shares: "2.3K", topComment: { author: "Dan R", text: "Just binned ours. Not risking it." } } },
       content: "A local parents' group post claiming nurses have seen reactions to Pharmacore amoxicillin is being shared thousands of times.",
       options: [
         ["Ask admins to pin facts", "Send group admins the verified batch checker and GP advice to pin.", "social_response", 82, "low", 30],
@@ -106,7 +106,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
   ]),
   "meridian-vale": build("ti", [
     { t: 90, type: "social_post", source: "Flood Victims UK · Facebook page", reach: 48000, sentiment: "hostile",
-      visual: { template: "facebook", label: "Facebook page · 48k followers", data: { pageName: "Flood Victims UK", groupLabel: "Community page", author: "Flood Victims UK", timestamp: "1h", body: "Their CEO SAID IT. 'People will simply have to wait.' 6 months on, still no payout for our members. Share if TrustInsureUK let you down 👇", reactions: "5.2K", comments: "1.9K", shares: "3.4K", topComment: { author: "Mel Jones", text: "Same here, still waiting since March." } } },
+      visual: { template: "facebook", label: "Community page · 48k followers", data: { pageName: "Flood Victims UK", groupLabel: "Community page", author: "Flood Victims UK", timestamp: "1h", body: "Their CEO SAID IT. 'People will simply have to wait.' 6 months on, still no payout for our members. Share if TrustInsureUK let you down 👇", reactions: "5.2K", comments: "1.9K", shares: "3.4K", topComment: { author: "Mel Jones", text: "Same here, still waiting since March." } } },
       content: "A flood victims' page is sharing the cut CEO clip and collecting complaints.",
       options: [
         ["Offer a direct case line", "Post a named contact for anyone waiting on a flood claim.", "social_response", 85, "low", 30],
@@ -122,7 +122,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Offer vouchers", "Offer reviewers a discount to remove reviews.", "statement", 10, "high", 20],
       ] },
     { t: 375, type: "news_article", source: "Money Daily · Online", reach: 300000, sentiment: "confused",
-      visual: { template: "news-comments", label: "News site · comments", data: { headline: "TrustInsureUK boss in 'claims can wait' row — insurer says clip was edited", commentCount: "842", comments: [ { username: "sceptic_steve", timestamp: "5m", text: "Edited or not, they all delay payouts." }, { username: "clare_m", timestamp: "9m", text: "Has anyone actually seen the full video?" } ] } },
+      visual: { template: "news-comments", label: "News Tonight · reader comments", data: { headline: "TrustInsureUK boss in 'claims can wait' row — insurer says clip was edited", commentCount: "842", comments: [ { username: "sceptic_steve", timestamp: "5m", text: "Edited or not, they all delay payouts." }, { username: "clare_m", timestamp: "9m", text: "Has anyone actually seen the full video?" } ] } },
       content: "A consumer news site has run the story — readers are split on whether the clip was edited.",
       options: [
         ["Give the full clip to the editor", "Ask for the unedited footage to be embedded in the article.", "media_outreach", 85, "low", 30],
@@ -184,7 +184,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Raise withdrawal limits", "Temporarily increase limits to 'prove' money is there.", "internal_action", 35, "high", 20],
       ] },
     { t: 225, type: "social_post", source: "Savers Club UK · Facebook group", reach: 64000, sentiment: "hostile",
-      visual: { template: "facebook", label: "Facebook group · 64k members", data: { pageName: "Savers Club UK", groupLabel: "Public group · 64K members", author: "Gary Whitfield", timestamp: "22m", body: "Moved my £12k out of PigeeBank this morning. Better safe than sorry with this IPO stuff. Anyone else?", reactions: "2.1K", comments: "940", shares: "780", topComment: { author: "Linda P", text: "Doing mine now. FSCS takes months to pay out." } } },
+      visual: { template: "facebook", label: "Community page · 64k members", data: { pageName: "Savers Club UK", groupLabel: "Public group · 64K members", author: "Gary Whitfield", timestamp: "22m", body: "Moved my £12k out of PigeeBank this morning. Better safe than sorry with this IPO stuff. Anyone else?", reactions: "2.1K", comments: "940", shares: "780", topComment: { author: "Linda P", text: "Doing mine now. FSCS takes months to pay out." } } },
       content: "A big savers' group is swapping stories about pulling money out — and a false claim that FSCS is slow.",
       options: [
         ["Explain FSCS clearly", "Post a plain guide: £85k protected, paid in days not months.", "social_response", 85, "low", 30],
@@ -200,7 +200,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Hide reviews", "Ask Apple to remove 'unfair' reviews.", "internal_action", 20, "high", 15],
       ] },
     { t: 520, type: "social_post", source: "Fintech journalist · X", reach: 150000, sentiment: "confused",
-      visual: { template: "social-dark", label: "X post", data: { displayName: "Ellie Marsh", handle: "@elliemarsh_fin", verified: true, timestamp: "14m", body: "I've seen no evidence PigeeBank is restricting withdrawals. But the bank needs to publish numbers, not vibes. Asked them for data.", comments: "312", reposts: "1.2K", likes: "4.8K", bookmarks: "290" } },
+      visual: { template: "social-dark", label: "Tweets", data: { displayName: "Ellie Marsh", handle: "@elliemarsh_fin", verified: true, timestamp: "14m", body: "I've seen no evidence PigeeBank is restricting withdrawals. But the bank needs to publish numbers, not vibes. Asked them for data.", comments: "312", reposts: "1.2K", likes: "4.8K", bookmarks: "290" } },
       content: "A respected fintech journalist sees no evidence of a problem — but wants numbers.",
       options: [
         ["Send her the data", "Give her live withdrawal and deposit figures on the record.", "media_outreach", 88, "low", 30],
