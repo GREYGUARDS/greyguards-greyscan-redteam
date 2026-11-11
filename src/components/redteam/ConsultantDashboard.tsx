@@ -40,6 +40,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import HostedInjectStudio from './HostedInjectStudio';
 import PreparedInjectShelf from './PreparedInjectShelf';
+import MasterInjectSandbox from './MasterInjectSandbox';
 import ScenarioResearch from './ScenarioResearch';
 import { hostedScenarioRequest } from '@/lib/hostedScenarioRequest';
 import type { PreparedSession } from './HostSessionLibrary';
@@ -1168,6 +1169,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
       </header>
 
       <main className="container mx-auto px-4 py-6">
+        <div className="mb-4"><MasterInjectSandbox refreshKey={shelfRefresh} /></div>
         {!isExerciseActive && !hasEnded && <section className="mb-6 space-y-4 border-b border-border pb-6">
           <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="font-display text-3xl">{isSandpit ? 'Session sandpit' : 'Session preparation'}</h1><Badge variant="outline">Internal · {isSandpit ? 'Private draft' : 'Lobby open'}</Badge></div>
           <div className="grid gap-4 md:grid-cols-2"><div className="space-y-2"><Label htmlFor="session-label">Client / session name</Label><Input id="session-label" value={sessionLabel} onChange={e => setSessionLabel(e.target.value)} /></div><div className="space-y-2"><Label htmlFor="preparation-notes">Private host notes</Label><Textarea id="preparation-notes" value={preparationNotes} onChange={e => setPreparationNotes(e.target.value)} /></div></div>

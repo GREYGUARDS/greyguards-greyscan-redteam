@@ -1,5 +1,7 @@
 # Architecture rules
 
+- The read-only Master Inject Sandbox is shared by host library and session dashboards, combining canonical demo scripts with owner-scoped durable inject reads and existing participant media renderers; browsing must never generate, send or modify injects.
+
 - Hosted participant debriefs read durable session decision logs, sent injects and team-keyed responses through existing access controls; shared playbook mapping labels interpretations and never treats host branches as measured causal outcomes.
 
 - Photo generation streams through a host-authorised endpoint and persists completed images in private session-scoped storage; only host-reviewed durable photo references attach to unsent injects, with fictional labels and sent-only participant reads.
