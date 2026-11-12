@@ -141,6 +141,13 @@
       "when": 1794442756560,
       "tag": "0019_allow_host_lock_team_disconnect",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794506273077,
+      "tag": "0020_allow_radio_artefacts",
+      "breakpoints": true
     }
   ]
 }

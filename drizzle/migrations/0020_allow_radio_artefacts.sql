@@ -1,0 +1,2 @@
+ALTER TABLE public.exercise_artefact_jobs DROP CONSTRAINT exercise_artefact_jobs_kind_check;
+ALTER TABLE public.exercise_artefact_jobs ADD CONSTRAINT exercise_artefact_jobs_kind_check CHECK (kind = ANY (ARRAY['website','x','whatsapp','telegram','facebook','radio']));
