@@ -8,6 +8,9 @@ import pharmacoreVideo from "@/assets/demo_video_pharmacore.mp4.asset.json";
 import trustinsureVideo from "@/assets/demo_video_trustinsure.mp4.asset.json";
 import newsTonightVideo from "@/assets/demo_reporter_news_tonight.mp4.asset.json";
 import cbbnVideo from "@/assets/demo_reporter_cbbn.mp4.asset.json";
+import newsTonightVoVideo from "@/assets/demo_reporter_news_tonight_vo.mp4.asset.json";
+import womanAvatar from "@/assets/avatar_pharma_woman.jpg";
+import youngMumAvatar from "@/assets/avatar_young_mum.jpg";
 import pigeebankVideo from "@/assets/demo_video_pigeebank.mp4.asset.json";
 
 type Opt = [label: string, description: string, type: ResponseOption["type"], effectiveness: number, risk: ResponseOption["riskLevel"], time: number];
@@ -16,6 +19,8 @@ type Spec = {
   sentiment: Inject["sentiment"]; content: string; options: Opt[];
   video?: { url: string; overlay: VideoOverlay };
   visual?: Inject["visual"];
+  reply?: Inject["reply"];
+  hideCaption?: boolean;
 };
 
 const build = (prefix: string, specs: Spec[]): Inject[] =>
@@ -30,6 +35,8 @@ const build = (prefix: string, specs: Spec[]): Inject[] =>
     requiresResponse: true,
     ...(s.video ? { demoVideo: s.video } : {}),
     ...(s.visual ? { visual: s.visual } : {}),
+    ...(s.reply ? { reply: s.reply } : {}),
+    ...(s.hideCaption ? { hideCaption: true } : {}),
     isAggressive: s.sentiment === "hostile",
     responseOptions: s.options.map(([label, description, type, effectiveness, riskLevel, timeToExecute], j) => ({
       id: `${prefix}-${i + 1}${"abc"[j]}`, label, description, type, effectiveness, riskLevel, timeToExecute,
@@ -39,7 +46,7 @@ const build = (prefix: string, specs: Spec[]): Inject[] =>
 const DEMO_INJECTS: Record<string, Inject[]> = {
   "ashworth-reilly": build("pc", [
     { t: 75, type: "social_post", source: "Sheffield Parents Network · Community page", reach: 22000, sentiment: "hostile",
-      visual: { template: "facebook", label: "Community page · 22k members", data: { pageName: "Sheffield Parents Network", groupLabel: "Private group · 22K members", author: "Kerry Walsh", timestamp: "18m", body: "PLEASE SHARE 🙏 My friend's a nurse at the Children's and says they've had 3 kids in with reactions to Pharmacore amoxicillin. Check your bottles!!", reactions: "1.4K", comments: "612", shares: "2.3K", topComment: { author: "Dan R", text: "Just binned ours. Not risking it." } } },
+      visual: { template: "facebook", label: "Community page · 22k members", data: { pageName: "Sheffield Parents Network", groupLabel: "Private group · 22K members", author: "Kerry Walsh", avatarUrl: youngMumAvatar, timestamp: "18m", body: "PLEASE SHARE 🙏 My friend's a nurse at the Children's and says they've had 3 kids in with reactions to Pharmacore amoxicillin. Check your bottles!!", reactions: "1.4K", comments: "612", shares: "2.3K", topComment: { author: "Dan R", text: "Just binned ours. Not risking it." } } },
       content: "A local parents' group post claiming nurses have seen reactions to Pharmacore amoxicillin is being shared thousands of times.",
       options: [
         ["Ask admins to pin facts", "Send group admins the verified batch checker and GP advice to pin.", "social_response", 82, "low", 30],
@@ -70,7 +77,8 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Ask him to delete", "Message him saying the post is damaging.", "legal", 20, "high", 10],
       ] },
     { t: 30, type: "social_post", source: "@UK_PharmaWatch (3.2k followers) · Tweets", reach: 3200, sentiment: "hostile",
-      content: "UNVERIFIED: Pharmacore's Doncaster hub had a cold-chain breach and still shipped amoxicillin. Three children in Sheffield hospital. Why no MHRA alert? #DrugSafety",
+      reply: { template: "social-dark", label: "Reply", data: { displayName: "TruthUKAlliance", handle: "@TruthUKAlliance", timestamp: "4m", body: "UNVERIFIED: Pharmacore's Doncaster hub had a cold-chain breach and still shipped amoxicillin. Three children in Sheffield hospital. Why no MHRA alert? #DrugSafety #pharmacoreknew", comments: "12", reposts: "27", likes: "367", bookmarks: "9" } },
+      content: "UNVERIFIED: Pharmacore's Doncaster hub had a cold-chain breach and still shipped amoxicillin. Three children in Sheffield hospital. Why no MHRA alert? #DrugSafety #pharmacoreknew",
       options: [
         ["Truth-sandwich holding line", "Share unbroken 2–8°C hub logs, say you're monitoring, give chemists a contact line.", "statement", 85, "low", 30],
         ["Brief pharmacy network", "Batch-verification memo to community pharmacies before consumer press picks it up.", "internal_action", 80, "low", 45],
@@ -78,6 +86,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 120, type: "influencer", source: "Parent creator · TikTok · 180k views #RecallTheMeds", reach: 180000, sentiment: "hostile",
       video: { url: pharmacoreVideo.url, overlay: { platform: "tiktok", handle: "@sheffieldmum_jo", caption: "Pharmacore knew. Check your kids' meds 😡 #RecallTheMeds", likes: "24.6K", comments: "3.1K", shares: "8.9K", views: "180K", channel: "", headline: "", ticker: "" } },
+      hideCaption: true,
       content: "Crying to camera: 'Pharmacore knew since Tuesday. My 4-year-old was prescribed this exact bottle. Why is nobody talking about it?'",
       options: [
         ["Rapid video response", "Julian Mercer (MD) speaks to parents directly with a batch-checker link.", "social_response", 85, "medium", 60],
@@ -92,7 +101,8 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Precautionary freeze", "Pause amoxicillin shipments while verifying batches.", "internal_action", 25, "high", 20],
       ] },
     { t: 420, type: "news_article", source: "News Tonight · Breaking alert", reach: 2000000, sentiment: "confused",
-      video: { url: newsTonightVideo.url, overlay: { platform: "news", handle: "", caption: "", likes: "", comments: "", shares: "", views: "", channel: "NEWS TONIGHT", headline: "Pharmacore antibiotic contamination claims", ticker: "Regulator yet to confirm any recall · Parents urged to check official sources" } },
+      hideCaption: true,
+      video: { url: newsTonightVoVideo.url, overlay: { platform: "news", handle: "", caption: "", likes: "", comments: "", shares: "", views: "", channel: "NEWS TONIGHT", headline: "Pharmacore antibiotic contamination claims", ticker: "Regulator yet to confirm any recall · Parents urged to check official sources" } },
       content: "BREAKING: Health officials investigate distribution giant Pharmacore after nationwide antibiotic contamination reports.",
       options: [
         ["Live broadcast interview", "Put Priya Khatri (Regulatory Director) on News Tonight within 15 minutes.", "media_outreach", 80, "high", 60],

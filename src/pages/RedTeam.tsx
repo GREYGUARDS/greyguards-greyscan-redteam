@@ -209,6 +209,10 @@ export interface Inject {
   visual?: InjectVisualSpec;
   /** Pre-made demo film with platform graphics */
   demoVideo?: { url: string; overlay: import("@/components/redteam/InjectOverlay").VideoOverlay };
+  /** Threaded reply shown beneath the main artefact */
+  reply?: InjectVisualSpec;
+  /** Hide the descriptive caption under the artefact */
+  hideCaption?: boolean;
 }
 
 export interface ResponseOption {

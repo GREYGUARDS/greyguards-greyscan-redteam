@@ -78,7 +78,7 @@ const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
           <video src={inject.demoVideo.url} autoPlay muted loop playsInline controls className="h-full w-full object-cover" aria-label="Fictional exercise video" />
           <VideoOverlayLayer overlay={inject.demoVideo.overlay} />
         </div>
-        <p className="border-t-2 border-border px-4 py-3 text-sm leading-relaxed">{inject.content}</p>
+        {!inject.hideCaption && <p className="border-t-2 border-border px-4 py-3 text-sm leading-relaxed">{inject.content}</p>}
       </div>
     );
   }
@@ -131,6 +131,12 @@ const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
           </span>
         </div>
         {shot}
+        {inject.reply && hasInjectTemplate(inject.reply.template) && (
+          <div className="border-t-2 border-border">
+            <div className="px-3 pt-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Replying to the post above</div>
+            <InjectTemplate template={inject.reply.template} data={inject.reply.data} />
+          </div>
+        )}
       </div>
     );
   }
