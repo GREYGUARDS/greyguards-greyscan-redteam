@@ -131,7 +131,6 @@ const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
           </span>
         </div>
         {shot}
-        <p className="border-t-2 border-border px-4 py-3 text-sm leading-relaxed">{inject.content}</p>
       </div>
     );
   }
