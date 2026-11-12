@@ -22,6 +22,7 @@ import CountdownTimer from "./CountdownTimer";
 import { useSoundEffects } from "@/hooks/use-sound-effects";
 import { useIsMobile } from "@/hooks/use-mobile";
 import LiveLeaderboard from "./LiveLeaderboard";
+import RoomAudioCapture from "./RoomAudioCapture";
 import HostedInjectMedia from './HostedInjectMedia';
 import HostedParticipantDebrief from './HostedParticipantDebrief';
 import { createInjectArrivalTracker } from '@/lib/injectArrivalTracker';
@@ -175,9 +176,11 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
 
   // Locked sessions become unreadable to participants; poll so devices close access promptly.
   const [locked, setLocked] = useState(false);
+  const [roomAudio, setRoomAudio] = useState(false);
   useEffect(() => {
     const check = async () => {
-      const { data, error } = await supabase.from('exercise_sessions').select('status').eq('id', sessionId).maybeSingle();
+      const { data, error } = await supabase.from('exercise_sessions').select('status, room_audio_enabled').eq('id', sessionId).maybeSingle();
+      if (!error && data) setRoomAudio(!!data.room_audio_enabled);
       if (!error && (!data || data.status === 'locked')) { setLocked(true); setInjects([]); }
     };
     void check();
@@ -446,6 +449,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
     return (
       <div className="theme-blue min-h-[100dvh] bg-background text-foreground">
         {freeze}
+        {!readOnly && !locked && <RoomAudioCapture sessionId={sessionId} teamId={teamId} enabled={roomAudio} active={session.status === "active" || session.status === "paused"} />}
         {incoming && (
           <Button type="button" variant="ghost" key={incoming.id} onClick={() => { select(incoming.id); setIncoming(null); if (isMobile) setMobileScreen("inject"); }}
             className="incoming-alert fixed inset-x-0 mx-auto top-4 z-[60] h-auto w-[min(92vw,420px)] flex-col items-start whitespace-normal rounded-none border-2 border-destructive bg-card p-4 text-left shadow-lg">
@@ -555,6 +559,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
       </header>
 
       {freeze}
+      {!readOnly && !locked && <RoomAudioCapture sessionId={sessionId} teamId={teamId} enabled={roomAudio} active={session.status === "active" || session.status === "paused"} />}
 
       {session.status === "waiting" ? <main className="p-4">{waiting}</main> : (
         <main className="grid flex-1 grid-cols-1 gap-px bg-border lg:min-h-0 lg:grid-cols-[290px_1fr_330px]">
