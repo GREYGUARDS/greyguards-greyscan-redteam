@@ -292,12 +292,12 @@ function PressRelease({ data = {} }: TplProps) {
 }
 
 function Facebook({ data = {} }: TplProps) {
-  const { pageName = "Community Group", groupLabel = "Public group", author = "Member", timestamp = "Just now", body = "", reactions = "0", comments = "0", shares = "0", topComment } = data;
+  const { pageName = "Community Group", groupLabel = "Public group", author = "Member", avatarUrl, timestamp = "Just now", body = "", reactions = "0", comments = "0", shares = "0", topComment } = data;
   return (
     <div className="tpl-facebook">
       <div className="grp">{pageName} <span>· {groupLabel}</span></div>
       <div className="row">
-        <div className="avatar">{String(author).slice(0, 2).toUpperCase()}</div>
+        <div className="avatar" style={avatarUrl ? { overflow: "hidden", padding: 0 } : undefined}>{avatarUrl ? <img src={avatarUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : String(author).slice(0, 2).toUpperCase()}</div>
         <div><div className="name">{author}</div><div className="time">{timestamp} · 🌐</div></div>
       </div>
       <div className="body">{body}</div>
