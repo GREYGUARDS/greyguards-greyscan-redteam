@@ -271,7 +271,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     isConnected: config.teamMode === "team-vs-team"
   });
 
-  const [injectTab, setInjectTab] = useState<string>(hostedDemo || storylinePack ? "storyline" : "menu");
+  const [injectTab, setInjectTab] = useState<string>(hostedDemo ? "storyline" : "menu");
   const [customInject, setCustomInject] = useState({
     type: "social_post" as Inject["type"],
     content: "",
@@ -285,6 +285,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
 
   // Pre-planned storyline pack for the selected simulation company
   const [storylinePack, setStorylinePack] = useState<HostedScenarioPack | null>(null);
+  useEffect(() => { if (storylinePack) setInjectTab(t => (t === "menu" ? "storyline" : t)); }, [storylinePack]);
 
   // Participant pre-brief, freeze-frame decision points, recorded decision path
   const [preBrief, setPreBrief] = useState("");
@@ -1382,7 +1383,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
 
           {/* Center Panel - Inject Controls */}
           <div className="lg:col-span-6">
-            {!hostedDemo && <div className="mb-4"><HostInjectSuggestions sessionId={sessionId} responseCount={recentResponses.length} onUse={(sg) => { const t = (["social_post", "news_article", "leak", "influencer", "amplification", "official_response"].includes(sg.type) ? sg.type : "social_post") as Inject["type"]; setCustomInject({ type: t, content: sg.content, source: sg.source, reach: sg.reach || 50000, sentiment: sg.sentiment === "neutral" ? "confused" : sg.sentiment, isAggressive: sg.sentiment === "hostile", category: "disinformation", channel: sg.channel }); setInjectTab("custom"); toast.success("Draft added to the Custom tab — review and send."); }} /></div>}
+            {!hostedDemo && <div className="mb-4"><HostInjectSuggestions sessionId={sessionId} responseCount={recentResponses.length} onUse={(sg) => { const t = (["social_post", "news_article", "leak", "influencer", "amplification", "official_response"].includes(sg.type) ? sg.type : "social_post") as Inject["type"]; setCustomInject({ type: t, content: sg.content, source: sg.source, reach: sg.reach || 50000, sentiment: sg.sentiment, isAggressive: sg.sentiment === "hostile", category: "disinformation", channel: sg.channel }); setInjectTab("custom"); toast.success("Draft added to the Custom tab — review and send."); }} /></div>}
             <Tabs value={injectTab} onValueChange={setInjectTab} className="w-full">
               <TabsList className="grid w-full grid-cols-4 mb-6">
                 <TabsTrigger value="storyline" className="uppercase tracking-wider">Storyline</TabsTrigger>
