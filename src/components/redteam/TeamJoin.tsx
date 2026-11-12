@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,8 @@ interface TeamJoinProps {
 }
 
 const TeamJoin = ({ onJoinSession, onBack, allowAllTeams = false }: TeamJoinProps) => {
-  const [sessionCode, setSessionCode] = useState(() => { const c = sessionStorage.getItem("gg_join_code") || ""; sessionStorage.removeItem("gg_join_code"); return c; });
+  const [sessionCode, setSessionCode] = useState(() => sessionStorage.getItem("gg_join_code") || "");
+  const autoJoined = useRef(false);
   const [selectedTeam, setSelectedTeam] = useState<"blue" | "red" | "observer" | null>(null);
   const [teamName, setTeamName] = useState("");
   const [isJoining, setIsJoining] = useState(false);
@@ -64,11 +65,20 @@ const TeamJoin = ({ onJoinSession, onBack, allowAllTeams = false }: TeamJoinProp
       setStep("team");
     } catch (error) {
       console.error("Error looking up session:", error);
-      toast.error("Failed to find session");
+      toast.error("Unable to join. Check the code with your facilitator; the session may be closed or the Blue Team already connected.");
     } finally {
       setIsJoining(false);
     }
   };
+
+  useEffect(() => {
+    if (autoJoined.current || allowAllTeams || !sessionStorage.getItem("gg_join_code")) return;
+    autoJoined.current = true;
+    sessionStorage.removeItem("gg_join_code");
+    void handleLookupSession();
+    // Consume the entry-page code once; retries use the visible form.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowAllTeams]);
 
   const handleJoinTeam = async () => {
     if (!selectedTeam || !sessionData) return;

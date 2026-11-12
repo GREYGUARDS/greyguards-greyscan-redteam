@@ -27,6 +27,10 @@ export function useAccessProfile(): AccessProfile {
         if (!cancelled) setState({ loading: false, userId: null, email: null, isAdmin: false, lockedBrand: null });
         return;
       }
+      if (user.is_anonymous) {
+        if (!cancelled) setState({ loading: false, userId: user.id, email: null, isAdmin: false, lockedBrand: null });
+        return;
+      }
       const email = (user.email || "").toLowerCase();
       const { data: adminRow } = await supabase
         .from("app_admins")

@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { AlertTriangle, ArrowRight, Lock, MailCheck, Crosshair, Shield } from "lucide-react";
 import greyguardsLogo from "@/assets/greyguards-logo-light.png";
+import { normaliseExerciseCode } from "@/lib/guestExerciseAccess";
 
 export type AuthVariant = "greyscan" | "redteam";
 
@@ -98,6 +99,26 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
           : error.message,
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGuestJoin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = normaliseExerciseCode(joinCode);
+    if (!code || loading) return;
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        const { error } = await supabase.auth.signInAnonymously();
+        if (error) throw error;
+      }
+      sessionStorage.setItem("gg_join_code", code);
+      navigate("/redteam");
+    } catch {
+      toast({ title: "Could not join", description: "Guest access is temporarily unavailable. Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -228,9 +249,9 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
               </div>
               <div className="space-y-3 border-2 border-border p-3">
                 <h3 className="text-sm font-semibold uppercase tracking-wider">Join an exercise</h3>
-                <form onSubmit={(e) => { e.preventDefault(); const c = joinCode.trim().toUpperCase(); if (!c) return; sessionStorage.setItem("gg_join_code", c); navigate("/redteam"); }} className="flex gap-2">
-                  <Input aria-label="Session code" value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="Session code" maxLength={12} className="uppercase tracking-widest" />
-                  <Button type="submit" disabled={!joinCode.trim()}>Join<ArrowRight className="ml-2 h-4 w-4" /></Button>
+                <form onSubmit={handleGuestJoin} className="flex gap-2">
+                  <Input aria-label="Session code" value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="Session code" maxLength={12} className="uppercase tracking-widest" disabled={loading} />
+                  <Button type="submit" disabled={!joinCode.trim() || loading}>{loading ? "Joining…" : "Join"}<ArrowRight className="ml-2 h-4 w-4" /></Button>
                 </form>
                 <p className="text-[11px] text-muted-foreground">Enter the code your facilitator gave you.</p>
               </div>
