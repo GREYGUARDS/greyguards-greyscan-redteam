@@ -1,6 +1,6 @@
 /**
  * Scripted, phone-first injects for the three public demo scenarios.
- * Scripted copy: 9 short injects per demo across Tweets, TikTok, Community pages, Reddit, Telegram, reviews and news. Fictional only.
+ * Scripted copy: 10 short injects per demo across Tweets, TikTok, Community pages, Reddit, Telegram, reviews, radio phone-ins and news. Fictional only.
  */
 import type { Inject, ResponseOption } from "@/pages/RedTeam";
 import type { VideoOverlay } from "@/components/redteam/InjectOverlay";
@@ -116,6 +116,19 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Clinical briefing", "Live webinar now for hospital chief pharmacists.", "media_outreach", 82, "low", 60],
         ["Threaten penalty clauses", "Warn ICBs they'll breach contract if they switch.", "legal", 15, "high", 15],
       ] },
+    { t: 390, type: "news_article", source: "TalkUK · Live radio phone-in", reach: 650000, sentiment: "hostile",
+      hideCaption: true,
+      visual: { template: "radio", label: "TalkUK · Live phone-in", data: { station: "TalkUK", show: "The Midday Debate", presenter: "Marcus Vance", intro: "Lines are jammed this lunchtime. Pharmacore says its antibiotics are safe, but parents aren't buying it. Is this a cover-up? Let's go to the phones.", callers: [
+          { name: "Kerry", location: "Sheffield", text: "I've binned my daughter's medicine. Nobody from Pharmacore has told us a thing. Why are they hiding?" },
+          { name: "Dave", location: "Doncaster", text: "My cousin works at that depot. He says the fridges went off for hours. They knew!" },
+          { name: "Linda", location: "Leeds", text: "If it was safe, why is everyone online saying it isn't? Somebody should go to prison for this." },
+      ] } },
+      content: "TalkUK phone-in: The Midday Debate. Angry callers repeat the claims live on air.",
+      options: [
+        ["Put a spokesperson on air", "Priya Khatri calls in live with the batch checker and MHRA position.", "media_outreach", 82, "medium", 30],
+        ["Send the producer facts", "Email TalkUK's producer a short verified factsheet to read out.", "statement", 72, "low", 20],
+        ["Complain to the station", "Ask TalkUK to stop taking calls on the story.", "legal", 15, "high", 15],
+      ] },
   ]),
   "meridian-vale": build("ti", [
     { t: 90, type: "social_post", source: "Flood Victims UK · Community page", reach: 48000, sentiment: "hostile",
@@ -185,6 +198,19 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Executive broker hotline", "Thomas Reeve hosts a dial-in for the top 20 broker principals.", "media_outreach", 85, "low", 45],
         ["Aggregator compliance pack", "Send audited solvency and payout certificates to aggregator legal teams.", "internal_action", 82, "low", 30],
         ["20% direct discount", "Discount direct renewals to bypass aggregators.", "statement", 25, "high", 20],
+      ] },
+    { t: 400, type: "news_article", source: "TalkUK · Live radio phone-in", reach: 650000, sentiment: "hostile",
+      hideCaption: true,
+      visual: { template: "radio", label: "TalkUK · Live phone-in", data: { station: "TalkUK", show: "Your Money, Your Say", presenter: "Gemma Hollis", intro: "TalkUK lines are open. A clip is going round of TrustInsureUK's boss apparently laughing about rejecting claims. Is your insurer on your side? Call us.", callers: [
+          { name: "Gary", location: "Bolton", text: "I've paid them twelve years. After that video I'm cancelling today." },
+          { name: "Asha", location: "Croydon", text: "My claim was refused last month. Now I know why. It's a policy to say no!" },
+          { name: "Pete", location: "Cardiff", text: "They should have to show the full video. If they won't, it's true." },
+      ] } },
+      content: "TalkUK phone-in: Your Money, Your Say. Angry callers repeat the claims live on air.",
+      options: [
+        ["Share the full unedited clip", "Give TalkUK the original recording showing the edit.", "media_outreach", 84, "low", 30],
+        ["CEO calls in live", "Thomas Reeve goes on air to answer callers directly.", "media_outreach", 70, "high", 30],
+        ["Say nothing", "Wait for the phone-in to end.", "internal_action", 15, "high", 10],
       ] },
   ]),
   "bristow-calder": build("pb", [
@@ -256,6 +282,19 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Publish deposit audit", "Release audited balance showing 98.4% deposit retention.", "statement", 88, "low", 45],
         ["Announce bank backstop", "Confirm a pre-arranged committed credit facility.", "statement", 82, "low", 30],
         ["Bonus interest rate", "Offer a temporary 1% deposit bonus to stem withdrawals.", "statement", 25, "high", 20],
+      ] },
+    { t: 400, type: "news_article", source: "TalkUK · Live radio phone-in", reach: 650000, sentiment: "hostile",
+      hideCaption: true,
+      visual: { template: "radio", label: "TalkUK · Live phone-in", data: { station: "TalkUK", show: "Drive Time Phones", presenter: "Rob Keane", intro: "Talk of a run on PigeeBank this evening. People say they can't get their money out. Is your money safe? Phone lines are open.", callers: [
+          { name: "Jade", location: "Manchester", text: "My mate's transfer bounced so I've moved everything out. Not waiting to find out." },
+          { name: "Simon", location: "Reading", text: "No proper bank has to keep saying it's fine. That's what Northern Rock said." },
+          { name: "Mo", location: "Glasgow", text: "I'm queuing on the app now. Everyone I know is doing the same." },
+      ] } },
+      content: "TalkUK phone-in: Drive Time Phones. Angry callers repeat the claims live on air.",
+      options: [
+        ["Explain FSCS on air", "A spokesperson explains the £85,000 protection and live payment data.", "media_outreach", 84, "low", 30],
+        ["Push a calm app alert", "Message customers with how to check payments are working.", "social_response", 76, "low", 20],
+        ["Raise withdrawal limits", "Announce limits to slow outflows.", "internal_action", 10, "high", 15],
       ] },
   ]),
 };
