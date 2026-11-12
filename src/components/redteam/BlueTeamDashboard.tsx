@@ -449,6 +449,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
     return (
       <div className="theme-blue min-h-[100dvh] bg-background text-foreground">
         {freeze}
+        {!readOnly && !locked && <RoomAudioCapture sessionId={sessionId} teamId={teamId} enabled={roomAudio} active={session.status === "active" || session.status === "paused"} />}
         {incoming && (
           <Button type="button" variant="ghost" key={incoming.id} onClick={() => { select(incoming.id); setIncoming(null); if (isMobile) setMobileScreen("inject"); }}
             className="incoming-alert fixed inset-x-0 mx-auto top-4 z-[60] h-auto w-[min(92vw,420px)] flex-col items-start whitespace-normal rounded-none border-2 border-destructive bg-card p-4 text-left shadow-lg">
@@ -558,6 +559,7 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
       </header>
 
       {freeze}
+      {!readOnly && !locked && <RoomAudioCapture sessionId={sessionId} teamId={teamId} enabled={roomAudio} active={session.status === "active" || session.status === "paused"} />}
 
       {session.status === "waiting" ? <main className="p-4">{waiting}</main> : (
         <main className="grid flex-1 grid-cols-1 gap-px bg-border lg:min-h-0 lg:grid-cols-[290px_1fr_330px]">
