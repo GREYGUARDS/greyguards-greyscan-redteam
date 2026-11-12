@@ -1,6 +1,6 @@
 # Current work
 
-- [ ] Enable code-only guest Blue Team joining; verify live join, privacy, response delivery and session locking.
+- [x] Enable code-only guest Blue Team joining; live mobile join, sent-only inject reads, response save/readback, host/Red denial, occupied-seat protection and revoked-code checks passed; corrected lock disconnection safeguard and removed temporary exercise.
 
 - [x] Add host direct start for canonical demos and prepared cases, bypassing the sandpit; seven tests and isolated browser flows passed. Live host verification unavailable: requesting account is not a host admin.
 
