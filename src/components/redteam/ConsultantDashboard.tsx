@@ -39,6 +39,7 @@ import {
 import { ExerciseConfig, Inject, Scenario } from "@/pages/RedTeam";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import HostInjectSuggestions from './HostInjectSuggestions';
 import HostedInjectStudio from './HostedInjectStudio';
 import PreparedInjectShelf from './PreparedInjectShelf';
 import MasterInjectSandbox from './MasterInjectSandbox';
@@ -270,6 +271,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
     isConnected: config.teamMode === "team-vs-team"
   });
 
+  const [injectTab, setInjectTab] = useState<string>(hostedDemo || storylinePack ? "storyline" : "menu");
   const [customInject, setCustomInject] = useState({
     type: "social_post" as Inject["type"],
     content: "",
@@ -1380,7 +1382,8 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
 
           {/* Center Panel - Inject Controls */}
           <div className="lg:col-span-6">
-            <Tabs defaultValue={hostedDemo || storylinePack ? "storyline" : "menu"} className="w-full">
+            {!hostedDemo && <div className="mb-4"><HostInjectSuggestions sessionId={sessionId} responseCount={recentResponses.length} onUse={(sg) => { const t = (["social_post", "news_article", "leak", "influencer", "amplification", "official_response"].includes(sg.type) ? sg.type : "social_post") as Inject["type"]; setCustomInject({ type: t, content: sg.content, source: sg.source, reach: sg.reach || 50000, sentiment: sg.sentiment === "neutral" ? "confused" : sg.sentiment, isAggressive: sg.sentiment === "hostile", category: "disinformation", channel: sg.channel }); setInjectTab("custom"); toast.success("Draft added to the Custom tab — review and send."); }} /></div>}
+            <Tabs value={injectTab} onValueChange={setInjectTab} className="w-full">
               <TabsList className="grid w-full grid-cols-4 mb-6">
                 <TabsTrigger value="storyline" className="uppercase tracking-wider">Storyline</TabsTrigger>
                 <TabsTrigger value="menu" className="uppercase tracking-wider">Inject Menu</TabsTrigger>
