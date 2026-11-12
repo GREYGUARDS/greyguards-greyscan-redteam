@@ -1,3 +1,4 @@
+import { VideoOverlaySlot } from './InjectVideoPlayer';
 import InjectVideoPlayer from './InjectVideoPlayer';
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -71,5 +72,5 @@ export default function HostedInjectMedia({ storagePath, artefact }: { storagePa
 }
 export function OverlayFrame({ overlay, children }: { overlay: VideoOverlay | null; children: React.ReactNode }) {
   if (!overlay) return <>{children}</>;
-  return <div className={`relative mx-auto overflow-hidden rounded-md bg-background ${overlay.platform === 'news' ? 'w-full' : 'max-w-[300px]'}`}>{children}<VideoOverlayLayer overlay={overlay} /></div>;
+  return <div className={`mx-auto overflow-hidden rounded-md bg-background ${overlay.platform === 'news' ? 'w-full' : 'max-w-[300px]'}`}><VideoOverlaySlot.Provider value={<VideoOverlayLayer overlay={overlay} />}>{children}</VideoOverlaySlot.Provider></div>;
 }

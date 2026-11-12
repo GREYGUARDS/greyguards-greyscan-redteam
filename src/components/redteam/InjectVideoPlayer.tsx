@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+
+/** Lets a wrapping frame place its text overlay over the footage only, never over the control bar. */
+export const VideoOverlaySlot = createContext<React.ReactNode>(null);
 import { Pause, Play, Volume2, VolumeX } from 'lucide-react';
 
 /** Video with its controls in a separate bar under the footage, so text overlays never hide volume. Starts with sound on where the browser allows it. */
 export default function InjectVideoPlayer({ src, overlay, className = '', frameClassName = '', loop = false, label = 'Exercise video', onError }: { src: string; overlay?: React.ReactNode; className?: string; frameClassName?: string; loop?: boolean; label?: string; onError?: () => void }) {
+  const slot = useContext(VideoOverlaySlot);
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -20,7 +24,7 @@ export default function InjectVideoPlayer({ src, overlay, className = '', frameC
       <video ref={ref} src={src} playsInline loop={loop} preload="metadata" aria-label={label} className="h-full w-full object-contain" onClick={toggle}
         onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={onError}
         onTimeUpdate={e => { const v = e.currentTarget; setProgress(v.duration ? v.currentTime / v.duration : 0); }} />
-      {overlay}
+      {overlay ?? slot}
     </div>
     <div className="flex items-center gap-2 border-t border-border bg-card px-2 py-2">
       <button type="button" onClick={toggle} aria-label={playing ? 'Pause video' : 'Play video'} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border hover:bg-muted">{playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}</button>
