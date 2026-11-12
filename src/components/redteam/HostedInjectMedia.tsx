@@ -7,11 +7,12 @@ import { VideoOverlayLayer, StatsBar, type VideoOverlay, type EngagementStats } 
 import { RefreshCw, MessageCircle, Repeat2, Heart, Globe, Users, Send } from 'lucide-react';
 import HostedPhotoMedia, { asPhoto } from './HostedPhotoMedia';
 import InjectVisual from './InjectVisual';
+import RadioPhoneIn from './RadioPhoneIn';
 import { fromHostedDemoArtefact } from '@/lib/hostedDemoScenario';
 import { getSimulationCompany } from '@/lib/simulationCompanies';
 
 export interface HostedArtefact {
-  kind: 'website' | 'x' | 'whatsapp' | 'telegram' | 'facebook';
+  kind: 'website' | 'x' | 'whatsapp' | 'telegram' | 'facebook' | 'radio';
   title: string;
   author: string;
   handle: string;
@@ -22,6 +23,7 @@ export interface HostedArtefact {
 }
 
 export function HostedArtefactView({ artefact }: { artefact: HostedArtefact }) {
+  if (artefact.kind === 'radio') return <div className="my-4"><RadioPhoneIn data={{ station: 'TalkUK', show: artefact.title, presenter: artefact.author, intro: artefact.body, callers: artefact.messages.map(m => { const match = m.sender.match(/^(.*?)\s*\((.*)\)$/); return { name: match?.[1] ?? m.sender, location: match?.[2], text: m.text }; }) }} /></div>;
   const messaging = artefact.kind === 'whatsapp' || artefact.kind === 'telegram';
   return <div className="my-4 overflow-hidden rounded-md border border-border bg-card text-card-foreground">
     <div className="flex items-center justify-between gap-2 border-b border-border bg-secondary px-4 py-2 text-xs">

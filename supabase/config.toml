@@ -68,3 +68,6 @@ project_id = "pszrmmsjaracqxlzljxr"
   verify_jwt = false
 [functions.notify-admin]
   verify_jwt = false
+
+[functions.suggest-host-injects]
+  verify_jwt = false

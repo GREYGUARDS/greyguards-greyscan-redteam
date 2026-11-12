@@ -1,6 +1,6 @@
 import InjectVideoPlayer from './InjectVideoPlayer';
 import { useEffect, useRef, useState } from 'react';
-import { Video, Newspaper, Globe, MessageCircle, Send, Loader2, RefreshCw, Sparkles } from 'lucide-react';
+import { Video, Newspaper, Globe, MessageCircle, Send, Loader2, RefreshCw, Sparkles, Radio } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { PLATFORM_LABELS, suggestStats, type OverlayPlatform, type VideoOverlay, type EngagementStats } from './InjectOverlay';
 import { OverlayFrame } from './HostedInjectMedia';
@@ -31,6 +31,7 @@ const formats: { value: Kind; label: string; icon: typeof Video }[] = [
   { value: 'whatsapp', label: 'WhatsApp thread', icon: MessageCircle },
   { value: 'telegram', label: 'Telegram channel', icon: Send },
   { value: 'facebook', label: 'Facebook page post', icon: MessageCircle },
+  { value: 'radio', label: 'Radio phone-in · TalkUK presenter & callers', icon: Radio },
 ];
 
 async function invoke(endpoint: string, body: Record<string, unknown>) {

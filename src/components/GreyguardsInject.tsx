@@ -1,6 +1,7 @@
 // Renders a DMMI training inject (fake social post, message thread, forum
 // thread, official document, press release, etc.) directly from scenario JSON.
 import { forwardRef } from "react";
+import RadioPhoneIn from "@/components/redteam/RadioPhoneIn";
 
 export type InjectTemplate =
   | "social-dark"
@@ -11,7 +12,8 @@ export type InjectTemplate =
   | "reviews"
   | "document"
   | "press-release"
-  | "facebook";
+  | "facebook"
+  | "radio";
 
 export interface InjectVisualSpec {
   template: InjectTemplate | string;
@@ -29,6 +31,7 @@ export const INJECT_TEMPLATE_KEYS: InjectTemplate[] = [
   "document",
   "press-release",
   "facebook",
+  "radio",
 ];
 
 const Stars = ({ n = 0 }: { n?: number }) => {
@@ -318,6 +321,7 @@ const TEMPLATES: Record<string, (p: TplProps) => JSX.Element> = {
   document: DocumentTpl,
   "press-release": PressRelease,
   facebook: Facebook,
+  radio: ({ data }: TplProps) => <RadioPhoneIn data={data} />,
 };
 
 export const hasInjectTemplate = (template?: string) => !!template && !!TEMPLATES[template];

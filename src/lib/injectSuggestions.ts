@@ -20,7 +20,7 @@ export function suggestForBeat(kind: string, platform: OverlayPlatform, brand: s
     ? trim(`Breaking tonight: ${claim} ${brand} has yet to respond.`, 220)
     : trim(`Okay so nobody is talking about this. ${claim} Share before it gets taken down.`, 220);
   const speaker = kind === 'news'
-    ? 'A fictional adult news presenter at a studio desk, serious tone, city skyline screen behind.'
+    ? 'A fictional adult news presenter in a suit at a studio desk, hands on the desk, not holding a phone, serious tone, city skyline screen behind.'
     : 'A fictional adult creator filming a selfie video at home, animated and urgent, speaking straight to camera.';
   const caption = trim(`${claim} #${handleBase} #exposed`, 150);
   const brief = trim(`${beat ? `Story point: ${beat.title}. ${beat.narrative} ` : ''}Inject: ${pick?.content ?? claim} Channel: ${pick?.channel ?? kind}.`, 1400);
