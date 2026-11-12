@@ -1,3 +1,4 @@
+import InjectVideoPlayer from './InjectVideoPlayer';
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -63,7 +64,7 @@ export default function HostedInjectMedia({ storagePath, artefact }: { storagePa
     {visual && <HostedArtefactView artefact={visual} />}
     {storagePath && <div className="my-4 space-y-2">
       <p className="text-xs font-medium text-crimson">{raw?.videoKind === 'board' ? 'DEEPFAKE · AI-GENERATED · FICTIONAL EXERCISE' : 'FICTIONAL EXERCISE · AI-generated footage'}</p>
-      {url ? <OverlayFrame overlay={overlay}><video key={storagePath} aria-label="Exercise inject video" src={url} controls playsInline preload="metadata" className="max-h-[480px] w-full rounded-md bg-background object-contain" onError={() => setError('Video playback failed. Reload the clip to try again.')} /></OverlayFrame> : !error && <p className="text-xs text-muted-foreground" role="status">Loading exercise video…</p>}
+      {url ? <OverlayFrame overlay={overlay}><InjectVideoPlayer key={storagePath} label="Exercise inject video" src={url} frameClassName="max-h-[480px]" onError={() => setError('Video playback failed. Reload the clip to try again.')} /></OverlayFrame> : !error && <p className="text-xs text-muted-foreground" role="status">Loading exercise video…</p>}
       {error && <div role="alert" className="text-sm text-destructive">{error}<Button size="sm" variant="outline" onClick={() => void load()} className="ml-2"><RefreshCw className="mr-2 h-3 w-3" />Reload clip</Button></div>}
     </div>}
   </>;
