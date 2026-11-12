@@ -8,7 +8,7 @@ import pharmacoreVideo from "@/assets/demo_video_pharmacore.mp4.asset.json";
 import trustinsureVideo from "@/assets/demo_video_trustinsure.mp4.asset.json";
 import newsTonightVideo from "@/assets/demo_reporter_news_tonight.mp4.asset.json";
 import cbbnVideo from "@/assets/demo_reporter_cbbn.mp4.asset.json";
-import newsTonightVoVideo from "@/assets/demo_reporter_news_tonight_vo.mp4.asset.json";
+import newsTonightVoVideo from "@/assets/news_tonight_pharmacore_broll.mp4.asset.json";
 import womanAvatar from "@/assets/avatar_pharma_woman.jpg";
 import youngMumAvatar from "@/assets/avatar_young_mum.jpg";
 import pigeebankVideo from "@/assets/demo_video_pigeebank.mp4.asset.json";
