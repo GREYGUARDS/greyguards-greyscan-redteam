@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { canAccessProduct } from "@/lib/guestExerciseAccess";
 
 interface RequireAuthProps {
   loginPath: string;
   children: React.ReactNode;
+  allowGuest?: boolean;
 }
 
 /**
- * Gate that only renders children when a real (non-anonymous) session exists.
+ * Guest sessions are allowed only on the explicitly enabled participant route.
  * Anything else is redirected to the given login screen.
  */
-export default function RequireAuth({ loginPath, children }: RequireAuthProps) {
+export default function RequireAuth({ loginPath, children, allowGuest = false }: RequireAuthProps) {
   const navigate = useNavigate();
   const [status, setStatus] = useState<"checking" | "allowed">("checking");
 
@@ -39,7 +41,7 @@ export default function RequireAuth({ loginPath, children }: RequireAuthProps) {
         ]);
         if (cancelled || done) return;
         const user = result?.data?.user;
-        if (!user || user.is_anonymous) {
+        if (!canAccessProduct(user, allowGuest)) {
           bail();
           return;
         }
@@ -61,7 +63,7 @@ export default function RequireAuth({ loginPath, children }: RequireAuthProps) {
       clearTimeout(safetyNet);
       sub.subscription.unsubscribe();
     };
-  }, [loginPath, navigate]);
+  }, [loginPath, navigate, allowGuest]);
 
 
   if (status === "checking") {

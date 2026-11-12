@@ -37,7 +37,7 @@ const App = () => (
 
           {/* Gated app routes */}
           <Route path="/" element={<RequireAuth loginPath="/login"><Index /></RequireAuth>} />
-          <Route path="/redteam" element={<RequireAuth loginPath="/redteam/login"><RedTeam /></RequireAuth>} />
+          <Route path="/redteam" element={<RequireAuth loginPath="/redteam/login" allowGuest><RedTeam /></RequireAuth>} />
           <Route path="/admin/requests" element={<RequireAuth loginPath="/login"><AdminRequests /></RequireAuth>} />
           <Route path="/admin/radar" element={<RequireAuth loginPath="/login"><ProspectRadar /></RequireAuth>} />
 
