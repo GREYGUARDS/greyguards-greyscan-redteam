@@ -18,7 +18,7 @@ interface TeamJoinProps {
 }
 
 const TeamJoin = ({ onJoinSession, onBack, allowAllTeams = false }: TeamJoinProps) => {
-  const [sessionCode, setSessionCode] = useState("");
+  const [sessionCode, setSessionCode] = useState(() => { const c = sessionStorage.getItem("gg_join_code") || ""; sessionStorage.removeItem("gg_join_code"); return c; });
   const [selectedTeam, setSelectedTeam] = useState<"blue" | "red" | "observer" | null>(null);
   const [teamName, setTeamName] = useState("");
   const [isJoining, setIsJoining] = useState(false);

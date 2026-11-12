@@ -105,7 +105,8 @@ export default function MasterInjectSandbox({ refreshKey = 0 }: { refreshKey?: n
   const all = useMemo(() => [...demos, ...entries], [entries]);
   const filtered = useMemo(() => filterCatalogue(all, filters), [all, filters]);
   const selected = filtered.find(entry => entry.id === selectedId);
-  const choices = (key: 'brand' | 'channel' | 'phase') => [...new Set(all.map(entry => entry[key]))].sort();
+  const PHASE_ORDER = ['Opening', 'Escalation', 'Pressure'];
+  const choices = (key: 'brand' | 'channel' | 'phase') => [...new Set(all.map(entry => entry[key]))].sort((a, b) => key === 'phase' ? ((PHASE_ORDER.indexOf(a) + 1 || 99) - (PHASE_ORDER.indexOf(b) + 1 || 99)) || a.localeCompare(b) : a.localeCompare(b));
   const change = (key: keyof typeof filters, value: string) => setFilters(prev => ({ ...prev, [key]: value }));
   const company = selected?.companyId ? getSimulationCompany(selected.companyId) : undefined;
 

@@ -48,6 +48,7 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [joinCode, setJoinCode] = useState("");
   const [confirmSent, setConfirmSent] = useState(false);
 
   // Request-access fields
@@ -217,6 +218,31 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
                 Back to sign in
               </Button>
             </div>
+          ) : variant === "redteam" ? (
+            <>
+              <div className="space-y-2 border-2 border-primary/40 bg-primary/5 p-3">
+                <Button type="button" className="w-full h-11 uppercase tracking-wider text-xs" onClick={() => navigate("/redteam/demo")}>
+                  <Crosshair className="mr-2 h-4 w-4" />Try demo mode
+                </Button>
+                <p className="text-[11px] text-muted-foreground text-center">No sign-in needed. Fictional companies only.</p>
+              </div>
+              <div className="space-y-3 border-2 border-border p-3">
+                <h3 className="text-sm font-semibold uppercase tracking-wider">Join an exercise</h3>
+                <form onSubmit={(e) => { e.preventDefault(); const c = joinCode.trim().toUpperCase(); if (!c) return; sessionStorage.setItem("gg_join_code", c); navigate("/redteam"); }} className="flex gap-2">
+                  <Input aria-label="Session code" value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="Session code" maxLength={12} className="uppercase tracking-widest" />
+                  <Button type="submit" disabled={!joinCode.trim()}>Join<ArrowRight className="ml-2 h-4 w-4" /></Button>
+                </form>
+                <p className="text-[11px] text-muted-foreground">Enter the code your facilitator gave you.</p>
+              </div>
+              <details className="border-t border-border pt-4">
+                <summary className="cursor-pointer text-center text-[11px] uppercase tracking-wider text-muted-foreground">Greyguards host sign-in</summary>
+                <form onSubmit={handleSignIn} className="mt-4 space-y-3">
+                  <Input aria-label="Email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@greyguards.com" disabled={loading} required />
+                  <Input aria-label="Password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" disabled={loading} required />
+                  <Button type="submit" variant="outline" className="w-full" disabled={loading}>{loading ? "Please wait…" : "Sign in"}</Button>
+                </form>
+              </details>
+            </>
           ) : (
             <>
               <div className="grid grid-cols-2 gap-2">
@@ -308,23 +334,6 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
                 </div>
               )}
 
-              {variant === "redteam" && (
-                <div className="space-y-2 border-2 border-primary/40 bg-primary/5 p-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full h-11 uppercase tracking-wider text-xs"
-                    onClick={() => navigate("/redteam/demo")}
-                  >
-                    <Crosshair className="mr-2 h-4 w-4" />
-                    Try the demo — no sign-in
-                  </Button>
-                  <p className="text-[11px] text-muted-foreground text-center">
-                    Runs a self-navigated exercise on our fictional companies. Consultant-hosted
-                    sessions and your own brand need a full account.
-                  </p>
-                </div>
-              )}
 
               <div className="p-3 bg-warning/10 border border-warning/30 rounded-md flex items-start gap-2">
                 <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
