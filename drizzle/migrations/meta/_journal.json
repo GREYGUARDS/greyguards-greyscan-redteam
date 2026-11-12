@@ -134,6 +134,13 @@
       "when": 1794442679413,
       "tag": "0018_secure_guest_blue_team_join",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794442756560,
+      "tag": "0019_allow_host_lock_team_disconnect",
+      "breakpoints": true
     }
   ]
 }
