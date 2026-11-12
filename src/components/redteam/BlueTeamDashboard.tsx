@@ -22,6 +22,7 @@ import CountdownTimer from "./CountdownTimer";
 import { useSoundEffects } from "@/hooks/use-sound-effects";
 import { useIsMobile } from "@/hooks/use-mobile";
 import LiveLeaderboard from "./LiveLeaderboard";
+import RoomAudioCapture from "./RoomAudioCapture";
 import HostedInjectMedia from './HostedInjectMedia';
 import HostedParticipantDebrief from './HostedParticipantDebrief';
 import { createInjectArrivalTracker } from '@/lib/injectArrivalTracker';
@@ -175,9 +176,11 @@ const BlueTeamDashboard = ({ sessionId, teamId, sessionData, onLeave, onComplete
 
   // Locked sessions become unreadable to participants; poll so devices close access promptly.
   const [locked, setLocked] = useState(false);
+  const [roomAudio, setRoomAudio] = useState(false);
   useEffect(() => {
     const check = async () => {
-      const { data, error } = await supabase.from('exercise_sessions').select('status').eq('id', sessionId).maybeSingle();
+      const { data, error } = await supabase.from('exercise_sessions').select('status, room_audio_enabled').eq('id', sessionId).maybeSingle();
+      if (!error && data) setRoomAudio(!!data.room_audio_enabled);
       if (!error && (!data || data.status === 'locked')) { setLocked(true); setInjects([]); }
     };
     void check();
