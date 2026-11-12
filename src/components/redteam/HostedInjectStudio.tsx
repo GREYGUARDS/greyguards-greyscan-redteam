@@ -1,3 +1,4 @@
+import InjectVideoPlayer from './InjectVideoPlayer';
 import { useEffect, useRef, useState } from 'react';
 import { Video, Newspaper, Globe, MessageCircle, Send, Loader2, RefreshCw, Sparkles } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -259,7 +260,7 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
     {paused && <Button variant="outline" size="sm" onClick={async () => { try { await invoke(endpoint, { action: 'resume', sessionId }); setPaused(false); setError(null); } catch (failure: any) { setError(failure.message); } }}><RefreshCw className="mr-2 h-4 w-4" />Access restored — resume</Button>}
     {job?.status === 'completed' && <div className="space-y-3 border-t border-border pt-4">
       <p className="text-xs text-crimson">FICTIONAL EXERCISE · Preview</p>
-      {job.videoUrl && <OverlayFrame overlay={{ ...overlay, platform: kind === 'news' ? 'news' : platform }}><video aria-label="Generated inject preview" src={job.videoUrl} controls playsInline className="max-h-[480px] w-full rounded-md bg-background object-contain" /></OverlayFrame>}
+      {job.videoUrl && <OverlayFrame overlay={{ ...overlay, platform: kind === 'news' ? 'news' : platform }}><InjectVideoPlayer label="Generated inject preview" src={job.videoUrl} frameClassName="max-h-[480px]" /></OverlayFrame>}
       {kind === 'board' && <div className="space-y-2">{!job.watermarkApplied ? <Button variant="outline" onClick={() => void applyWatermark()} disabled={busy}>Burn permanent deepfake watermark</Button> : <p className="text-xs text-crimson">Permanent deepfake watermark applied</p>}<label className="flex gap-2 text-xs"><Checkbox checked={reviewed} disabled={!job.watermarkApplied || busy} onCheckedChange={v => setReviewed(v === true)} />I have watched the final watermarked clip and approve it for this exercise.</label></div>}
       {job.artefact && <HostedArtefactView artefact={kind === 'website' ? job.artefact : { ...job.artefact, stats }} />}
       {!activeRed && <Button variant="outline" onClick={() => void send(true)} disabled={sending || job.sent || busy || (kind === 'board' && (!job.watermarkApplied || !reviewed))} className="w-full">Save to ready injects</Button>}

@@ -1,3 +1,4 @@
+import InjectVideoPlayer from './InjectVideoPlayer';
 import { useRef } from "react";
 import { Inject } from "@/pages/RedTeam";
 import { Inject as InjectTemplate, downloadInjectPNG, hasInjectTemplate } from "@/components/GreyguardsInject";
@@ -74,10 +75,7 @@ const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
           <span className="truncate text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Video · circulating · unverified</span>
           <span className="shrink-0 text-[10px] uppercase tracking-wider text-destructive">Fictional · AI generated</span>
         </div>
-        <div className="relative mx-auto aspect-[9/16] max-h-[520px] overflow-hidden bg-background">
-          <video src={inject.demoVideo.url} autoPlay muted loop playsInline controls className="h-full w-full object-cover" aria-label="Fictional exercise video" />
-          <VideoOverlayLayer overlay={inject.demoVideo.overlay} />
-        </div>
+        <InjectVideoPlayer src={inject.demoVideo.url} loop label="Fictional exercise video" frameClassName="mx-auto aspect-[9/16] max-h-[520px]" overlay={<VideoOverlayLayer overlay={inject.demoVideo.overlay} />} />
         {!inject.hideCaption && <p className="border-t-2 border-border px-4 py-3 text-sm leading-relaxed">{inject.content}</p>}
       </div>
     );
