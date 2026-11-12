@@ -320,6 +320,48 @@ export type Database = {
           },
         ]
       }
+      exercise_room_transcripts: {
+        Row: {
+          created_at: string
+          id: string
+          session_id: string
+          team_id: string
+          transcript: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          session_id: string
+          team_id: string
+          transcript: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          session_id?: string
+          team_id?: string
+          transcript?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_room_transcripts_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_room_transcripts_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exercise_sessions: {
         Row: {
           blue_team_score: Json | null
@@ -342,6 +384,7 @@ export type Database = {
           preparation_notes: string
           real_board_members_approved: boolean
           red_team_score: Json | null
+          room_audio_enabled: boolean
           scenario_narrative: string | null
           scenario_title: string | null
           session_code: string
@@ -371,6 +414,7 @@ export type Database = {
           preparation_notes?: string
           real_board_members_approved?: boolean
           red_team_score?: Json | null
+          room_audio_enabled?: boolean
           scenario_narrative?: string | null
           scenario_title?: string | null
           session_code: string
@@ -400,6 +444,7 @@ export type Database = {
           preparation_notes?: string
           real_board_members_approved?: boolean
           red_team_score?: Json | null
+          room_audio_enabled?: boolean
           scenario_narrative?: string | null
           scenario_title?: string | null
           session_code?: string
@@ -941,6 +986,10 @@ export type Database = {
         Returns: undefined
       }
       host_lock_session: { Args: { _session_id: string }; Returns: undefined }
+      host_set_room_audio: {
+        Args: { _enabled: boolean; _session_id: string }
+        Returns: undefined
+      }
       is_admin: { Args: { _uid: string }; Returns: boolean }
       is_red_member: {
         Args: { _session_id: string; _user_id: string }
