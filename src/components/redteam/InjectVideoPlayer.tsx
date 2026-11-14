@@ -5,7 +5,7 @@ export const VideoOverlaySlot = createContext<React.ReactNode>(null);
 import { Pause, Play, Volume2, VolumeX } from 'lucide-react';
 
 /** Video with its controls in a separate bar under the footage, so text overlays never hide volume. Starts with sound on where the browser allows it. */
-export default function InjectVideoPlayer({ src, overlay, className = '', frameClassName = '', loop = false, label = 'Exercise video', onError }: { src: string; overlay?: React.ReactNode; className?: string; frameClassName?: string; loop?: boolean; label?: string; onError?: () => void }) {
+export default function InjectVideoPlayer({ src, overlay, className = '', frameClassName = '', loop = false, label = 'Exercise video', onError, thumbnail = false }: { thumbnail?: boolean; src: string; overlay?: React.ReactNode; className?: string; frameClassName?: string; loop?: boolean; label?: string; onError?: () => void }) {
   const slot = useContext(VideoOverlaySlot);
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -13,6 +13,7 @@ export default function InjectVideoPlayer({ src, overlay, className = '', frameC
   const [volume, setVolume] = useState(1);
   const [progress, setProgress] = useState(0);
   useEffect(() => {
+    if (thumbnail) { const t = ref.current; if (t) { t.muted = true; t.pause(); } setMuted(true); return; }
     const v = ref.current; if (!v) return;
     v.muted = false; v.volume = 1;
     v.play().then(() => setMuted(false)).catch(() => { v.muted = true; setMuted(true); void v.play().catch(() => {}); });

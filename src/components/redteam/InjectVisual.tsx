@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 interface InjectVisualProps {
+  thumbnail?: boolean;
   inject: Inject;
   company?: SimulationCompany;
   people?: SimulationPerson[];
@@ -44,7 +45,7 @@ const hashtags = (content: string) => content.match(/#[\w]+/g)?.slice(0, 3) ?? [
  * Renders each inject as a platform-styled mock so participants "see"
  * the artefact rather than only reading a description.
  */
-const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
+const InjectVisual = ({ inject, company, people = [], thumbnail = false }: InjectVisualProps) => {
   const reach = inject.reach ?? 0;
   const xPostShot = getXPostScreenshot(company?.id);
 
@@ -75,7 +76,7 @@ const InjectVisual = ({ inject, company, people = [] }: InjectVisualProps) => {
           <span className="truncate text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Video · circulating · unverified</span>
           <span className="shrink-0 text-[10px] uppercase tracking-wider text-destructive">Fictional · AI generated</span>
         </div>
-        <InjectVideoPlayer src={inject.demoVideo.url} loop label="Fictional exercise video" frameClassName="mx-auto aspect-[9/16] max-h-[520px]" overlay={<VideoOverlayLayer overlay={inject.demoVideo.overlay} />} />
+        <InjectVideoPlayer src={inject.demoVideo.url} loop={!thumbnail} thumbnail={thumbnail} label="Fictional exercise video" frameClassName="mx-auto aspect-[9/16] max-h-[520px]" overlay={<VideoOverlayLayer overlay={inject.demoVideo.overlay} />} />
         {!inject.hideCaption && <p className="border-t-2 border-border px-4 py-3 text-sm leading-relaxed">{inject.content}</p>}
       </div>
     );
