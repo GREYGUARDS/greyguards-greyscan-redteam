@@ -45,7 +45,18 @@ const hashtags = (content: string) => content.match(/#[\w]+/g)?.slice(0, 3) ?? [
  * Renders each inject as a platform-styled mock so participants "see"
  * the artefact rather than only reading a description.
  */
-const InjectVisual = ({ inject, company, people = [], thumbnail = false }: InjectVisualProps) => {
+const InjectVisual = (props: InjectVisualProps) => {
+  const { inject } = props;
+  if (!inject.image) return <InjectVisualBody {...props} />;
+  return (
+    <div className="space-y-0">
+      <img src={inject.image.url} alt={inject.image.alt} loading="lazy" className="w-full border-2 border-b-0 border-border object-cover" />
+      <InjectVisualBody {...props} />
+    </div>
+  );
+};
+
+const InjectVisualBody = ({ inject, company, people = [], thumbnail = false }: InjectVisualProps) => {
   const reach = inject.reach ?? 0;
   const xPostShot = getXPostScreenshot(company?.id);
 
@@ -63,7 +74,7 @@ const InjectVisual = ({ inject, company, people = [], thumbnail = false }: Injec
         ...(company?.logo && /document|press-release/.test(inject.visual.template)
           ? { logoUrl: company.logo }
           : {}),
-        ...((featuredPerson?.photo || company?.icon) && /social-dark|professional/.test(inject.visual.template)
+        ...(!inject.visual.data?.avatarUrl && (featuredPerson?.photo || company?.icon) && /social-dark|professional/.test(inject.visual.template)
           ? { avatarUrl: featuredPerson?.photo || company?.icon }
           : {}),
       }

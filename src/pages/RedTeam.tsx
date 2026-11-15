@@ -208,6 +208,8 @@ export interface Inject {
   /** Platform-accurate mock-up rendered instead of the generic visual */
   visual?: InjectVisualSpec;
   /** Pre-made demo film with platform graphics */
+  /** Optional still photo shown above the inject artefact. */
+  image?: { url: string; alt: string };
   demoVideo?: { url: string; overlay: import("@/components/redteam/InjectOverlay").VideoOverlay };
   /** Threaded reply shown beneath the main artefact */
   reply?: InjectVisualSpec;
