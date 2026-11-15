@@ -11,6 +11,12 @@ import cbbnVideo from "@/assets/demo_reporter_cbbn.mp4.asset.json";
 import newsTonightVoVideo from "@/assets/news_tonight_pharmacore_broll.mp4.asset.json";
 import womanAvatar from "@/assets/avatar_pharma_woman.jpg";
 import youngMumAvatar from "@/assets/avatar_young_mum.jpg";
+import cbbnPigeeVo from "@/assets/cbbn_pigeebank_vo.mp4.asset.json";
+import radioPigeebank from "@/assets/radio_pigeebank.mp3.asset.json";
+import radioTrustinsure from "@/assets/radio_trustinsure.mp3.asset.json";
+import whisperImage from "@/assets/pb_whisper_silhouette.jpg";
+import suitManAvatar from "@/assets/avatar_suit_man.jpg";
+import floodedDoorImage from "@/assets/ti_flooded_front_door.jpg";
 import pigeebankVideo from "@/assets/demo_video_pigeebank.mp4.asset.json";
 
 type Opt = [label: string, description: string, type: ResponseOption["type"], effectiveness: number, risk: ResponseOption["riskLevel"], time: number];
@@ -20,6 +26,7 @@ type Spec = {
   video?: { url: string; overlay: VideoOverlay };
   visual?: Inject["visual"];
   reply?: Inject["reply"];
+  image?: Inject["image"];
   hideCaption?: boolean;
 };
 
@@ -35,6 +42,7 @@ const build = (prefix: string, specs: Spec[]): Inject[] =>
     requiresResponse: true,
     ...(s.video ? { demoVideo: s.video } : {}),
     ...(s.visual ? { visual: s.visual } : {}),
+    ...(s.image ? { image: s.image } : {}),
     ...(s.reply ? { reply: s.reply } : {}),
     ...(s.hideCaption ? { hideCaption: true } : {}),
     isAggressive: s.sentiment === "hostile",
@@ -132,6 +140,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
   ]),
   "meridian-vale": build("ti", [
     { t: 90, type: "social_post", source: "Flood Victims UK · Community page", reach: 48000, sentiment: "hostile",
+      image: { url: floodedDoorImage, alt: "Flooded front door of a terraced house (fictional illustration)" },
       visual: { template: "facebook", label: "Community page · 48k followers", data: { pageName: "Flood Victims UK", groupLabel: "Community page", author: "Flood Victims UK", timestamp: "1h", body: "Their CEO SAID IT. 'People will simply have to wait.' 6 months on, still no payout for our members. Share if TrustInsureUK let you down 👇", reactions: "5.2K", comments: "1.9K", shares: "3.4K", topComment: { author: "Mel Jones", text: "Same here, still waiting since March." } } },
       content: "A flood victims' page is sharing the cut CEO clip and collecting complaints.",
       options: [
@@ -201,7 +210,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 400, type: "news_article", source: "TalkUK · Live radio phone-in", reach: 650000, sentiment: "hostile",
       hideCaption: true,
-      visual: { template: "radio", label: "TalkUK · Live phone-in", data: { station: "TalkUK", show: "Your Money, Your Say", presenter: "Gemma Hollis", intro: "TalkUK lines are open. A clip is going round of TrustInsureUK's boss apparently laughing about rejecting claims. Is your insurer on your side? Call us.", callers: [
+      visual: { template: "radio", label: "TalkUK · Live phone-in", data: { station: "TalkUK", show: "Your Money, Your Say", audioUrl: radioTrustinsure.url, script: [{"who": -1, "start": 0, "text": "You're listening to Your Money, Your Say on TalkUK, I'm Gemma Hollis. Now, if you've been online today you'll have seen it. A clip of TrustInsureUK's boss, apparently saying flood claims will simply have to wait. Is your insurer on your side? Gary's in Bolton. Gary."}, {"who": 0, "start": 22.11, "text": "Gemma, twelve years I've paid them. Twelve years. Never missed a payment. I saw that video this morning and I rang up and cancelled. Done."}, {"who": -1, "start": 33.18, "text": "Gary, the company says that clip was edited. Have you seen the full version?"}, {"who": 0, "start": 39.69, "text": "Well they would say that, wouldn't they? It's his face, it's his voice. What more do you want?"}, {"who": -1, "start": 46.04, "text": "Thanks Gary. Asha in Croydon, you had a claim turned down?"}, {"who": 1, "start": 51.83, "text": "Last month. Water came right through my front door, ruined the whole downstairs. They said no. And now I watch this and I think, right, so it's a policy. It's a policy to say no."}, {"who": -1, "start": 63.86, "text": "I'm really sorry to hear that Asha. Did they give you a reason at the time?"}, {"who": 1, "start": 69.89, "text": "Something about the small print. Nobody reads the small print, Gemma. That's the whole point, isn't it?"}, {"who": -1, "start": 76.44, "text": "Pete in Cardiff, you think this is all a bit of a stitch up?"}, {"who": 2, "start": 81.23, "text": "No, no, I'm saying, if it's edited, prove it. Put the full video out. Today. If they won't, then as far as I'm concerned it's true."}, {"who": -1, "start": 92.22, "text": "And that's a challenge for TrustInsureUK. The lines are open, the floor is yours. Back after this."}], presenter: "Gemma Hollis", intro: "TalkUK lines are open. A clip is going round of TrustInsureUK's boss apparently laughing about rejecting claims. Is your insurer on your side? Call us.", callers: [
           { name: "Gary", location: "Bolton", text: "I've paid them twelve years. After that video I'm cancelling today." },
           { name: "Asha", location: "Croydon", text: "My claim was refused last month. Now I know why. It's a policy to say no!" },
           { name: "Pete", location: "Cardiff", text: "They should have to show the full video. If they won't, it's true." },
@@ -223,7 +232,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Raise withdrawal limits", "Temporarily increase limits to 'prove' money is there.", "internal_action", 35, "high", 20],
       ] },
     { t: 225, type: "social_post", source: "Savers Club UK · Community page", reach: 64000, sentiment: "hostile",
-      visual: { template: "facebook", label: "Community page · 64k members", data: { pageName: "Savers Club UK", groupLabel: "Public group · 64K members", author: "Gary Whitfield", timestamp: "22m", body: "Moved my £12k out of PigeeBank this morning. Better safe than sorry with this IPO stuff. Anyone else?", reactions: "2.1K", comments: "940", shares: "780", topComment: { author: "Linda P", text: "Doing mine now. FSCS takes months to pay out." } } },
+      visual: { template: "facebook", label: "Community page · 64k members", data: { pageName: "Savers Club UK", groupLabel: "Public group · 64K members", author: "Gary Whitfield", avatarUrl: suitManAvatar, timestamp: "22m", body: "Moved my £12k out of PigeeBank this morning. Better safe than sorry with this IPO stuff. Anyone else?", reactions: "2.1K", comments: "940", shares: "780", topComment: { author: "Linda P", text: "Doing mine now. FSCS takes months to pay out." } } },
       content: "A big savers' group is swapping stories about pulling money out — and a false claim that FSCS is slow.",
       options: [
         ["Explain FSCS clearly", "Post a plain guide: £85k protected, paid in days not months.", "social_response", 85, "low", 30],
@@ -247,6 +256,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Decline to comment", "Say the bank won't comment on rumours.", "statement", 20, "high", 10],
       ] },
     { t: 30, type: "social_post", source: "Reddit r/UKPersonalFinance & Tweets", reach: 80000, sentiment: "hostile",
+      image: { url: whisperImage, alt: "Silhouetted figure whispering a rumour (fictional illustration)" },
       content: "'PigeeBank app has frozen all Faster Payments right before their IPO. Exit scam? Get your cash out now.' (re-shared maintenance screenshot)",
       options: [
         ["Live status dashboard", "Post the live payments dashboard showing 99.98% processing.", "social_response", 88, "low", 30],
@@ -269,7 +279,8 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Threaten the leaker", "Warn of criminal action against fake leakers.", "legal", 20, "high", 20],
       ] },
     { t: 450, type: "news_article", source: "CBBN · Live business desk", reach: 900000, sentiment: "confused",
-      video: { url: cbbnVideo.url, overlay: { platform: "news", handle: "", caption: "", likes: "", comments: "", shares: "", views: "", channel: "CBBN", headline: "PigeeBank IPO under pressure", ticker: "Withdrawal rumours spread on Telegram · Bank yet to publish outflow data" } },
+      hideCaption: true,
+      video: { url: cbbnPigeeVo.url, overlay: { platform: "news", handle: "", caption: "", likes: "", comments: "", shares: "", views: "", channel: "CBBN", headline: "PigeeBank IPO under pressure", ticker: "Withdrawal rumours spread on Telegram · Bank yet to publish outflow data" } },
       content: "BREAKING: PigeeBank IPO roadshow in jeopardy as deposit outflows surge amid weekend social panic.",
       options: [
         ["On-the-record briefing", "CFO and Naomi Hart (COO) give verified deposit retention figures.", "media_outreach", 85, "medium", 45],
@@ -285,7 +296,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 400, type: "news_article", source: "TalkUK · Live radio phone-in", reach: 650000, sentiment: "hostile",
       hideCaption: true,
-      visual: { template: "radio", label: "TalkUK · Live phone-in", data: { station: "TalkUK", show: "Drive Time Phones", presenter: "Rob Keane", intro: "Talk of a run on PigeeBank this evening. People say they can't get their money out. Is your money safe? Phone lines are open.", callers: [
+      visual: { template: "radio", label: "TalkUK · Live phone-in", data: { station: "TalkUK", show: "Drive Time Phones", audioUrl: radioPigeebank.url, script: [{"who": -1, "start": 0, "text": "Good evening, it's ten past six, this is Drive Time Phones on TalkUK with me, Rob Keane. Now, all afternoon my inbox has been full of one name. PigeeBank. People saying they can't get their money out. Is your money safe? Lines are open. Jade's in Manchester. Jade, go ahead."}, {"who": 0, "start": 21.83, "text": "Hiya Rob. Look, my mate tried to send her rent this afternoon and it just bounced. Bounced! So I've moved everything out. Every penny. I'm not waiting around to find out."}, {"who": -1, "start": 34.42, "text": "But Jade, did the bank actually tell her anything? Could it just have been a glitch?"}, {"who": 0, "start": 40.41, "text": "A glitch? The week before their big stock market launch? Come on, Rob. Nobody believes that."}, {"who": -1, "start": 48.24, "text": "Okay, thank you Jade. Simon in Reading, you've been holding. Simon."}, {"who": 1, "start": 54.31, "text": "Rob, I'm old enough to remember Northern Rock. Proper banks don't have to keep going on social media saying, it's fine, it's fine. That is exactly what they said back then."}, {"who": -1, "start": 65.34, "text": "To be fair Simon, your savings are protected up to eighty five thousand pounds. Doesn't that reassure you?"}, {"who": 1, "start": 73.29, "text": "And how long does that take to pay out? Months! I can't wait months for my own money. Somebody needs to tell us the actual numbers."}, {"who": -1, "start": 81.32, "text": "Well that's a fair point, and we have asked PigeeBank to come on. Mo, in Glasgow. Quickly Mo."}, {"who": 2, "start": 88.47, "text": "Aye Rob, I'm sat in the app right now trying to move it. Everyone at my work's doing the same. If it's all fine, where are they? Why are they not on your show?"}, {"who": -1, "start": 97.94, "text": "That's the question, isn't it. PigeeBank, if you're listening, the phone lines are open. We'll be right back after the news."}], presenter: "Rob Keane", intro: "Talk of a run on PigeeBank this evening. People say they can't get their money out. Is your money safe? Phone lines are open.", callers: [
           { name: "Jade", location: "Manchester", text: "My mate's transfer bounced so I've moved everything out. Not waiting to find out." },
           { name: "Simon", location: "Reading", text: "No proper bank has to keep saying it's fine. That's what Northern Rock said." },
           { name: "Mo", location: "Glasgow", text: "I'm queuing on the app now. Everyone I know is doing the same." },
