@@ -694,7 +694,14 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
       const next = injects[firedCountRef.current];
       if (next) {
         firedCountRef.current += 1;
-        triggerInject({ ...next, consequence: demoActionConsequence(actionText.split(' — ')[0], effectiveness) });
+        setIsReacting(true);
+        reactingRef.current = true;
+        setTimeout(() => {
+          reactingRef.current = false;
+          setIsReacting(false);
+          window.scrollTo({ top: 0, behavior: 'instant' });
+          triggerInject({ ...next, consequence: demoActionConsequence(actionText.split(' — ')[0], effectiveness) });
+        }, 3000);
       } else {
         setTimeout(finishExercise, 0);
       }
@@ -1199,7 +1206,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                         <p className="text-sm">{lastFeedback.text}</p>
                       </div>
                     )}
-                    {activeInject.consequence && (
+                    {activeInject.consequence && !isScriptedDemo && (
 
                       <div className="mb-4 border-l-4 border-primary bg-primary/5 p-3">
                         <span className="block text-[10px] uppercase tracking-[0.2em] text-primary mb-1">
@@ -1327,7 +1334,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                 <CardContent className="text-center p-12">
                   <Clock className={`h-16 w-16 mx-auto mb-6 text-muted-foreground ${isReacting ? 'animate-spin' : 'animate-pulse'}`} />
                   <h3 className="text-xl font-bold uppercase tracking-wider mb-2">
-                    {isReacting ? "Network Reacting..." : "Monitoring..."}
+                    {isReacting ? (isScriptedDemo ? "Next development incoming..." : "Network Reacting...") : "Monitoring..."}
                   </h3>
                   <p className="text-muted-foreground">
                     {isReacting
