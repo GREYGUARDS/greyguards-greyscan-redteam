@@ -88,7 +88,7 @@ export default function MasterInjectSandbox({ refreshKey = 0 }: { refreshKey?: n
               const session = byId.get(inject.session_id);
               if (!session) continue;
               saved.push({ id: `saved:${inject.id}`, brand: session.brand_name, session: session.session_label || session.scenario_title || session.brand_name, origin: 'saved', saved: inject,
-                content: inject.content, source: inject.source, offset: inject.timestamp_offset, channel: channelFor(inject.source, inject.inject_type),
+                content: inject.content, source: inject.source, offset: inject.timestamp_offset, channel: (inject.artefact as { kind?: string } | null)?.kind === 'radio' ? 'Radio phone-in' : channelFor(inject.source, inject.inject_type),
                 phase: inject.phase || cataloguePhase(inject.timestamp_offset, session.duration * 60), status: inject.is_sent ? 'Sent' : 'Ready' });
             }
             if ((data?.length ?? 0) < 500) break;
