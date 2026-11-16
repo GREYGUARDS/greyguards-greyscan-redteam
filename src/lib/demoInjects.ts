@@ -13,6 +13,7 @@ import womanAvatar from "@/assets/avatar_pharma_woman.jpg";
 import youngMumAvatar from "@/assets/avatar_young_mum.jpg";
 import cbbnPigeeVo from "@/assets/cbbn_pigeebank_vo.mp4.asset.json";
 import radioPigeebank from "@/assets/radio_pigeebank.mp3.asset.json";
+import radioPharmacore from "@/assets/radio_pharmacore.mp3.asset.json";
 import radioTrustinsure from "@/assets/radio_trustinsure.mp3.asset.json";
 import whisperImage from "@/assets/pb_whisper_silhouette.jpg";
 import suitManAvatar from "@/assets/avatar_suit_man.jpg";
@@ -92,7 +93,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Brief pharmacy network", "Batch-verification memo to community pharmacies before consumer press picks it up.", "internal_action", 80, "low", 45],
         ["Flat denial + legal warning", "Reply in Tweets: '100% false and malicious, lawyers are watching.'", "legal", 30, "high", 15],
       ] },
-    { t: 120, type: "influencer", source: "Parent creator · TikTok · 180k views #RecallTheMeds", reach: 180000, sentiment: "hostile",
+    { t: 120, type: "influencer", source: "@sheffieldmum_jo · TikTok · 180K views", reach: 180000, sentiment: "hostile",
       video: { url: pharmacoreVideo.url, overlay: { platform: "tiktok", handle: "@sheffieldmum_jo", caption: "Pharmacore knew. Check your kids' meds 😡 #RecallTheMeds", likes: "24.6K", comments: "3.1K", shares: "8.9K", views: "180K", channel: "", headline: "", ticker: "" } },
       hideCaption: true,
       content: "Crying to camera: 'Pharmacore knew since Tuesday. My 4-year-old was prescribed this exact bottle. Why is nobody talking about it?'",
@@ -126,7 +127,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 390, type: "news_article", source: "TalkUK · Live radio phone-in", reach: 650000, sentiment: "hostile",
       hideCaption: true,
-      visual: { template: "radio", label: "TalkUK · Live phone-in", data: { station: "TalkUK", show: "The Midday Debate", presenter: "Marcus Vance", intro: "Lines are jammed this lunchtime. Pharmacore says its antibiotics are safe, but parents aren't buying it. Is this a cover-up? Let's go to the phones.", callers: [
+      visual: { template: "radio", label: "TalkUK · Live phone-in", data: { station: "TalkUK", show: "The Midday Debate", audioUrl: radioPharmacore.url, script: [{"who": -1, "start": 0.0, "text": "Good afternoon, it's twelve minutes past one, this is The Midday Debate on TalkUK, I'm Marcus Vance. Now, the lines have been jammed all morning. Pharmacore says its children's antibiotics are perfectly safe. A lot of you aren't buying it. Cover-up, or something else? Kerry's in Sheffield. Kerry, go ahead."}, {"who": 0, "start": 23.27, "text": "Marcus, I've binned it. My daughter's medicine, straight in the bin. Nobody from Pharmacore has told us a single thing. Not a word. Why are they hiding?"}, {"who": -1, "start": 35.52, "text": "Kerry, have you spoken to your pharmacist? Did they say there's an actual recall?"}, {"who": 0, "start": 41.59, "text": "They said they've not heard anything official. But that's the point, isn't it? It's all over my feed. Three kids in hospital. You don't make that up."}, {"who": -1, "start": 50.74, "text": "Thank you Kerry. Dave in Doncaster, you say you've got inside information?"}, {"who": 1, "start": 56.49, "text": "Aye, my cousin works at that depot. He reckons the fridges went off for hours. Hours, Marcus. And they still sent the stuff out. They knew."}, {"who": -1, "start": 66.01, "text": "Dave, has your cousin actually seen that himself, or is that what he's heard?"}, {"who": 1, "start": 72.82, "text": "Well, it's what everyone's saying down there. No smoke without fire, is there?"}, {"who": -1, "start": 78.74, "text": "Linda in Leeds, quickly Linda."}, {"who": 2, "start": 82.49, "text": "If it was safe, Marcus, why is everyone online saying it isn't? Somebody should go to prison for this. Where's the boss? Why isn't he on your show?"}, {"who": -1, "start": 92.66, "text": "That's the question, isn't it. Pharmacore, if you're listening, the lines are open. Stay with us, more after the news."}], presenter: "Marcus Vance", intro: "Lines are jammed this lunchtime. Pharmacore says its antibiotics are safe, but parents aren't buying it. Is this a cover-up? Let's go to the phones.", callers: [
           { name: "Kerry", location: "Sheffield", text: "I've binned my daughter's medicine. Nobody from Pharmacore has told us a thing. Why are they hiding?" },
           { name: "Dave", location: "Doncaster", text: "My cousin works at that depot. He says the fridges went off for hours. They knew!" },
           { name: "Linda", location: "Leeds", text: "If it was safe, why is everyone online saying it isn't? Somebody should go to prison for this." },
@@ -179,7 +180,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Executive clarification", "Written statement explaining the full context.", "statement", 62, "low", 30],
         ["Demand platform takedown", "File an immediate copyright notice against the account.", "legal", 30, "high", 15],
       ] },
-    { t: 150, type: "influencer", source: "Consumer champion · TikTok Live · 500k followers", reach: 500000, sentiment: "hostile",
+    { t: 150, type: "influencer", source: "@moneyrights_dan · TikTok · 1.2M views", reach: 1200000, sentiment: "hostile",
       video: { url: trustinsureVideo.url, overlay: { platform: "tiktok", handle: "@moneyrights_dan", caption: "Switch NOW before renewals ⚠️ #TrustInsureScandal", likes: "61.2K", comments: "7.4K", shares: "15K", views: "1.2M", channel: "", headline: "", ticker: "" } },
       content: "'Don't renew with TrustInsureUK. Switch your motor and home policy today before they freeze your payouts.'",
       options: [
@@ -263,7 +264,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Founder personal post", "Alex Bryce debunks the rumour from his verified account.", "social_response", 65, "medium", 30],
         ["Delete panic posts", "Hide and report posts on the official subreddit.", "internal_action", 20, "high", 15],
       ] },
-    { t: 150, type: "influencer", source: "@fintech_sam (240k followers) · TikTok", reach: 240000, sentiment: "hostile",
+    { t: 150, type: "influencer", source: "@fintech_sam · TikTok · 890K views", reach: 890000, sentiment: "hostile",
       video: { url: pigeebankVideo.url, overlay: { platform: "tiktok", handle: "@fintech_sam", caption: "PigeeBank blocking withdrawals?? Move your money 🚨 #PigeeBank", likes: "42.5K", comments: "3.8K", shares: "11K", views: "890K", channel: "", headline: "", ticker: "" } },
       content: "Creator to camera: 'PigeeBank is blocking withdrawals before their IPO. My rent transfer just failed. Get your money out now.'",
       options: [

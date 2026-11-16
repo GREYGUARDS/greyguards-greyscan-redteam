@@ -1199,7 +1199,7 @@ const ExercisePlayer = ({ config, scenario, onComplete, onBack }: ExercisePlayer
                         <p className="text-sm">{lastFeedback.text}</p>
                       </div>
                     )}
-                    {activeInject.consequence && (
+                    {activeInject.consequence && !isScriptedDemo && (
 
                       <div className="mb-4 border-l-4 border-primary bg-primary/5 p-3">
                         <span className="block text-[10px] uppercase tracking-[0.2em] text-primary mb-1">
