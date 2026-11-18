@@ -1,5 +1,7 @@
 # Current work
 
+- [ ] Replace the three video-first demo opening films with story-matched deliberate-disinformation footage (Pharmacore forged depot log, TrustInsureUK manipulated CEO clip, PigeeBank doctored £40m spreadsheet), British speech and permanent fictional labels; generation refused for insufficient workspace credits (approximately 4.06 credits per film). Existing films remain unchanged; verify footage, speech and all three demo/sandbox openings after generation.
+
 - [x] Enable code-only guest Blue Team joining; live mobile join, sent-only inject reads, response save/readback, host/Red denial, occupied-seat protection and revoked-code checks passed; corrected lock disconnection safeguard and removed temporary exercise.
 
 - [x] Add host direct start for canonical demos and prepared cases, bypassing the sandpit; seven tests and isolated browser flows passed. Live host verification unavailable: requesting account is not a host admin.
