@@ -227,10 +227,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
 
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/login");
-        return;
-      }
+      if (!session) return;
       setUserId(session.user.id);
 
       // Grant access to any brand the user searches
@@ -244,9 +241,9 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
+      if (event === "SIGNED_OUT") {
         navigate("/login");
-      } else {
+      } else if (session) {
         setUserId(session.user.id);
       }
     });

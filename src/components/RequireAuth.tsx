@@ -27,20 +27,26 @@ export default function RequireAuth({ loginPath, children, allowGuest = false }:
       // Navigate first so nobody is ever stranded on "Verifying access…";
       // clearing the stale local session happens in the background.
       navigate(loginPath, { replace: true });
-      void Promise.resolve(supabase.auth.signOut({ scope: "local" })).catch(() => { /* ignore */ });
     };
 
-    // Hard safety net: never sit on the verifying screen for more than 6s.
-    const safetyNet = setTimeout(bail, 6000);
+    // Hard safety net: never sit on the verifying screen for more than 12s.
+    const safetyNet = setTimeout(bail, 12000);
 
     const check = async () => {
       try {
-        const result = await Promise.race([
-          supabase.auth.getUser(),
-          new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
-        ]);
+        // Local session first: a freshly signed-in user must never be bounced
+        // because a network check is slow during the page transition.
+        const { data: { session } } = await supabase.auth.getSession();
         if (cancelled || done) return;
-        const user = result?.data?.user;
+        let user = session?.user ?? null;
+        if (!user) {
+          const result = await Promise.race([
+            supabase.auth.getUser(),
+            new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
+          ]);
+          if (cancelled || done) return;
+          user = result?.data?.user ?? null;
+        }
         if (!canAccessProduct(user, allowGuest)) {
           bail();
           return;
