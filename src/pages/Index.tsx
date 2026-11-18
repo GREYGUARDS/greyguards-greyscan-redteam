@@ -49,6 +49,8 @@ import html2canvas from "html2canvas";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAccessProfile } from "@/hooks/useAccessProfile";
 import { Lock, ArrowRight, ShieldCheck, Radar } from "lucide-react";
+import { SCAN_WINDOWS, DEFAULT_SCAN_WINDOW_DAYS, RISK_TERMS, parseExtraTerms, withinWindow } from "@/lib/greyscanAccess";
+import { TracedStories } from "@/components/TracedStories";
 
 
 const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
@@ -78,6 +80,9 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
   const [apiStatuses, setApiStatuses] = useState<APIStatus[]>([]);
   const [scanPhase, setScanPhase] = useState<ScanPhase>("sources");
   const [liveTimestamp, setLiveTimestamp] = useState(new Date());
+  const [windowDays, setWindowDays] = useState<number>(DEFAULT_SCAN_WINDOW_DAYS);
+  const [extraTermsRaw, setExtraTermsRaw] = useState("");
+  const [widenOpen, setWidenOpen] = useState(false);
   const access = useAccessProfile();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -304,7 +309,8 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
     
     try {
       // Check cache first
-      const cacheKey = `narrative_${brandName.toLowerCase()}`;
+      const extraTerms = parseExtraTerms(extraTermsRaw);
+      const cacheKey = `narrative_${brandName.toLowerCase()}_${windowDays}d_${extraTerms.join("|").toLowerCase()}`;
       const cached = localStorage.getItem(cacheKey);
       const cacheTime = localStorage.getItem(`${cacheKey}_time`);
       
@@ -330,10 +336,11 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
         name: string,
         functionName: string,
         extractData: (data: any) => any[],
-        dataKey: string = 'articles'
+        dataKey: string = 'articles',
+        query: string = brandName
       ) => {
         try {
-          const result = await supabase.functions.invoke(functionName, { body: { brand: brandName } });
+          const result = await supabase.functions.invoke(functionName, { body: { brand: query.slice(0, 100) } });
           if (result.error) {
             console.warn(`${name} unavailable:`, result.error);
             updateApiStatus(name, 'failed', 0);
@@ -359,6 +366,11 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
         createApiCall('RSS Aggregator', 'fetch-rss-aggregator', d => d?.articles),
         createApiCall('GDELT DOC', 'fetch-gdelt-doc', d => d?.articles),
         createApiCall('Google News', 'fetch-googlenews-rss', d => d?.articles),
+        ...extraTerms.flatMap((term) => [
+          createApiCall(`Google News · ${term}`, 'fetch-googlenews-rss', d => d?.articles, 'articles', `${brandName} ${term}`),
+          createApiCall(`GDELT DOC · ${term}`, 'fetch-gdelt-doc', d => d?.articles, 'articles', `${brandName} ${term}`),
+          createApiCall(`Bluesky · ${term}`, 'fetch-bluesky', d => d?.posts, 'posts', `${brandName} ${term}`),
+        ]),
         createApiCall('Bluesky', 'fetch-bluesky', d => d?.posts),
         createApiCall('Lobsters', 'fetch-lobsters', d => d?.posts),
         createApiCall('Dev.to', 'fetch-devto', d => d?.articles),
@@ -419,6 +431,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
 
 
       // Extract data from results
+      const dedupe = (items: any[]) => { const seen = new Set<string>(); return items.filter((i: any) => { const k = (i.url || i.link || i.title || i.text || '').toString(); if (!k || seen.has(k)) return false; seen.add(k); return true; }); };
       const getResult = (name: string) => allResults.find(r => r.name === name);
       
       const articles = getResult('NewsAPI')?.data || [];
@@ -427,9 +440,10 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
       const mastodonPosts = getResult('Mastodon')?.data || [];
       const wikiArticles = getResult('Wikipedia')?.data || [];
       const rssArticles = getResult('RSS Aggregator')?.data || [];
-      const gdeltArticles = getResult('GDELT DOC')?.data || [];
-      const googleNewsArticles = getResult('Google News')?.data || [];
-      const blueskyPosts = getResult('Bluesky')?.data || [];
+      const gdeltArticles = dedupe([...(getResult('GDELT DOC')?.data || []), ...allResults.filter(r => r.name.startsWith('GDELT DOC · ')).flatMap(r => r.data || [])]);
+      const extraOf = (prefix: string) => allResults.filter(r => r.name.startsWith(`${prefix} · `)).flatMap(r => r.data || []);
+      const googleNewsArticles = dedupe([...(getResult('Google News')?.data || []), ...extraOf('Google News')]);
+      const blueskyPosts = dedupe([...(getResult('Bluesky')?.data || []), ...allResults.filter(r => r.name.startsWith('Bluesky · ')).flatMap(r => r.data || [])]);
       const lobstersPosts = getResult('Lobsters')?.data || [];
       const devtoArticles = getResult('Dev.to')?.data || [];
       const lemmyPosts = getResult('Lemmy')?.data || [];
@@ -440,42 +454,49 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
 
 
       // Combine and analyze data from ALL sources
-      const mentions = [
+      const rawMentions: any[] = [
         ...articles.map((a: any) => ({
+          url: a.url || a.link || a.permalink,
           text: `${a.title} ${a.description || ''}`,
           source: "NewsAPI",
           date: new Date(a.publishedAt),
         })),
         ...redditPosts.map((p: any) => ({
+          url: p.url || p.link || p.permalink,
           text: `${p.title} ${p.selftext || ''}`,
           source: "Reddit",
           date: new Date(p.created_utc * 1000),
           score: p.score,
         })),
         ...hnPosts.map((p: any) => ({
+          url: p.url || p.link || p.permalink,
           text: p.text || p.title,
           source: "Hacker News",
           date: new Date(p.created),
           score: p.score,
         })),
         ...mastodonPosts.map((p: any) => ({
+          url: p.url || p.link || p.permalink,
           text: p.text,
           source: "Mastodon",
           date: new Date(p.created),
           score: p.score,
         })),
         ...wikiArticles.map((a: any) => ({
+          url: a.url || a.link || a.permalink,
           text: `${a.title}: ${a.snippet}`,
           source: "Wikipedia",
           date: new Date(a.timestamp),
         })),
         ...rssArticles.map((a: any) => ({
+          url: a.url || a.link || a.permalink,
           text: `${a.title} ${a.text || ''}`,
           source: a.source, // Will be source name like "BBC News", "CNN", etc.
           country: a.country,
           date: new Date(a.publishedAt),
         })),
         ...gdeltArticles.map((a: any) => ({
+          url: a.url || a.link || a.permalink,
           text: a.title || a.text,
           source: `GDELT (${a.country})`,
           country: a.country,
@@ -483,11 +504,13 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
         })),
         // New free sources
         ...googleNewsArticles.map((a: any) => ({
+          url: a.url || a.link || a.permalink,
           text: a.title || a.text,
           source: `Google News (${a.source || 'News'})`,
           date: new Date(a.publishedAt),
         })),
         ...blueskyPosts.map((p: any) => ({
+          url: p.url || p.link || p.permalink,
           text: p.text,
           source: "Bluesky",
           date: new Date(p.created),
@@ -495,12 +518,14 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
           score: (p.likes || 0) + (p.reposts || 0),
         })),
         ...lobstersPosts.map((p: any) => ({
+          url: p.url || p.link || p.permalink,
           text: p.title || p.text,
           source: "Lobsters",
           date: new Date(p.created),
           score: p.score,
         })),
         ...devtoArticles.map((a: any) => ({
+          url: a.url || a.link || a.permalink,
           text: `${a.title} ${a.text || ''}`,
           source: "Dev.to",
           date: new Date(a.created),
@@ -508,6 +533,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
         })),
         // Comment-enabled sources
         ...lemmyPosts.map((p: any) => ({
+          url: p.url || p.link || p.permalink,
           text: p.title || p.text,
           source: `Lemmy (${p.instance || 'federated'})`,
           date: new Date(p.created),
@@ -516,6 +542,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
           comments: p.comments,
         })),
         ...stackExchangeQuestions.map((q: any) => ({
+          url: q.url || q.link || q.permalink,
           text: `${q.title} ${q.text || ''}`,
           source: `Stack Exchange (${q.site})`,
           date: new Date(q.created),
@@ -524,6 +551,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
           comments: q.answerCount,
         })),
         ...productHuntProducts.map((p: any) => ({
+          url: p.url || p.link || p.permalink,
           text: p.text || `${p.name}: ${p.tagline}`,
           source: "Product Hunt",
           date: new Date(p.created),
@@ -531,6 +559,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
           comments: p.comments,
         })),
         ...youtubeVideos.map((v: any) => ({
+          url: v.url || v.link || v.permalink,
           text: v.text || v.title,
           source: "YouTube",
           date: new Date(v.publishedAt),
@@ -538,11 +567,14 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
           score: v.views,
         })),
         ...podcastEpisodes.map((e: any) => ({
+          url: e.url || e.link || e.permalink,
           text: e.text || e.title,
           source: `Podcast (${e.show})`,
           date: new Date(e.publishedAt),
         })),
       ];
+      // Keep only stories inside the chosen window, each traceable to its original link.
+      const mentions = rawMentions.filter((m: any) => withinWindow(m.date, windowDays));
 
 
       // Calculate source statistics
@@ -1082,8 +1114,9 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
   }
 
   // One canonical mention dataset for every count/percentage on the report page.
-  const mentionWindowLabel = demoMode ? "last 30 days" : "current scan window (last 7 days)";
-  const mentionWindowShortLabel = demoMode ? "30d" : "7d";
+  const activeWindow = SCAN_WINDOWS.find(w => w.value === windowDays) ?? SCAN_WINDOWS[1];
+  const mentionWindowLabel = demoMode ? "last 30 days" : `scan window (${activeWindow.label.toLowerCase()})`;
+  const mentionWindowShortLabel = demoMode ? "30d" : activeWindow.short;
   const canonicalStats = results
     ? buildCanonicalMentionStats({
         sources,
@@ -1217,6 +1250,18 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
                 )}
               </div>
               {!publicDemo && (
+                <Select value={String(windowDays)} onValueChange={(v) => setWindowDays(Number(v))}>
+                  <SelectTrigger className="h-10 sm:h-11 sm:w-44" aria-label="Scan window">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SCAN_WINDOWS.map((w) => (
+                      <SelectItem key={w.value} value={String(w.value)}>{w.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {!publicDemo && (
                 <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto h-10 sm:h-11">
                   {loading ? (
                     <>
@@ -1232,6 +1277,36 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
                 </Button>
               )}
             </div>
+
+            {!publicDemo && (
+              <Collapsible open={widenOpen} onOpenChange={setWidenOpen} className="mt-3">
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="px-0 text-xs uppercase tracking-wider text-muted-foreground">
+                    <ChevronDown className={`h-4 w-4 mr-1 transition-transform ${widenOpen ? "rotate-180" : ""}`} />
+                    Widen search{parseExtraTerms(extraTermsRaw).length ? ` · ${parseExtraTerms(extraTermsRaw).length} extra` : ""}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-2 pt-2">
+                  <Input
+                    placeholder="Aliases, executives, products, hashtags — comma separated (e.g. BCW, WPP, CEO name)"
+                    value={extraTermsRaw}
+                    onChange={(e) => setExtraTermsRaw(e.target.value)}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" size="sm" onClick={() => setExtraTermsRaw((v) => [v, ...RISK_TERMS].filter(Boolean).join(", "))}>
+                      + Risk terms
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setExtraTermsRaw((v) => [v, "LinkedIn", "TikTok", "X Twitter"].filter(Boolean).join(", "))}>
+                      + Social mentions in news
+                    </Button>
+                    {extraTermsRaw && (
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setExtraTermsRaw("")}>Clear</Button>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Each extra term (up to 8) is searched alongside the brand on Google News, GDELT and Bluesky. Only stories dated inside the chosen window are kept.</p>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
 
             {results && (
               <div className="mt-4 flex flex-wrap justify-end items-center gap-2">
@@ -1437,6 +1512,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
                 )}
 
                 {/* Sources Table (includes Upcoming Intelligence APIs) */}
+                {!demoMode && <TracedStories mentions={allMentions} windowLabel={mentionWindowLabel} />}
                 <SourcesTable sources={sources} windowLabel={mentionWindowLabel} />
 
                 {/* Synthetic Content Monitor (roadmap / in development) */}

@@ -36,10 +36,10 @@ const App = () => (
           <Route path="/demo" element={<Index publicDemo />} />
 
           {/* Gated app routes */}
-          <Route path="/" element={<RequireAuth loginPath="/login"><Index /></RequireAuth>} />
+          <Route path="/" element={<RequireAuth loginPath="/login" operatorOnly="/demo"><Index /></RequireAuth>} />
           <Route path="/redteam" element={<RequireAuth loginPath="/redteam/login" allowGuest><RedTeam /></RequireAuth>} />
-          <Route path="/admin/requests" element={<RequireAuth loginPath="/login"><AdminRequests /></RequireAuth>} />
-          <Route path="/admin/radar" element={<RequireAuth loginPath="/login"><ProspectRadar /></RequireAuth>} />
+          <Route path="/admin/requests" element={<RequireAuth loginPath="/login" operatorOnly="/demo"><AdminRequests /></RequireAuth>} />
+          <Route path="/admin/radar" element={<RequireAuth loginPath="/login" operatorOnly="/demo"><ProspectRadar /></RequireAuth>} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

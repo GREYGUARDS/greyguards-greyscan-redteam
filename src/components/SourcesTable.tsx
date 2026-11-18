@@ -18,9 +18,8 @@ const upcomingAPIs = [
   { name: "X · Real-time social monitoring", icon: Users, type: "Social", description: "Integration pending" },
   { name: "Dark Web · Forum & paste site monitoring", icon: Globe, type: "Dark Web", description: "Integration pending" },
   { name: "FOP Detection · Bot & sock puppet identification", icon: UserCheck, type: "FOP", description: "In development" },
-  { name: "Google News", icon: Newspaper, type: "News", description: "Global news aggregation" },
   { name: "Bing Search", icon: Globe, type: "Search", description: "Search engine mentions" },
-  { name: "YouTube", icon: Radio, type: "Video", description: "Video content analysis" },
+  { name: "YouTube transcripts", icon: Radio, type: "Video", description: "Full spoken-content analysis (titles and descriptions already searched)" },
   { name: "LinkedIn", icon: Users, type: "Professional", description: "B2B network insights" },
   { name: "TikTok", icon: TrendingUp, type: "Social", description: "Viral content tracking" },
   { name: "Instagram", icon: Users, type: "Social", description: "Visual content monitoring" },
@@ -68,7 +67,7 @@ const SourcesTable = ({ sources, windowLabel = "analysis window" }: SourcesTable
             </div>
             <div>
               <dt className="font-medium text-foreground">Coverage gaps</dt>
-              <dd className="mt-1 text-muted-foreground">No comprehensive real-time X, LinkedIn, TikTok or Instagram access, private-group collection, dark-web monitoring or bot-network detection. Empty results do not prove that a threat is absent.</dd>
+              <dd className="mt-1 text-muted-foreground">No direct X, LinkedIn, TikTok or Instagram access (only posts quoted in news or indexed public pages are found; these platforms have no free API), private-group collection, dark-web monitoring or bot-network detection. Empty results do not prove that a threat is absent.</dd>
             </div>
             <div>
               <dt className="font-medium text-foreground">Optional search expansion · not active</dt>

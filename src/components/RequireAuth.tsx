@@ -2,18 +2,21 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { canAccessProduct } from "@/lib/guestExerciseAccess";
+import { isGreyscanOperator } from "@/lib/greyscanAccess";
 
 interface RequireAuthProps {
   loginPath: string;
   children: React.ReactNode;
   allowGuest?: boolean;
+  /** Only confirmed Greyguards/GreyScan staff; everyone else is sent to this path (the public demo). */
+  operatorOnly?: string;
 }
 
 /**
  * Waits for the auth client to finish restoring the session before deciding.
  * Only redirects once several checks over a grace period confirm no session.
  */
-export default function RequireAuth({ loginPath, children, allowGuest = false }: RequireAuthProps) {
+export default function RequireAuth({ loginPath, children, allowGuest = false, operatorOnly }: RequireAuthProps) {
   const navigate = useNavigate();
   const [status, setStatus] = useState<"checking" | "allowed">("checking");
 
@@ -26,6 +29,16 @@ export default function RequireAuth({ loginPath, children, allowGuest = false }:
       if (cancelled || done) return;
       done = true;
       setStatus("allowed");
+    };
+    const toDemo = () => {
+      if (cancelled || done) return;
+      done = true;
+      navigate(operatorOnly!, { replace: true });
+    };
+    const decide = (user: any) => {
+      if (!canAccessProduct(user, allowGuest)) bail();
+      else if (operatorOnly && !isGreyscanOperator(user)) toDemo();
+      else allow();
     };
     const bail = () => {
       if (cancelled || done) return;
@@ -40,8 +53,7 @@ export default function RequireAuth({ loginPath, children, allowGuest = false }:
         if (cancelled || done) return;
         const user = session?.user ?? null;
         if (user) {
-          if (canAccessProduct(user, allowGuest)) allow();
-          else bail();
+          decide(user);
           return;
         }
       } catch { /* retry */ }
@@ -55,8 +67,7 @@ export default function RequireAuth({ loginPath, children, allowGuest = false }:
         return;
       }
       if (session?.user) {
-        if (canAccessProduct(session.user, allowGuest)) allow();
-        else bail();
+        decide(session.user);
       }
     });
 
@@ -69,7 +80,7 @@ export default function RequireAuth({ loginPath, children, allowGuest = false }:
       timers.forEach(clearTimeout);
       sub.subscription.unsubscribe();
     };
-  }, [loginPath, navigate, allowGuest]);
+  }, [loginPath, navigate, allowGuest, operatorOnly]);
 
   if (status === "checking") {
     return (

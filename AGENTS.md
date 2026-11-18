@@ -26,3 +26,5 @@
 - Code-only joining uses anonymous auth exclusively for the Red Team participant route; guest profiles never claim brands or host privileges, and seat identity is protected server-side to keep guest access isolated.
 - Host AI reaction suggestions read recent team responses server-side via a host-and-owner-checked function and only prefill the Custom draft; nothing is sent without the host.
 - Live room intercepts are opt-in per session (host_set_room_audio), require per-device Blue consent, transcribe clips server-side and discard audio; only host-readable text feeds AI suggestions.
+
+- GreyScan live scanning (/, /admin/*) requires a confirmed @greyguards.com or @greyscan.com email via RequireAuth operatorOnly; everyone else is sent to the public /demo, keeping paid sources and AI credits staff-only.
