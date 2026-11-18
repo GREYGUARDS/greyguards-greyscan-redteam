@@ -47,6 +47,37 @@ const SourcesTable = ({ sources, windowLabel = "analysis window" }: SourcesTable
         </p>
       </CardHeader>
       <CardContent className="pt-6 space-y-6">
+        <section aria-labelledby="coverage-summary" className="space-y-4 border-b border-border pb-6">
+          <h3 id="coverage-summary" className="text-sm font-semibold uppercase tracking-wider text-foreground">What’s covered now</h3>
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+            <div>
+              <dt className="font-medium text-foreground">News & public reporting</dt>
+              <dd className="mt-1 text-muted-foreground">Google News RSS, publisher RSS feeds, GDELT and NewsAPI provide linked headlines and article excerpts, subject to provider availability. Wikipedia supplies background context.</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-foreground">Public social & discussion</dt>
+              <dd className="mt-1 text-muted-foreground">Bluesky, Mastodon, Lemmy and technology communities provide public posts and discussions. Reddit depends on working API access; coverage is not exhaustive.</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-foreground">Search interest, video & podcasts</dt>
+              <dd className="mt-1 text-muted-foreground">SerpAPI supports Google Trends search interest. YouTube search and podcast directories discover titles, descriptions and links—not complete transcripts or analysis of every recording.</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-foreground">AI engine exposure</dt>
+              <dd className="mt-1 text-muted-foreground">Selected AI models are queried about the brand, alongside separately retrieved news links. Model answers are assessments, not verified stories or a complete record of what AI users see.</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-foreground">Coverage gaps</dt>
+              <dd className="mt-1 text-muted-foreground">No comprehensive real-time X, LinkedIn, TikTok or Instagram access, private-group collection, dark-web monitoring or bot-network detection. Empty results do not prove that a threat is absent.</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-foreground">Optional search expansion · not active</dt>
+              <dd className="mt-1 text-muted-foreground">Google Web/News through SerpAPI, Tavily and Brave are proposed additions, not current coverage. They could find indexed websites, blogs and some public social pages, but cannot replace private or real-time platform access.</dd>
+            </div>
+          </dl>
+          <p className="text-xs text-muted-foreground">This is a snapshot of available scan capabilities, not a guarantee that every source returned data. This scan’s status and collected links show what was actually retrieved. Fictional case-study reports use prepared demo data, not live source coverage.</p>
+        </section>
+
         {/* Active Sources */}
         <div>
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
