@@ -7,14 +7,14 @@ const companies = ['ashworth-reilly', 'meridian-vale', 'bristow-calder'];
 
 describe('hosted fictional-company scripts', () => {
   for (const companyId of companies) {
-    test(`${companyId} uses only its canonical scenario and nine existing injects`, () => {
+    test(`${companyId} uses only its canonical scenario and ten existing injects`, () => {
       const hosted = getHostedDemoScript(companyId);
       const demo = getDemoScenario(companyId);
       const injects = getDemoInjects(companyId);
       expect(hosted?.scenario.title).toBe(demo?.title);
       expect(hosted?.scenario.narrative).toBe(demo?.narrative);
       expect(hosted?.injects.map(inject => inject.id)).toEqual(injects?.map(inject => inject.id));
-      expect(hosted?.injects).toHaveLength(9);
+      expect(hosted?.injects).toHaveLength(10);
     });
   }
 

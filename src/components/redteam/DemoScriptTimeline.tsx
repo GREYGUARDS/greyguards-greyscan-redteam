@@ -18,7 +18,7 @@ export default function DemoScriptTimeline({ title, injects, durationMinutes, is
   return <div className="space-y-4">
     <div className="space-y-1">
       <div className="flex flex-wrap items-center gap-2"><h3 className="text-sm font-semibold uppercase tracking-wider">{title}</h3><Badge variant="outline">Canonical demo script</Badge></div>
-      <p className="text-xs text-muted-foreground">The same nine scripted injects used in the public demo. No AI-generated alternatives.</p>
+      <p className="text-xs text-muted-foreground">The same ten scripted injects used in the public demo. No AI-generated alternatives.</p>
     </div>
     <ScrollArea className="w-full whitespace-nowrap">
       <div className="flex gap-4 pb-4">

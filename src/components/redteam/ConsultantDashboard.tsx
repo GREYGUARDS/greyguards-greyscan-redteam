@@ -1033,7 +1033,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                     
                     <div className="space-y-6 mt-4">
                       {/* Real-company scenarios can be generated or loaded. Demo scripts are fixed. */}
-                      {hostedDemo ? <p className="border border-border bg-muted/50 p-3 text-xs text-muted-foreground">This fictional company uses its one canonical demo scenario and nine existing injects. Alternative scenarios are disabled.</p> : <div className="flex gap-2">
+                      {hostedDemo ? <p className="border border-border bg-muted/50 p-3 text-xs text-muted-foreground">This fictional company uses its one canonical demo scenario and ten existing injects. Alternative scenarios are disabled.</p> : <div className="flex gap-2">
                         <Input
                           placeholder="Enter reference code (e.g., GG-ABC123)"
                           value={loadRefCode}
