@@ -87,6 +87,8 @@ interface ExportData {
   gdeltEntities: GDELTEntity[];
   gdeltLocations: GDELTLocation[];
   gdeltThemes: GDELTTheme[];
+  windowLabel?: string;
+  tracedStories?: { text?: string; source?: string; date?: Date | string; url?: string }[];
 }
 
 // ===== SHARED DARK DOCUMENT THEME =====
@@ -836,6 +838,34 @@ export const exportToPDF = async (data: ExportData) => {
     }
   } else {
     emptyNote('No key people identified');
+  }
+
+  // ===== TRACED STORIES (each linked to its original source) =====
+  const stories = (data.tracedStories || []).filter(m => m.url && /^https?:\/\//.test(m.url)).slice(0, 25);
+  if (stories.length > 0) {
+    drawSectionHeader(`Traced Stories · ${data.windowLabel || 'scan window'}`);
+    autoTable(doc, {
+      ...tableTheme,
+      startY: yPosition,
+      head: [['Date', 'Source', 'Story (link)']],
+      body: stories.map(m => [
+        m.date ? new Date(m.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '-',
+        (m.source || '-').substring(0, 28),
+        (m.text || 'Untitled').substring(0, 110),
+      ]),
+      columnStyles: { 0: { cellWidth: 20 }, 1: { cellWidth: 38 }, 2: { cellWidth: 'auto' } },
+      didDrawCell: hookData => {
+        if (hookData.section === 'body' && hookData.column.index === 2) {
+          const url = stories[hookData.row.index]?.url;
+          if (url) doc.link(hookData.cell.x, hookData.cell.y, hookData.cell.width, hookData.cell.height, { url });
+        }
+      },
+    });
+    yPosition = (doc as any).lastAutoTable.finalY + 6;
+    doc.setFontSize(7.5);
+    doc.setTextColor(...INK_MUTED);
+    doc.text('Click any story to open the original publisher. Verify at source before quoting.', margin, yPosition);
+    yPosition += 8;
   }
 
   // ===== FOOTER =====

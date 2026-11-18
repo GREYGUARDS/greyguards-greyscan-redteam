@@ -821,7 +821,9 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
         timeline: results.timeline || [],
         gdeltEntities,
         gdeltLocations,
-        gdeltThemes
+        gdeltThemes,
+        windowLabel: mentionWindowLabel,
+        tracedStories: [...allMentions].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()),
       });
 
       toast({
