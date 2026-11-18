@@ -89,7 +89,7 @@ export default function AuthScreen({ variant }: AuthScreenProps) {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) throw error;
       // Grant any approved brand access on first successful login.
-      await supabase.rpc("claim_brand_access");
+      void supabase.rpc("claim_brand_access").then(() => undefined, () => undefined);
       navigate(copy.landing, { replace: true });
     } catch (error: any) {
       toast({

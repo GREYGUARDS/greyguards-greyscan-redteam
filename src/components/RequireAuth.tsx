@@ -10,8 +10,8 @@ interface RequireAuthProps {
 }
 
 /**
- * Guest sessions are allowed only on the explicitly enabled participant route.
- * Anything else is redirected to the given login screen.
+ * Waits for the auth client to finish restoring the session before deciding.
+ * Only redirects once several checks over a grace period confirm no session.
  */
 export default function RequireAuth({ loginPath, children, allowGuest = false }: RequireAuthProps) {
   const navigate = useNavigate();
@@ -20,57 +20,56 @@ export default function RequireAuth({ loginPath, children, allowGuest = false }:
   useEffect(() => {
     let cancelled = false;
     let done = false;
+    const timers: ReturnType<typeof setTimeout>[] = [];
 
+    const allow = () => {
+      if (cancelled || done) return;
+      done = true;
+      setStatus("allowed");
+    };
     const bail = () => {
       if (cancelled || done) return;
       done = true;
-      // Navigate first so nobody is ever stranded on "Verifying access…";
-      // clearing the stale local session happens in the background.
       navigate(loginPath, { replace: true });
     };
 
-    // Hard safety net: never sit on the verifying screen for more than 12s.
-    const safetyNet = setTimeout(bail, 12000);
-
-    const check = async () => {
+    const tryLocal = async (final = false) => {
+      if (cancelled || done) return;
       try {
-        // Local session first: a freshly signed-in user must never be bounced
-        // because a network check is slow during the page transition.
         const { data: { session } } = await supabase.auth.getSession();
         if (cancelled || done) return;
-        let user = session?.user ?? null;
-        if (!user) {
-          const result = await Promise.race([
-            supabase.auth.getUser(),
-            new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
-          ]);
-          if (cancelled || done) return;
-          user = result?.data?.user ?? null;
-        }
-        if (!canAccessProduct(user, allowGuest)) {
-          bail();
+        const user = session?.user ?? null;
+        if (user) {
+          if (canAccessProduct(user, allowGuest)) allow();
+          else bail();
           return;
         }
-        done = true;
-        setStatus("allowed");
-      } catch {
-        bail();
-      }
+      } catch { /* retry */ }
+      if (final) bail();
     };
 
-    void check();
-
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") navigate(loginPath, { replace: true });
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        done = false;
+        bail();
+        return;
+      }
+      if (session?.user) {
+        if (canAccessProduct(session.user, allowGuest)) allow();
+        else bail();
+      }
     });
+
+    void tryLocal();
+    [500, 1500, 3000].forEach((ms) => timers.push(setTimeout(() => void tryLocal(), ms)));
+    timers.push(setTimeout(() => void tryLocal(true), 5000));
 
     return () => {
       cancelled = true;
-      clearTimeout(safetyNet);
+      timers.forEach(clearTimeout);
       sub.subscription.unsubscribe();
     };
   }, [loginPath, navigate, allowGuest]);
-
 
   if (status === "checking") {
     return (

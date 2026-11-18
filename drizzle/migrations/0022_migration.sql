@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.claim_brand_access() TO authenticated;
