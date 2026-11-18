@@ -1,6 +1,6 @@
 # Current work
 
-- [x] Finish PigeeBank Inject 1: darker studio, ordinary-looking Northern English presenter, blurred red/white/blue sign, hard-G "Piggybank" requested in the audio prompt, matching description and ~29K early-detection metrics; three tests passed and mobile playback verified (pronunciation/accent not independently listened to)
+- [x] Finish and audit all three Inject 1 films: PigeeBank darker studio, ordinary-looking presenter, blurred red/white/blue sign and matching description; all opening descriptions visible (fixed hidden Pharmacore caption), ~30K metrics, three tests with 24 assertions, six phone/desktop playback flows through the second inject, matching speech transcripts and PigeeBank transcribed as "piggy bank"; accents not independently listened to
 
 - [x] Replace all three video-first demo opening films with story-matched deliberate-disinformation footage, align briefings and following spread injects, and show MHRA explanation. Nine tests passed; all three openings and next-response progression checked at desktop and phone widths using exact downloaded CDN media (local asset proxy returned 403; published-origin downloads succeeded). Ten-second audio tracks and fictional labels verified; British accents requested but not independently listened to or certified. Shared canonical imports update hosted demo scripts and sandbox entries; host-authenticated sandbox playback was not exercised.
 

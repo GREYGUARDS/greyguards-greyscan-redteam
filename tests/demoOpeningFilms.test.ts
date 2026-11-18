@@ -15,6 +15,7 @@ for (const [company, asset, views, shares, reach] of [
     expect(injects?.[0]?.demoVideo?.overlay.views).toBe(views);
     expect(injects?.[0]?.demoVideo?.overlay.shares).toBe(shares);
     expect(injects?.[0]?.reach).toBe(reach);
+    expect(injects?.[0]?.hideCaption).not.toBe(true);
     expect(injects?.[0]?.timestamp).toBe(15);
     expect(injects?.[1]?.timestamp).toBe(60);
     expect(injects?.[1]?.demoVideo).toBeUndefined();

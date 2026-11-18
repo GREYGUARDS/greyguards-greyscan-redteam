@@ -95,7 +95,6 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 15, type: "influencer", source: "@PharmaExposedUK · TikTok green-screen · 30K views · new sock-puppet account", reach: 30000, sentiment: "hostile",
       video: { url: pharmacoreVideo.url, overlay: { platform: "tiktok", handle: "@PharmaExposedUK", caption: "MHRA = the UK medicines regulator. #PharmacoreKnew", likes: "2.4K", comments: "380", shares: "650", views: "30K", channel: "", headline: "", ticker: "" } },
-      hideCaption: true,
       content: "DELIBERATE DISINFORMATION: In a TikTok green-screen, an angry Northern 'whistleblower' in a cap and glasses points up at a forged Pharmacore Doncaster depot log stamped 'RECALL WAIVER' filling the screen behind him, claiming fridges hit 24°C and children's amoxicillin shipped anyway. It tags the MHRA (Medicines and Healthcare products Regulatory Agency, the UK medicines regulator) to force a recall.",
       options: [
         ["Rapid video response", "Julian Mercer (MD) speaks to parents directly with a batch-checker link.", "social_response", 85, "medium", 60],
