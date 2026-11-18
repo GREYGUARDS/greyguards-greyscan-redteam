@@ -1,6 +1,6 @@
 # Current work
 
-- [ ] Replace the three video-first demo opening films with story-matched deliberate-disinformation footage (Pharmacore forged depot log, TrustInsureUK manipulated CEO clip, PigeeBank doctored £40m spreadsheet), British speech and permanent fictional labels; generation refused for insufficient workspace credits (approximately 4.06 credits per film). Existing films remain unchanged; verify footage, speech and all three demo/sandbox openings after generation.
+- [x] Replace all three video-first demo opening films with story-matched deliberate-disinformation footage, align briefings and following spread injects, and show MHRA explanation. Nine tests passed; all three openings and next-response progression checked at desktop and phone widths using exact downloaded CDN media (local asset proxy returned 403; published-origin downloads succeeded). Ten-second audio tracks and fictional labels verified; British accents requested but not independently listened to or certified. Shared canonical imports update hosted demo scripts and sandbox entries; host-authenticated sandbox playback was not exercised.
 
 - [x] Enable code-only guest Blue Team joining; live mobile join, sent-only inject reads, response save/readback, host/Red denial, occupied-seat protection and revoked-code checks passed; corrected lock disconnection safeguard and removed temporary exercise.
 

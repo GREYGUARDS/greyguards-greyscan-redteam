@@ -4,8 +4,8 @@
  */
 import type { Inject, ResponseOption } from "@/pages/RedTeam";
 import type { VideoOverlay } from "@/components/redteam/InjectOverlay";
-import pharmacoreVideo from "@/assets/demo_video_pharmacore.mp4.asset.json";
-import trustinsureVideo from "@/assets/demo_video_trustinsure.mp4.asset.json";
+import pharmacoreVideo from "@/assets/pharmacore_forged_log_opening.mp4.asset.json";
+import trustinsureVideo from "@/assets/trustinsure_manipulated_opening.mp4.asset.json";
 import newsTonightVideo from "@/assets/demo_reporter_news_tonight.mp4.asset.json";
 import cbbnVideo from "@/assets/demo_reporter_cbbn.mp4.asset.json";
 import newsTonightVoVideo from "@/assets/news_tonight_pharmacore_broll.mp4.asset.json";
@@ -17,7 +17,7 @@ import radioTrustinsure from "@/assets/radio_trustinsure.mp3.asset.json";
 import whisperImage from "@/assets/pb_whisper_silhouette.jpg";
 import suitManAvatar from "@/assets/avatar_suit_man.jpg";
 import floodedDoorImage from "@/assets/ti_flooded_front_door.jpg";
-import pigeebankVideo from "@/assets/demo_video_pigeebank.mp4.asset.json";
+import pigeebankVideo from "@/assets/pigeebank_forged_spreadsheet_opening.mp4.asset.json";
 
 type Opt = [label: string, description: string, type: ResponseOption["type"], effectiveness: number, risk: ResponseOption["riskLevel"], time: number];
 type Spec = {
@@ -86,14 +86,14 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 60, type: "social_post", source: "@UK_PharmaWatch (3.2k followers) · Tweets", reach: 3200, sentiment: "hostile",
       reply: { template: "social-dark", label: "Reply", data: { displayName: "TruthUKAlliance", handle: "@TruthUKAlliance", timestamp: "4m", body: "UNVERIFIED: Pharmacore's Doncaster hub had a cold-chain breach and still shipped amoxicillin. Three children in Sheffield hospital. Why no MHRA alert? #DrugSafety #pharmacoreknew", comments: "12", reposts: "27", likes: "367", bookmarks: "9" } },
-      content: "UNVERIFIED: Pharmacore's Doncaster hub had a cold-chain breach and still shipped amoxicillin. Three children in Sheffield hospital. Why no MHRA alert? #DrugSafety #pharmacoreknew",
+      content: "Coordinated accounts repost the opening video's forged depot log: 'Pharmacore knew. They shipped children's amoxicillin anyway.' The same crop spreads into parent groups under #PharmacoreKnew.",
       options: [
         ["Truth-sandwich holding line", "Share unbroken 2–8°C hub logs, say you're monitoring, give chemists a contact line.", "statement", 85, "low", 30],
         ["Brief pharmacy network", "Batch-verification memo to community pharmacies before consumer press picks it up.", "internal_action", 80, "low", 45],
         ["Flat denial + legal warning", "Reply in Tweets: '100% false and malicious, lawyers are watching.'", "legal", 30, "high", 15],
       ] },
     { t: 15, type: "influencer", source: "@PharmaExposedUK · TikTok · 180K views · sock-puppet account", reach: 180000, sentiment: "hostile",
-      video: { url: pharmacoreVideo.url, overlay: { platform: "tiktok", handle: "@PharmaExposedUK", caption: "LEAKED: Pharmacore shipped warm amoxicillin 😡 #PharmacoreKnew", likes: "24.6K", comments: "3.1K", shares: "8.9K", views: "180K", channel: "", headline: "", ticker: "" } },
+      video: { url: pharmacoreVideo.url, overlay: { platform: "tiktok", handle: "@PharmaExposedUK", caption: "MHRA = the UK medicines regulator. #PharmacoreKnew", likes: "24.6K", comments: "3.1K", shares: "8.9K", views: "180K", channel: "", headline: "", ticker: "" } },
       hideCaption: true,
       content: "DELIBERATE DISINFORMATION: A newly created 'whistleblower' account holds a forged Pharmacore depot log stamped 'RECALL WAIVER', claiming fridges hit 24°C and children's amoxicillin shipped anyway. It tags the MHRA (Medicines and Healthcare products Regulatory Agency, the UK medicines regulator) to force a recall.",
       options: [
@@ -173,7 +173,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Ban phones on the floor", "Stop staff discussing it in chats.", "internal_action", 15, "high", 10],
       ] },
     { t: 60, type: "amplification", source: "Tweets / Reddit · 12k reposts in 1 hour", reach: 120000, sentiment: "hostile",
-      content: "Recut 12s clip: TrustInsureUK CEO Thomas Reeve 'admits' they stall flood claims — 'People will simply have to wait; claims aren't our priority.'",
+      content: "Coordinated accounts repost the opening video's manipulated Thomas Reeve clip and fake claims-freeze matrix: 'People will simply have to wait.' Identical cancellation messages flood review sites before renewal week.",
       options: [
         ["Post the unedited footage", "Side-by-side video proving the quote was cut mid-sentence.", "social_response", 88, "low", 30],
         ["Executive clarification", "Written statement explaining the full context.", "statement", 62, "low", 30],
@@ -181,7 +181,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 15, type: "influencer", source: "@moneyrights_dan · TikTok · 1.2M views", reach: 1200000, sentiment: "hostile",
       video: { url: trustinsureVideo.url, overlay: { platform: "tiktok", handle: "@moneyrights_dan", caption: "Switch NOW before renewals ⚠️ #TrustInsureScandal", likes: "61.2K", comments: "7.4K", shares: "15K", views: "1.2M", channel: "", headline: "", ticker: "" } },
-      content: "DELIBERATE DISINFORMATION: A paid creator plays a maliciously spliced clip of the CEO — 'underwriters have told us to delay all storm claims' — beside a fabricated claims-freeze matrix, timed to renewal week: 'Cancel before they freeze your payout.'",
+      content: "DELIBERATE DISINFORMATION: A paid creator uses a maliciously cut CEO clip — 'People will simply have to wait' — and a fabricated claims-freeze matrix to claim all flood payouts are frozen: 'Cancel before renewal.'",
       options: [
         ["Brief the advocate directly", "Share verified claim audit data with the consumer champion.", "media_outreach", 85, "low", 60],
         ["Renewal reassurance email", "Guarantee to everyone renewing this week.", "statement", 78, "low", 30],
@@ -257,7 +257,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 60, type: "amplification", source: "Reddit r/UKPersonalFinance & Tweets · coordinated reposts", reach: 80000, sentiment: "hostile",
       image: { url: whisperImage, alt: "Silhouetted figure whispering a rumour (fictional illustration)" },
-      content: "'PigeeBank app has frozen all Faster Payments right before their IPO. Exit scam? Get your cash out now.' (re-shared maintenance screenshot)",
+      content: "Coordinated accounts repost the opening video's doctored £40m treasury spreadsheet into investor forums: 'PigeeBank is throttling payments. Get your cash out before the stock market launch.'",
       options: [
         ["Live status dashboard", "Post the live payments dashboard showing 99.98% processing.", "social_response", 88, "low", 30],
         ["Founder personal post", "Alex Bryce debunks the rumour from his verified account.", "social_response", 65, "medium", 30],

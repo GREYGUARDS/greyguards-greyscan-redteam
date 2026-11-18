@@ -220,7 +220,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
     demoScenario: {
       title: "Disinformation: Fake Contamination Scare Targets Pharmacore",
       narrative:
-        "The Disinformation: An anonymous pharmacist-forum post and a forged MHRA field safety notice falsely claim a cold-chain batch from Pharmacore's Doncaster hub caused adverse patient reactions.\n\nThe Facts: All Pharmacore batches meet regulatory specifications and there are no MHRA defect reports. Attackers are exploiting an unrelated national shortage story to make the claim look plausible.",
+        "The Disinformation: A deceptive TikTok creator presents a forged Doncaster depot log to claim Pharmacore shipped unsafe children's amoxicillin. Coordinated accounts spread the clip, followed by a fake MHRA recall notice.\n\nThe Facts: All batches meet regulatory specifications. The MHRA (Medicines and Healthcare products Regulatory Agency, the UK medicines regulator) has issued no defect report or recall. The log and notice are fabricated.",
       basedOnTruth: true,
       truthElement:
         "Pharmacore had a genuine, minor short-dated stock issue in 2023, resolved within 48 hours — it is being recirculated undated as evidence of a pattern.",
@@ -371,7 +371,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
     demoScenario: {
       title: "Disinformation: Fake 'Insurer Refuses to Pay' Campaign Hits TrustInsureUK",
       narrative:
-        "The Disinformation: A coordinated campaign and trending hashtag claim TrustInsureUK deliberately refuses to pay claims, timed to hit as annual renewal notices go out.\n\nThe Facts: Valid claims are being paid. There is a genuine post-merger admin backlog, but the 'systemic non-payment' policy is fabricated.",
+        "The Disinformation: A paid TikTok creator uses a maliciously cut Thomas Reeve clip and a fake claims-freeze matrix to claim TrustInsureUK has stopped flood payouts. Coordinated reposts urge customers to cancel before renewal.\n\nThe Facts: Valid claims are being paid. A genuine post-merger admin backlog exists, but the blanket claims freeze is fabricated and the CEO clip is manipulated.",
       basedOnTruth: true,
       truthElement:
         "Complaint volumes genuinely rose after the 2024 merger — the coordination, the screenshots and the 'deliberate bad faith' framing are fabricated.",
@@ -520,7 +520,7 @@ export const SIMULATION_COMPANIES: SimulationCompany[] = [
     demoScenario: {
       title: "Disinformation: False Bank-Run Rumour Targets PigeeBank!",
       narrative:
-        "The Disinformation: Messages seeded into closed WhatsApp and Telegram groups claim PigeeBank! is 'restricting withdrawals', timed to its pre-IPO roadshow.\n\nThe Facts: PigeeBank! is operating normally. Withdrawals, card payments and Faster Payments are all unrestricted.",
+        "The Disinformation: A deceptive TikTok 'whistleblower' presents a doctored £40m treasury spreadsheet and urges customers to withdraw before PigeeBank!'s stock market launch. Coordinated accounts spread the clip into investor groups.\n\nThe Facts: The spreadsheet and liquidity-hole claim are fabricated. PigeeBank! is operating normally; withdrawals, card payments and Faster Payments are unrestricted.",
       basedOnTruth: false,
       implicatedParties: ["Alex Bryce (Founder & CEO)", "Naomi Hart (Co-founder & COO)"],
       severity: "critical",
