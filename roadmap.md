@@ -1,5 +1,7 @@
 # Current work
 
+- [x] Finish PigeeBank Inject 1: darker studio, ordinary-looking Northern English presenter, blurred red/white/blue sign, hard-G "Piggybank" requested in the audio prompt, matching description and ~29K early-detection metrics; three tests passed and mobile playback verified (pronunciation/accent not independently listened to)
+
 - [x] Replace all three video-first demo opening films with story-matched deliberate-disinformation footage, align briefings and following spread injects, and show MHRA explanation. Nine tests passed; all three openings and next-response progression checked at desktop and phone widths using exact downloaded CDN media (local asset proxy returned 403; published-origin downloads succeeded). Ten-second audio tracks and fictional labels verified; British accents requested but not independently listened to or certified. Shared canonical imports update hosted demo scripts and sandbox entries; host-authenticated sandbox playback was not exercised.
 
 - [x] Enable code-only guest Blue Team joining; live mobile join, sent-only inject reads, response save/readback, host/Red denial, occupied-seat protection and revoked-code checks passed; corrected lock disconnection safeguard and removed temporary exercise.

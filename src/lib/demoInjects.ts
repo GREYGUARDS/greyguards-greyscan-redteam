@@ -18,7 +18,7 @@ import radioPharmacoreUk from "@/assets/radio_pharmacore_uk.mp3.asset.json";
 import whisperImage from "@/assets/pb_whisper_silhouette.jpg";
 import suitManAvatar from "@/assets/avatar_suit_man.jpg";
 import floodedDoorImage from "@/assets/ti_flooded_front_door.jpg";
-import pigeebankVideo from "@/assets/pigeebank_forged_spreadsheet_opening.mp4.asset.json";
+import pigeebankVideo from "@/assets/pigeebank_dim_studio_opening.mp4.asset.json";
 
 type Opt = [label: string, description: string, type: ResponseOption["type"], effectiveness: number, risk: ResponseOption["riskLevel"], time: number];
 type Spec = {
@@ -266,11 +266,11 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 15, type: "influencer", source: "@fintech_sam · TikTok · 29K views", reach: 29000, sentiment: "hostile",
       video: { url: pigeebankVideo.url, overlay: { platform: "tiktok", handle: "@fintech_sam", caption: "PigeeBank blocking withdrawals?? Move your money 🚨 #PigeeBank", likes: "2.1K", comments: "310", shares: "540", views: "29K", channel: "", headline: "", ticker: "" } },
-      content: "DELIBERATE DISINFORMATION: A 'fintech whistleblower' shows a doctored treasury spreadsheet claiming a £40m liquidity hole days before the IPO roadshow: 'Payments are being throttled. Pull deposits before close of business.' A short-and-distort attack.",
+      content: "DELIBERATE DISINFORMATION: In a dim spare-room studio with a blurred red, white and blue sign, an ordinary-looking Northern commentator in a cap, glasses and grey T-shirt angrily points to a doctored treasury spreadsheet on his laptop. Calling the bank 'Piggybank' with a hard G, he claims a £40m liquidity hole and throttled payments, urging viewers to pull deposits before the IPO.",
       options: [
         ["Reply with live payments data", "Stitch the video with the live Faster Payments dashboard and a founder clip.", "social_response", 85, "low", 30],
         ["Report coordinated financial harm", "Ask TikTok for urgent review under its financial-scam policy.", "internal_action", 70, "low", 20],
-        ["Demand she deletes it", "Legal letter to the creator threatening defamation.", "legal", 15, "high", 15],
+        ["Demand he deletes it", "Legal letter to the creator threatening defamation.", "legal", 15, "high", 15],
       ] },
     { t: 300, type: "leak", source: "Telegram fintech channel · 35k members", reach: 35000, sentiment: "hostile",
       content: "Fake 'whistleblower' Slack screenshot: 'We have a £40m liquidity gap. BoE discount window refused.'",
