@@ -95,7 +95,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 15, type: "influencer", source: "@PharmaExposedUK · TikTok green-screen · 30K views · new sock-puppet account", reach: 30000, sentiment: "hostile",
       video: { url: pharmacoreVideo.url, overlay: { platform: "tiktok", handle: "@PharmaExposedUK", caption: "MHRA = the UK medicines regulator. #PharmacoreKnew", likes: "2.4K", comments: "380", shares: "650", views: "30K", channel: "", headline: "", ticker: "" } },
-      content: "DELIBERATE DISINFORMATION: In a TikTok green-screen, an angry Northern 'whistleblower' in a cap and glasses points up at a forged Pharmacore Doncaster depot log stamped 'RECALL WAIVER' filling the screen behind him, claiming fridges hit 24°C and children's amoxicillin shipped anyway. It tags the MHRA (Medicines and Healthcare products Regulatory Agency, the UK medicines regulator) to force a recall.",
+      content: "DELIBERATE DISINFORMATION: A viral TikTok claims Pharmacore knowingly shipped children's amoxicillin from its Doncaster depot after a fridge failure. It uses a forged 'RECALL WAIVER' depot log and tags the MHRA (the UK medicines regulator) to demand a recall.",
       options: [
         ["Rapid video response", "Julian Mercer (MD) speaks to parents directly with a batch-checker link.", "social_response", 85, "medium", 60],
         ["Pharmacy talking points", "Give chemists a script for anxious parents collecting prescriptions.", "internal_action", 80, "low", 30],
@@ -181,7 +181,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 15, type: "influencer", source: "@moneyrights_dan · TikTok · 32K views", reach: 32000, sentiment: "hostile",
       video: { url: trustinsureVideo.url, overlay: { platform: "tiktok", handle: "@moneyrights_dan", caption: "Switch NOW before renewals ⚠️ #TrustInsureScandal", likes: "2.8K", comments: "420", shares: "790", views: "32K", channel: "", headline: "", ticker: "" } },
-      content: "DELIBERATE DISINFORMATION: At a desk under a neon 'THE TRUTH' sign and a shelf of conspiracy props, the same Northern commentator cuts to wobbly phone footage of his laptop playing a maliciously cut CEO clip — 'People will simply have to wait' — and claims all flood payouts are frozen: 'Cancel before renewal.'",
+      content: "DELIBERATE DISINFORMATION: A viral video claims TrustInsureUK has frozen all flood payouts before renewals. It spreads a maliciously cut clip of CEO Thomas Reeve saying 'People will simply have to wait' and urges customers to cancel.",
       options: [
         ["Brief the advocate directly", "Share verified claim audit data with the consumer champion.", "media_outreach", 85, "low", 60],
         ["Renewal reassurance email", "Guarantee to everyone renewing this week.", "statement", 78, "low", 30],
@@ -265,7 +265,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 15, type: "influencer", source: "@fintech_sam · TikTok · 29K views", reach: 29000, sentiment: "hostile",
       video: { url: pigeebankVideo.url, overlay: { platform: "tiktok", handle: "@fintech_sam", caption: "PigeeBank blocking withdrawals?? Move your money 🚨 #PigeeBank", likes: "2.1K", comments: "310", shares: "540", views: "29K", channel: "", headline: "", ticker: "" } },
-      content: "DELIBERATE DISINFORMATION: In a dim spare-room studio with a blurred red, white and blue sign, an ordinary-looking Northern commentator in a cap, glasses and grey T-shirt angrily points to a doctored treasury spreadsheet on his laptop. Calling the bank 'Piggybank' with a hard G, he claims a £40m liquidity hole and throttled payments, urging viewers to pull deposits before the IPO.",
+      content: "DELIBERATE DISINFORMATION: A viral TikTok claims PigeeBank is throttling withdrawals to hide a £40m liquidity hole. It uses a doctored treasury spreadsheet and urges savers to pull deposits before the IPO.",
       options: [
         ["Reply with live payments data", "Stitch the video with the live Faster Payments dashboard and a founder clip.", "social_response", 85, "low", 30],
         ["Report coordinated financial harm", "Ask TikTok for urgent review under its financial-scam policy.", "internal_action", 70, "low", 20],
