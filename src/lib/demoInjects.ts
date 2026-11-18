@@ -4,8 +4,8 @@
  */
 import type { Inject, ResponseOption } from "@/pages/RedTeam";
 import type { VideoOverlay } from "@/components/redteam/InjectOverlay";
-import pharmacoreVideo from "@/assets/pharmacore_forged_log_opening.mp4.asset.json";
-import trustinsureVideo from "@/assets/trustinsure_manipulated_opening.mp4.asset.json";
+import pharmacoreVideo from "@/assets/pharmacore_greenscreen_opening.mp4.asset.json";
+import trustinsureVideo from "@/assets/trustinsure_truth_desk_opening.mp4.asset.json";
 import newsTonightVideo from "@/assets/demo_reporter_news_tonight.mp4.asset.json";
 import cbbnVideo from "@/assets/demo_reporter_cbbn.mp4.asset.json";
 import newsTonightVoVideo from "@/assets/news_tonight_pharmacore_broll.mp4.asset.json";
@@ -93,10 +93,10 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Brief pharmacy network", "Batch-verification memo to community pharmacies before consumer press picks it up.", "internal_action", 80, "low", 45],
         ["Flat denial + legal warning", "Reply in Tweets: '100% false and malicious, lawyers are watching.'", "legal", 30, "high", 15],
       ] },
-    { t: 15, type: "influencer", source: "@PharmaExposedUK · TikTok · 180K views · sock-puppet account", reach: 180000, sentiment: "hostile",
-      video: { url: pharmacoreVideo.url, overlay: { platform: "tiktok", handle: "@PharmaExposedUK", caption: "MHRA = the UK medicines regulator. #PharmacoreKnew", likes: "24.6K", comments: "3.1K", shares: "8.9K", views: "180K", channel: "", headline: "", ticker: "" } },
+    { t: 15, type: "influencer", source: "@PharmaExposedUK · TikTok green-screen · 30K views · new sock-puppet account", reach: 30000, sentiment: "hostile",
+      video: { url: pharmacoreVideo.url, overlay: { platform: "tiktok", handle: "@PharmaExposedUK", caption: "MHRA = the UK medicines regulator. #PharmacoreKnew", likes: "2.4K", comments: "380", shares: "650", views: "30K", channel: "", headline: "", ticker: "" } },
       hideCaption: true,
-      content: "DELIBERATE DISINFORMATION: A newly created 'whistleblower' account holds a forged Pharmacore depot log stamped 'RECALL WAIVER', claiming fridges hit 24°C and children's amoxicillin shipped anyway. It tags the MHRA (Medicines and Healthcare products Regulatory Agency, the UK medicines regulator) to force a recall.",
+      content: "DELIBERATE DISINFORMATION: In a TikTok green-screen, an angry Northern 'whistleblower' in a cap and glasses points up at a forged Pharmacore Doncaster depot log stamped 'RECALL WAIVER' filling the screen behind him, claiming fridges hit 24°C and children's amoxicillin shipped anyway. It tags the MHRA (Medicines and Healthcare products Regulatory Agency, the UK medicines regulator) to force a recall.",
       options: [
         ["Rapid video response", "Julian Mercer (MD) speaks to parents directly with a batch-checker link.", "social_response", 85, "medium", 60],
         ["Pharmacy talking points", "Give chemists a script for anxious parents collecting prescriptions.", "internal_action", 80, "low", 30],
@@ -180,9 +180,9 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Executive clarification", "Written statement explaining the full context.", "statement", 62, "low", 30],
         ["Demand platform takedown", "File an immediate copyright notice against the account.", "legal", 30, "high", 15],
       ] },
-    { t: 15, type: "influencer", source: "@moneyrights_dan · TikTok · 1.2M views", reach: 1200000, sentiment: "hostile",
-      video: { url: trustinsureVideo.url, overlay: { platform: "tiktok", handle: "@moneyrights_dan", caption: "Switch NOW before renewals ⚠️ #TrustInsureScandal", likes: "61.2K", comments: "7.4K", shares: "15K", views: "1.2M", channel: "", headline: "", ticker: "" } },
-      content: "DELIBERATE DISINFORMATION: A paid creator uses a maliciously cut CEO clip — 'People will simply have to wait' — and a fabricated claims-freeze matrix to claim all flood payouts are frozen: 'Cancel before renewal.'",
+    { t: 15, type: "influencer", source: "@moneyrights_dan · TikTok · 32K views", reach: 32000, sentiment: "hostile",
+      video: { url: trustinsureVideo.url, overlay: { platform: "tiktok", handle: "@moneyrights_dan", caption: "Switch NOW before renewals ⚠️ #TrustInsureScandal", likes: "2.8K", comments: "420", shares: "790", views: "32K", channel: "", headline: "", ticker: "" } },
+      content: "DELIBERATE DISINFORMATION: At a desk under a neon 'THE TRUTH' sign and a shelf of conspiracy props, the same Northern commentator cuts to wobbly phone footage of his laptop playing a maliciously cut CEO clip — 'People will simply have to wait' — and claims all flood payouts are frozen: 'Cancel before renewal.'",
       options: [
         ["Brief the advocate directly", "Share verified claim audit data with the consumer champion.", "media_outreach", 85, "low", 60],
         ["Renewal reassurance email", "Guarantee to everyone renewing this week.", "statement", 78, "low", 30],
@@ -264,8 +264,8 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Founder personal post", "Alex Bryce debunks the rumour from his verified account.", "social_response", 65, "medium", 30],
         ["Delete panic posts", "Hide and report posts on the official subreddit.", "internal_action", 20, "high", 15],
       ] },
-    { t: 15, type: "influencer", source: "@fintech_sam · TikTok · 890K views", reach: 890000, sentiment: "hostile",
-      video: { url: pigeebankVideo.url, overlay: { platform: "tiktok", handle: "@fintech_sam", caption: "PigeeBank blocking withdrawals?? Move your money 🚨 #PigeeBank", likes: "42.5K", comments: "3.8K", shares: "11K", views: "890K", channel: "", headline: "", ticker: "" } },
+    { t: 15, type: "influencer", source: "@fintech_sam · TikTok · 29K views", reach: 29000, sentiment: "hostile",
+      video: { url: pigeebankVideo.url, overlay: { platform: "tiktok", handle: "@fintech_sam", caption: "PigeeBank blocking withdrawals?? Move your money 🚨 #PigeeBank", likes: "2.1K", comments: "310", shares: "540", views: "29K", channel: "", headline: "", ticker: "" } },
       content: "DELIBERATE DISINFORMATION: A 'fintech whistleblower' shows a doctored treasury spreadsheet claiming a £40m liquidity hole days before the IPO roadshow: 'Payments are being throttled. Pull deposits before close of business.' A short-and-distort attack.",
       options: [
         ["Reply with live payments data", "Stitch the video with the live Faster Payments dashboard and a founder clip.", "social_response", 85, "low", 30],

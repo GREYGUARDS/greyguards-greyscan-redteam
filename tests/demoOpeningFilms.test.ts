@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { getDemoInjects } from '../src/lib/demoInjects';
-import pharmacore from '../src/assets/pharmacore_forged_log_opening.mp4.asset.json';
-import trustinsure from '../src/assets/trustinsure_manipulated_opening.mp4.asset.json';
+import pharmacore from '../src/assets/pharmacore_greenscreen_opening.mp4.asset.json';
+import trustinsure from '../src/assets/trustinsure_truth_desk_opening.mp4.asset.json';
 import pigeebank from '../src/assets/pigeebank_forged_spreadsheet_opening.mp4.asset.json';
 
 for (const [company, asset] of [
