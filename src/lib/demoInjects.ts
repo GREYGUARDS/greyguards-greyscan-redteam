@@ -8,13 +8,14 @@ import pharmacoreVideo from "@/assets/pharmacore_greenscreen_opening.mp4.asset.j
 import trustinsureVideo from "@/assets/trustinsure_truth_desk_opening.mp4.asset.json";
 import newsTonightVideo from "@/assets/demo_reporter_news_tonight.mp4.asset.json";
 import cbbnVideo from "@/assets/demo_reporter_cbbn.mp4.asset.json";
-import newsTonightVoVideo from "@/assets/news_tonight_pharmacore_broll.mp4.asset.json";
+import newsTonightVoVideo from "@/assets/news_tonight_pharmacore_uk.mp4.asset.json";
+import newsTonightTrustVideo from "@/assets/news_tonight_trustinsure_uk.mp4.asset.json";
 import womanAvatar from "@/assets/avatar_pharma_woman.jpg";
 import youngMumAvatar from "@/assets/avatar_young_mum.jpg";
-import cbbnPigeeVo from "@/assets/cbbn_pigeebank_vo.mp4.asset.json";
+import cbbnPigeeVo from "@/assets/cbbn_pigeebank_female_uk.mp4.asset.json";
 import radioPigeebank from "@/assets/radio_pigeebank.mp3.asset.json";
 import radioTrustinsure from "@/assets/radio_trustinsure.mp3.asset.json";
-import radioPharmacoreUk from "@/assets/radio_pharmacore_uk.mp3.asset.json";
+import radioPharmacoreUk from "@/assets/radio_pharmacore_british.mp3.asset.json";
 import whisperImage from "@/assets/pb_whisper_silhouette.jpg";
 import suitManAvatar from "@/assets/avatar_suit_man.jpg";
 import floodedDoorImage from "@/assets/ti_flooded_front_door.jpg";
@@ -126,7 +127,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
       ] },
     { t: 390, type: "news_article", source: "TalkUK · Live radio phone-in", reach: 650000, sentiment: "hostile",
       hideCaption: true,
-      visual: { template: "radio", label: "TalkUK · Live phone-in", data: { station: "TalkUK", show: "The Midday Debate", audioUrl: radioPharmacoreUk.url, script: [{"who": -1, "start": 0.0, "text": "Good afternoon, it's twelve minutes past one, this is The Midday Debate on TalkUK, I'm Geoff Pennington. Now, the lines have been jammed all morning. Pharmacore says its children's antibiotics are perfectly safe. A lot of you aren't buying it. Cover-up, or something else? Sharon's in Sheffield. Sharon, go ahead."}, {"who": 0, "start": 19.85, "text": "Geoff, I've binned it. My daughter's medicine, straight in the bin. Nobody from Pharmacore has told us a single thing. Not a word. Why are they hiding?"}, {"who": -1, "start": 33.1, "text": "Sharon, have you spoken to your pharmacist? Did they say there's an actual recall?"}, {"who": 0, "start": 38.35, "text": "They said they've not heard anything official. But that's the point, isn't it? It's all over my feed. Three kids in hospital. You don't make that up."}, {"who": -1, "start": 47.9, "text": "Thank you Sharon. Barry in Doncaster, you say you've got inside information?"}, {"who": 1, "start": 53.5, "text": "Aye, my cousin works at that depot. He reckons the fridges went off for hours. Hours, Geoff. And they still sent the stuff out. They knew."}, {"who": -1, "start": 64.4, "text": "Barry, has your cousin actually seen that himself, or is that what he's heard?"}, {"who": 1, "start": 70.9, "text": "Well, it's what everyone's saying down there. No smoke without fire, is there?"}, {"who": -1, "start": 77.3, "text": "Maureen in Leeds, quickly Maureen."}, {"who": 2, "start": 80.95, "text": "If it was safe, Geoff, why is everyone online saying it isn't? Somebody should go to prison for this. Where's the boss? Why isn't he on your show?"}, {"who": -1, "start": 91.45, "text": "That's the question, isn't it. Pharmacore, if you're listening, the lines are open. Stay with us, more after the news."}], presenter: "Geoff Pennington", intro: "Lines are jammed this lunchtime. Pharmacore says its antibiotics are safe, but parents aren't buying it. Is this a cover-up? Let's go to the phones.", callers: [
+      visual: { template: "radio", label: "TalkUK · Live phone-in", data: { station: "TalkUK", show: "The Midday Debate", audioUrl: radioPharmacoreUk.url, script: [{"who": -1, "start": 0.0, "text": "Good afternoon, it's twelve minutes past one, this is The Midday Debate on TalkUK, I'm Geoff Pennington. Now, the lines have been jammed all morning. Pharmacore says its children's antibiotics are perfectly safe. A lot of you aren't buying it. Cover-up, or something else? Sharon's in Sheffield. Sharon, go ahead."}, {"who": 0, "start": 21.49, "text": "Geoff, I've binned it. My daughter's medicine, straight in the bin. Nobody from Pharmacore has told us a single thing. Not a word. Why are they hiding?"}, {"who": -1, "start": 33.66, "text": "Sharon, have you spoken to your pharmacist? Did they say there's an actual recall?"}, {"who": 0, "start": 39.83, "text": "They said they've not heard anything official. But that's the point, isn't it? It's all over my feed. Three kids in hospital. You don't make that up."}, {"who": -1, "start": 50.2, "text": "Thank you Sharon. Barry in Doncaster, you say you've got inside information?"}, {"who": 1, "start": 56.81, "text": "Aye, my cousin works at that depot. He reckons the fridges went off for hours. Hours, Geoff. And they still sent the stuff out. They knew."}, {"who": -1, "start": 67.74, "text": "Barry, has your cousin actually seen that himself, or is that what he's heard?"}, {"who": 1, "start": 72.99, "text": "Well, it's what everyone's saying down there. No smoke without fire, is there?"}, {"who": -1, "start": 78.68, "text": "Maureen in Leeds, quickly Maureen."}, {"who": 2, "start": 81.89, "text": "If it was safe, Geoff, why is everyone online saying it isn't? Somebody should go to prison for this. Where's the boss? Why isn't he on your show?"}, {"who": -1, "start": 93.58, "text": "That's the question, isn't it. Pharmacore, if you're listening, the lines are open. Stay with us, more after the news."}], presenter: "Geoff Pennington", intro: "Lines are jammed this lunchtime. Pharmacore says its antibiotics are safe, but parents aren't buying it. Is this a cover-up? Let's go to the phones.", callers: [
           { name: "Sharon", location: "Sheffield", text: "I've binned my daughter's medicine. Nobody from Pharmacore has told us a thing. Why are they hiding?" },
           { name: "Barry", location: "Doncaster", text: "My cousin works at that depot. He says the fridges went off for hours. They knew!" },
           { name: "Maureen", location: "Leeds", text: "If it was safe, why is everyone online saying it isn't? Somebody should go to prison for this." },
@@ -194,12 +195,14 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Flag to review platforms", "Report the coordinated attack to Trustpilot for a temporary freeze.", "internal_action", 65, "low", 30],
         ["Ignore the reviews", "Treat it as anonymous noise that will blow over.", "internal_action", 20, "high", 15],
       ] },
-    { t: 450, type: "leak", source: "Telegram / LinkedIn · Insurance Industry Leaks", reach: 40000, sentiment: "confused",
-      content: "FORGED FCA LETTER: 'TrustInsureUK placed into urgent Special Measures for systemic claims denial. Policyholders should seek ombudsman review.'",
+    { t: 450, type: "news_article", source: "News Tonight · Breaking report", reach: 1500000, sentiment: "confused",
+      hideCaption: true,
+      video: { url: newsTonightTrustVideo.url, overlay: { platform: "news", handle: "", caption: "", likes: "", comments: "", shares: "", views: "", channel: "NEWS TONIGHT", headline: "TrustInsureUK flood claims backlash", ticker: "Insurer says viral CEO clip was edited · Claims still being paid" } },
+      content: "BREAKING: National TV picks up the edited CEO clip, reporting that TrustInsureUK is delaying flood claims. The insurer says the video was cut and claims are being paid.",
       options: [
-        ["Joint denial with regulator", "Coordinate a joint line with the FCA press office.", "statement", 88, "low", 45],
-        ["Policyholder app banner", "In-app alert reassuring customers directly.", "social_response", 75, "low", 30],
-        ["Staff gag order", "Tell call centres to redirect every question to press office.", "internal_action", 30, "high", 20],
+        ["Release the full clip to the newsroom", "Give News Tonight the unedited recording and a claims spokesperson.", "media_outreach", 86, "low", 30],
+        ["Written statement", "Short verified statement with payout figures to the news desk.", "statement", 74, "low", 20],
+        ["Decline to comment", "Wait until the internal review is complete.", "internal_action", 15, "high", 10],
       ] },
     { t: 570, type: "official_response", source: "UK Broker Network · Portal alert", reach: 5000, sentiment: "confused",
       content: "Two major comparison sites are pausing TrustInsureUK quotes pending regulatory clarification on claims solvency.",
