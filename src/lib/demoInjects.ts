@@ -4,6 +4,9 @@
  */
 import type { Inject, ResponseOption } from "@/pages/RedTeam";
 import type { VideoOverlay } from "@/components/redteam/InjectOverlay";
+import mumCarVideo from "@/assets/demo_video_pharmacore.mp4.asset.json";
+import fireVideo from "@/assets/trustinsure_firefighter_reaction.mp4.asset.json";
+import rentVideo from "@/assets/pigeebank_rent_street_reaction.mp4.asset.json";
 import pharmacoreVideo from "@/assets/pharmacore_greenscreen_opening.mp4.asset.json";
 import trustinsureVideo from "@/assets/trustinsure_truth_desk_opening.mp4.asset.json";
 import newsTonightVideo from "@/assets/demo_reporter_news_tonight.mp4.asset.json";
@@ -63,12 +66,13 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Paid local ads", "Run geo-targeted 'check the facts' ads in Sheffield.", "social_response", 60, "medium", 30],
         ["Report group to the platform", "Ask the platform to remove the post as health misinformation.", "internal_action", 40, "medium", 15],
       ] },
-    { t: 195, type: "amplification", source: "Network analysis · Tweets & Community pages", reach: 95000, sentiment: "hostile",
-      content: "320 new accounts posted the same 'Pharmacore knew' wording in 40 minutes. Most were created this month.",
+    { t: 195, type: "influencer", source: "@sheffieldmum_jo · TikTok · 48K views", reach: 48000, sentiment: "hostile",
+      video: { url: mumCarVideo.url, overlay: { platform: "tiktok", handle: "@sheffieldmum_jo", caption: "Pharmacore knew. Check your kids' meds 😢 #PharmacoreKnew", likes: "3.9K", comments: "720", shares: "1.1K", views: "48K", channel: "", headline: "", ticker: "" } },
+      content: "GROWING CONCERN: A Sheffield mum says her four-year-old was prescribed the 'recalled' amoxicillin and accuses Pharmacore of hiding it. The false claim is now driving real parents to bin medicine.",
       options: [
-        ["Publish the pattern", "Share evidence of the coordinated accounts with health journalists.", "media_outreach", 82, "medium", 45],
-        ["Report to platforms", "Send the account list to the platforms' trust & safety teams.", "internal_action", 75, "low", 20],
-        ["Reply to every account", "Get the social team to answer each post individually.", "social_response", 20, "high", 30],
+        ["Rapid video response", "Julian Mercer (MD) speaks to parents directly with a batch-checker link.", "social_response", 85, "medium", 60],
+        ["Pharmacy talking points", "Give chemists a script for anxious parents collecting prescriptions.", "internal_action", 80, "low", 30],
+        ["Legal takedown request", "Send defamation notices to get the video removed.", "legal", 25, "high", 15],
       ] },
     { t: 345, type: "social_post", source: "r/NHS · Reddit", reach: 41000, sentiment: "confused",
       visual: { template: "forum", label: "Reddit thread", data: { subreddit: "r/NHS", title: "Anyone actually seen this MHRA amoxicillin recall?", author: "u/ward_pharm_22", flair: "Pharmacy", score: "2.8k", body: "Getting calls all morning. Can't find it on the MHRA site. Is this real or another WhatsApp hoax?", topComment: { author: "u/locum_gp", text: "Not on the MHRA alerts page. Looks fake but patients are panicking.", score: "1.1k" } } },
@@ -188,12 +192,13 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Renewal reassurance email", "Guarantee to everyone renewing this week.", "statement", 78, "low", 30],
         ["Threaten defamation", "Legal warning letter to the influencer's agency.", "legal", 15, "high", 20],
       ] },
-    { t: 300, type: "amplification", source: "Glassdoor / Trustpilot · 140 posts in 1 hour", reach: 60000, sentiment: "hostile",
-      content: "Coordinated 1-star reviews: 'Claims handlers forced to hit 40% rejection targets. Management celebrating denied payouts.'",
+    { t: 300, type: "influencer", source: "@firefighter_matt · TikTok · 41K views", reach: 41000, sentiment: "hostile",
+      video: { url: fireVideo.url, overlay: { platform: "tiktok", handle: "@firefighter_matt", caption: "Pumping out homes all week. Now this?? #TrustInsureScandal", likes: "3.4K", comments: "610", shares: "980", views: "41K", channel: "", headline: "", ticker: "" } },
+      content: "GROWING CONCERN: A trusted local firefighter repeats the false claim that TrustInsureUK has frozen all flood payouts, citing his own mum's claim. His credibility is pushing the story into flood-hit communities.",
       options: [
-        ["Claims transparency note", "Sarah Osei (CCO) shares verified payout stats (92% settled).", "statement", 85, "low", 45],
-        ["Flag to review platforms", "Report the coordinated attack to Trustpilot for a temporary freeze.", "internal_action", 65, "low", 30],
-        ["Ignore the reviews", "Treat it as anonymous noise that will blow over.", "internal_action", 20, "high", 15],
+        ["Fast-track named claims", "Contact him directly and resolve his family's claim with a public update.", "social_response", 85, "low", 30],
+        ["Community claims clinic", "Send claims staff to flood-hit streets with live payout data.", "internal_action", 80, "low", 45],
+        ["Ask TikTok to remove it", "Report the video as misleading.", "internal_action", 20, "high", 15],
       ] },
     { t: 450, type: "news_article", source: "News Tonight · Breaking report", reach: 1500000, sentiment: "confused",
       hideCaption: true,
@@ -274,12 +279,13 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Report coordinated financial harm", "Ask TikTok for urgent review under its financial-scam policy.", "internal_action", 70, "low", 20],
         ["Demand he deletes it", "Legal letter to the creator threatening defamation.", "legal", 15, "high", 15],
       ] },
-    { t: 300, type: "leak", source: "Telegram fintech channel · 35k members", reach: 35000, sentiment: "hostile",
-      content: "Fake 'whistleblower' Slack screenshot: 'We have a £40m liquidity gap. BoE discount window refused.'",
+    { t: 300, type: "influencer", source: "@chloe.rents · TikTok · 37K views", reach: 37000, sentiment: "hostile",
+      video: { url: rentVideo.url, overlay: { platform: "tiktok", handle: "@chloe.rents", caption: "Rent bounced. Landlord fuming. Get your money out 😤 #PigeeBank", likes: "2.9K", comments: "540", shares: "860", views: "37K", channel: "", headline: "", ticker: "" } },
+      content: "GROWING CONCERN: A young renter blames PigeeBank for a failed rent payment and repeats the false claim that it is blocking withdrawals. Ordinary customers now see the rumour as proof.",
       options: [
-        ["Confirm FSCS protection", "App push confirming £85,000 FSCS deposit protection.", "statement", 85, "low", 30],
-        ["Clearing partner confirmation", "Banking partner issues a joint routing confirmation.", "statement", 82, "low", 45],
-        ["Threaten the leaker", "Warn of criminal action against fake leakers.", "legal", 20, "high", 20],
+        ["Resolve and confirm", "Trace her payment, fix it and confirm publicly with her permission.", "social_response", 85, "low", 30],
+        ["Landlord payment guarantee", "Offer written proof-of-transfer to any customer's landlord.", "statement", 80, "low", 30],
+        ["Cite her terms", "Reply that delays are covered in the account terms.", "statement", 15, "high", 10],
       ] },
     { t: 450, type: "news_article", source: "CBBN · Live business desk", reach: 900000, sentiment: "confused",
       hideCaption: true,
