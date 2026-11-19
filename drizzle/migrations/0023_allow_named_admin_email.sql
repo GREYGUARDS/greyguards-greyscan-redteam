@@ -1,0 +1,2 @@
+ALTER TABLE public.app_admins DROP CONSTRAINT app_admins_greyguards_domain;
+ALTER TABLE public.app_admins ADD CONSTRAINT app_admins_greyguards_domain CHECK (lower(split_part(email, '@', 2)) = 'greyguards.com' OR lower(email) = 'grant@thelondon.team');
