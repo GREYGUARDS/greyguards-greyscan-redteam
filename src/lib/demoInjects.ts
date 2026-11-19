@@ -5,6 +5,7 @@
 import type { Inject, ResponseOption } from "@/pages/RedTeam";
 import type { VideoOverlay } from "@/components/redteam/InjectOverlay";
 import mumCarVideo from "@/assets/demo_video_pharmacore.mp4.asset.json";
+import mumKitchenVideo from "@/assets/pharmacore_mum_kitchen_followup.mp4.asset.json";
 import fireVideo from "@/assets/trustinsure_firefighter_reaction.mp4.asset.json";
 import rentVideo from "@/assets/pigeebank_rent_street_reaction.mp4.asset.json";
 import pharmacoreVideo from "@/assets/pharmacore_greenscreen_opening.mp4.asset.json";
@@ -82,13 +83,13 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Brief pharmacy bodies", "Ask the pharmacy trade body to post a confirmation.", "media_outreach", 80, "low", 30],
         ["Stay out of Reddit", "Leave the thread alone.", "internal_action", 30, "medium", 10],
       ] },
-    { t: 495, type: "social_post", source: "Health commentator · LinkedIn", reach: 60000, sentiment: "confused",
-      visual: { template: "professional", label: "LinkedIn post", data: { name: "Dr Martin Hale", title: "Former NHS medicines adviser", timestamp: "35m", body: "Whatever the truth about Pharmacore, the silence is the story. Distributors must publish cold-chain data within hours, not days.", reactions: "3,204", comments: "418", reposts: "260" } },
-      content: "A respected former NHS adviser says Pharmacore's silence is the story.",
+    { t: 495, type: "influencer", source: "@sheffieldmum_jo · TikTok · later that evening · 52K views", reach: 52000, sentiment: "hostile",
+      video: { url: mumKitchenVideo.url, overlay: { platform: "tiktok", handle: "@sheffieldmum_jo", caption: "Read their press release. Means nothing. #PharmacoreKnew", likes: "4.2K", comments: "810", shares: "1.3K", views: "52K", channel: "", headline: "", ticker: "" } },
+      content: "GROWING CONCERN: The Sheffield mum dismisses Pharmacore's press release as a smokescreen. The official statement has not reassured parents, who now read silence on the depot claim as confirmation.",
       options: [
-        ["Share the data with him", "Send him the full cold-chain logs and invite a follow-up post.", "media_outreach", 85, "low", 30],
-        ["Comment publicly", "Reply under his post with the data link.", "social_response", 72, "low", 15],
-        ["Ask him to delete", "Message him saying the post is damaging.", "legal", 20, "high", 10],
+        ["Answer the exact claim", "Publish the Doncaster cold-chain logs and say plainly the fridges never failed.", "statement", 86, "low", 30],
+        ["Third-party voice", "Ask a local GP or pharmacist to post a short reassurance video.", "media_outreach", 82, "low", 45],
+        ["Repeat the press release", "Re-share the same statement across channels.", "social_response", 25, "medium", 10],
       ] },
     { t: 60, type: "social_post", source: "@UK_PharmaWatch (3.2k followers) · Tweets", reach: 3200, sentiment: "hostile",
       reply: { template: "social-dark", label: "Reply", data: { displayName: "TruthUKAlliance", handle: "@TruthUKAlliance", timestamp: "4m", body: "UNVERIFIED: Pharmacore's Doncaster hub had a cold-chain breach and still shipped amoxicillin. Three children in Sheffield hospital. Why no MHRA alert? #DrugSafety #pharmacoreknew", comments: "12", reposts: "27", likes: "367", bookmarks: "9" } },
