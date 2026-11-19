@@ -27,4 +27,4 @@
 - Host AI reaction suggestions read recent team responses server-side via a host-and-owner-checked function and only prefill the Custom draft; nothing is sent without the host.
 - Live room intercepts are opt-in per session (host_set_room_audio), require per-device Blue consent, transcribe clips server-side and discard audio; only host-readable text feeds AI suggestions.
 
-- GreyScan live scanning (/, /admin/*) requires a confirmed @greyguards.com or @greyscan.com email via RequireAuth operatorOnly; everyone else is sent to the public /demo, keeping paid sources and AI credits staff-only.
+- GreyScan live scanning (/, /admin/*) requires a confirmed @greyguards.com email or a named account holder in OPERATOR_EMAILS via RequireAuth operatorOnly; everyone else is sent to the public /demo, keeping paid sources and AI credits staff-only.

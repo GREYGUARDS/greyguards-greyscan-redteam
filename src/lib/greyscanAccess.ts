@@ -1,12 +1,14 @@
-/** Live GreyScan scanning is restricted to confirmed Greyguards/GreyScan staff accounts. */
-export const OPERATOR_DOMAINS = ["greyguards.com", "greyscan.com"];
+/** Live GreyScan scanning is restricted to confirmed Greyguards accounts plus named account holders. */
+export const OPERATOR_DOMAINS = ["greyguards.com"];
+export const OPERATOR_EMAILS = ["grant@thelondon.team"];
 
 export function isGreyscanOperator(
   user: { email?: string | null; email_confirmed_at?: string | null; is_anonymous?: boolean } | null | undefined,
 ): boolean {
   if (!user || user.is_anonymous || !user.email || !user.email_confirmed_at) return false;
-  const domain = user.email.trim().toLowerCase().split("@")[1] ?? "";
-  return OPERATOR_DOMAINS.includes(domain);
+  const email = user.email.trim().toLowerCase();
+  const domain = email.split("@")[1] ?? "";
+  return OPERATOR_EMAILS.includes(email) || OPERATOR_DOMAINS.includes(domain);
 }
 
 export const SCAN_WINDOWS = [

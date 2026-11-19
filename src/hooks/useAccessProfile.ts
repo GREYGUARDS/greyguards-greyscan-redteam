@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { OPERATOR_EMAILS } from "@/lib/greyscanAccess";
 
 export interface AccessProfile {
   loading: boolean;
@@ -37,7 +38,7 @@ export function useAccessProfile(): AccessProfile {
         .select("email")
         .eq("email", email)
         .maybeSingle();
-      const isAdmin = !!adminRow && email.endsWith("@greyguards.com") && !!user.email_confirmed_at;
+      const isAdmin = !!user.email_confirmed_at && ((!!adminRow && email.endsWith("@greyguards.com")) || OPERATOR_EMAILS.includes(email));
 
       let lockedBrand: string | null = null;
       if (!isAdmin) {

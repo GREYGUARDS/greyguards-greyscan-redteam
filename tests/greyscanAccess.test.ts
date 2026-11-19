@@ -3,9 +3,13 @@ import { parseGdeltDate, isGreyscanOperator, DEFAULT_SCAN_WINDOW_DAYS, withinWin
 
 const c = "2026-01-01T00:00:00Z";
 describe("GreyScan access", () => {
-  it("allows confirmed greyguards.com and greyscan.com", () => {
-    expect(isGreyscanOperator({ email: "grant@greyguards.com", email_confirmed_at: c })).toBe(true);
-    expect(isGreyscanOperator({ email: "a@GreyScan.com", email_confirmed_at: c })).toBe(true);
+  it("allows confirmed greyguards.com and grant@thelondon.team", () => {
+    expect(isGreyscanOperator({ email: "info@greyguards.com", email_confirmed_at: c })).toBe(true);
+    expect(isGreyscanOperator({ email: "Grant@TheLondon.team", email_confirmed_at: c })).toBe(true);
+  });
+  it("blocks greyscan.com and other thelondon.team addresses", () => {
+    expect(isGreyscanOperator({ email: "a@greyscan.com", email_confirmed_at: c })).toBe(false);
+    expect(isGreyscanOperator({ email: "someone@thelondon.team", email_confirmed_at: c })).toBe(false);
   });
   it("blocks other domains, unconfirmed and guests", () => {
     expect(isGreyscanOperator({ email: "x@bursonglobal.com", email_confirmed_at: c })).toBe(false);
