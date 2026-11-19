@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { isGreyscanOperator, DEFAULT_SCAN_WINDOW_DAYS, withinWindow, parseExtraTerms } from "../src/lib/greyscanAccess";
+import { parseGdeltDate, isGreyscanOperator, DEFAULT_SCAN_WINDOW_DAYS, withinWindow, parseExtraTerms } from "../src/lib/greyscanAccess";
 
 const c = "2026-01-01T00:00:00Z";
 describe("GreyScan access", () => {
@@ -20,4 +20,5 @@ describe("GreyScan access", () => {
     expect(withinWindow(new Date(now - 2 * 86400000), 7, now)).toBe(true);
   });
   it("caps extra terms at 8", () => expect(parseExtraTerms("a1,b2,c3,d4,e5,f6,g7,h8,i9").length).toBe(8));
+  it("parses GDELT dates", () => expect(parseGdeltDate("20261118T120000Z").toISOString()).toBe("2026-11-18T12:00:00.000Z"));
 });

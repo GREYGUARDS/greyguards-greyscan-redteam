@@ -851,7 +851,7 @@ export const exportToPDF = async (data: ExportData) => {
       body: stories.map(m => [
         m.date ? new Date(m.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '-',
         (m.source || '-').substring(0, 28),
-        (m.text || 'Untitled').substring(0, 110),
+        (m.text || 'Untitled').replace(/&amp;/g, '&').replace(/&#0?39;/g, "'").replace(/&quot;/g, '"').substring(0, 110),
       ]),
       columnStyles: { 0: { cellWidth: 20 }, 1: { cellWidth: 38 }, 2: { cellWidth: 'auto' } },
       didDrawCell: hookData => {

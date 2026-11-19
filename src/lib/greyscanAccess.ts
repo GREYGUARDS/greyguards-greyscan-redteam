@@ -32,3 +32,9 @@ export function withinWindow(date: Date | string | undefined, days: number, now 
   const t = date ? new Date(date).getTime() : NaN;
   return Number.isFinite(t) && t >= now - days * 86400000 && t <= now + 3600000;
 }
+
+/** GDELT uses compact timestamps like 20261118T120000Z, which Date cannot parse. */
+export function parseGdeltDate(v: string | undefined): Date {
+  const m = typeof v === "string" ? v.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/) : null;
+  return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6])) : new Date(v ?? NaN);
+}

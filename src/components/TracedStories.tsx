@@ -3,10 +3,13 @@ import { Link2, ExternalLink } from "lucide-react";
 
 interface Mention { text?: string; source?: string; date?: Date | string; url?: string; author?: string }
 
+const decode = (t: string) => t.replace(/&amp;/g, "&").replace(/&#0?39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+
 /** Every story listed links to its original publisher so each claim can be checked at source. */
 export function TracedStories({ mentions, windowLabel }: { mentions: Mention[]; windowLabel: string }) {
   const seen = new Set<string>();
   const traced = mentions
+    .filter((m) => !(m.source || "").startsWith("Wikipedia"))
     .filter((m) => typeof m.url === "string" && /^https?:\/\//.test(m.url) && !seen.has(m.url) && seen.add(m.url))
     .sort((a, b) => new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime())
     .slice(0, 25);
@@ -20,7 +23,7 @@ export function TracedStories({ mentions, windowLabel }: { mentions: Mention[]; 
         </CardTitle>
         <p className="text-xs text-muted-foreground normal-case">
           Real items collected in the {windowLabel}, newest first, each linked to its original source. GreyScan reports what was
-          published; open the link to verify before quoting.{untraced > 0 ? ` ${untraced} further items had no link and are counted but not listed.` : ""}
+          published (Wikipedia background pages are excluded); open the link to verify before quoting.{untraced > 0 ? ` ${untraced} further items had no link and are counted but not listed.` : ""}
         </p>
       </CardHeader>
       <CardContent className="pt-4">
@@ -31,7 +34,7 @@ export function TracedStories({ mentions, windowLabel }: { mentions: Mention[]; 
             {traced.map((m) => (
               <li key={m.url} className="border-b border-border pb-3 last:border-0">
                 <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-sm text-foreground hover:underline inline-flex gap-1">
-                  {(m.text || "Untitled").slice(0, 180)} <ExternalLink className="h-3 w-3 mt-1 shrink-0" />
+                  {decode(m.text || "Untitled").slice(0, 180)} <ExternalLink className="h-3 w-3 mt-1 shrink-0" />
                 </a>
                 <div className="text-xs text-muted-foreground mt-1">
                   {m.source}{m.author ? ` · ${m.author}` : ""} · {m.date ? new Date(m.date).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }) : "date unknown"}

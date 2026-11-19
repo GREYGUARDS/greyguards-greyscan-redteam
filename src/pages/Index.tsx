@@ -50,6 +50,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useAccessProfile } from "@/hooks/useAccessProfile";
 import { Lock, ArrowRight, ShieldCheck, Radar } from "lucide-react";
 import { SCAN_WINDOWS, DEFAULT_SCAN_WINDOW_DAYS, RISK_TERMS, parseExtraTerms, withinWindow } from "@/lib/greyscanAccess";
+import { parseGdeltDate } from "@/lib/greyscanAccess";
 import { TracedStories } from "@/components/TracedStories";
 
 
@@ -283,6 +284,49 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
     }
   }, [userId]);
 
+  const renderScanControls = () => (
+    <div className="space-y-2">
+      <label className="text-xs font-medium uppercase tracking-wider">Time window</label>
+      <Select value={String(windowDays)} onValueChange={(v) => setWindowDays(Number(v))}>
+                  <SelectTrigger className="h-10 sm:h-11 w-full" aria-label="Scan window">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SCAN_WINDOWS.map((w) => (
+                      <SelectItem key={w.value} value={String(w.value)}>{w.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+      <Collapsible open={widenOpen} onOpenChange={setWidenOpen}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="px-0 text-xs uppercase tracking-wider text-muted-foreground">
+                    <ChevronDown className={`h-4 w-4 mr-1 transition-transform ${widenOpen ? "rotate-180" : ""}`} />
+                    Widen search{parseExtraTerms(extraTermsRaw).length ? ` · ${parseExtraTerms(extraTermsRaw).length} extra` : ""}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-2 pt-2">
+                  <Input
+                    placeholder="Aliases, executives, products, hashtags — comma separated (e.g. BCW, WPP, CEO name)"
+                    value={extraTermsRaw}
+                    onChange={(e) => setExtraTermsRaw(e.target.value)}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" size="sm" onClick={() => setExtraTermsRaw((v) => [v, ...RISK_TERMS].filter(Boolean).join(", "))}>
+                      + Risk terms
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setExtraTermsRaw((v) => [v, "LinkedIn", "TikTok", "X Twitter"].filter(Boolean).join(", "))}>
+                      + Social mentions in news
+                    </Button>
+                    {extraTermsRaw && (
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setExtraTermsRaw("")}>Clear</Button>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Each extra term (up to 8) is searched alongside the brand on Google News, GDELT and Bluesky. Only stories dated inside the chosen window are kept.</p>
+                </CollapsibleContent>
+              </Collapsible>
+    </div>
+  );
+
   const handleSearch = async () => {
     // Public demo never runs a live scan — it replays the fictional case files.
     if (publicDemo) {
@@ -365,9 +409,9 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
         createApiCall('Wikipedia', 'fetch-wikipedia', d => d?.articles),
         createApiCall('RSS Aggregator', 'fetch-rss-aggregator', d => d?.articles),
         createApiCall('GDELT DOC', 'fetch-gdelt-doc', d => d?.articles),
-        createApiCall('Google News', 'fetch-googlenews-rss', d => d?.articles),
+        createApiCall('Google News', 'fetch-googlenews-rss', d => d?.articles, 'articles', `${brandName} when:${windowDays}d`),
         ...extraTerms.flatMap((term) => [
-          createApiCall(`Google News · ${term}`, 'fetch-googlenews-rss', d => d?.articles, 'articles', `${brandName} ${term}`),
+          createApiCall(`Google News · ${term}`, 'fetch-googlenews-rss', d => d?.articles, 'articles', `${brandName} ${term} when:${windowDays}d`),
           createApiCall(`GDELT DOC · ${term}`, 'fetch-gdelt-doc', d => d?.articles, 'articles', `${brandName} ${term}`),
           createApiCall(`Bluesky · ${term}`, 'fetch-bluesky', d => d?.posts, 'posts', `${brandName} ${term}`),
         ]),
@@ -500,7 +544,7 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
           text: a.title || a.text,
           source: `GDELT (${a.country})`,
           country: a.country,
-          date: new Date(a.publishedAt),
+          date: parseGdeltDate(a.publishedAt),
         })),
         // New free sources
         ...googleNewsArticles.map((a: any) => ({
@@ -1102,6 +1146,8 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
               </div>
             )}
 
+            {!publicDemo && renderScanControls()}
+
             <Button onClick={handleSearch} disabled={loading || !brandName.trim()} className="w-full h-11 uppercase tracking-wider">
               <Search className="mr-2 h-4 w-4" />
               {publicDemo ? "Open Demo Report" : "Analyze"}
@@ -1252,18 +1298,6 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
                 )}
               </div>
               {!publicDemo && (
-                <Select value={String(windowDays)} onValueChange={(v) => setWindowDays(Number(v))}>
-                  <SelectTrigger className="h-10 sm:h-11 sm:w-44" aria-label="Scan window">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SCAN_WINDOWS.map((w) => (
-                      <SelectItem key={w.value} value={String(w.value)}>{w.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-              {!publicDemo && (
                 <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto h-10 sm:h-11">
                   {loading ? (
                     <>
@@ -1280,35 +1314,8 @@ const Index = ({ publicDemo = false }: { publicDemo?: boolean }) => {
               )}
             </div>
 
-            {!publicDemo && (
-              <Collapsible open={widenOpen} onOpenChange={setWidenOpen} className="mt-3">
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="px-0 text-xs uppercase tracking-wider text-muted-foreground">
-                    <ChevronDown className={`h-4 w-4 mr-1 transition-transform ${widenOpen ? "rotate-180" : ""}`} />
-                    Widen search{parseExtraTerms(extraTermsRaw).length ? ` · ${parseExtraTerms(extraTermsRaw).length} extra` : ""}
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-2 pt-2">
-                  <Input
-                    placeholder="Aliases, executives, products, hashtags — comma separated (e.g. BCW, WPP, CEO name)"
-                    value={extraTermsRaw}
-                    onChange={(e) => setExtraTermsRaw(e.target.value)}
-                  />
-                  <div className="flex flex-wrap gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={() => setExtraTermsRaw((v) => [v, ...RISK_TERMS].filter(Boolean).join(", "))}>
-                      + Risk terms
-                    </Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => setExtraTermsRaw((v) => [v, "LinkedIn", "TikTok", "X Twitter"].filter(Boolean).join(", "))}>
-                      + Social mentions in news
-                    </Button>
-                    {extraTermsRaw && (
-                      <Button type="button" variant="ghost" size="sm" onClick={() => setExtraTermsRaw("")}>Clear</Button>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">Each extra term (up to 8) is searched alongside the brand on Google News, GDELT and Bluesky. Only stories dated inside the chosen window are kept.</p>
-                </CollapsibleContent>
-              </Collapsible>
-            )}
+
+            {!publicDemo && <div className="mt-3 max-w-xl">{renderScanControls()}</div>}
 
             {results && (
               <div className="mt-4 flex flex-wrap justify-end items-center gap-2">

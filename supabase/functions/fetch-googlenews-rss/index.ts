@@ -25,13 +25,50 @@ serve(async (req) => {
     console.log("Fetching Google News RSS for:", cleanBrand);
 
     // Google News RSS feed - free and public
-    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(cleanBrand)}&hl=en-US&gl=US&ceid=US:en`;
-    
-    const response = await fetch(rssUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; IntelligenceBot/1.0)',
-      }
-    });
+    const editions = ['hl=en-GB&gl=GB&ceid=GB:en', 'hl=en-US&gl=US&ceid=US:en'];
+    let response: Response | null = null;
+    for (const ed of editions) {
+      try {
+        const r = await fetch(`https://news.google.com/rss/search?q=${encodeURIComponent(cleanBrand)}&${ed}`, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36',
+            'Accept': 'application/rss+xml, application/xml;q=0.9, */*;q=0.8',
+            'Accept-Language': 'en-GB,en;q=0.9',
+          },
+          signal: AbortSignal.timeout(10000),
+        });
+        if (r.ok) { response = r; break; }
+        console.warn('Google News edition failed', ed, r.status);
+      } catch (e) { console.warn('Google News edition error', ed, e instanceof Error ? e.message : e); }
+    }
+    if (!response) {
+      // Google often blocks cloud servers; fall back to Bing News RSS (free, no key).
+      try {
+        const q = cleanBrand.replace(/\s*when:\d+d\s*/g, ' ').trim();
+        const r = await fetch(`https://www.bing.com/news/search?q=${encodeURIComponent(q)}&format=rss&setlang=en-GB`, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36' },
+          signal: AbortSignal.timeout(10000),
+        });
+        if (r.ok) {
+          const xml = await r.text();
+          const out: any[] = [];
+          for (const m of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+            const it = m[1];
+            const title = (it.match(/<title>([\s\S]*?)<\/title>/)?.[1] || '').replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+            let link = (it.match(/<link>([\s\S]*?)<\/link>/)?.[1] || '').replace(/&amp;/g, '&');
+            try { const u = new URL(link).searchParams.get('url'); if (u) link = u; } catch { /* keep */ }
+            const pub = it.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1];
+            const src = it.match(/<News:Source>([\s\S]*?)<\/News:Source>/i)?.[1] || 'Bing News';
+            const desc = (it.match(/<description>([\s\S]*?)<\/description>/)?.[1] || '').replace(/<[^>]+>/g, '').trim();
+            if (title && /^https?:/.test(link)) out.push({ title, url: link, publishedAt: pub ? new Date(pub).toISOString() : null, source: `${src} via Bing`, text: `${title} ${desc}`.trim() });
+            if (out.length >= 30) break;
+          }
+          console.log(`Bing News fallback found ${out.length}`);
+          return new Response(JSON.stringify({ articles: out, provider: 'bing' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        }
+      } catch (e) { console.warn('Bing fallback error', e instanceof Error ? e.message : e); }
+      response = new Response('', { status: 502 });
+    }
 
     if (!response.ok) {
       console.error("Google News RSS error:", response.status);
