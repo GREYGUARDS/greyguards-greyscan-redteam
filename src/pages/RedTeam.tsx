@@ -507,7 +507,11 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
       <Card className="w-full max-w-xl border-4 border-border bg-card relative z-10 max-h-[92vh] overflow-y-auto shadow-[12px_12px_0_hsl(var(--brand-oxblood))]">
         <CardHeader className="space-y-3 border-b-4 border-border bg-secondary">
           <div className="flex items-center justify-between">
-            <Link to={demoMode ? "/redteam/login" : "/"} className="flex items-center gap-2">
+            <Link
+              to={demoMode ? "/demo" : "/"}
+              aria-label={demoMode ? "Back to GreyScan demo" : "GreyScan home"}
+              className="flex items-center gap-2"
+            >
               <img src={greyguardsLogo} alt="Greyguards" className="h-10 w-auto object-contain" />
             </Link>
             <Badge variant="outline" className="border-destructive text-destructive uppercase tracking-wider animate-pulse-glow">
