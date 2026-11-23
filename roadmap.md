@@ -47,7 +47,8 @@
 - [x] Hosted: observer-only read-only seats
 - [x] Hosted: record decision-tree routes and show after-action decision path at end
 - [x] Red/Blue console redesign (brief): Blue defender colour, B1 newsroom feed, R1 strike composer + Red visual requests queue, R3 arsenal / R5 fire control, B2 phone-first + PWA
-- [ ] TrustInsure firefighter evening follow-up video (needs credits)
-- [ ] PigeeBank pub follow-up video (needs credits)
+- [x] TrustInsure firefighter positive evening follow-up video (inject 9)
+- [x] PigeeBank positive pub follow-up video (inject 9)
+- [ ] Pharmacore relieved-mum retake for inject 9 (awaiting go-ahead)
 - [x] Characters section in sandbox
 - [x] Create new character option

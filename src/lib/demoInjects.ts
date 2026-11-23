@@ -8,6 +8,8 @@ import mumCarVideo from "@/assets/demo_video_pharmacore.mp4.asset.json";
 import mumKitchenVideo from "@/assets/pharmacore_mum_kitchen_followup.mp4.asset.json";
 import fireVideo from "@/assets/trustinsure_firefighter_reaction.mp4.asset.json";
 import rentVideo from "@/assets/pigeebank_rent_street_reaction.mp4.asset.json";
+import fireHomeVideo from "@/assets/trustinsure_firefighter_evening_positive.mp4.asset.json";
+import rentPubVideo from "@/assets/pigeebank_renter_pub_positive.mp4.asset.json";
 import pharmacoreVideo from "@/assets/pharmacore_greenscreen_opening.mp4.asset.json";
 import trustinsureVideo from "@/assets/trustinsure_truth_desk_opening.mp4.asset.json";
 import newsTonightVideo from "@/assets/demo_reporter_news_tonight.mp4.asset.json";
@@ -171,7 +173,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Ignore the comments", "Let the debate run its course.", "internal_action", 30, "medium", 10],
       ] },
     { t: 520, type: "influencer", source: "@firefighter_matt · TikTok · that evening · 24K views", reach: 24000, sentiment: "neutral",
-      visual: { template: "social-dark", label: "TikTok · follow-up", data: { displayName: "Matt · Firefighter", handle: "@firefighter_matt", timestamp: "2h", body: "Fair play where it's due. TrustInsure put the full clip out and my mum's claim was paid this afternoon. No freeze. That video was edited. 👍", comments: "380", reposts: "1.1K", likes: "3.6K", bookmarks: "210" } },
+      video: { url: fireHomeVideo.url, overlay: { platform: "tiktok", handle: "@firefighter_matt", caption: "Mum's claim paid. That clip was edited. Fair play 👍", likes: "3.6K", comments: "380", shares: "1.1K", views: "24K", channel: "", headline: "", ticker: "" } },
       content: "TURNING POINT: The firefighter confirms his mum's claim has been paid and accepts the CEO clip was edited. A trusted local voice is now correcting the false freeze story in flood-hit communities.",
       options: [
         ["Thank him and share the facts", "Reply with the unedited clip and the flood-claims helpline.", "social_response", 86, "low", 20],
@@ -257,7 +259,7 @@ const DEMO_INJECTS: Record<string, Inject[]> = {
         ["Hide reviews", "Ask Apple to remove 'unfair' reviews.", "internal_action", 20, "high", 15],
       ] },
     { t: 520, type: "influencer", source: "@chloe.rents · TikTok · from the pub · 22K views", reach: 22000, sentiment: "neutral",
-      visual: { template: "social-dark", label: "TikTok · follow-up", data: { displayName: "Chloe", handle: "@chloe.rents", timestamp: "1h", body: "Update!! Rent's gone through, landlord's happy. PigeeBank published their live payments data and it was just a delay. Drinks on me 🍻", comments: "290", reposts: "870", likes: "3.2K", bookmarks: "150" } },
+      video: { url: rentPubVideo.url, overlay: { platform: "tiktok", handle: "@chloe.rents", caption: "Rent's gone through! Just a delay 🍻 #PigeeBank", likes: "3.2K", comments: "290", shares: "870", views: "22K", channel: "", headline: "", ticker: "" } },
       content: "TURNING POINT: The renter confirms her payment cleared after PigeeBank published live payments data. She tells followers withdrawals are working, undercutting the run rumour.",
       options: [
         ["Share the live status page", "Reply with the payments dashboard and FSCS guide.", "social_response", 86, "low", 20],
