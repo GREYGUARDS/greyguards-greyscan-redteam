@@ -2,8 +2,12 @@ export const MAX_PAUSE_MS = 30 * 60_000;
 export const MAX_CONTEXT_MS = 10 * 60_000;
 export const ROOM_SAMPLE_MS = 15_000;
 export const ROOM_REQUEST_LIMIT = 10;
+// Gateway diagnostic bodies retained fictional test speech despite provider store:false.
+// Keep disabled until end-to-end no-payload retention is independently verified.
+export const FORWARD_READ_PRIVACY_VERIFIED = false;
 
-export function forwardReadAllowed(session: { status: string; room_audio_enabled: boolean; forward_read_agreed_at: string | null; forward_read_paused_at: string | null }, now = Date.now()) {
+export function forwardReadAllowed(session: { status: string; room_audio_enabled: boolean; forward_read_agreed_at: string | null; forward_read_paused_at: string | null }, now = Date.now(), privacyVerified: boolean = FORWARD_READ_PRIVACY_VERIFIED) {
+  if (!privacyVerified) return false;
   if (!session.room_audio_enabled || !session.forward_read_agreed_at) return false;
   if (session.status === 'active') return true;
   return session.status === 'paused' && !!session.forward_read_paused_at && now - Date.parse(session.forward_read_paused_at) < MAX_PAUSE_MS;

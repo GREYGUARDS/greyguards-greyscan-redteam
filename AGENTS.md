@@ -26,6 +26,6 @@
 - Clients join only the Blue Team by code (enforced server-side); hosts can lock a finished session, which revokes the code and cuts participant read access via is_session_participant.
 - Code-only joining uses anonymous auth exclusively for the Red Team participant route; guest profiles never claim brands or host privileges, and seat identity is protected server-side to keep guest access isolated.
 - Host AI reaction suggestions read recent team responses server-side via a host-and-owner-checked function and only prefill the Custom draft; nothing is sent without the host.
-- Forward Read uses request-only room context, fresh host-recorded room agreement and Blue shutdown; transient host-only broadcasts carry sanitised suggestions, never room transcripts, avoiding unreliable cross-worker memory and durable discussion storage.
+- Forward Read is fail-closed until provider and gateway diagnostic payload retention are verified off; its prepared request-only context, fresh room agreement, Blue shutdown and host-private transient suggestions avoid durable discussion storage and unreliable cross-worker caches.
 
 - GreyScan live scanning (/, /admin/*) requires a confirmed @greyguards.com email or a named account holder in OPERATOR_EMAILS via RequireAuth operatorOnly; everyone else is sent to the public /demo, keeping paid sources and AI credits staff-only.

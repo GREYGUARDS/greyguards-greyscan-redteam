@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { FORWARD_READ_PRIVACY_VERIFIED } from '../../../supabase/functions/_shared/forward-read-rules';
 
 export default function RoomAudioPanel({ sessionId }: { sessionId: string | null }) {
   const [enabled, setEnabled] = useState(false);
@@ -21,7 +22,7 @@ export default function RoomAudioPanel({ sessionId }: { sessionId: string | null
       const { data } = await supabase.from('exercise_sessions').select('room_audio_enabled, status, forward_read_paused_at').eq('id', sessionId).maybeSingle();
       if (disposed) return;
       const valid = data && (data.status === 'active' || (data.status === 'paused' && data.forward_read_paused_at && Date.now() - Date.parse(data.forward_read_paused_at) < 30 * 60_000));
-      setEnabled(!!(valid && data?.room_audio_enabled)); setAvailable(!!valid);
+      setEnabled(!!(valid && data?.room_audio_enabled)); setAvailable(!!valid && FORWARD_READ_PRIVACY_VERIFIED);
     };
     void load();
     const i = setInterval(load, 1500);
@@ -46,7 +47,7 @@ export default function RoomAudioPanel({ sessionId }: { sessionId: string | null
   };
   return <div className="space-y-2 border border-warning/40 p-3">
     <div className="flex items-center justify-between gap-3">
-      <div><p className="flex items-center gap-1 text-xs font-semibold uppercase text-warning"><Radio className="h-3 w-3" />Forward Read</p><p className="text-xs text-muted-foreground">{enabled ? 'On · Room agreement recorded' : 'Off · Whole-room agreement required'}</p></div>
+      <div><p className="flex items-center gap-1 text-xs font-semibold uppercase text-warning"><Radio className="h-3 w-3" />Forward Read</p><p className="text-xs text-muted-foreground">{!FORWARD_READ_PRIVACY_VERIFIED ? 'Unavailable · Privacy verification pending' : enabled ? 'On · Room agreement recorded' : 'Off · Whole-room agreement required'}</p></div>
       <Switch checked={enabled} onCheckedChange={v => void toggle(v)} disabled={!sessionId || busy || !available} aria-label="Forward Read" />
     </div>
     <Dialog open={confirming} onOpenChange={open => { setConfirming(open); setAgreed(false); }}>

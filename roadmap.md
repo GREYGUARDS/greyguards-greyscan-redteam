@@ -1,6 +1,6 @@
 # Current work
 
-- [ ] Board Half-Day Prompt 1: Forward Read with no stored room audio/text, recorded room agreement, Blue switch-off, transient host suggestions and live verification
+- [ ] Board Half-Day Prompt 1: application transcript writes/reads removed, fresh agreement and Blue shutdown prepared; listening blocked because AI Gateway diagnostics retained synthetic room text despite store:false. Requires verified diagnostic payload suppression before live verification; ten-minute test stopped at the privacy failure.
 - [ ] Board Half-Day Prompts 2–6: session lengths, shared cast, profiles, retention and live debrief (await sequential review after Prompt 1)
 
 - [x] GreyScan: staff-only live scans, 1-week default window (24h/30d selectable), widen-search terms, traced stories with source links, honest coverage list

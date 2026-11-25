@@ -2,7 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { z } from 'npm:zod@3';
 import { generateHostSuggestions, SuggestionFailure } from '../_shared/host-suggestions.ts';
-import { forwardReadAllowed, MAX_CONTEXT_MS } from '../_shared/forward-read-rules.ts';
+import { forwardReadAllowed, MAX_CONTEXT_MS, FORWARD_READ_PRIVACY_VERIFIED } from '../_shared/forward-read-rules.ts';
 
 const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
 const fields = z.object({ sessionId: z.string().uuid(), teamId: z.string().uuid(), version: z.string().uuid() });
@@ -13,6 +13,7 @@ const sessionFields = 'status, room_audio_enabled, forward_read_agreed_at, forwa
 Deno.serve(async req => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return reply({ error: 'Use POST.' }, 405);
+  if (!FORWARD_READ_PRIVACY_VERIFIED) return reply({ error: 'Forward Read is unavailable while zero-retention processing is being verified.' }, 503);
   let text = '';
   let poll: ReturnType<typeof setInterval> | undefined;
   const controller = new AbortController();
@@ -72,6 +73,7 @@ Deno.serve(async req => {
     } finally { text = ''; }
     if (controller.signal.aborted || !(await load())) return reply({ discarded: true });
     // HTTP Realtime broadcast is transient, not realtime.send/database-backed messaging.
+    await service.realtime.setAuth(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
     const channel = service.channel(`forward-read:${sessionId}`, { config: { private: true } });
     try {
       const delivered = await channel.httpSend('suggestions', { suggestions, version, createdAt: Date.now() });

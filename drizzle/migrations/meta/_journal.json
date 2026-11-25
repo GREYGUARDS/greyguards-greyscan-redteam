@@ -183,6 +183,20 @@
       "when": 1795570277011,
       "tag": "0025_forward_read_limits_and_shutdown",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1795570735006,
+      "tag": "0026_forward_read_metadata_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1795570852225,
+      "tag": "0027_forward_read_privacy_hold",
+      "breakpoints": true
     }
   ]
 }

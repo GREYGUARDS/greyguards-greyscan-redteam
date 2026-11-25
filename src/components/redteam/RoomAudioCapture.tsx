@@ -3,6 +3,7 @@ import { Mic, MicOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { FORWARD_READ_PRIVACY_VERIFIED } from '../../../supabase/functions/_shared/forward-read-rules';
 
 const CHUNK_MS = 15000;
 
@@ -11,7 +12,7 @@ export default function RoomAudioCapture({ sessionId, teamId, enabled, active, v
   const [live, setLive] = useState(false);
   const [stoppedVersion, setStoppedVersion] = useState<string | null>(null);
   const stopCapture = useRef<() => void>(() => {});
-  const run = enabled && active && !!version && stoppedVersion !== version;
+  const run = FORWARD_READ_PRIVACY_VERIFIED && enabled && active && !!version && stoppedVersion !== version;
   useEffect(() => {
     if (!run || !version) return;
     let stopped = false;
@@ -69,7 +70,7 @@ export default function RoomAudioCapture({ sessionId, teamId, enabled, active, v
     if (error) toast.error('Your microphone is stopped, but the room switch could not be updated. Tell the facilitator.');
     else toast.success('Forward Read off. Fresh room agreement is required to restart.');
   };
-  if (!enabled) return null;
+  if (!enabled || !FORWARD_READ_PRIVACY_VERIFIED) return null;
   return <div role="status" className="fixed inset-x-3 bottom-3 z-[80] mx-auto flex max-w-xl flex-wrap items-center justify-between gap-2 border border-warning bg-background px-3 py-2 shadow">
     <div className="min-w-0 flex-1 text-xs"><p className="font-semibold text-warning">Forward Read on – the attackers can hear this room</p><p className="flex items-center gap-1 text-muted-foreground">{live ? <Mic className="h-3 w-3" /> : <MicOff className="h-3 w-3" />}{live ? 'Microphone active' : 'Microphone stopped'}</p></div>
     <Button size="sm" variant="outline" onClick={() => void switchOff()}><MicOff className="mr-1 h-3 w-3" />Switch off</Button>

@@ -1,0 +1,3 @@
+CREATE OR REPLACE FUNCTION public.host_enable_forward_read(_session_id uuid,_room_agreed boolean) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN RAISE EXCEPTION 'Forward Read is unavailable pending zero-retention verification'; END $$;
+REVOKE ALL ON FUNCTION public.host_enable_forward_read(uuid,boolean) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.host_enable_forward_read(uuid,boolean) TO authenticated;
