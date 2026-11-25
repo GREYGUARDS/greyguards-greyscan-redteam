@@ -1,5 +1,8 @@
 # Current work
 
+- [ ] Board Half-Day Prompt 1: Forward Read with no stored room audio/text, recorded room agreement, Blue switch-off, transient host suggestions and live verification
+- [ ] Board Half-Day Prompts 2–6: session lengths, shared cast, profiles, retention and live debrief (await sequential review after Prompt 1)
+
 - [x] GreyScan: staff-only live scans, 1-week default window (24h/30d selectable), widen-search terms, traced stories with source links, honest coverage list
 
 - [x] Finish and audit all three Inject 1 films: PigeeBank darker studio, ordinary-looking presenter, blurred red/white/blue sign and matching description; all opening descriptions visible (fixed hidden Pharmacore caption), ~30K metrics, three tests with 24 assertions, six phone/desktop playback flows through the second inject, matching speech transcripts and PigeeBank transcribed as "piggy bank"; accents not independently listened to

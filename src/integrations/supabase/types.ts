@@ -376,6 +376,10 @@ export type Database = {
           created_by_user_id: string | null
           decision_log: Json
           duration: number
+          forward_read_agreed_at: string | null
+          forward_read_agreed_by: string | null
+          forward_read_paused_at: string | null
+          forward_read_version: string
           freeze_prompt: string | null
           id: string
           opened_at: string | null
@@ -406,6 +410,10 @@ export type Database = {
           created_by_user_id?: string | null
           decision_log?: Json
           duration?: number
+          forward_read_agreed_at?: string | null
+          forward_read_agreed_by?: string | null
+          forward_read_paused_at?: string | null
+          forward_read_version?: string
           freeze_prompt?: string | null
           id?: string
           opened_at?: string | null
@@ -436,6 +444,10 @@ export type Database = {
           created_by_user_id?: string | null
           decision_log?: Json
           duration?: number
+          forward_read_agreed_at?: string | null
+          forward_read_agreed_by?: string | null
+          forward_read_paused_at?: string | null
+          forward_read_version?: string
           freeze_prompt?: string | null
           id?: string
           opened_at?: string | null
@@ -579,6 +591,35 @@ export type Database = {
           },
           {
             foreignKeyName: "exercise_video_jobs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forward_read_agreements: {
+        Row: {
+          agreed_at: string
+          agreed_by: string
+          id: string
+          session_id: string
+        }
+        Insert: {
+          agreed_at?: string
+          agreed_by: string
+          id?: string
+          session_id: string
+        }
+        Update: {
+          agreed_at?: string
+          agreed_by?: string
+          id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forward_read_agreements_session_id_fkey"
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "exercise_sessions"
@@ -971,6 +1012,10 @@ export type Database = {
         Args: { _notes?: string; _request_id: string }
         Returns: undefined
       }
+      blue_disable_forward_read: {
+        Args: { _session_id: string }
+        Returns: undefined
+      }
       claim_brand_access: { Args: never; Returns: string }
       find_recent_signup: {
         Args: { _email: string }
@@ -981,6 +1026,10 @@ export type Database = {
       }
       get_my_locked_brand: { Args: never; Returns: string }
       host_delete_session: { Args: { _session_id: string }; Returns: undefined }
+      host_enable_forward_read: {
+        Args: { _room_agreed: boolean; _session_id: string }
+        Returns: undefined
+      }
       host_fire_prepared_inject: {
         Args: { _inject_id: string }
         Returns: undefined
