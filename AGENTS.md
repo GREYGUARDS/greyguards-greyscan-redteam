@@ -1,6 +1,7 @@
 # Architecture rules
 
 - The read-only Master Inject Sandbox is shared by host library and session dashboards, combining canonical demo scripts with owner-scoped durable inject reads and existing participant media renderers; browsing never generates or sends; only an explicit host "Fire live" on an unsent inject in an active session sends via host_fire_prepared_inject, matching the sandpit shelf.
+- Sandbox film downloads prepare a browser File before the download click and resolve private films through existing signed storage access; this preserves mobile user activation without widening access.
 - Public demo playback checkpoints its scenario and progress in sessionStorage, suppresses scroll chaining, and advances canonical scripted injects immediately after decisions; refresh recovery must not restart scoring or trigger AI generation.
 
 - Hosted participant debriefs read durable session decision logs, sent injects and team-keyed responses through existing access controls; shared playbook mapping labels interpretations and never treats host branches as measured causal outcomes.

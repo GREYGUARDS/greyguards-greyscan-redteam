@@ -14,6 +14,7 @@ import InjectVisual from './InjectVisual';
 import HostedInjectMedia from './HostedInjectMedia';
 import HostedInjectStudio from './HostedInjectStudio';
 import CharacterLibrary from './CharacterLibrary';
+import SandboxVideoDownload from './SandboxVideoDownload';
 
 function channelFor(source: string, fallback: string): string {
   if (/talkuk|radio|phone-in/i.test(source)) return 'Radio phone-in';
@@ -128,6 +129,7 @@ export default function MasterInjectSandbox({ refreshKey = 0 }: { refreshKey?: n
         <div key={selectedId ?? 'list'} className="min-h-0 flex-1 overflow-y-auto">
           {cast ? <CharacterLibrary /> : creating ? (targetId ? <HostedInjectStudio key={targetId} sessionId={targetId} isActive={false} brand={sessionsList.find(x => x.id === targetId)?.brand_name} scenario={sessionsList.find(x => x.id === targetId)?.scenario_narrative} onSent={() => {}} onPrepared={() => setReload(v => v + 1)} /> : <p className="text-sm text-muted-foreground">{sessionsList.length ? 'Choose the session this inject belongs to. It is saved unsent, ready for review.' : 'No open prepared sessions yet. Create a session sandpit first.'}</p>) : selected ? <div className="space-y-4">
             <div className="space-y-1"><h3 className="break-words font-semibold">{selected.brand} · {selected.status}</h3><p className="break-words text-xs text-muted-foreground">{selected.session} · {selected.channel} · {selected.phase} · {Math.floor(selected.offset / 60)}:{String(selected.offset % 60).padStart(2, '0')}</p><p className="break-words text-xs text-muted-foreground">{selected.source}</p>{fireButton(selected)}</div>
+            {(selected.inject?.demoVideo?.url || selected.saved?.video_storage_path) && <SandboxVideoDownload key={selected.id} url={selected.inject?.demoVideo?.url} storagePath={selected.saved?.video_storage_path} filename={`${selected.brand}-${selected.status}-${selected.id.replace(/[^a-z0-9-]/gi, '-')}`.replace(/[^a-z0-9-]/gi, '-').toLowerCase() + '.mp4'} />}
             <div className={`mx-auto w-full min-w-0 ${phone ? 'max-w-[375px]' : 'max-w-3xl'}`} key={selected.id}>
               {selected.inject ? <InjectVisual inject={selected.inject} company={company} /> : selected.saved && <><p className="whitespace-pre-wrap break-words text-sm">{selected.content}</p><HostedInjectMedia storagePath={selected.saved.video_storage_path} artefact={selected.saved.artefact} /></>}
             </div>
