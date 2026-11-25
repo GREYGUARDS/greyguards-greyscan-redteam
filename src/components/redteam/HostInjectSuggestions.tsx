@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Loader2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -12,13 +12,37 @@ export default function HostInjectSuggestions({ sessionId, responseCount, onUse 
   const [items, setItems] = useState<HostInjectSuggestion[]>([]);
   const [busy, setBusy] = useState(false);
   const [readAt, setReadAt] = useState<number | null>(null);
+  const roomReceived = useRef<{ version: string; at: number } | null>(null);
+  useEffect(() => {
+    setItems([]); roomReceived.current = null;
+    if (!sessionId) return;
+    let disposed = false;
+    const clearRoom = () => { if (roomReceived.current) { setItems([]); roomReceived.current = null; } };
+    const validate = async (version: string) => {
+      const { data } = await supabase.from('exercise_sessions').select('status, room_audio_enabled, forward_read_version, forward_read_paused_at').eq('id', sessionId).maybeSingle();
+      return !disposed && data?.room_audio_enabled && data.forward_read_version === version && (data.status === 'active' || (data.status === 'paused' && data.forward_read_paused_at && Date.now() - Date.parse(data.forward_read_paused_at) < 30 * 60_000));
+    };
+    const channel = supabase.channel(`forward-read:${sessionId}`, { config: { private: true } })
+      .on('broadcast', { event: 'suggestions' }, async ({ payload }) => {
+        if (typeof payload?.version !== 'string' || !Array.isArray(payload?.suggestions) || typeof payload?.createdAt !== 'number' || Date.now() - payload.createdAt > 10 * 60_000) return;
+        if (!(await validate(payload.version))) return;
+        roomReceived.current = { version: payload.version, at: payload.createdAt };
+        setItems(payload.suggestions); setReadAt(null);
+      }).subscribe();
+    const interval = setInterval(() => {
+      const received = roomReceived.current;
+      if (!received) return;
+      void validate(received.version).then(valid => { if (!valid || Date.now() - received.at >= 10 * 60_000) clearRoom(); });
+    }, 1000);
+    return () => { disposed = true; clearInterval(interval); void supabase.removeChannel(channel); roomReceived.current = null; };
+  }, [sessionId]);
   const run = async () => {
     if (!sessionId) return;
     setBusy(true);
     const { data, error } = await supabase.functions.invoke('suggest-host-injects', { body: { sessionId } });
     setBusy(false);
     if (error) { const d = await error.context?.json?.().catch(() => null); toast.error(d?.error ?? 'Suggestions could not be generated.'); return; }
-    setItems(data?.suggestions ?? []); setReadAt(responseCount);
+    roomReceived.current = null; setItems(data?.suggestions ?? []); setReadAt(responseCount);
     if (data?.message) toast.info(data.message);
   };
   const fresh = readAt !== null && responseCount > readAt;
@@ -30,7 +54,7 @@ export default function HostInjectSuggestions({ sessionId, responseCount, onUse 
     {items.map((s, i) => <div key={i} className="space-y-1 rounded-md border border-border bg-background p-3 text-sm">
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{s.channel} · {s.source}</p>
       <p className="break-words">{s.content}</p>
-      <p className="text-xs text-muted-foreground"><span className="font-semibold">Reacting to:</span> “{s.reacting_to}”</p>
+      <p className="text-xs text-muted-foreground"><span className="font-semibold">Reacting to:</span> {s.reacting_to}</p>
       <p className="text-xs text-muted-foreground">{s.why}</p>
       <Button size="sm" className="mt-1" onClick={() => onUse(s)}>Use as draft</Button>
     </div>)}

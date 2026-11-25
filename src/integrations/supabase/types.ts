@@ -627,6 +627,24 @@ export type Database = {
           },
         ]
       }
+      forward_read_usage: {
+        Row: {
+          hour_start: string
+          ip_hash: string
+          requests: number
+        }
+        Insert: {
+          hour_start: string
+          ip_hash: string
+          requests?: number
+        }
+        Update: {
+          hour_start?: string
+          ip_hash?: string
+          requests?: number
+        }
+        Relationships: []
+      }
       host_session_preparations: {
         Row: {
           host_notes: string
@@ -1017,6 +1035,10 @@ export type Database = {
         Returns: undefined
       }
       claim_brand_access: { Args: never; Returns: string }
+      claim_forward_read_request: {
+        Args: { _ip_hash: string }
+        Returns: boolean
+      }
       find_recent_signup: {
         Args: { _email: string }
         Returns: {
@@ -1078,6 +1100,10 @@ export type Database = {
       }
       red_fire_inject: { Args: { _inject_id: string }; Returns: undefined }
       red_set_queue: { Args: { _inject_ids: string[] }; Returns: undefined }
+      stop_forward_read_request: {
+        Args: { _session_id: string; _version: string }
+        Returns: undefined
+      }
       user_can_access_realtime_topic: {
         Args: { _topic: string }
         Returns: boolean

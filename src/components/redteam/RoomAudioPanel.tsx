@@ -2,42 +2,59 @@ import { useEffect, useState } from 'react';
 import { Radio } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
-type Row = { id: string; transcript: string; created_at: string };
-
-/** Host-only: switch room audio on/off for this session and read the live transcript feed. */
 export default function RoomAudioPanel({ sessionId }: { sessionId: string | null }) {
   const [enabled, setEnabled] = useState(false);
-  const [rows, setRows] = useState<Row[]>([]);
+  const [available, setAvailable] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const [busy, setBusy] = useState(false);
   useEffect(() => {
+    setEnabled(false); setConfirming(false); setAgreed(false);
     if (!sessionId) return;
+    let disposed = false;
     const load = async () => {
-      const [{ data: s }, { data: t }] = await Promise.all([
-        supabase.from('exercise_sessions').select('room_audio_enabled').eq('id', sessionId).maybeSingle(),
-        supabase.from('exercise_room_transcripts').select('id, transcript, created_at').eq('session_id', sessionId).order('created_at', { ascending: false }).limit(20),
-      ]);
-      if (s) setEnabled(!!s.room_audio_enabled);
-      setRows(t ?? []);
+      const { data } = await supabase.from('exercise_sessions').select('room_audio_enabled, status, forward_read_paused_at').eq('id', sessionId).maybeSingle();
+      if (disposed) return;
+      const valid = data && (data.status === 'active' || (data.status === 'paused' && data.forward_read_paused_at && Date.now() - Date.parse(data.forward_read_paused_at) < 30 * 60_000));
+      setEnabled(!!(valid && data?.room_audio_enabled)); setAvailable(!!valid);
     };
     void load();
-    const i = setInterval(load, 10000);
-    return () => clearInterval(i);
+    const i = setInterval(load, 1500);
+    return () => { disposed = true; clearInterval(i); };
   }, [sessionId]);
   const toggle = async (v: boolean) => {
     if (!sessionId) return;
-    setEnabled(v);
-    const { error } = await supabase.rpc('host_set_room_audio', { _session_id: sessionId, _enabled: v });
-    if (error) { setEnabled(!v); toast.error('Could not change room audio.'); return; }
-    toast.success(v ? 'Room audio on — Blue Team will be asked for consent.' : 'Room audio off.');
+    if (v) { setAgreed(false); setConfirming(true); return; }
+    setBusy(true);
+    const { error } = await supabase.rpc('host_set_room_audio', { _session_id: sessionId, _enabled: false });
+    setBusy(false);
+    if (error) { toast.error('Could not switch off Forward Read.'); return; }
+    setEnabled(false); setAgreed(false); toast.success('Forward Read off.');
+  };
+  const enable = async () => {
+    if (!sessionId || !agreed) return;
+    setBusy(true);
+    const { error } = await supabase.rpc('host_enable_forward_read', { _session_id: sessionId, _room_agreed: agreed });
+    setBusy(false); setAgreed(false);
+    if (error) { toast.error('Could not enable Forward Read. Start or resume the session and confirm room agreement.'); return; }
+    setEnabled(true); setConfirming(false); toast.success('Forward Read on.');
   };
   return <div className="space-y-2 border border-warning/40 p-3">
-    <div className="flex items-center justify-between gap-2">
-      <div><p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-warning"><Radio className="h-3 w-3" />Live room intercepts</p><p className="text-xs text-muted-foreground">Off by default. Blue Team must consent; audio is deleted after transcription.</p></div>
-      <Switch checked={enabled} onCheckedChange={v => void toggle(v)} disabled={!sessionId} aria-label="Room audio" />
+    <div className="flex items-center justify-between gap-3">
+      <div><p className="flex items-center gap-1 text-xs font-semibold uppercase text-warning"><Radio className="h-3 w-3" />Forward Read</p><p className="text-xs text-muted-foreground">{enabled ? 'On · Room agreement recorded' : 'Off · Whole-room agreement required'}</p></div>
+      <Switch checked={enabled} onCheckedChange={v => void toggle(v)} disabled={!sessionId || busy || !available} aria-label="Forward Read" />
     </div>
-    {enabled && <div className="max-h-48 space-y-1 overflow-y-auto">
-      {rows.length ? rows.map(r => <p key={r.id} className="border-l-2 border-warning/50 pl-2 text-xs"><span className="text-muted-foreground">{new Date(r.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} · </span>{r.transcript}</p>) : <p className="text-xs text-muted-foreground">Nothing overheard yet.</p>}
-    </div>}
+    <Dialog open={confirming} onOpenChange={open => { setConfirming(open); setAgreed(false); }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle>Enable Forward Read</DialogTitle><DialogDescription>Confirm agreement from everyone in the room before enabling listening.</DialogDescription></DialogHeader>
+        <label className="flex items-start gap-3 text-sm"><Checkbox checked={agreed} onCheckedChange={v => setAgreed(v === true)} aria-label="The whole room has agreed to Forward Read" /><span>The whole room has agreed to Forward Read</span></label>
+        <DialogFooter><Button variant="outline" onClick={() => { setConfirming(false); setAgreed(false); }}>Cancel</Button><Button disabled={!agreed || busy} onClick={() => void enable()}>Switch on</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>;
 }
