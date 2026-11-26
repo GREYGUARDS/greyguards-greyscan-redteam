@@ -5,7 +5,7 @@
 import type { Inject, ResponseOption } from "@/pages/RedTeam";
 import type { VideoOverlay } from "@/components/redteam/InjectOverlay";
 import mumCarVideo from "@/assets/demo_video_pharmacore.mp4.asset.json";
-import mumKitchenVideo from "@/assets/pharmacore_mum_kitchen_followup.mp4.asset.json";
+import mumKitchenVideo from "@/assets/pharmacore_mum_kitchen_relieved.mp4.asset.json";
 import fireVideo from "@/assets/trustinsure_firefighter_reaction.mp4.asset.json";
 import rentVideo from "@/assets/pigeebank_rent_street_reaction.mp4.asset.json";
 import fireHomeVideo from "@/assets/trustinsure_firefighter_evening_positive.mp4.asset.json";
