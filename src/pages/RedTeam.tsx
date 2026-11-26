@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { HOSTED_DURATIONS, HOSTED_DURATION_LABELS, type HostedDuration } from "@/lib/sessionDurations";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -83,7 +84,7 @@ const ScenarioIcon = ({ name, className }: { name: string; className?: string })
 
 
 export type ExerciseMode = "self" | "consultant";
-export type ExerciseDuration = 10 | 20 | 30 | 60 | 120 | 180;
+export type ExerciseDuration = 10 | 20 | 30 | 90 | 240;
 export type TeamMode = "solo" | "team-vs-team";
 
 export type ScenarioCategory = 
@@ -670,7 +671,7 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
               onValueChange={(value: ExerciseMode) => {
                 if (demoMode && value === "consultant") return;
                 // Hosted sessions run 1–3 hours; self-navigated runs 10–30 minutes.
-                const duration = value === "consultant" ? 60 : 10;
+                const duration = value === "consultant" ? 90 : 10;
                 setConfig({ ...config, mode: value, duration });
                 if (value === "consultant" && !access.isAdmin) setConsultantAction("join");
               }}
@@ -753,15 +754,16 @@ const RedTeam = ({ demoMode = false }: { demoMode?: boolean }) => {
             <RadioGroup
               value={config.duration.toString()}
               onValueChange={(value) => setConfig({ ...config, duration: parseInt(value) as ExerciseDuration })}
-              className="grid grid-cols-3 gap-2"
+              className={`grid gap-2 ${config.mode === "consultant" ? "grid-cols-2" : "grid-cols-3"}`}
             >
-              {(config.mode === "consultant" ? [60, 120, 180] : [10, 20, 30]).map((mins) => (
+              {(config.mode === "consultant" ? [...HOSTED_DURATIONS] : [10, 20, 30]).map((mins) => (
                 <div key={mins} className={`relative border-2 p-3 cursor-pointer text-center transition-all ${config.duration === mins ? 'border-warning bg-warning/5' : 'border-border hover:border-muted-foreground'}`}>
                   <RadioGroupItem value={mins.toString()} id={`dur-${mins}`} className="absolute top-1 right-1 h-3 w-3" />
                   <Label htmlFor={`dur-${mins}`} className="cursor-pointer">
                     <Timer className="h-5 w-5 mx-auto mb-1 text-warning" />
-                    <span className="font-bold text-xl">{config.mode === "consultant" ? mins / 60 : mins}</span>
-                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">{config.mode === "consultant" ? (mins === 60 ? "hour" : "hours") : "min"}</span>
+                    <span className="font-bold text-xl">{config.mode === "consultant" ? HOSTED_DURATION_LABELS[mins as HostedDuration].value : mins}</span>
+                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">{config.mode === "consultant" ? HOSTED_DURATION_LABELS[mins as HostedDuration].unit : "min"}</span>
+                    {config.mode === "consultant" && <span className="block text-[10px] text-muted-foreground">{HOSTED_DURATION_LABELS[mins as HostedDuration].caption}</span>}
                   </Label>
                 </div>
               ))}

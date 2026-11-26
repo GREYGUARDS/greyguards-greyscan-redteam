@@ -1,4 +1,5 @@
 import LiveLeaderboard from "./LiveLeaderboard";
+import { suggestedFreezeMinutes } from "@/lib/sessionDurations";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1189,6 +1190,7 @@ const ConsultantDashboard = ({ config, onBack, onScenarioGenerated, currentScena
                           <DialogTitle className="uppercase tracking-wider">Freeze Frame Decision Point</DialogTitle>
                         </DialogHeader>
                         <p className="text-sm text-muted-foreground">The clock stops and every participant sees this question full-screen until you resume.</p>
+                        {suggestedFreezeMinutes(config.duration).length > 0 && <p className="text-xs text-warning">Suggested freeze frames: {suggestedFreezeMinutes(config.duration).map(m => `${m} min`).join(', ')} · now {Math.floor(elapsedSeconds / 60)} min</p>}
                         <Textarea value={freezePrompt} onChange={(e) => setFreezePrompt(e.target.value)} className="min-h-[100px]" />
                         <Button onClick={handleFreeze} disabled={!freezePrompt.trim()} className="uppercase tracking-wider">Freeze &amp; Show Question</Button>
                       </DialogContent>
