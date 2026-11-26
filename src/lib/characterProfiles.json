@@ -1,0 +1,929 @@
+[
+  {
+    "page": 1,
+    "name": "The Truth Seeker",
+    "handle": "@ExposedUK_GG01",
+    "fields": {
+      "DEFAULT STANCE": "Turns fragments into a “discovery”. Moves from uncertainty to certainty faster than the evidence allows. Believes he is empowering followers.",
+      "TURNS POSITIVE WHEN": "He rarely flips. When challenged with clear evidence he switches to defensive precision and moves the goalposts. Best answered by others, not engaged directly.",
+      "VOICE AND LOOK": "Male, 30s. Light Estuary / South-East English, brisk and articulate, 160–175 wpm in exposé sections, slowing for the “reveal”. Baseball cap, glasses, grey T-shirt or dark jacket.",
+      "TYPICAL LINES": "“Nobody is talking about this. So I will.” “They've gone very quiet, haven't they?”",
+      "BEST FIT": "The opening disinformation film in any scenario. Pharma, insurance, banking.",
+      "USED IN": "Pharmacore 1 · TrustInsure 1 · PigeeBank 1",
+      "PHOTO STATUS": "31 reference stills in the Truth Seeker pack. Name is a role, not a confirmed legal name.",
+      "RULES": "G G 0 1 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : C H A R A C T E R B I B L E N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg01_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg01_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg01_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Rarely Flips",
+      "Originator"
+    ],
+    "code": "GG01",
+    "group": "Core exercise cast"
+  },
+  {
+    "page": 2,
+    "name": "Jo Mercer",
+    "handle": "@sheffieldmum_jo_GG02",
+    "fields": {
+      "DEFAULT STANCE": "Not political. Quick to notice anything that affects children, family security or bills. Usually checks with friends and local groups before deciding.",
+      "TURNS POSITIVE WHEN": "She gets a clear, human answer she can share. She shares the correction with cautious relief, not triumph.",
+      "VOICE AND LOOK": "Female, late 30s–40s. Natural Sheffield / South Yorkshire, moderate, never comic. 145–160 wpm, faster when anxious, small self-corrections. Phone selfie, practical knitwear.",
+      "TYPICAL LINES": "“I don't know what to believe any more, honestly.” “Update: they've actually answered us. Relieved tonight.”",
+      "BEST FIT": "Consumer harm: medicines, food, household finance, children.",
+      "USED IN": "Pharmacore 2 · Pharmacore 9",
+      "PHOTO STATUS": "54 approved stills in the Character Bible. Same face as the demo Worried Mum.",
+      "RULES": "G G 0 2 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : C H A R A C T E R B I B L E N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg02_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg02_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg02_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier",
+      "Victim"
+    ],
+    "code": "GG02",
+    "group": "Core exercise cast"
+  },
+  {
+    "page": 3,
+    "name": "Matt",
+    "handle": "@firefighter_matt_GG03",
+    "fields": {
+      "DEFAULT STANCE": "Practical, protective of residents, irritated by anything that looks like people being let down. Values action over arguments.",
+      "TURNS POSITIVE WHEN": "He has reliable evidence the claims were paid and the clip was edited. He owns the correction without becoming a corporate advocate.",
+      "VOICE AND LOOK": "Male, 30s–40s. Light Northern English, clear, low-to-mid register, short clauses, 135–150 wpm. Slightly breathless after exertion. Wet PPE, documentary phone video, no real insignia.",
+      "TYPICAL LINES": "“Pumping out homes all week. Now this?” “Mum's claim paid. That clip was edited. Fair play.”",
+      "BEST FIT": "Insurance, utilities, local services, any disaster-response scenario.",
+      "USED IN": "TrustInsure 5 · TrustInsure 9",
+      "PHOTO STATUS": "Approved stills are on the Red Team app (TrustInsure 5 and 9 films). Add them here from the app before use.",
+      "RULES": "G G 0 3 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : C H A R A C T E R B I B L E N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [],
+    "roles": [
+      "Trusted Voice",
+      "Can Flip"
+    ],
+    "code": "GG03",
+    "group": "Core exercise cast"
+  },
+  {
+    "page": 4,
+    "name": "Chloe Taylor",
+    "handle": "@chloe.rents_GG04",
+    "fields": {
+      "DEFAULT STANCE": "Lives payday to payday in a shared flat. Any glitch with money feels like a crisis, and she says so on camera.",
+      "TURNS POSITIVE WHEN": "The money arrives and someone explains why it was delayed. She posts the update and tags friends.",
+      "VOICE AND LOOK": "Female, early 20s, Greater Manchester. Emotional, quick, relatable. Street and bedroom selfies, puffer jacket, scarf.",
+      "TYPICAL LINES": "“Rent's bounced. Landlord's fuming. Get your money out.” “Rent's gone through! Just a delay.”",
+      "BEST FIT": "Banking, fintech, payments, landlords and housing.",
+      "USED IN": "PigeeBank 5 · PigeeBank 9 (as the Young Renter)",
+      "PHOTO STATUS": "High-resolution profile with 40 stills (Chloe Taylor Facebook profile PDF).",
+      "RULES": "G G 0 4 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg04_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg04_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg04_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier",
+      "Victim"
+    ],
+    "code": "GG04",
+    "group": "Core exercise cast"
+  },
+  {
+    "page": 5,
+    "name": "Freya Collins",
+    "handle": "@freya_for_future_GG05",
+    "fields": {
+      "DEFAULT STANCE": "Sceptical of big companies. Picks up an accusation fast and frames it as hypocrisy or greenwashing.",
+      "TURNS POSITIVE WHEN": "The company publishes evidence openly and admits what it got wrong. She credits transparency, not spin.",
+      "VOICE AND LOOK": "Female, early 20s, West Country. Curly red hair, green parka, knitted scarf. Films at protests and on campus.",
+      "TYPICAL LINES": "“I've read the report so you don't have to.” “Net zero by when, exactly?”",
+      "BEST FIT": "Energy, consumer brands, ESG claims, pollution incidents.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 0 5 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg05_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier"
+    ],
+    "code": "GG05",
+    "group": "Student activists"
+  },
+  {
+    "page": 6,
+    "name": "Malik Johnson",
+    "handle": "@malik.speaks_GG06",
+    "fields": {
+      "DEFAULT STANCE": "Frames incidents as rights and fairness issues. Mobilises quickly and asks who is accountable.",
+      "TURNS POSITIVE WHEN": "Full, unedited footage and a named person taking responsibility. He respects due process when it is visible.",
+      "VOICE AND LOOK": "Male, early 20s, Mancunian. Calm, persuasive, organiser's cadence. Campus quad, backpack, dark jacket.",
+      "TYPICAL LINES": "“Watch the full clip before you decide.” “Who signed this off? Name them.”",
+      "BEST FIT": "Security incidents, policing-adjacent, employers, universities.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 0 6 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg06_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier",
+      "Sceptic"
+    ],
+    "code": "GG06",
+    "group": "Student activists"
+  },
+  {
+    "page": 7,
+    "name": "Sophie Bennett",
+    "handle": "@rentisbroken_GG07",
+    "fields": {
+      "DEFAULT STANCE": "Assumes landlords and big providers will cut corners. Shares notices and letters as proof.",
+      "TURNS POSITIVE WHEN": "The notice is shown to be fake or corrected, and students get a clear route to help.",
+      "VOICE AND LOOK": "Female, early 20s, light Yorkshire. Wry, tired, funny. Bedroom with posters, glasses, hoodie, mug.",
+      "TYPICAL LINES": "“Imagine paying £700 a month for this.” “Is this notice even real? Asking for 300 people.”",
+      "BEST FIT": "Housing, landlords, utilities, banks, student services.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 0 7 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg07_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier",
+      "Victim"
+    ],
+    "code": "GG07",
+    "group": "Student activists"
+  },
+  {
+    "page": 8,
+    "name": "Yusuf Ahmed",
+    "handle": "@yusufchecks_GG08",
+    "fields": {
+      "DEFAULT STANCE": "Neutral. Traces claims and screenshots back to source and shows his working.",
+      "TURNS POSITIVE WHEN": "He is already a positive force when the evidence is available. He amplifies a company's correction only if it is checkable.",
+      "VOICE AND LOOK": "Male, mid 20s, London. Measured, precise, explainer pace. Library or desk, glasses, knitwear.",
+      "TYPICAL LINES": "“Let's trace this screenshot back.” “Here's what the data actually says.”",
+      "BEST FIT": "Any scenario. Use him to show the correction spreading, or failing to.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 0 8 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg08_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Corrector"
+    ],
+    "code": "GG08",
+    "group": "Student activists"
+  },
+  {
+    "page": 9,
+    "name": "Nina Patel",
+    "handle": "@ninaoncampus_GG09",
+    "fields": {
+      "DEFAULT STANCE": "Wants the scoop but tries to verify. Will publish a leak if two sources back it.",
+      "TURNS POSITIVE WHEN": "She gets an on-record answer quickly. Silence makes her publish.",
+      "VOICE AND LOOK": "Female, early 20s, Brummie, quick and energetic. Camera in hand, leather jacket, outside old university buildings.",
+      "TYPICAL LINES": "“We reached out for comment. No reply yet.” “Update: they've responded. Full statement below.”",
+      "BEST FIT": "Universities, leaks, internal documents, employers.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 0 9 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg09_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier",
+      "Corrector"
+    ],
+    "code": "GG09",
+    "group": "Student activists"
+  },
+  {
+    "page": 10,
+    "name": "Amara Okafor",
+    "handle": "@amaracares_GG10",
+    "fields": {
+      "DEFAULT STANCE": "Careful with health claims. Worried about patients panicking and stopping medication.",
+      "TURNS POSITIVE WHEN": "The regulator and the company publish clear guidance. She shares it and tells people not to stop treatment without advice.",
+      "VOICE AND LOOK": "Female, early 20s, East Midlands. Warm, reassuring, clinical when needed. Scrubs and stethoscope, hospital corridor.",
+      "TYPICAL LINES": "“Please don't stop any medicine without talking to a pharmacist.” “Here's what the official alert actually says.”",
+      "BEST FIT": "Pharma, healthcare, food safety, any health rumour.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 1 0 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg10_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Trusted Voice",
+      "Can Flip",
+      "Corrector"
+    ],
+    "code": "GG10",
+    "group": "Student activists"
+  },
+  {
+    "page": 11,
+    "name": "Jamie Reed",
+    "handle": "@jamieoffline_GG11",
+    "fields": {
+      "DEFAULT STANCE": "Assumes data breaches are covered up. Picks apart screenshots and asks technical questions.",
+      "TURNS POSITIVE WHEN": "A plain technical explanation, with what data was and was not affected.",
+      "VOICE AND LOOK": "Male, early 20s, light Sheffield. Fast, technical, sardonic. Gaming chair, headphones, code on screen.",
+      "TYPICAL LINES": "“That screenshot has been edited. Look at the font.” “So was our data exposed or not?”",
+      "BEST FIT": "Data breaches, banking apps, tech outages, AI misuse.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 1 1 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg11_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier",
+      "Sceptic"
+    ],
+    "code": "GG11",
+    "group": "Student activists"
+  },
+  {
+    "page": 12,
+    "name": "Erin Walsh",
+    "handle": "@erinactually_GG12",
+    "fields": {
+      "DEFAULT STANCE": "Not political. Ended up at the centre of a viral clip and is now trying to put the record straight.",
+      "TURNS POSITIVE WHEN": "The full context comes out and people stop piling on. She thanks people for checking.",
+      "VOICE AND LOOK": "Female, early 20s, South Wales. Thoughtful, slightly sceptical, fewer fillers. Campus lawn, scarf, sunglasses on head.",
+      "TYPICAL LINES": "“That's not what happened. Here's the full video.” “Please stop messaging my family.”",
+      "BEST FIT": "Edited-clip scenarios, events, venues, employers.",
+      "USED IN": "Not used yet N O T E Character Bible lists an “Erin” with role to confirm. Confirm if this is the same persona.",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 1 2 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg12_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Corrector",
+      "Victim"
+    ],
+    "code": "GG12",
+    "group": "Student activists"
+  },
+  {
+    "page": 13,
+    "name": "Leah Carter",
+    "handle": "@leahfitlife_GG13",
+    "fields": {
+      "DEFAULT STANCE": "Trusts her community more than brands. Reacts to anything about health, supplements or food safety.",
+      "TURNS POSITIVE WHEN": "A clear product or safety statement she can stitch with “here's the update”.",
+      "VOICE AND LOOK": "Female, mid 20s, London. Upbeat, direct to camera. Gym, mirror selfies, top knot.",
+      "TYPICAL LINES": "“Not sponsored, just worried.” “Quick update, because a lot of you asked.”",
+      "BEST FIT": "Food, supplements, pharma, fitness brands, health apps.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 1 3 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg13_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier"
+    ],
+    "code": "GG13",
+    "group": "Influencers"
+  },
+  {
+    "page": 14,
+    "name": "Ben Walker",
+    "handle": "@benoutdoors_GG14",
+    "fields": {
+      "DEFAULT STANCE": "Protective of the countryside. Angry about pollution and anything that harms rivers or wildlife.",
+      "TURNS POSITIVE WHEN": "Independent test results and a visible clean-up. He films the follow-up.",
+      "VOICE AND LOOK": "Male, late 20s, Mancunian. Breathless on hills, honest, warm. Mustard jacket, backpack, lakes and fells.",
+      "TYPICAL LINES": "“Came up here to film the view. Look at the river.” “Went back. Here's what's changed.”",
+      "BEST FIT": "Water, energy, chemicals, agriculture, outdoor brands.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 1 4 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg14_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Trusted Voice",
+      "Can Flip",
+      "Amplifier"
+    ],
+    "code": "GG14",
+    "group": "Influencers"
+  },
+  {
+    "page": 15,
+    "name": "Maya Singh",
+    "handle": "@mayasworld_GG15",
+    "fields": {
+      "DEFAULT STANCE": "Big reach, fast reactions. Boycott- friendly when a brand looks disrespectful or unsafe.",
+      "TURNS POSITIVE WHEN": "A direct, human apology or explanation, ideally on video. She dislikes corporate statements in images.",
+      "VOICE AND LOOK": "Female, mid 20s, Brummie. Expressive, funny, quick cuts. Ring light, curls, gold jewellery.",
+      "TYPICAL LINES": "“I'm not buying from them again until they explain.” “OK, they actually replied. Let's talk about it.”",
+      "BEST FIT": "Consumer brands, cosmetics, retail, boycott scenarios.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 1 5 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg15_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier"
+    ],
+    "code": "GG15",
+    "group": "Influencers"
+  },
+  {
+    "page": 16,
+    "name": "Chloe Evans",
+    "handle": "@chloetravels_GG16",
+    "fields": {
+      "DEFAULT STANCE": "Feels let down easily when a booking, refund or card payment fails abroad. Warns followers fast.",
+      "TURNS POSITIVE WHEN": "Money back, a clear explanation and an apology. She posts the result as a travel tip.",
+      "VOICE AND LOOK": "Female, mid 20s, South Coast. Bright, chatty. Straw hat, harbour views, airport selfies.",
+      "TYPICAL LINES": "“Stuck abroad and my card's been declined. Great.” “Refund landed. Here's how I got it.”",
+      "BEST FIT": "Banking, airlines, insurance, travel, payments.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 1 6 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg16_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier",
+      "Victim"
+    ],
+    "code": "GG16",
+    "group": "Influencers"
+  },
+  {
+    "page": 17,
+    "name": "Callum Price",
+    "handle": "@callumgames_GG17",
+    "fields": {
+      "DEFAULT STANCE": "Distrusts tech companies and loves a leak. Spreads memes and screenshots fast.",
+      "TURNS POSITIVE WHEN": "A plain technical fix and an honest status page. He respects a company that admits the bug.",
+      "VOICE AND LOOK": "Male, early 20s, Scouse. Fast, jokey, live-stream energy. Headset, glasses, neon gaming room.",
+      "TYPICAL LINES": "“Their app's down AGAIN. Coincidence?” “Fair play, they posted the fix.”",
+      "BEST FIT": "Banking apps, outages, data breaches, tech launches.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 1 7 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg17_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier",
+      "Sceptic"
+    ],
+    "code": "GG17",
+    "group": "Influencers"
+  },
+  {
+    "page": 18,
+    "name": "Tara Brooks",
+    "handle": "@taraslifehacks_GG18",
+    "fields": {
+      "DEFAULT STANCE": "Speaks for people on tight budgets. Will tell followers to switch provider or move their money.",
+      "TURNS POSITIVE WHEN": "Clear facts on whether money is safe, with dates and a contact route. She turns it into a tip.",
+      "VOICE AND LOOK": "Female, late 20s, Yorkshire. Practical, sisterly, no-nonsense. Camel coat, street to camera.",
+      "TYPICAL LINES": "“If you bank with them, do this today.” “Update: your money is safe, here's why.”",
+      "BEST FIT": "Banks, insurers, energy, telecoms, retailers.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 1 8 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg18_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Trusted Voice",
+      "Can Flip",
+      "Amplifier"
+    ],
+    "code": "GG18",
+    "group": "Influencers"
+  },
+  {
+    "page": 19,
+    "name": "Rosie Hall",
+    "handle": "@rosiecreates_GG19",
+    "fields": {
+      "DEFAULT STANCE": "Gentle but principled. Shares ethical concerns about waste, sourcing and greenwashing.",
+      "TURNS POSITIVE WHEN": "Specific, verifiable changes. Vague pledges make her more sceptical.",
+      "VOICE AND LOOK": "Female, early 20s, East Midlands. Soft, thoughtful. Paint-splattered dungarees, glasses, studio.",
+      "TYPICAL LINES": "“I love this brand. That's why this hurts.” “They listened. Here's what they changed.”",
+      "BEST FIT": "Consumer brands, packaging, fashion, ESG claims.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 1 9 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg19_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier"
+    ],
+    "code": "GG19",
+    "group": "Influencers"
+  },
+  {
+    "page": 20,
+    "name": "Arjun Mehta",
+    "handle": "@arjunexplains_GG20",
+    "fields": {
+      "DEFAULT STANCE": "Neutral, explains what is known and unknown. Large audience that trusts him to be fair.",
+      "TURNS POSITIVE WHEN": "He can show both sides with sources. A company that explains clearly gets a fair hearing.",
+      "VOICE AND LOOK": "Male, late 20s, London. Clear, confident explainer with hand gestures. Westminster backdrop, jacket and shirt.",
+      "TYPICAL LINES": "“Here's what we know, and what we don't.” “Three things to understand about this story.”",
+      "BEST FIT": "Any scenario. Use to show mainstream framing.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Face reference cropped from the preview board (low resolution). 36 scenes planned, none generated yet.",
+      "RULES": "G G 2 0 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg20_reference_1.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Trusted Voice",
+      "Can Flip",
+      "Corrector"
+    ],
+    "code": "GG20",
+    "group": "Influencers"
+  },
+  {
+    "page": 21,
+    "name": "Adam Rahman",
+    "handle": "@adamfintech_GG21",
+    "fields": {
+      "DEFAULT STANCE": "Knows how banking apps work from the inside. Can lend credibility to a rumour, or debunk it.",
+      "TURNS POSITIVE WHEN": "A clear technical explanation he can recognise as true.",
+      "VOICE AND LOOK": "Male, late 20s, Mancunian. Casual, informed. Glasses, black T-shirt, trading screens.",
+      "TYPICAL LINES": "“Work in fintech. This is not how payments fail.” “Heard from a mate inside. Take with salt.”",
+      "BEST FIT": "Banks, fintech, payments, outages.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Low-resolution previews only. Needs a full-resolution portrait before filming.",
+      "RULES": "G G 2 1 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg21_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg21_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg21_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Corrector",
+      "Sceptic"
+    ],
+    "code": "GG21",
+    "group": "Members of the public"
+  },
+  {
+    "page": 22,
+    "name": "Aisha Khan",
+    "handle": "@aishak_20_GG22",
+    "fields": {
+      "DEFAULT STANCE": "Shares what friends share. Not an activist, but her network amplifies fast.",
+      "TURNS POSITIVE WHEN": "Her friends share the correction. She follows the group.",
+      "VOICE AND LOOK": "Female, 20, East Midlands. Chatty, emoji-heavy. Campus, festivals, coffee.",
+      "TYPICAL LINES": "“Is this true?? Everyone's sharing it 😳 ” “Ah OK, so it wasn't real then.”",
+      "BEST FIT": "Consumer brands, universities, events, apps.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "One full-resolution portrait plus 18 low- resolution previews. 36 scenes planned.",
+      "RULES": "G G 2 2 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg22_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg22_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg22_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier",
+      "Bystander"
+    ],
+    "code": "GG22",
+    "group": "Members of the public"
+  },
+  {
+    "page": 23,
+    "name": "Connor Hughes",
+    "handle": "@connoronthego_GG23",
+    "fields": {
+      "DEFAULT STANCE": "On the road all day. Short temper when pay, fuel or app payments go wrong.",
+      "TURNS POSITIVE WHEN": "He gets paid and someone says sorry plainly.",
+      "VOICE AND LOOK": "Male, late 20s, Scouse. Blunt, funny. Hi-vis, van cab selfies, DJ booth at night.",
+      "TYPICAL LINES": "“Not been paid again. Sort it out.” “Money's in. Cheers lads.”",
+      "BEST FIT": "Banks, gig apps, logistics, fuel, employers.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "One full-resolution portrait plus 18 low- resolution previews. 36 scenes planned.",
+      "RULES": "G G 2 3 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg23_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg23_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg23_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Bystander",
+      "Victim"
+    ],
+    "code": "GG23",
+    "group": "Members of the public"
+  },
+  {
+    "page": 24,
+    "name": "David Morgan",
+    "handle": "@dave_morgan_farm_GG24",
+    "fields": {
+      "DEFAULT STANCE": "Distrusts city companies and regulators. Respected locally; his posts travel through rural groups.",
+      "TURNS POSITIVE WHEN": "Someone visits, listens and fixes it. Statements from head office mean little.",
+      "VOICE AND LOOK": "Male, 50s, Herefordshire / Welsh border. Slow, plain-spoken. Wax jacket, wellies, sheepdog.",
+      "TYPICAL LINES": "“Forty years farming here. Never seen the river like this.” “Chap came out and sorted it. Credit where it's due.”",
+      "BEST FIT": "Water, agriculture, food supply chain, insurers, banks.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Low-resolution previews only. Needs a full-resolution portrait before filming.",
+      "RULES": "G G 2 4 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg24_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg24_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg24_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Trusted Voice",
+      "Can Flip",
+      "Victim"
+    ],
+    "code": "GG24",
+    "group": "Members of the public"
+  },
+  {
+    "page": 25,
+    "name": "Emma Brooks",
+    "handle": "@emmabrookscafe_GG25",
+    "fields": {
+      "DEFAULT STANCE": "Small-business owner. Card payments, energy bills and supplier problems hit her immediately.",
+      "TURNS POSITIVE WHEN": "A fix and some goodwill (refunded fees, a call from a real person).",
+      "VOICE AND LOOK": "Female, late 30s, Bristolian. Warm, busy, honest. Apron, café counter, latte art.",
+      "TYPICAL LINES": "“Card machine down all morning. Cash only, sorry folks.” “They rang me personally. Proper service.”",
+      "BEST FIT": "Banks, payments, energy, suppliers, local business.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "One full-resolution portrait plus 18 low- resolution previews. 36 scenes planned.",
+      "RULES": "G G 2 5 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg25_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg25_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg25_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Trusted Voice",
+      "Can Flip",
+      "Victim"
+    ],
+    "code": "GG25",
+    "group": "Members of the public"
+  },
+  {
+    "page": 26,
+    "name": "Olivia Bennett",
+    "handle": "@livbennettlife_GG26",
+    "fields": {
+      "DEFAULT STANCE": "Polished and brand-aware. Will drop a brand quietly, then explain why.",
+      "TURNS POSITIVE WHEN": "A considered response that matches the brand's values. Defensive statements turn her against it.",
+      "VOICE AND LOOK": "Female, early 30s, London. Calm, aspirational. Bright flat, green juice, travel shots.",
+      "TYPICAL LINES": "“I've stepped back from working with them for now.” “Glad to see a proper response.”",
+      "BEST FIT": "Consumer brands, beauty, food, hospitality.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Low-resolution previews only. Needs a full-resolution portrait before filming.",
+      "RULES": "G G 2 6 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg26_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg26_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg26_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier"
+    ],
+    "code": "GG26",
+    "group": "Members of the public"
+  },
+  {
+    "page": 27,
+    "name": "Peter Wallace",
+    "handle": "@pete_wallace_GG27",
+    "fields": {
+      "DEFAULT STANCE": "Methodical, reads the small print, distrusts jargon. Shares in older Facebook groups.",
+      "TURNS POSITIVE WHEN": "Plain facts in writing and a phone number that answers.",
+      "VOICE AND LOOK": "Male, late 60s, Geordie. Patient, dry humour. Fleece, camera round neck, allotment.",
+      "TYPICAL LINES": "“Read the letter twice. Still none the wiser.” “Rang them. Nice lad sorted it in ten minutes.”",
+      "BEST FIT": "Banks, insurers, pensions, utilities, scams.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "One full-resolution portrait plus 18 low- resolution previews. 36 scenes planned.",
+      "RULES": "G G 2 7 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg27_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg27_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg27_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Sceptic",
+      "Bystander"
+    ],
+    "code": "GG27",
+    "group": "Members of the public"
+  },
+  {
+    "page": 28,
+    "name": "Rebecca Foster",
+    "handle": "@rebeccareports_GG28",
+    "fields": {
+      "DEFAULT STANCE": "Chases local angles and documents. Quick to report silence as “declined to comment”.",
+      "TURNS POSITIVE WHEN": "An on-record answer and documents she can check.",
+      "VOICE AND LOOK": "Female, late 30s, Sheffield. Direct, probing. Notebook, scarf, outside the town hall.",
+      "TYPICAL LINES": "“The company declined to comment.” “Statement received. Story updated.”",
+      "BEST FIT": "Any local-impact scenario. Bridges social to press.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "Low-resolution previews only. Needs a full-resolution portrait before filming.",
+      "RULES": "G G 2 8 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg28_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg28_reference_2.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Amplifier",
+      "Corrector"
+    ],
+    "code": "GG28",
+    "group": "Members of the public"
+  },
+  {
+    "page": 29,
+    "name": "Ryan Davies",
+    "handle": "@ryan_sparks34_GG29",
+    "fields": {
+      "DEFAULT STANCE": "Tradesman, practical. Angry when bills, insurance or banks cost him a day's work.",
+      "TURNS POSITIVE WHEN": "Someone owns the problem and fixes it fast.",
+      "VOICE AND LOOK": "Male, mid 30s, Brummie. Down-to- earth, jokey. Work van, hi-vis, pub with mates.",
+      "TYPICAL LINES": "“Lost a day's work over this.” “Sorted. Fair play to them.”",
+      "BEST FIT": "Insurers, banks, energy, trade suppliers.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "One full-resolution portrait plus 18 low- resolution previews. 36 scenes planned.",
+      "RULES": "G G 2 9 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg29_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg29_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg29_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Can Flip",
+      "Bystander",
+      "Victim"
+    ],
+    "code": "GG29",
+    "group": "Members of the public"
+  },
+  {
+    "page": 30,
+    "name": "Sarah Mitchell",
+    "handle": "@sarahmitchell_nurse_GG30",
+    "fields": {
+      "DEFAULT STANCE": "Highly trusted on health. Cautious, but furious if patients are put at risk.",
+      "TURNS POSITIVE WHEN": "Clear official guidance she can point patients to.",
+      "VOICE AND LOOK": "Female, mid 40s, Leeds. Calm, kind, firm. Scrubs and lanyard, running gear.",
+      "TYPICAL LINES": "“Please don't stop your medication because of a TikTok.” “Official guidance is out. Here it is.”",
+      "BEST FIT": "Pharma, health, food safety, public services.",
+      "USED IN": "Not used yet",
+      "PHOTO STATUS": "One full-resolution portrait plus 18 low- resolution previews. 36 scenes planned.",
+      "RULES": "G G 3 0 · F I C T I O N A L · G R E Y G U A R D S E X E R C I S E Fictional, always labelled as the exercise. Handle checked free on TikTok and Instagram, 25 Nov 2026. Recheck before use. Same face in every still and film. G R E Y G U A R D S · C H A R A C T E R L I B R A R Y · I N T E R N A L · B R I E F : P R O P O S E D — C O N F I R M N O T F O R C L I E N T D I S T R I B U T I O N"
+    },
+    "stills": [
+      {
+        "label": "Reference scene",
+        "asset": "gg30_reference_1.jpg.asset.json"
+      },
+      {
+        "label": "Additional reference",
+        "asset": "gg30_reference_2.jpg.asset.json"
+      },
+      {
+        "label": "Profile portrait",
+        "asset": "gg30_reference_3.jpg.asset.json"
+      }
+    ],
+    "roles": [
+      "Trusted Voice",
+      "Can Flip",
+      "Corrector"
+    ],
+    "code": "GG30",
+    "group": "Members of the public"
+  }
+]

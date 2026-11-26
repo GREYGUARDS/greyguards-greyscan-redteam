@@ -17,6 +17,7 @@ import { HostedArtefactView, type HostedArtefact } from './HostedInjectMedia';
 import { toast } from 'sonner';
 import HostedPhotoStudio from './HostedPhotoStudio';
 import { stampBoardVideo } from '@/lib/boardVideoWatermark';
+import { characterSpeaker, characterPostBrief, type CharacterDraft } from '@/lib/characterDraft';
 
 type RedRequest = { id: string; format: string; brief: string; claim: string; reach: number; status: string; phase: string | null };
 type Kind = 'influencer' | 'news' | 'board' | 'photo' | HostedArtefact['kind'];
@@ -43,9 +44,9 @@ async function invoke(endpoint: string, body: Record<string, unknown>) {
   return data;
 }
 
-export default function HostedInjectStudio({ sessionId, isActive, onSent, brand = 'the company', currentBeat = null, scenario, onPrepared }: { onPrepared?: () => void; sessionId: string | null; isActive: boolean; onSent: (id: string, content: string, type: string) => void; brand?: string; currentBeat?: StorylineBeat | null; scenario?: string | null }) {
+export default function HostedInjectStudio({ sessionId, isActive, onSent, brand = 'the company', currentBeat = null, scenario, onPrepared, characterDraft }: { characterDraft?: CharacterDraft | null; onPrepared?: () => void; sessionId: string | null; isActive: boolean; onSent: (id: string, content: string, type: string) => void; brand?: string; currentBeat?: StorylineBeat | null; scenario?: string | null }) {
   const [platform, setPlatform] = useState<OverlayPlatform>('tiktok');
-  const [overlay, setOverlay] = useState<VideoOverlay>({ platform: 'tiktok', handle: '', caption: '', channel: 'NEWS 24', headline: '', ticker: '', ...suggestStats('medium') });
+  const [overlay, setOverlay] = useState<VideoOverlay>({ platform: 'tiktok', handle: characterDraft?.handle ?? '', caption: '', channel: 'NEWS 24', headline: '', ticker: '', ...suggestStats('medium') });
   const [stats, setStats] = useState<EngagementStats>(suggestStats('medium'));
   const setO = (patch: Partial<VideoOverlay>) => setOverlay(o => ({ ...o, ...patch }));
   const suggest = () => {
@@ -55,9 +56,9 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
     if (kind === 'influencer' || kind === 'news') { setBrief(s.script); setSpeaker(s.speaker); } else setBrief(s.brief);
     setO({ platform: p, handle: s.handle, caption: s.caption, headline: s.headline, ticker: s.ticker, channel: overlay.channel || s.channel });
   };
-  const [kind, setKind] = useState<Kind>('influencer');
-  const [brief, setBrief] = useState('');
-  const [speaker, setSpeaker] = useState('A fictional adult commentator, casually dressed, speaking calmly to camera.');
+  const [kind, setKind] = useState<Kind>(characterDraft?.kind ?? 'influencer');
+  const [brief, setBrief] = useState(characterDraft?.kind === 'facebook' ? characterPostBrief(characterDraft) : '');
+  const [speaker, setSpeaker] = useState(characterDraft ? characterSpeaker(characterDraft) : 'A fictional adult commentator, casually dressed, speaking calmly to camera.');
   const [fictional, setFictional] = useState(false);
   const [cost, setCost] = useState(false);
   const [videoJob, setVideoJob] = useState<Job | null>(null);
@@ -225,6 +226,7 @@ export default function HostedInjectStudio({ sessionId, isActive, onSent, brand 
   };
   return <section className="space-y-5 border border-border bg-card p-4">
     <h3 className="text-sm font-semibold uppercase">Inject Studio</h3>
+    {characterDraft && <div className="flex items-start gap-3 border-b border-border pb-3">{characterDraft.referenceUrl && <img src={characterDraft.referenceUrl} alt={`${characterDraft.name} reference`} className="h-24 w-20 rounded object-cover" />}<div className="min-w-0"><p className="font-medium">{characterDraft.name}</p><p className="text-xs text-muted-foreground">Fictional exercise character</p>{characterDraft.referenceUrl && <Button size="sm" variant="outline" className="mt-2" onClick={() => void navigator.clipboard.writeText(new URL(characterDraft.referenceUrl ?? '', location.origin).href)}>Copy reference link</Button>}<p className="mt-2 text-xs text-muted-foreground">Reference for review · generated likeness may vary</p></div></div>}
     {redRequests.length > 0 && <div className="space-y-2 border border-destructive/60 p-3">
       <p className="text-xs font-semibold uppercase tracking-wider text-destructive">Red requests · {redRequests.length}</p>
       {redRequests.map(r => <button key={r.id} type="button" onClick={() => void takeRed(r)} className={`w-full border p-2 text-left text-xs ${activeRed?.id === r.id ? 'border-destructive bg-destructive/10' : 'border-border hover:border-foreground/40'}`}>

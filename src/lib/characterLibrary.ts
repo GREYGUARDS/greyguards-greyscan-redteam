@@ -1,3 +1,4 @@
+import profiles from './characterProfiles.json';
 /** Reusable fictional cast for exercises. Names are generic so characters can appear in any scenario. */
 const stills = import.meta.glob('@/assets/characters/*.asset.json', { eager: true, import: 'default' }) as Record<string, { url: string }>;
 const pick = (film: string, labels: string[]) =>
@@ -5,10 +6,10 @@ const pick = (film: string, labels: string[]) =>
 const SKIP: Record<string, number[]> = { cbbn_pigeebank_female_uk: [2], news_tonight_pharmacore_uk: [3], news_tonight_trustinsure_uk: [3], trustinsure_truth_desk_opening: [2] };
 
 export type CastKind = 'Content creator' | 'Member of the public' | 'Newsreader';
-export interface CastMember { id: string; name: string; kind: CastKind; description: string; voice: string; usedIn: string[]; stills: { label: string; url: string }[] }
+export interface CastMember { id: string; name: string; kind: CastKind; description: string; voice: string; usedIn: string[]; stills: { label: string; url: string }[]; code?: string; group?: string; handle?: string; roles?: string[]; positiveWhen?: string; bestFit?: string; typicalLines?: string }
 export interface RadioHost { id: string; name: string; show: string; voice: string; usedIn: string; callers: { name: string; location: string; stance: string }[] }
 
-export const CAST: CastMember[] = [
+const EXISTING_CAST: CastMember[] = [
   { id: 'truth-seeker', name: 'The Truth Seeker', kind: 'Content creator', voice: 'Male, 30s, Northern English, angry', description: 'Conspiracy commentator. Baseball cap, glasses, grey T-shirt. Rants at camera and "exposes" documents.', usedIn: ['Pharmacore 1', 'TrustInsure 1', 'PigeeBank 1'], stills: [
     ...pick('pharmacore_greenscreen_opening', ['Green-screen · pointing at document', 'Green-screen · close-up rant', 'Green-screen · to camera']),
     ...pick('trustinsure_truth_desk_opening', ['"THE TRUTH" desk · gesturing', '"THE TRUTH" desk · to camera']),
@@ -22,6 +23,21 @@ export const CAST: CastMember[] = [
   { id: 'anchor-female', name: 'Evening News Anchor', kind: 'Newsreader', voice: 'Female, 40s, British', description: 'Burgundy jacket, blue studio. Evening bulletins.', usedIn: ['TrustInsure 8'], stills: pick('news_tonight_trustinsure_uk', ['Studio · wide', 'Studio · close']) },
   { id: 'business-anchor', name: 'Business News Anchor', kind: 'Newsreader', voice: 'Female, 40s, British', description: 'Navy suit, business channel studio. Finance stories.', usedIn: ['PigeeBank 8'], stills: pick('cbbn_pigeebank_female_uk', ['Studio · to camera', 'Studio · close']) },
 ];
+
+const references = import.meta.glob('@/assets/character-library/*.asset.json', { eager: true, import: 'default' }) as Record<string, { url: string }>;
+const coreIds = ['truth-seeker', 'worried-mum', 'firefighter', 'young-renter'];
+export const CAST: CastMember[] = [...profiles.map(profile => {
+  const id = coreIds[profile.page - 1] ?? profile.code.toLowerCase();
+  const existing = EXISTING_CAST.find(c => c.id === id);
+  return {
+    id, code: profile.code, name: profile.name, handle: profile.handle, group: profile.group,
+    kind: (profile.page === 1 || (profile.page >= 5 && profile.page <= 20) ? 'Content creator' : 'Member of the public') as CastKind,
+    voice: profile.fields['VOICE AND LOOK'], description: profile.fields['DEFAULT STANCE'], roles: profile.roles,
+    positiveWhen: profile.fields['TURNS POSITIVE WHEN'], bestFit: profile.fields['BEST FIT'], typicalLines: profile.fields['TYPICAL LINES'],
+    usedIn: existing?.usedIn ?? [],
+    stills: [...profile.stills.map(s => ({ label: s.label, url: Object.entries(references).find(([key]) => key.endsWith(`/${s.asset}`))?.[1].url ?? '' })).filter(s => s.url), ...(existing?.stills ?? [])],
+  };
+}), ...EXISTING_CAST.filter(c => c.kind === 'Newsreader')];
 
 export const RADIO_HOSTS: RadioHost[] = [
   { id: 'geoff', name: 'Geoff Pennington', show: 'The Midday Debate', voice: 'Male, British', usedIn: 'Pharmacore 7', callers: [

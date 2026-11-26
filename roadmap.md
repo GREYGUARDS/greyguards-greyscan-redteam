@@ -55,3 +55,5 @@
 - [ ] Pharmacore relieved-mum retake for inject 9 (awaiting go-ahead)
 - [x] Characters section in sandbox
 - [x] Create new character option
+
+- [x] Import the supplied 30-character library into the sandbox with profiles, reference photos, search and content-draft selection; 54 PDF images plus existing core film stills, 3 retained newsreaders. Phone/desktop presentation and selection checked; current account is participant-only, so authorised host session generation not exercised. Reference photos are review aids, not generator conditioning.
